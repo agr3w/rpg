@@ -19,7 +19,7 @@ export function deleteNote(note) {
   const storage = getStorage(app);
   const noteRef = ref(
     storage,
-    `gs://test-b6bc2.appspot.com/arquivos/anotacoes/${note.title}.pdf`
+    `gs://test-b6bc2.appspot.com/arquivos/anotacoes/${note.title}.txt`
   );
 
   // Referência para o documento no Firebase Firestore

@@ -1,19 +1,39 @@
 import React from 'react';
-import { FaTrash } from 'react-icons/fa';
-import styles from './NoteCard.module.css'; // Certifique-se de ter o arquivo de estilos correspondente
-import { deleteNote, deleteArrayNote } from '../NoteDelete'; // Certifique-se de importar as funções corretas para deletar a anotação
+import { FaTrash, FaFilePdf, FaFileWord, FaFile } from 'react-icons/fa';
+import styles from './NoteCard.module.css';
+import { deleteNote, deleteArrayNote } from '../NoteDelete';
+import { Link } from 'react-router-dom';
 
 const NoteCard = ({ note }) => {
 
   const handleDeleteNote = () => {
     deleteArrayNote(note.id);
-    deleteNote(note); // Chama a função para deletar a anotação
-    window.location.reload(); // Recarrega a página
+    deleteNote(note);
+    window.location.reload();
   };
+
+  // Determinar qual ícone usar com base na extensão do arquivo
+  const fileExtension = note.title.split('.').pop(); // Obtém a extensão do título
+  let fileIcon;
+
+  switch (fileExtension) {
+    case 'pdf':
+      fileIcon = <FaFilePdf size={24} />;
+      break;
+    case 'doc':
+    case 'docx':
+      fileIcon = <FaFileWord size={24} />;
+      break;
+    default:
+      fileIcon = <FaFile size={24} />;
+  }
 
   return (
     <div className={styles.noteCard}>
-      <p>Título: {note.title}</p>
+      <p>{fileIcon} {note.title}</p>
+      <Link to={note.url}>
+        Ver arquivo
+      </Link>
       <button onClick={handleDeleteNote}>
         <FaTrash size={16} /> Deletar Anotação
       </button>
