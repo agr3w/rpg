@@ -1,39 +1,41 @@
 import { deleteObject, getStorage, ref } from "firebase/storage";
 import { app } from "../../../APIs/firebaseConfig"; // Importar a instância do aplicativo Firebase
 import "firebase/database"; // Importe os serviços do Firebase que você está usando, como 'database', 'storage', etc.
+import { deleteDoc, doc, getFirestore } from "firebase/firestore";
 
-const musicasRef = app.database().ref("musicas");
 
-export default function deletarArray() {
-  try {
-    // Deletar a array do banco de dados usando o método remove()
-    musicasRef.remove();
-    // Mostrar uma mensagem de sucesso
-    alert("Array deletada com sucesso!");
-  } catch (error) {
-    // Tratar o erro
-    console.error(error);
-    // Mostrar uma mensagem de erro
-    alert("Ocorreu um erro ao deletar a array!");
-  }
-  // Criar uma função que delete uma música do banco de dados e do Storage
-}
+export const deletarArray = async (musicaId) => {
+  const musicasRef = app.database().ref("musicas"); // Usar a instância do aplicativo Firebase
+  
+  // Encontre a referência da música com base no ID
+  const musicaParaExcluirRef = musicasRef.child(musicaId);
 
-export async function deletarMusica(musica) {
-  // Criar uma referência para a array de músicas
+  // Remova a música do Firebase Realtime Database
+  await musicaParaExcluirRef.remove();
+};
+
+
+export function deletarMusica(musica) {
   const storage = getStorage(app);
-  // Criar uma referência para o arquivo de áudio
-  const audioRef = ref(storage, "arquivos/musicas/agora deu o carai memmo.mp3");
-  // Deletar a array do banco de dados usando o método remove()
+  const audioRef = ref(storage, `gs://test-b6bc2.appspot.com/arquivos/musicas/${musica.titulo}.mp3`);
+
+  const db = getFirestore(app);
+  const docRef = doc(db, "colecao", "documento");
+
+  // Deletar o arquivo de áudio do Firebase Storage
   deleteObject(audioRef)
     .then(() => {
+      // Deletar o documento do Firebase Firestore
+      return deleteDoc(docRef);
+    })
+    .then(() => {
       // Mostrar uma mensagem de sucesso
-      alert("Música deletada com sucesso!");
+      alert("Item deletado com sucesso!");
     })
     .catch((error) => {
       // Tratar o erro
       console.error(error);
       // Mostrar uma mensagem de erro
-      alert("Ocorreu um erro ao deletar a música!");
+      alert("Ocorreu um erro ao deletar o item!");
     });
 }

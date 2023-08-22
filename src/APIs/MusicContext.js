@@ -21,10 +21,21 @@ export const MusicProvider = ({ children }) => {
     });
   }, []);
 
-  const adicionarMusica = (novaMusica) => {
+  const adicionarMusica = async (novaMusica) => {
     const musicasRef = app.database().ref("musicas"); // Usar a instância do aplicativo Firebase
-    musicasRef.push(novaMusica);
+    
+    // Crie um ID único para a música usando o método push()
+    const novaMusicaRef = musicasRef.push();
+    const novaMusicaId = novaMusicaRef.key; // Obtém o ID gerado
+
+    // Adicione as informações da música ao Firebase Realtime Database
+    await novaMusicaRef.set({
+      ...novaMusica,
+      id: novaMusicaId, // Use o mesmo ID no nó interno da música
+    });
   };
+
+
 
   // Ler os dados da coleção de músicas usando o método once()
   const lerMusicas = () => {
@@ -67,12 +78,6 @@ export const MusicProvider = ({ children }) => {
       // ...outras informações
     });
   };
-
-  // Deletar um documento da coleção de músicas
-  //   const deletarMusica = (id) => {
-  //     const musicasRef = app.database().ref("musicas"); // Usar a instância do aplicativo Firebase
-  //     musicasRef.child(id).remove();
-  //   };
 
   return (
     <MusicContext.Provider

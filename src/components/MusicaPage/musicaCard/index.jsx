@@ -1,12 +1,12 @@
 import React from 'react';
 import { FaTrash } from 'react-icons/fa';
 import styles from './MusicaCard.module.css';
-import deletarArray, { deletarMusica } from '../deletarBotao';
+import { deletarMusica, deletarArray }  from '../deletarBotao';
 
 const MusicaCard = ({ musica }) => {
 
     const handleDeletarArray = () => {
-        deletarArray(musica); // Chama a função para deletar a array
+        deletarArray(musica.id); // Chama a função para deletar a array
         deletarMusica(musica)
         window.location.reload(); // Recarrega a página
       };
