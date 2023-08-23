@@ -1,0 +1,12 @@
+/* NotePage.module.css */
+
+.notePage {
+    padding: 20px;
+  }
+  
+  .noteList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  

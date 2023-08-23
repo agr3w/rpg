@@ -1,0 +1,44 @@
+/* NoteCard.module.css */
+
+.noteCard {
+    border: 1px solid #ddd;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .noteCard p {
+    margin-bottom: 8px;
+  }
+  
+  .noteIcon {
+    color: #007bff;
+    margin-right: 10px;
+  }
+  
+  .noteLink {
+    color: #007bff;
+    text-decoration: none;
+    margin-top: 8px;
+  }
+  
+  .deleteButton {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .deleteButton:hover {
+    background-color: #c82333;
+  }
+  
