@@ -11,17 +11,11 @@ export const FolderAdd = () => {
 
   const handleAddFolder = async () => {
     if (folderName) {
-      const newFolder = {
-        name: folderName,
-        notes: [],
-      };
       if (folderName.trim() !== "") {
         addFolder({ name: folderName, notes: [] });
         setFolderName("");
       }
-
-      addFolder(newFolder);
-
+      
       setFolderName("");
     }
   };

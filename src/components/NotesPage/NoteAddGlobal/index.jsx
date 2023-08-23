@@ -1,13 +1,13 @@
+// NoteAddGlobal.jsx
+
 import React, { useState } from "react";
 import { FaPlus } from "react-icons/fa";
-import styles from "./NoteAdd.module.css";
+import styles from "../NoteAdd/NoteAdd.module.css";
 import { app } from "APIs/firebaseConfig";
 import { useNoteContext } from "APIs/NoteContext";
-import { useFolderContext } from "APIs/FolderContext"; // Importe o contexto de folders
 
-const NoteAdd = ({ folderId }) => {
-  const { addNote } = useNoteContext(); // Use o contexto de notas
-  const { addNoteToFolder } = useFolderContext(); // Use a função de adicionar notas ao folder
+const NoteAddGlobal = () => {
+  const { addNote } = useNoteContext();
   const [noteFile, setNoteFile] = useState(null);
 
   const handleFileChange = (e) => {
@@ -31,10 +31,7 @@ const NoteAdd = ({ folderId }) => {
       };
 
       // Adicione a nova nota ao contexto de notas
-      // addNote(newNote);
-
-      // Adicione a nova nota ao folder correspondente
-      addNoteToFolder(folderId, newNote);
+      addNote(newNote);
 
       setNoteFile(null);
     }
@@ -50,4 +47,4 @@ const NoteAdd = ({ folderId }) => {
   );
 };
 
-export default NoteAdd;
+export default NoteAddGlobal;

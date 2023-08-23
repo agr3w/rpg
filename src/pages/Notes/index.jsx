@@ -2,11 +2,11 @@
 import React from "react";
 import styles from "./NotePage.module.css"; // Certifique-se de ter os estilos corretos
 import { useNoteContext } from "APIs/NoteContext"; // Importe o contexto das anotações
-import BotaoAdicionarNote from "components/NotesPage/NoteAdd";
 import NoteCard from "components/NotesPage/NoteCard";
 import { FolderAdd } from "components/NotesPage/folderAdd";
 import { useFolderContext } from "APIs/FolderContext";
 import FoldersCard from "components/NotesPage/folderCard";
+import NoteAddGlobal from "components/NotesPage/NoteAddGlobal";
 
 const NotePage = () => {
   const { notes, addNote } = useNoteContext(); // Use o contexto das anotações
@@ -14,7 +14,7 @@ const NotePage = () => {
 
   return (
     <div className={styles.notePage}>
-      <BotaoAdicionarNote onNoteAdded={addNote} />
+      <NoteAddGlobal onNoteAdded={addNote} />
       <FolderAdd />
       <div>
         {folders.map((folders) => (

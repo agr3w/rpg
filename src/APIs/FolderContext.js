@@ -76,6 +76,7 @@ export const FolderProvider = ({ children }) => {
     }
   };
 
+
   // Retorne o contexto de pastas
   return (
     <FolderContext.Provider
