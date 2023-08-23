@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaTrash, FaFilePdf, FaFileWord, FaFile } from 'react-icons/fa';
+import { FaTrash} from 'react-icons/fa';
 import styles from './NoteCard.module.css';
 import { deleteNote, deleteArrayNote } from '../NoteDelete';
 import { Link } from 'react-router-dom';
@@ -27,7 +27,7 @@ const NoteCard = ({ note }) => {
   //   default:
   //     fileIcon = <FaFile size={24} />;
   // }
-
+  
   return (
     <div className={styles.noteCard}>
       <p>{note.title}</p>

@@ -33,17 +33,19 @@ export const FolderProvider = ({ children }) => {
     });
   };
 
-  const addNoteToFolder = (folderId, newNote) => {
-    const updatedFolders = folders.map((folder) => {
-      if (folder.id === folderId) {
-        return {
-          ...folder,
-          notes: folder.notes ? [...folder.notes, newNote] : [newNote], // Certifique-se de criar um array se notes não existir ainda
-        };
-      }
-      return folder;
-    });
-    setFolders(updatedFolders);
+  const addNoteToFolder = async (folderId, note) => {
+    const foldersRef = app.database().ref("folders");
+  
+    try {
+      const folderRef = foldersRef.child(folderId);
+      // Defina o ID da nota com o mesmo valor que o nome do item
+      const newNoteRef = folderRef.child("notes").push();
+      note.id = newNoteRef.key;
+      await newNoteRef.set(note); // Adicione a nova nota ao banco de dados em tempo real
+      console.log("Note added to folder successfully");
+    } catch (error) {
+      console.error("Error adding note to folder:", error);
+    }
   };
 
   const deleteNoteFromFolder = async (folderId, noteId) => {
