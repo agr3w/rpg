@@ -18,6 +18,8 @@ export const NoteProvider = ({ children }) => {
     });
   }, []);
 
+  //note
+
   const addNote = async (newNote) => {
     const notesRef = app.database().ref("notes");
     const newNoteRef = notesRef.push();
@@ -27,6 +29,9 @@ export const NoteProvider = ({ children }) => {
       id: newNoteId,
     });
   };
+
+
+  //delete note
 
   const deleteNote = async (noteId) => {
     const noteRef = app.database().ref(`notes/${noteId}`);

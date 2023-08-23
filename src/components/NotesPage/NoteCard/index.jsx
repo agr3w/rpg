@@ -13,24 +13,24 @@ const NoteCard = ({ note }) => {
   };
 
   // Determinar qual ícone usar com base na extensão do arquivo
-  const fileExtension = note.title.split('.').pop(); // Obtém a extensão do título
-  let fileIcon;
+  // const fileExtension = note.title.split('.').pop(); // Obtém a extensão do título
+  // let fileIcon;
 
-  switch (fileExtension) {
-    case 'pdf':
-      fileIcon = <FaFilePdf size={24} />;
-      break;
-    case 'doc':
-    case 'docx':
-      fileIcon = <FaFileWord size={24} />;
-      break;
-    default:
-      fileIcon = <FaFile size={24} />;
-  }
+  // switch (fileExtension) {
+  //   case 'pdf':
+  //     fileIcon = <FaFilePdf size={24} />;
+  //     break;
+  //   case 'doc':
+  //   case 'docx':
+  //     fileIcon = <FaFileWord size={24} />;
+  //     break;
+  //   default:
+  //     fileIcon = <FaFile size={24} />;
+  // }
 
   return (
     <div className={styles.noteCard}>
-      <p>{fileIcon} {note.title}</p>
+      <p>{note.title}</p>
       <Link to={note.url}>
         Ver arquivo
       </Link>
@@ -40,5 +40,7 @@ const NoteCard = ({ note }) => {
     </div>
   );
 };
+
+
 
 export default NoteCard;

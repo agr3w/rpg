@@ -29,6 +29,9 @@ const NoteAdd = () => {
         id: app.database().ref().child("notes").push().key, // Gere um ID único
         title: noteFile.name.replace(/\.[^/.]+$/, ""), // Nome do arquivo sem extensão
         url: noteFileUrl,
+        notes: [{
+          // id2: app.database().ref().child("notes").push().key
+      }],
       };
 
       // Adicione as informações da anotação ao contexto de anotações
@@ -45,6 +48,7 @@ const NoteAdd = () => {
       <button onClick={handleAddNote}>
         <FaPlus /> Adicionar Anotação
       </button>
+
     </div>
   );
 };
