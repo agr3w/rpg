@@ -1,8 +1,8 @@
 import React from "react";
 import styles from "./LivrosPage.module.css";
 import { useBookContext } from "APIs/BookContext";
-import BotaoAdicionarLivro from "components/LivroPage/AdicionarLivro";
-import LivroCard from "components/LivroPage/BookCard";
+import BotaoAdicionarLivro from "components/LivroPage/livroAdd/AdicionarLivro";
+import LivroCard from "components/LivroPage/livrosCard/BookCard";
 
 
 const LivrosPage = () => {

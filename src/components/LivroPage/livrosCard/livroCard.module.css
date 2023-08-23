@@ -1,0 +1,61 @@
+/* livroCard.module.css */
+
+.livroCard {
+    border: 1px solid #ddd;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 300px; /* Largura do card */
+  }
+
+  .livroCardContainer {
+    display: flex;
+    flex-wrap: wrap; /* Permite que os cards se movam para a próxima linha quando não couberem na largura */
+    gap: 20px; /* Espaço entre os cards */
+  }
+
+.livroCard p {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.livroCard button {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.livroCard button:hover {
+  background-color: #c82333;
+}
+
+.livroCard button svg {
+  margin-right: 8px;
+}
+
+.livroCard input[type="text"],
+.livroCard input[type="file"] {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.livroCard img {
+  max-width: 100%;
+  margin-top: 16px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+

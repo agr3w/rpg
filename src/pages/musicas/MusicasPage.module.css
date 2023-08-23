@@ -1,0 +1,12 @@
+/* MusicasPage.module.css */
+
+.musicasPage {
+    padding: 20px;
+  }
+  
+  .musicasList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
