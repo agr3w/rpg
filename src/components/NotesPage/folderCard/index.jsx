@@ -1,8 +1,8 @@
 import React from "react";
 import { FaTrash } from "react-icons/fa";
 import styles from "./FoldersCard.module.css";
-import { FolderAdd } from "../folderAdd";
 import { deleteArrayFolder } from "../folderDelete";
+import { Link } from "react-router-dom";
 // import { deleteFolder, deleteArrayFolder } from '../FolderDelete';
 
 const FoldersCard = ({ folder }) => {
@@ -14,7 +14,9 @@ const FoldersCard = ({ folder }) => {
   return (
     <div className={styles.foldersCard}>
       <p>Nome da Pasta: {folder.name}</p>
-      {/* Aqui você pode adicionar mais informações sobre a pasta, se necessário */}
+      <Link to={`/folders/${folder.id}`}>
+        {folder.name}
+      </Link>
       <button onClick={handleDeleteFolder}>
         <FaTrash size={16} /> Deletar Pasta
       </button>

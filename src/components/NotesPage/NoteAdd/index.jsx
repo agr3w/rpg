@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { FaPlus } from "react-icons/fa";
-import styles from "./NoteAdd.module.css"; // Certifique-se de ter o arquivo de estilos correspondente
-import { app } from "APIs/firebaseConfig"; // Importe a configuração do Firebase
+import styles from "./NoteAdd.module.css";
+import { app } from "APIs/firebaseConfig";
 import { useNoteContext } from "APIs/NoteContext";
+import { useFolderContext } from "APIs/FolderContext"; // Importe o contexto de folders
 
-const NoteAdd = () => {
-  const { addNote } = useNoteContext();
+const NoteAdd = ({ folderId }) => {
+  const { addNote } = useNoteContext(); // Use o contexto de notas
+  const { addNoteToFolder } = useFolderContext(); // Use a função de adicionar notas ao folder
   const [noteFile, setNoteFile] = useState(null);
 
   const handleFileChange = (e) => {
@@ -14,30 +16,26 @@ const NoteAdd = () => {
 
   const handleAddNote = async () => {
     if (noteFile) {
-      // Primeiro, faça o upload do arquivo de nota para o Firebase Storage
       const storage = app.storage();
       const storageRef = storage.ref();
-      const noteFileRef = storageRef.child(`arquivos/anotacoes/${noteFile.name}`); // Defina o caminho desejado no Storage
+      const noteFileRef = storageRef.child(`arquivos/anotacoes/${noteFile.name}`);
 
       await noteFileRef.put(noteFile);
-
-      // Obtenha a URL do arquivo de nota recém-carregado
       const noteFileUrl = await noteFileRef.getDownloadURL();
 
-      // Crie um ID único para a anotação usando o método push()
+      // Crie um novo objeto de nota
       const newNote = {
-        id: app.database().ref().child("notes").push().key, // Gere um ID único
-        title: noteFile.name.replace(/\.[^/.]+$/, ""), // Nome do arquivo sem extensão
+        id: app.database().ref().child("notes").push().key,
+        title: noteFile.name.replace(/\.[^/.]+$/, ""),
         url: noteFileUrl,
-        notes: [{
-          // id2: app.database().ref().child("notes").push().key
-      }],
       };
 
-      // Adicione as informações da anotação ao contexto de anotações
+      // Adicione a nova nota ao contexto de notas
       addNote(newNote);
 
-      // Limpe o campo de arquivo
+      // Adicione a nova nota ao folder correspondente
+      addNoteToFolder(folderId, newNote);
+
       setNoteFile(null);
     }
   };
@@ -48,7 +46,6 @@ const NoteAdd = () => {
       <button onClick={handleAddNote}>
         <FaPlus /> Adicionar Anotação
       </button>
-
     </div>
   );
 };

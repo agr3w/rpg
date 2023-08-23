@@ -4,6 +4,7 @@ import Inicio from "pages/Inicio";
 import MusicasPage from "pages/musicas";
 import LivrosPage from "pages/livros";
 import NotePage from "pages/Notes";
+import FolderPage from "pages/foldersPage";
 
 function Rout() {
   return (
@@ -14,7 +15,7 @@ function Rout() {
           <Route path="/musicas" element={<MusicasPage />} />
           <Route path="/livros" element={<LivrosPage />} />
           <Route path="/anotacoes" element={<NotePage />} />
-          {/* Rota para a página de visualização */}
+          <Route path="/folders/:folderId" element={<FolderPage/>} />
         </Routes>
       </Router>
     </>

@@ -15,6 +15,10 @@ export const FolderAdd = () => {
         name: folderName,
         notes: [],
       };
+      if (folderName.trim() !== "") {
+        addFolder({ name: folderName, notes: [] });
+        setFolderName("");
+      }
 
       addFolder(newFolder);
 
