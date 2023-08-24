@@ -1,15 +1,18 @@
-import React from 'react';
-import { FaTrash} from 'react-icons/fa';
-import styles from './NoteCard.module.css';
-import { deleteNote, deleteArrayNote, deleteArrayNoteFromFolder } from '../NoteDelete';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { FaTrash } from "react-icons/fa";
+import styles from "./NoteCard.module.css";
+import {
+  deleteNote,
+  deleteArrayNote,
+  deleteArrayNoteFromFolder,
+} from "../NoteDelete";
+import { Link } from "react-router-dom";
 
 const NoteCard = ({ note, folderId }) => {
-
   const handleDeleteNote = () => {
     deleteArrayNote(note.id);
     deleteNote(note);
-    deleteArrayNoteFromFolder(folderId ,note.id)
+    deleteArrayNoteFromFolder(folderId, note.id);
     window.location.reload();
   };
 
@@ -28,12 +31,16 @@ const NoteCard = ({ note, folderId }) => {
   //   default:
   //     fileIcon = <FaFile size={24} />;
   // }
-  
+
   return (
     <div className={styles.noteCard}>
       <p>{note.title}</p>
       <Link to={note.url}>
-        Ver arquivo
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/PDF_file_icon.svg/833px-PDF_file_icon.svg.png"
+          alt=""
+          width={100}
+        />
       </Link>
       <button onClick={handleDeleteNote}>
         <FaTrash size={16} /> Deletar Anotação
@@ -41,7 +48,5 @@ const NoteCard = ({ note, folderId }) => {
     </div>
   );
 };
-
-
 
 export default NoteCard;

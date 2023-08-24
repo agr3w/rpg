@@ -1,8 +1,8 @@
 import React from "react";
 import styles from "./MusicasPage.module.css";
-import BotaoAdicionarMusica from "../../components/MusicaPage/botaoAddMusica";
-import MusicaCard from "../../components/MusicaPage/musicaCard";
-import { useMusicContext } from "../../APIs/MusicContext";
+import BotaoAdicionarMusica from "components/MusicaPage/botaoAddMusica";
+import MusicaCard from "components/MusicaPage/musicaCard";
+import { useMusicContext } from "APIs/MusicContext";
 
 const MusicasPage = () => {
   const { musicas, adicionarMusica } = useMusicContext();
