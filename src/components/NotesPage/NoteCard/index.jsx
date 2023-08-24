@@ -1,14 +1,15 @@
 import React from 'react';
 import { FaTrash} from 'react-icons/fa';
 import styles from './NoteCard.module.css';
-import { deleteNote, deleteArrayNote } from '../NoteDelete';
+import { deleteNote, deleteArrayNote, deleteArrayNoteFromFolder } from '../NoteDelete';
 import { Link } from 'react-router-dom';
 
-const NoteCard = ({ note }) => {
+const NoteCard = ({ note, folderId }) => {
 
   const handleDeleteNote = () => {
     deleteArrayNote(note.id);
     deleteNote(note);
+    deleteArrayNoteFromFolder(folderId ,note.id)
     window.location.reload();
   };
 

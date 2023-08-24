@@ -14,6 +14,18 @@ export const deleteArrayNote = async (noteId) => {
     }
 }
 
+
+export const deleteArrayNoteFromFolder = async (folderId, noteId) => {
+  const folderRef = app.database().ref(`folders/${folderId}/notes`);
+
+  try {
+    await folderRef.child(noteId).remove();
+    console.log('Note removed from folder successfully');
+  } catch (error) {
+    console.error('Error removing note from folder:', error);
+  }
+};
+
 export function deleteNote(note) {
   // Referência para o arquivo de anotação no Firebase Storage
   const storage = getStorage(app);

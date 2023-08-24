@@ -33,7 +33,7 @@ export const FolderProvider = ({ children }) => {
     });
   };
 
-  const addNoteToFolder = async (folderId, note) => {
+  const addNoteToFolder = (folderId, note) => {
     const foldersRef = app.database().ref("folders");
   
     try {
@@ -41,42 +41,36 @@ export const FolderProvider = ({ children }) => {
       // Defina o ID da nota com o mesmo valor que o nome do item
       const newNoteRef = folderRef.child("notes").push();
       note.id = newNoteRef.key;
-      await newNoteRef.set(note); // Adicione a nova nota ao banco de dados em tempo real
+       newNoteRef.set(note); // Adicione a nova nota ao banco de dados em tempo real
       console.log("Note added to folder successfully");
     } catch (error) {
       console.error("Error adding note to folder:", error);
     }
   };
 
-  const deleteNoteFromFolder = async (folderId, noteId) => {
-    const folderIndex = folders.findIndex((folder) => folder.id === folderId);
+const deleteNoteFromFolder = async (folderId, noteId) => {
+  const folderRef = app.database().ref(`folders/${folderId}`);
 
-    if (folderIndex !== -1) {
-      const updatedFolders = [...folders];
-      const notes = updatedFolders[folderIndex].notes;
-      const noteIndex = notes.findIndex((note) => note.id === noteId);
+  try {
+    const folderSnapshot = await folderRef.once("value");
+    const folderData = folderSnapshot.val();
 
-      if (noteIndex !== -1) {
-        notes.splice(noteIndex, 1); // Remove a nota do array de notas do folder
+    if (folderData && folderData.notes) {
+      const updatedNotes = folderData.notes.filter((note) => note.id !== noteId);
+      await folderRef.child("notes").set(updatedNotes);
 
-        try {
-          // Atualiza o banco de dados com as notas atualizadas do folder
-          await app.database().ref(`folders/${folderId}/notes`).set(notes);
+      console.log("Note removed from folder successfully");
 
-          console.log("Note removed from folder successfully");
+      // Também remover a nota do banco de dados de notas
+      await app.database().ref(`notes/${noteId}`).remove();
 
-          // Agora, remova a nota do banco de dados de notas também
-          await app.database().ref(`notes/${noteId}`).remove();
-
-          console.log("Note removed from notes successfully");
-        } catch (error) {
-          console.error("Error removing note from folder:", error);
-        }
-
-        setFolders(updatedFolders); // Atualiza o estado dos folders
-      }
+      console.log("Note removed from notes successfully");
     }
-  };
+  } catch (error) {
+    console.error("Error removing note from folder:", error);
+  }
+};
+
 
 
   // Retorne o contexto de pastas

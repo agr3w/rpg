@@ -13,17 +13,18 @@ const FolderPage = () => {
     return <div>Folder not found.</div>;
   }
 
+  const notesArray = Object.values(folder.notes || {});
+
   return (
     <div>
       <h2>{folder.name}</h2>
       <div>
-        {Array.isArray(folder.notes) &&
-          folder.notes.map((note) => <NoteCard key={note.id} note={note} /> ) }
+        {notesArray.map((note) => (
+          <NoteCard key={note.id} note={note} folderId={folderId} />
+        ))}
       </div>
       <NoteAdd folderId={folderId} />
-      {/* Renderizar o componente NoteAdd somente quando folderId está definido */}
     </div>
   );
 };
-
 export default FolderPage;
