@@ -6,20 +6,27 @@ import { Link } from "react-router-dom";
 // import { deleteFolder, deleteArrayFolder } from '../FolderDelete';
 
 const FoldersCard = ({ folder }) => {
-    const handleDeleteFolder = () => {
-      deleteArrayFolder(folder.id);
-      window.location.reload();
-    };
+  const handleDeleteFolder = () => {
+    deleteArrayFolder(folder.id);
+    window.location.reload();
+  };
 
   return (
-    <div className={styles.foldersCard}>
-      <p>Nome da Pasta: {folder.name}</p>
-      <Link to={`/folders/${folder.id}`}>
-        {folder.name}
-      </Link>
-      <button onClick={handleDeleteFolder}>
-        <FaTrash size={16} /> Deletar Pasta
-      </button>
+    <div className={styles.folderContainer}>
+      <div className={styles.foldersCard}>
+        <p>Nome da Pasta: <span>{folder.name}</span></p>
+        <div className={styles.linkFolder}>
+          <Link to={`/folders/${folder.id}`} className={styles.link}>
+            <img
+              src="https://www.iconpacks.net/icons/2/free-folder-icon-1437-thumb.png"
+              alt=""
+            />
+          </Link>
+        </div>
+        <button onClick={handleDeleteFolder} className={styles.deleteButton}>
+          <FaTrash size={16} /> Deletar Pasta
+        </button>
+      </div>
     </div>
   );
 };

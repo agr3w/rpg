@@ -16,7 +16,7 @@ const NotePage = () => {
     <div className={styles.notePage}>
       <NoteAddGlobal onNoteAdded={addNote} />
       <FolderAdd />
-      <div>
+      <div className={styles.folderCard}>
         {folders.map((folders) => (
           <FoldersCard key={folders.id} folder={folders} />
         ))}

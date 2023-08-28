@@ -31,7 +31,7 @@ export function deleteNote(note) {
   const storage = getStorage(app);
   const noteRef = ref(
     storage,
-    `gs://test-b6bc2.appspot.com/arquivos/anotacoes/${note.title}.txt` //necessita de file extension
+    `gs://test-b6bc2.appspot.com/arquivos/anotacoes/${note.title}.pdf` //necessita de file extension arrumar***
   );
 
   // Referência para o documento no Firebase Firestore

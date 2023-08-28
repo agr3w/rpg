@@ -16,7 +16,9 @@ const NoteAdd = ({ folderId }) => {
     if (noteFile) {
       const storage = app.storage();
       const storageRef = storage.ref();
-      const noteFileRef = storageRef.child(`arquivos/anotacoes/${noteFile.name}`);
+      const noteFileRef = storageRef.child(
+        `arquivos/anotacoes/${noteFile.name}`
+      );
 
       await noteFileRef.put(noteFile);
       const noteFileUrl = await noteFileRef.getDownloadURL();
@@ -36,11 +38,18 @@ const NoteAdd = ({ folderId }) => {
   };
 
   return (
-    <div className={styles.noteAdd}>
-      <input type="file" accept=".pdf,.doc,.docx,.txt" onChange={handleFileChange} />
-      <button onClick={handleAddNote}>
-        <FaPlus /> Adicionar Anotação
-      </button>
+    <div className={styles.noteAddcontainer}>
+      <div className={styles.noteAdd}>
+        <input
+          className={styles.input}
+          type="file"
+          accept=".pdf,.doc,.docx,.txt"
+          onChange={handleFileChange}
+        />
+        <button onClick={handleAddNote}>
+          <FaPlus /> Adicionar Anotação
+        </button>
+      </div>
     </div>
   );
 };

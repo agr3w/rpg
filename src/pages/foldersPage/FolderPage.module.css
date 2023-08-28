@@ -1,0 +1,19 @@
+.div {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  margin: 0 20px;
+}
+
+.div h2 {
+  font-size: 32px;
+  display: flex;
+  justify-content: center;
+  margin: 25px 0;
+}
+
+.NoteFolderList {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}

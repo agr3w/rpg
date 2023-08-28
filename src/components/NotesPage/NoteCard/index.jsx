@@ -35,14 +35,16 @@ const NoteCard = ({ note, folderId }) => {
   return (
     <div className={styles.noteCard}>
       <p>{note.title}</p>
-      <Link to={note.url}>
-        <img
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/PDF_file_icon.svg/833px-PDF_file_icon.svg.png"
-          alt=""
-          width={100}
-        />
-      </Link>
-      <button onClick={handleDeleteNote}>
+      <div className={styles.link_img}>
+        <Link to={note.url}>
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/PDF_file_icon.svg/833px-PDF_file_icon.svg.png"
+            alt=""
+            width={100}
+          />
+        </Link>
+      </div>
+      <button onClick={handleDeleteNote} className={styles.deleteButton}>
         <FaTrash size={16} /> Deletar Anotação
       </button>
     </div>

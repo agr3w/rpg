@@ -1,12 +1,25 @@
 /* NotePage.module.css */
+.noteList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 10px;
+}
+
+.folderCard {
+  display: flex;
+  flex-direction: row;
+  padding-top: 20px;
+}
 
 .notePage {
-    padding: 20px;
-  }
-  
-  .noteList {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-  
+  max-width: 1920px; /* Set the desired maximum width for the page */
+  margin: 0 auto; /* Center align the content within the page */
+}
+
+/* Add this to make the folderCard and noteList sections wrap when the width is limited */
+.folderCard,
+.noteList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* Add some gap between items */
+}

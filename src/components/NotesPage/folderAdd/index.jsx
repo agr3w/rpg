@@ -1,5 +1,5 @@
 import { useFolderContext } from "APIs/FolderContext";
-import styles from "components/NotesPage/NoteCard/NoteCard.module.css";
+import styles from "./folderAdd.module.css";
 
 // const { app } = require("APIs/firebaseConfig");
 const { useState } = require("react");
@@ -21,16 +21,18 @@ export const FolderAdd = () => {
   };
 
   return (
-    <div className={styles.folderAdd}>
-      <input
-        type="text"
-        placeholder="Nome da Pasta"
-        value={folderName}
-        onChange={(e) => setFolderName(e.target.value)}
-      />
-      <button onClick={handleAddFolder}>
-        <FaPlus /> Adicionar Pasta
-      </button>
+    <div className={styles.folderAddContainer}>
+      <div className={styles.folderAdd}>
+        <input
+          type="text"
+          placeholder="Nome da Pasta"
+          value={folderName}
+          onChange={(e) => setFolderName(e.target.value)}
+        />
+        <button onClick={handleAddFolder}>
+          <FaPlus /> Adicionar Pasta
+        </button>
+      </div>
     </div>
   );
 };

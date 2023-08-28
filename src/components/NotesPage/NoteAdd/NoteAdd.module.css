@@ -1,0 +1,36 @@
+.noteAddcontainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.noteAdd {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background-color: #f5f5f5;
+  padding: 20px;  
+  border-radius: 5px;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+}
+
+.input {
+  padding: 8px;
+  width: 100%;
+  border: 1px solid var(--card-bg-color-gray);
+  border-radius: 3px;
+}
+
+.noteAdd button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.noteAdd button:hover {
+  background-color: #0056b3;
+}

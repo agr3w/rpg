@@ -1,6 +1,7 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import { useFolderContext } from "APIs/FolderContext";
+import styles from "./FolderPage.module.css";
 import NoteCard from "components/NotesPage/NoteCard";
 import NoteAdd from "components/NotesPage/NoteAdd";
 
@@ -16,14 +17,14 @@ const FolderPage = () => {
   const notesArray = Object.values(folder.notes || {});
 
   return (
-    <div>
+    <div className={styles.div}>
       <h2>{folder.name}</h2>
-      <div>
+      <NoteAdd folderId={folderId} />
+      <div className={styles.NoteFolderList}>
         {notesArray.map((note) => (
           <NoteCard key={note.id} note={note} folderId={folderId} />
         ))}
       </div>
-      <NoteAdd folderId={folderId} />
     </div>
   );
 };
