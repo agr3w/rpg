@@ -10,6 +10,14 @@ export const useMusicContext = () => useContext(MusicContext);
 
 export const MusicProvider = ({ children }) => {
   const [musicas, setMusicas] = useState([]);
+  const [categorias, setCategorias] = useState([
+    "Rock",
+    "Pop",
+    "Eletrônica",
+    "Hip Hop",
+    "Clássica",
+  ]);
+  const [isLooping, setIsLooping] = useState(false);
 
   useEffect(() => {
     const musicasRef = app.database().ref("musicas"); // Usar a instância do aplicativo Firebase
@@ -23,7 +31,7 @@ export const MusicProvider = ({ children }) => {
 
   const adicionarMusica = async (novaMusica) => {
     const musicasRef = app.database().ref("musicas"); // Usar a instância do aplicativo Firebase
-    
+
     // Crie um ID único para a música usando o método push()
     const novaMusicaRef = musicasRef.push();
     const novaMusicaId = novaMusicaRef.key; // Obtém o ID gerado
@@ -35,7 +43,9 @@ export const MusicProvider = ({ children }) => {
     });
   };
 
-
+  const toggleLoop = () => {
+    setIsLooping(!isLooping);
+  };
 
   // Ler os dados da coleção de músicas usando o método once()
   const lerMusicas = () => {
@@ -86,6 +96,9 @@ export const MusicProvider = ({ children }) => {
         lerMusicas,
         adicionarMusica,
         adicionarMusicaArquivo,
+        toggleLoop,
+        categorias,
+        setCategorias,
       }}
     >
       {children}

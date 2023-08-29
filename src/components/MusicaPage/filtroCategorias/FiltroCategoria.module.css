@@ -1,0 +1,34 @@
+/* FiltroCategoria.module.css */
+.filtroCategoria {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .select {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  
+  .select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+  }
+  
+  /* Additional styles for Material UI integration */
+  .MuiSelect-select.MuiSelect-select {
+    padding-right: 24px; /* Increase padding for dropdown arrow */
+  }
+  
+  .MuiSelect-icon {
+    right: 8px;
+  }
+  

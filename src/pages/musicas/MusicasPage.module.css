@@ -1,12 +1,18 @@
 /* MusicasPage.module.css */
 
+body {
+  background-image: url(./forest.jpg);
+  background-repeat: repeat;
+  background-attachment: fixed;
+}
+
 .musicasPage {
-    padding: 20px;
-  }
-  
-  .musicasList {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-  
+  max-width: 1920px;
+  margin: 0 auto;
+}
+
+.musicasList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}

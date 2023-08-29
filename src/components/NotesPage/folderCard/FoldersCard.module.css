@@ -33,7 +33,7 @@
 }
 
 .deleteButton {
-  background-color: #ff6666;
+  background-color: var(--delete-button-color);
   border: none;
   color: white;
   padding: 5px 10px;
@@ -41,5 +41,5 @@
 }
 
 .deleteButton:hover {
-  background-color: #ff4444;
+  background-color: var(--delete-button-color-holver);
 }

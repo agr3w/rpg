@@ -1,7 +1,5 @@
-import { deleteObject, getStorage, ref } from "firebase/storage";
-import { app } from "../../../APIs/firebaseConfig"; // Importar a instância do aplicativo Firebase
+import { app } from "APIs/firebaseConfig"; // Importar a instância do aplicativo Firebase
 import "firebase/database"; // Importe os serviços do Firebase que você está usando, como 'database', 'storage', etc.
-import { deleteDoc, doc, getFirestore } from "firebase/firestore";
 
 export const deletarArray = async (musicaId) => {
   const musicasRef = app.database().ref("musicas"); // Usar a instância do aplicativo Firebase
@@ -13,30 +11,13 @@ export const deletarArray = async (musicaId) => {
   await musicaParaExcluirRef.remove();
 };
 
-export function deletarMusica(musica) {
-  const storage = getStorage(app);
-  const audioRef = ref(
-    storage,
-    `gs://test-b6bc2.appspot.com/arquivos/musicas/${musica.titulo}.mp3`
+export function deletarMusica(nomeArquivoAudio, nomeArquivoImagem) {
+  const storage = app.storage();
+  const storageRef = storage.ref();
+  const arquivoAudioRef = storageRef.child(
+    `arquivos/musicas/${nomeArquivoAudio}`
   );
-
-  const db = getFirestore(app);
-  const docRef = doc(db, "colecao", "documento");
-
-  // Deletar o arquivo de áudio do Firebase Storage
-  deleteObject(audioRef)
-    .then(() => {
-      // Deletar o documento do Firebase Firestore
-      return deleteDoc(docRef);
-    })
-    .then(() => {
-      // Mostrar uma mensagem de sucesso
-      alert("Item deletado com sucesso!");
-    })
-    .catch((error) => {
-      // Tratar o erro
-      console.error(error);
-      // Mostrar uma mensagem de erro
-      alert("Ocorreu um erro ao deletar o item!");
-    });
+  const imagemRef = storageRef.child(`imagens/${nomeArquivoImagem}`);
+  arquivoAudioRef.delete();
+  imagemRef.delete();
 }
