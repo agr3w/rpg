@@ -1,0 +1,22 @@
+/* DeleteButton.module.css */
+
+.deleteButtonContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .deleteButton {
+    background-color: var(--delete-button-color);
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .deleteButton:hover {
+    background-color: var(--delete-button-color-holver);
+  }
+  

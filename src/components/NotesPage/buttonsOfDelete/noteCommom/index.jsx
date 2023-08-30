@@ -1,15 +1,20 @@
-import React from 'react';
-import { FaTrash } from 'react-icons/fa';
-import styles from './DeleteButton.module.css'; // Importe os estilos apropriados
+import React from "react";
+import { FaTrash } from "react-icons/fa";
+import styles from "./DeleteButton.module.css"; // Importe os estilos apropriados
+import { Button } from "@mui/material";
 
-const DeleteButton = ({ onDeleteInsideFolder, onDeleteOutsideFolder, showInsideFolderButton }) => {
+const DeleteButton = ({
+  onDeleteInsideFolder,
+  onDeleteOutsideFolder,
+  showInsideFolderButton,
+}) => {
   const handleDeleteInsideFolder = async () => {
     if (onDeleteInsideFolder) {
       try {
         await onDeleteInsideFolder();
         window.location.reload();
       } catch (error) {
-        console.error('Error deleting notes inside folder:', error);
+        console.error("Error deleting notes inside folder:", error);
       }
     }
   };
@@ -20,7 +25,7 @@ const DeleteButton = ({ onDeleteInsideFolder, onDeleteOutsideFolder, showInsideF
         await onDeleteOutsideFolder();
         window.location.reload();
       } catch (error) {
-        console.error('Error deleting notes outside folder:', error);
+        console.error("Error deleting notes outside folder:", error);
       }
     }
   };
@@ -28,14 +33,22 @@ const DeleteButton = ({ onDeleteInsideFolder, onDeleteOutsideFolder, showInsideF
   return (
     <div className={styles.deleteButtonContainer}>
       {showInsideFolderButton && (
-        <button onClick={handleDeleteInsideFolder} className={styles.deleteButton}>
-          <FaTrash size={16} /> Deletar Anotação (Dentro da Pasta)
-        </button>
+        <Button
+          onClick={handleDeleteInsideFolder}
+          className={styles.deleteButton}
+          variant="contained"
+        >
+          <FaTrash size={16} /> Deletar Anotação
+        </Button>
       )}
       {!showInsideFolderButton && (
-        <button onClick={handleDeleteOutsideFolder} className={styles.deleteButton}>
-          <FaTrash size={16} /> Deletar Anotação (Fora da Pasta)
-        </button>
+        <Button
+          onClick={handleDeleteOutsideFolder}
+          className={styles.deleteButton}
+          variant="contained"
+        >
+          <FaTrash size={16} /> Deletar Anotação
+        </Button>
       )}
     </div>
   );

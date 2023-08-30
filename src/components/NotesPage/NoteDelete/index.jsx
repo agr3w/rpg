@@ -82,3 +82,4 @@ export function deleteNote(note) {
       alert("Ocorreu um erro ao deletar a anotação!");
     });
 }
+
