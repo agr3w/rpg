@@ -2,7 +2,7 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import { useFolderContext } from "APIs/FolderContext";
 import styles from "./FolderPage.module.css";
-import NoteCard from "components/NotesPage/NoteCard";
+import NoteCardFolder from "components/NotesPage/NoteCard/CardFolder";
 import NoteAdd from "components/NotesPage/NoteAdd";
 
 const FolderPage = () => {
@@ -22,7 +22,7 @@ const FolderPage = () => {
       <NoteAdd folderId={folderId} />
       <div className={styles.NoteFolderList}>
         {notesArray.map((note) => (
-          <NoteCard key={note.id} note={note} folderId={folderId} />
+          <NoteCardFolder key={note.id} note={note} folderId={folderId}/>
         ))}
       </div>
     </div>

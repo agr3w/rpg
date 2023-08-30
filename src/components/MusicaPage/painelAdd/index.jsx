@@ -14,7 +14,7 @@ const AddMusicButton = ({ onMusicAdded }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [open, setOpen] = useState(false);
 
-//   const categorias = ["Rock", "Pop", "Eletrônica", "Hip Hop", "Clássica"]; // Adicione as categorias desejadas
+  //   const categorias = ["Rock", "Pop", "Eletrônica", "Hip Hop", "Clássica"]; // Adicione as categorias desejadas
 
   const handleArquivoChange = (e) => {
     setArquivo(e.target.files[0]);
@@ -40,21 +40,29 @@ const AddMusicButton = ({ onMusicAdded }) => {
     setImagem(event.target.files[0]);
   };
 
+  const handleCancelar = () => {
+    setTitulo("");
+    setCategoria("");
+    setImagem(null);
+    setArquivo(null);
+    handleClose();
+  };
+
   const handleAdicionarMusica = async () => {
     if (arquivo && titulo && imagem && categoria) {
       setIsUploading(true);
-  
+
       const storage = app.storage();
       const storageRef = storage.ref();
-  
+
       const arquivoRef = storageRef.child(`arquivos/musicas/${arquivo.name}`);
       await arquivoRef.put(arquivo);
       const urlDoArquivo = await arquivoRef.getDownloadURL();
-  
+
       const imagemRef = storageRef.child(`imagens/${imagem.name}`);
       await imagemRef.put(imagem);
       const imagemUrl = await imagemRef.getDownloadURL();
-  
+
       const novaMusica = {
         id: app.database().ref().child("musicas").push().key,
         titulo: titulo,
@@ -64,10 +72,10 @@ const AddMusicButton = ({ onMusicAdded }) => {
         urlDoArquivo: urlDoArquivo,
         imagemUrl: imagemUrl,
       };
-  
+
       adicionarMusica(novaMusica);
       setIsUploading(false);
-  
+
       setTitulo("");
       setCategoria("");
       setImagem(null);
@@ -75,22 +83,26 @@ const AddMusicButton = ({ onMusicAdded }) => {
       handleClose();
     }
   };
-  
 
   return (
     <div>
       <Button onClick={handleOpen}>
         <FaPlus size={12} /> Adicionar Música
       </Button>
-      <Modal open={open} onClose={handleClose}>
-        <div className={styles.modal}>
-          <h2>Adicionar Música</h2>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        className={styles.modalContainer}
+      >
+        <div className={styles.modalContent}>
+          <h2 className={styles.modalTitle}>Adicionar Música</h2>
           <TextField
             label="Título"
             variant="outlined"
             value={titulo}
             onChange={handleTituloChange}
             fullWidth
+            className={styles.inputField}
           />
           <TextField
             select
@@ -99,6 +111,7 @@ const AddMusicButton = ({ onMusicAdded }) => {
             value={categoria}
             onChange={handleCategoriaChange}
             fullWidth
+            className={styles.inputField}
           >
             {categorias.map((cat) => (
               <MenuItem key={cat} value={cat}>
@@ -106,24 +119,48 @@ const AddMusicButton = ({ onMusicAdded }) => {
               </MenuItem>
             ))}
           </TextField>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImagemChange}
-          />
-          <input
-            type="file"
-            accept="audio/*"
-            onChange={handleArquivoChange}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleAdicionarMusica}
-            disabled={isUploading}
-          >
-            {isUploading ? "Carregando..." : "Adicionar Música"}
-          </Button>
+          <div className={styles.divLabel}>
+            <label
+              className={imagem ? styles.InputSelected : styles.InputButton}
+            >
+              <span className={styles.customFileInputButton}>
+                {imagem ? "Imagem Selecionada" : "Selecionar Imagem"}
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImagemChange}
+                className={styles.fileInput}
+              />
+            </label>
+            <label className={arquivo ? styles.InputSelected : styles.InputButton}>
+              <span className={styles.customFileInputButton}>
+              {arquivo ? "Arquivo Selecionado" : "Selecionar Arquivo"}
+              </span>
+              <input
+                type="file"
+                accept="audio/*"
+                onChange={handleArquivoChange}
+                className={styles.fileInput}
+              />
+            </label>
+          </div>
+          <div className={styles.buttonGroup}>
+            <Button
+              variant="contained"
+              onClick={handleCancelar}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleAdicionarMusica}
+              disabled={isUploading}
+            >
+              {isUploading ? "Carregando..." : "Adicionar Música"}
+            </Button>
+          </div>
         </div>
       </Modal>
     </div>

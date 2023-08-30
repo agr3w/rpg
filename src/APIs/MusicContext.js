@@ -11,11 +11,12 @@ export const useMusicContext = () => useContext(MusicContext);
 export const MusicProvider = ({ children }) => {
   const [musicas, setMusicas] = useState([]);
   const [categorias, setCategorias] = useState([
-    "Rock",
-    "Pop",
-    "Eletrônica",
-    "Hip Hop",
-    "Clássica",
+    "Sem categoria",
+    "Épico e Orquestral",
+    "Ambiental e Atmosférico",
+    "Folclore e Étnico",
+    "Celta e Medieval",
+    "Misterioso e Sombrio",
   ]);
   const [isLooping, setIsLooping] = useState(false);
 

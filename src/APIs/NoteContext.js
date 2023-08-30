@@ -30,20 +30,11 @@ export const NoteProvider = ({ children }) => {
     });
   };
 
-
-  //delete note
-
-  const deleteNote = async (noteId) => {
-    const noteRef = app.database().ref(`notes/${noteId}`);
-    await noteRef.remove();
-  };
-
   return (
     <NoteContext.Provider
       value={{
         notes,
         addNote,
-        deleteNote,
       }}
     >
       {children}

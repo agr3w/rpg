@@ -1,0 +1,92 @@
+/* styles.module.css */
+
+.modalContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: rgba(0, 0, 30, 0.7);
+  }
+  
+  .modalContent {
+    background-color: #1a2036;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4);
+    width: 400px;
+  }
+  
+  .modalTitle {
+    font-size: 24px;
+    margin-bottom: 16px;
+    color: #ffffff;
+  }
+
+  .divLabel {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .inputField {
+    margin: 16px 0;
+  }
+  
+  /* Ajuste de cor para o texto nos inputs */
+  .inputField > label,
+  .inputField > div > input,
+  .inputField > div > div > input {
+    color: #ffffff; /* Defina a cor do texto para branco */
+  }
+  
+  .buttonGroup {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+  }
+  
+  .buttonGroup > button {
+    flex: 1;
+    margin: 0 8px;
+  }
+  
+  .fileInputLabel {
+    display: inline-block;
+    background-color: #2d354e;
+    color: #ffffff;
+    margin: 14px 0;
+    padding: 16px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .fileInputLabel:hover {
+    background-color: #394769;
+  }
+  
+  .customFileInputButton {
+    display: inline-block;
+    margin-right: 8px;
+  }
+  
+  .fileInput {
+    display: none;
+  }
+  
+  .InputButton {
+    background-color: #2d354e; /* Define a cor padrão do botão */
+    color: #ffffff;
+    margin: 14px 0;
+    padding: 16px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .InputSelected {
+    background-color: #394769; /* Define a cor quando a imagem estiver selecionada */
+    color: #ffffff;
+    margin: 14px 0;
+    padding: 16px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  }

@@ -2,7 +2,7 @@
   border: 1px solid var(--card-bg-color-gray);
   position: relative;
   border-radius: 8px;
-  padding: 16px;
+  padding: 16px 16px 0 16px;
   margin: 20px 0;
   display: flex;
   gap: 16px;

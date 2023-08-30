@@ -1,16 +1,16 @@
 import React from "react";
 import styles from "./NoteCard.module.css";
 import {
-  deleteNote,
-  deleteArrayNote,
+  deleteArrayNoteFromFolder,
+  deleteNoteFolder,
 } from "../NoteDelete";
 import { Link } from "react-router-dom";
 import DeleteButton from "../buttonsOfDelete/noteCommom";
 
-const NoteCard = ({ note }) => {
+const NoteCardFolder = ({ note, folderId }) => {
   const handleDeleteNote = () => {
-    deleteNote(note);
-    deleteArrayNote(note.id);
+    deleteNoteFolder(note);
+    deleteArrayNoteFromFolder(folderId, note.id);
   };
 
   return (
@@ -26,14 +26,11 @@ const NoteCard = ({ note }) => {
         </Link>
       </div>
       <DeleteButton
-        onDeleteOutsideFolder={handleDeleteNote}
-        showInsideFolderButton={false}
+        onDeleteInsideFolder={handleDeleteNote}
+        showInsideFolderButton={true}
       />
-      {/* <button onClick={handleDeleteNote} className={styles.deleteButton}>
-        <FaTrash size={16} /> Deletar Anotação
-      </button> */}
     </div>
   );
 };
 
-export default NoteCard;
+export default NoteCardFolder;
