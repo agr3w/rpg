@@ -1,12 +1,71 @@
-import { app } from "APIs/firebaseConfig"; // Importe a configuração do Firebase
+// FolderDelete.js
+import { app } from "APIs/firebaseConfig";
+import { getStorage, ref, deleteObject } from "firebase/storage";
 
-export const deleteArrayFolder = async (folderId) => {
-  const foldersRef = app.database().ref("folders"); // Substitua "folders" pelo caminho correto
+// Função para excluir uma nota específica de um folder
+export const deleteNoteFromFolder = async (folderId, noteId) => {
+  const folderRef = app.database().ref(`folders/${folderId}/notes`);
 
   try {
-    await foldersRef.child(folderId).remove();
-    alert("Folder removed from array successfully");
+    await folderRef.child(noteId).remove();
+    console.log(`Note ${noteId} removed from folder ${folderId} successfully`);
   } catch (error) {
-    alert("Error removing folder from array:", error);
+    console.error(
+      `Error removing note ${noteId} from folder ${folderId}:`,
+      error
+    );
+  }
+};
+
+// Função para excluir um folder e todas as notas nele
+export const deleteArrayFolder = async (folderId) => {
+  const foldersRef = app.database().ref("folders");
+
+  try {
+    // Verifique se a pasta possui notas
+    const folderSnapshot = await foldersRef
+      .child(folderId)
+      .child("notes")
+      .get();
+    const folderData = folderSnapshot.val();
+
+    // Crie uma referência ao Storage
+    const storage = getStorage(app);
+
+    // Se a pasta tiver notas, mostre o alerta de confirmação
+    if (folderData) {
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete this folder and its contents?"
+      );
+
+      if (confirmDelete) {
+        // Percorra a lista de notas no folder
+        for (const noteId in folderData) {
+          // Exclua o arquivo de anotação no Storage
+          const note = folderData[noteId];
+          const noteRef = ref(
+            storage,
+            `arquivos/anotacoes/pasta/${note.arquivoNomeCompleto}`
+          );
+
+          foldersRef.child(folderId).remove();
+          console.log("Folder removed from array successfully");
+
+          await deleteObject(noteRef);
+
+          // Exclua a nota individualmente
+          await deleteNoteFromFolder(folderId, noteId);
+        }
+      } else {
+        console.log("Folder deletion canceled.");
+        return;
+      }
+    }
+
+    // Remova a pasta do array
+    await foldersRef.child(folderId).remove();
+    console.log("Folder removed from array successfully");
+  } catch (error) {
+    console.error("Error removing folder from array:", error);
   }
 };
