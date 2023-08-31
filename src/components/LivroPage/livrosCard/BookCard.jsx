@@ -5,7 +5,6 @@ import { deletarLivro, deleteArrayLivro } from "../livroDelete/Deletarlivro";
 import { Link } from "react-router-dom";
 
 const LivroCard = ({ livro }) => {
-
   const handleDeletarLivro = () => {
     deleteArrayLivro(livro.id);
     deletarLivro(livro);
@@ -15,13 +14,9 @@ const LivroCard = ({ livro }) => {
   return (
     <div className={`${styles.livroCard} ${styles.cardWithLink}`}>
       <p>Título: {livro.titulo}</p>
-      <Link to={livro.urlDoArquivo} target="_blank" rel="noopener noreferrer">
-        {livro.id}
-      </Link>
-      <label htmlFor={`fileInput-${livro.id}`} className={styles.uploadLabel}>
+      <Link to={livro.urlDoArquivo} className={styles.Link} target="_blank" rel="noopener noreferrer">
         <FaFileImage size={104} />
-      </label>
-
+      </Link>
       <button onClick={handleDeletarLivro}>
         <FaTrash size={16} /> Deletar Livro
       </button>

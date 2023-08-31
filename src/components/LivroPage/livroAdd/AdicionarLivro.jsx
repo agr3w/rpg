@@ -1,19 +1,28 @@
 import React, { useState } from "react";
-import { FaPlus } from "react-icons/fa";
+import AddIcon from "@mui/icons-material/Add";
 import styles from "./BotaoAdicionarLivro.module.css"; // Certifique-se de ter o arquivo de estilos correspondente
 import { app } from "APIs/firebaseConfig"; // Importe a configuração do Firebase
 import { useBookContext } from "APIs/BookContext";
+import { Button } from "@mui/material";
 
 const BotaoAdicionarLivro = () => {
   const { addBook } = useBookContext();
   const [books, setBooks] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleArquivoChange = (e) => {
-    setBooks(e.target.files[0]);
+    const arquivo = e.target.files[0];
+    if (arquivo) {
+      setBooks(arquivo);
+    } else {
+      setBooks(null);
+    }
   };
 
   const handleAdicionarLivro = async () => {
     if (books) {
+      setIsLoading(true);
+
       // Primeiro, faça o upload do arquivo PDF para o Firebase Storage
       const storage = app.storage();
       const storageRef = storage.ref();
@@ -30,6 +39,7 @@ const BotaoAdicionarLivro = () => {
         titulo: books.name.replace(/\.[^/.]+$/, ""), // Nome do arquivo sem extensão
         urlDoArquivo,
       };
+      setIsLoading(false);
 
       // Adicione as informações do livro ao contexto de livros
       addBook(novoLivro);
@@ -41,10 +51,30 @@ const BotaoAdicionarLivro = () => {
 
   return (
     <div className={styles.botaoAdicionarLivro}>
-      <input type="file" accept=".pdf" onChange={handleArquivoChange} />
-      <button onClick={handleAdicionarLivro}>
-        <FaPlus /> Adicionar Livro
-      </button>
+      <label className={`${books ? styles.InputSelected : styles.InputButton}`}>
+        <span className={styles.customFileInputButton}>
+          {books ? "Livro Selecionado" : "Selecionar Livro"}
+        </span>
+        <input
+          type="file"
+          accept="application/pdf"
+          onChange={handleArquivoChange}
+          className={styles.fileInput}
+        />
+      </label>
+
+      <Button
+        onClick={handleAdicionarLivro}
+        variant="contained"
+        color="primary"
+        startIcon={<AddIcon />}
+        disabled={!books || isLoading}
+        style={{
+          backgroundColor: books && !isLoading ? "#007bff" : "#ccc",
+        }}
+      >
+        {isLoading ? "Carregando..." : "Adicionar Livro"}
+      </Button>
     </div>
   );
 };

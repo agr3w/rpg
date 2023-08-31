@@ -1,9 +1,9 @@
 import { useFolderContext } from "APIs/FolderContext";
 import styles from "./folderAdd.module.css";
+import { Button, TextField } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 
-// const { app } = require("APIs/firebaseConfig");
 const { useState } = require("react");
-const { FaPlus } = require("react-icons/fa");
 
 export const FolderAdd = () => {
   const { addFolder } = useFolderContext();
@@ -15,23 +15,30 @@ export const FolderAdd = () => {
         addFolder({ name: folderName, notes: [] });
         setFolderName("");
       }
-      
+
       setFolderName("");
     }
   };
-
+  
   return (
     <div className={styles.folderAddContainer}>
       <div className={styles.folderAdd}>
-        <input
+        <TextField
           type="text"
           placeholder="Nome da Pasta"
           value={folderName}
           onChange={(e) => setFolderName(e.target.value)}
+          variant="outlined"
         />
-        <button onClick={handleAddFolder}>
-          <FaPlus /> Adicionar Pasta
-        </button>
+        <Button
+          onClick={handleAddFolder}
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          disabled={folderName.trim() === ""}
+        >
+          Adicionar Pasta
+        </Button>
       </div>
     </div>
   );

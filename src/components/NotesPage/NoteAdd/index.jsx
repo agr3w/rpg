@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { FaPlus } from "react-icons/fa";
 import styles from "./NoteAdd.module.css";
 import { app } from "APIs/firebaseConfig";
 import { useFolderContext } from "APIs/FolderContext"; // Importe o contexto de folders
+import { Button } from "@mui/material";
+import { CloudUpload } from "@mui/icons-material";
 
 const NoteAdd = ({ folderId }) => {
   const { addNoteToFolder } = useFolderContext(); // Use a função de adicionar notas ao folder
@@ -41,11 +42,9 @@ const NoteAdd = ({ folderId }) => {
     <div className={styles.noteAddContainer}>
       <div className={styles.noteAdd}>
         <label
-          className={
-            noteFile
-              ? styles.fileInputSelected
-              : styles.fileInput
-          }
+          className={`${styles.fileInputLabel} ${
+            noteFile ? styles.fileInputSelected : ""
+          }`}
         >
           <span className={styles.customFileInputButton}>
             {noteFile ? "Arquivo Selecionado" : "Selecionar Arquivo"}
@@ -57,13 +56,15 @@ const NoteAdd = ({ folderId }) => {
             className={styles.fileInput}
           />
         </label>
-        <button
+        <Button
           className={styles.addButton}
           onClick={handleAddNote}
           disabled={!noteFile}
+          variant="contained"
+          startIcon={<CloudUpload />}
         >
-          <FaPlus size={14} /> Adicionar Anotação
-        </button>
+          Adicionar Anotação
+        </Button>
       </div>
     </div>
   );

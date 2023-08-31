@@ -1,16 +1,17 @@
 /* variaveis.css */
 :root {
-    --card-bg-color: white;
-    --card-bg-color-grey: #ccc;
+  --card-bg-color: white;
+  --card-bg-color-grey: #ccc;
 
-    --card-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --card-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
-    --background-button: #007bff;
-    --background-button-hol: #0056b3 ;
+  --background-button: #007bff;
+  --background-button-hol: #0056b3;
 
-    --delete-button-color: #dc3545;
-    --delete-button-color-holver: #c82333; 
+  --bg-color-blue: #558bffa2;
 
-  }
-  
-  /*  @import "styles/Variaveis.css";  */
+  --delete-button-color: #dc3545;
+  --delete-button-color-holver: #c82333;
+}
+
+/*  @import "styles/Variaveis.css";  */

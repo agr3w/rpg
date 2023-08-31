@@ -1,10 +1,11 @@
 // NoteAddGlobal.jsx
 
 import React, { useState } from "react";
-import { FaPlus } from "react-icons/fa";
 import styles from "../NoteAdd/NoteAdd.module.css";
 import { app } from "APIs/firebaseConfig";
 import { useNoteContext } from "APIs/NoteContext";
+import { Button } from "@mui/material";
+import { CloudUpload } from "@mui/icons-material";
 
 const NoteAddGlobal = () => {
   const { addNote } = useNoteContext();
@@ -40,10 +41,30 @@ const NoteAddGlobal = () => {
 
   return (
     <div className={styles.noteAdd}>
-      <input type="file" accept=".pdf,.doc,.docx,.txt" onChange={handleFileChange} />
-      <button onClick={handleAddNote}>
-        <FaPlus /> Adicionar Anotação
-      </button>
+      <label
+          className={`${styles.fileInputLabel} ${
+            noteFile ? styles.fileInputSelected : ""
+          }`}
+        >
+          <span className={styles.customFileInputButton}>
+            {noteFile ? "Arquivo Selecionado" : "Selecionar Arquivo"}
+          </span>
+          <input
+            type="file"
+            accept=".pdf,.doc,.docx,.txt"
+            onChange={handleFileChange}
+            className={styles.fileInput}
+          />
+        </label>
+        <Button
+          className={styles.addButton}
+          onClick={handleAddNote}
+          disabled={!noteFile}
+          variant="contained"
+          startIcon={<CloudUpload />}
+        >
+          Adicionar Anotação
+        </Button>
     </div>
   );
 };

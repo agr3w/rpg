@@ -1,31 +1,72 @@
 /* livroCard.module.css */
 
 .botaoAdicionarLivro {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 20px;
-  }
-  
-  .botaoAdicionarLivro input[type="file"] {
-    display: flex;
-    
-  }
-  
-  .botaoAdicionarLivro button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  
-  .botaoAdicionarLivro button:hover {
-    background-color: #0056b3;
-  }
-  
+  display: flex;
+  background-color: var(--bg-color-blue);
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 25px;
+  border-radius: 5px 5px 80px 80px;
+
+}
+
+.botaoAdicionarLivro input[type="file"] {
+  display: none; /* Esconder o input de arquivo nativo */
+}
+
+.botaoAdicionarLivro .InputButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.botaoAdicionarLivro .InputSelected {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #00c853;
+  color: #fff;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.botaoAdicionarLivro label:hover {
+  background-color: green;
+}
+
+.botaoAdicionarLivro .customFileInputButton {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 18px;
+}
+
+.botaoAdicionarLivro button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+}
+
+.botaoAdicionarLivro button:hover {
+  background-color: #0056b3;
+}

@@ -1,7 +1,9 @@
+/* FolderCard.module.css */
+
 .folderContainer {
-    display: flex;
-    justify-content: center;
-    flex-direction: row;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
 }
 
 .foldersCard {
@@ -17,8 +19,8 @@
 }
 
 .foldersCard span {
-    font-weight: bold;
-    font-size: 18px;
+  font-weight: bold;
+  font-size: 18px;
 }
 
 .linkFolder {
@@ -41,5 +43,5 @@
 }
 
 .deleteButton:hover {
-  background-color: var(--delete-button-color-holver);
+  background-color: var(--delete-button-color-hover);
 }

@@ -3,6 +3,7 @@ import { FaTrash } from "react-icons/fa";
 import styles from "./FoldersCard.module.css";
 import { deleteArrayFolder } from "../folderDelete";
 import { Link } from "react-router-dom";
+import { Button } from "@mui/material";
 // import { deleteFolder, deleteArrayFolder } from '../FolderDelete';
 
 const FoldersCard = ({ folder }) => {
@@ -20,12 +21,19 @@ const FoldersCard = ({ folder }) => {
             <img
               src="https://www.iconpacks.net/icons/2/free-folder-icon-1437-thumb.png"
               alt=""
+              width={100}
             />
           </Link>
         </div>
-        <button onClick={handleDeleteFolder} className={styles.deleteButton}>
-          <FaTrash size={16} /> Deletar Pasta
-        </button>
+        <Button
+          onClick={handleDeleteFolder}
+          className={styles.deleteButton}
+          variant="contained"
+          color="secondary"
+          startIcon={<FaTrash size={16} />}
+        >
+          Deletar Pasta
+        </Button>
       </div>
     </div>
   );

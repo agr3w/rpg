@@ -37,6 +37,7 @@ const DeleteButton = ({
           onClick={handleDeleteInsideFolder}
           className={styles.deleteButton}
           variant="contained"
+          color="secondary"
         >
           <FaTrash size={16} /> Deletar Anotação
         </Button>
@@ -46,6 +47,7 @@ const DeleteButton = ({
           onClick={handleDeleteOutsideFolder}
           className={styles.deleteButton}
           variant="contained"
+          color="secondary"
         >
           <FaTrash size={16} /> Deletar Anotação
         </Button>
