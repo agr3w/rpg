@@ -6,6 +6,7 @@ import AnotacoesCard from "components/Cards/anotacoes";
 import MusicasCard from "components/Cards/musicas";
 import Nav from "components/nav";
 import img from "./Nota.png";
+import FichaCard from "components/Cards/ficha";
 
 export default function Inicio() {
   return (
@@ -24,6 +25,9 @@ export default function Inicio() {
           <div className={`card ${styles.card} ${styles.rightColumn}`}>
             <LivrosCard />
           </div>
+          {/* <div className={`card ${styles.card} ${styles.rightColumn}`}>
+            <FichaCard />
+          </div> */}
         </div>
         <div className={styles.blurred_bg}></div>
       </div>
