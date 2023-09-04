@@ -1,4 +1,5 @@
 // firebase-config.js
+import { ReCaptchaEnterpriseProvider, initializeAppCheck } from 'firebase/app-check';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/database';
 import 'firebase/compat/storage';
@@ -15,6 +16,11 @@ const firebaseConfig = {
 };
 
 const app = firebase.initializeApp(firebaseConfig);
+
+// const appCheck = initializeAppCheck(app, {
+//   provider: new ReCaptchaEnterpriseProvider(/* sua chave do site reCAPTCHA Enterprise */),
+//   isTokenAutoRefreshEnabled: true // Defina como true para permitir a atualização automática dos tokens.
+// });
 
 export { app, firebase };
 

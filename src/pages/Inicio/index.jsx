@@ -5,9 +5,7 @@ import LivrosCard from "components/Cards/livors";
 import AnotacoesCard from "components/Cards/anotacoes";
 import MusicasCard from "components/Cards/musicas";
 import Nav from "components/nav";
-
-import zap from "./zap.mp3";
-import img from "./watssap.png";
+import img from "./Nota.png";
 
 export default function Inicio() {
   return (
@@ -20,7 +18,7 @@ export default function Inicio() {
               <AnotacoesCard />
             </div>
             <div className={`card ${styles.card}`}>
-              <MusicasCard imageUrl={img} trackUrl={zap} />
+              <MusicasCard imageUrl={img} />
             </div>
           </div>
           <div className={`card ${styles.card} ${styles.rightColumn}`}>

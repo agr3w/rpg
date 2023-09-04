@@ -42,3 +42,31 @@
 .rightColumn {
   flex: 1;
 }
+
+@media screen and (max-width: 1550px) {
+  .fundo {
+    margin: 100px auto; /* Centralizar horizontalmente */
+  }
+  .homePage {
+    padding: 20px;
+  }
+  /* Adicione outros estilos específicos para essa resolução aqui */
+}
+
+@media screen and (max-width: 768px) {
+  .fundo {
+    margin: 20px auto; /* Ajuste as margens conforme necessário */
+    padding: 10px; /* Ajuste o preenchimento conforme necessário */
+  }
+
+  .card {
+    margin-bottom: 10px; /* Ajuste a margem conforme necessário */
+  }
+
+  .homePage {
+    flex-direction: column; /* Altere o layout para empilhado verticalmente */
+    gap: 5px; /* Ajuste o espaço entre os elementos conforme necessário */
+  }
+  
+  /* Adicione outros estilos específicos para essa resolução aqui */
+}

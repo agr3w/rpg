@@ -32,4 +32,23 @@
     align-items: center;
     cursor: pointer;
   }
+
+  @media screen and (max-width: 768px) {
+    .nav {
+      flex-direction: column; /* Altere a direção da flexbox para empilhar verticalmente */
+      padding: 10px; /* Ajuste o preenchimento conforme necessário */
+    }
+    
+    .navList {
+      flex-direction: column; /* Empilhe os itens verticalmente */
+      gap: 10px; /* Ajuste o espaço entre os itens conforme necessário */
+    }
+    
+    .navItem {
+      font-size: 14px; /* Reduza o tamanho da fonte conforme necessário */
+      margin-bottom: 10px;
+    }
+  
+    /* Adicione outros estilos específicos para essa resolução aqui */
+  }
   
