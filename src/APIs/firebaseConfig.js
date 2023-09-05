@@ -3,6 +3,7 @@ import { ReCaptchaEnterpriseProvider, initializeAppCheck } from 'firebase/app-ch
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/database';
 import 'firebase/compat/storage';
+import { getDatabase } from 'firebase/database';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAvR0bpQQaKEkZXE2b3MBs_Kfq54ZugupA",
@@ -16,12 +17,14 @@ const firebaseConfig = {
 };
 
 const app = firebase.initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
 
 // const appCheck = initializeAppCheck(app, {
 //   provider: new ReCaptchaEnterpriseProvider(/* sua chave do site reCAPTCHA Enterprise */),
 //   isTokenAutoRefreshEnabled: true // Defina como true para permitir a atualização automática dos tokens.
 // });
 
-export { app, firebase };
+export { app, firebase, database };
 
 

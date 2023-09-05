@@ -6,6 +6,7 @@ import { MusicProvider } from "APIs/MusicContext";
 import { BookProvider } from "APIs/BookContext";
 import { NoteProvider } from "APIs/NoteContext";
 import { FolderProvider } from "APIs/FolderContext";
+// import { FichaProvider } from "APIs/FichaContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -14,7 +15,9 @@ root.render(
       <BookProvider>
         <FolderProvider>
           <NoteProvider>
+            {/* <FichaProvider> */}
             <Rout />
+            {/* </FichaProvider> */}
           </NoteProvider>
         </FolderProvider>
       </BookProvider>

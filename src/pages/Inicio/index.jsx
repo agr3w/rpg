@@ -25,9 +25,9 @@ export default function Inicio() {
           <div className={`card ${styles.card} ${styles.rightColumn}`}>
             <LivrosCard />
           </div>
-          {/* <div className={`card ${styles.card} ${styles.rightColumn}`}>
+          <div className={`card ${styles.card} ${styles.rightColumn}`}>
             <FichaCard />
-          </div> */}
+          </div>
         </div>
         <div className={styles.blurred_bg}></div>
       </div>
