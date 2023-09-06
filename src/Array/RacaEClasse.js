@@ -24,6 +24,7 @@ export const classes = [
       "Armadura e escudo de todas as armaduras",
       "Armas simples e marciais",
     ],
+    equipamento: "oi", //ssó arrumar, utilizar a mesma função da etapa 7
     dadosDeVida: "1d10 pontos de vida por nível",
     // Outras informações específicas da classe
   },
