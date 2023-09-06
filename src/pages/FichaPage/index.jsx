@@ -9,6 +9,9 @@ import Etapa3 from "components/FichaPage/Etapa3";
 import { encontrarItensPorNome } from "Utils/Untils";
 import { tendencias } from "Array/Tendencias";
 import Etapa4 from "components/FichaPage/Etapa4";
+import { antecedenteAcólito, antecedentes } from "Array/Antecedentes";
+import Etapa6 from "components/FichaPage/Etapa6";
+import Etapa5 from "components/FichaPage/Etapa5";
 
 const FichaPage = () => {
   const [nome, setNome] = useState("");
@@ -19,6 +22,13 @@ const FichaPage = () => {
   const [itensDaRaca, setItensDaRaca] = useState([]);
   const [itensDaClasse, setItensDaClasse] = useState([]);
   const [itensDaTendencia, setItensDaTendencia] = useState([]);
+  const [antecedente, setAntecedente] = useState("");
+  const [antecedenteSelecionado, setAntecedenteSelecionado] = useState(null);
+  const [tracoPersonalidadeSelecionado, setTracoPersonalidadeSelecionado] =
+    useState("");
+  const [idealSelecionado, setIdealSelecionado] = useState("");
+  const [defeitoSelecionado, setDefeitoSelecionado] = useState("");
+  const [vinculoSelecionado, setVinculoSelecionado] = useState("");
 
   const racasOptions = racas.map((r) => r.nome);
   const classesOptions = classes.map((c) => c.nome);
@@ -45,7 +55,16 @@ const FichaPage = () => {
   }, [classe]);
 
   const handleNext = () => {
-    if (etapa < 5) {
+    if (etapa === 5 && antecedente !== "") {
+      // Certifique-se de que o jogador tenha selecionado um antecedente
+      const antecedenteEncontrado = antecedentes.find(
+        (a) => a.nome === antecedente
+      );
+      if (antecedenteEncontrado) {
+        setAntecedenteSelecionado(antecedenteEncontrado);
+      }
+    }
+    if (etapa < 7) {
       setEtapa(etapa + 1);
     }
   };
@@ -91,8 +110,33 @@ const FichaPage = () => {
           itensDaTendencia={itensDaTendencia}
         />
       )}
+      {etapa === 5 && (
+        <Etapa5
+          antecedente={antecedente}
+          setAntecedente={setAntecedente}
+          antecedentesOptions={antecedentes.map((a) => a.nome)} // Substitua com suas opções de antecedentes
+        />
+      )}
+      {etapa === 6 && antecedenteSelecionado && (
+        <Etapa6
+          tracoPersonalidade={antecedenteSelecionado.tracoPersonalidade}
+          ideal={antecedenteSelecionado.ideal}
+          defeito={antecedenteSelecionado.defeito}
+          vinculo={antecedenteSelecionado.vinculo}
+          tracoPersonalidadeSelecionado={tracoPersonalidadeSelecionado}
+          idealSelecionado={idealSelecionado}
+          defeitoSelecionado={defeitoSelecionado}
+          vinculoSelecionado={vinculoSelecionado}
+          onSelecionarTracoPersonalidade={(e) =>
+            setTracoPersonalidadeSelecionado(e.target.value)
+          }
+          onSelecionarIdeal={(e) => setIdealSelecionado(e.target.value)}
+          onSelecionarDefeito={(e) => setDefeitoSelecionado(e.target.value)}
+          onSelecionarVinculo={(e) => setVinculoSelecionado(e.target.value)}
+        />
+      )}
       {/* Renderize outras etapas, se necessário */}
-      {etapa < 5 ? (
+      {etapa < 7 ? (
         <button className={styles.button} onClick={handleNext}>
           Próxima Etapa
         </button>
