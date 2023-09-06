@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "./fichaPage.module.css";
 import { enviarFichaParaDatabase } from "components/FichaPage/FichaDatabase";
-import { racas, classes } from "Array/RacaEClasse"; // Importe as informações de raças e classes
+import { racas, classes } from "Array/RacaEClasse";
 import Etapa1 from "components/FichaPage/Etapa1";
 import Etapa2 from "components/FichaPage/Etapa2";
 import Etapa3 from "components/FichaPage/Etapa3";
@@ -30,6 +30,14 @@ const FichaPage = () => {
   const [idealSelecionado, setIdealSelecionado] = useState("");
   const [defeitoSelecionado, setDefeitoSelecionado] = useState("");
   const [vinculoSelecionado, setVinculoSelecionado] = useState("");
+
+  // Antecedente detalhe
+  const [negocioGuildaSelecionado, setNegocioGuildaSelecionado] = useState("");
+  const [
+    caracteristicasGuildaSelecionado,
+    setCaracteristicasGuildaSelecionado,
+  ] = useState("");
+  // const [negocioGuildaSelecionado, setNegocioGuildaSelecionado] = useState("");
 
   const racasOptions = racas.map((r) => r.nome);
   const classesOptions = classes.map((c) => c.nome);
@@ -75,26 +83,35 @@ const FichaPage = () => {
       setEtapa(etapa - 1);
     }
   };
+  // verificação de antecedente
+  const getArtesaoCaracteristicasFields = (antecedente) => {
+    if (antecedente === "Artesão de Guilda") {
+      return {
+        CaracterísticasDaGuilda: caracteristicasGuildaSelecionado,
+        NegocioDaGuilda: negocioGuildaSelecionado,
+      };
+    }
+    return {};
+  };
 
   const handleConcluir = () => {
     // Primeiro, envie as informações para o Realtime Database
+    const antecedenteFields = getArtesaoCaracteristicasFields(antecedente);
     const itensSelecionados = {
       tracoPersonalidade: tracoPersonalidadeSelecionado,
       ideal: idealSelecionado,
       defeito: defeitoSelecionado,
       vinculo: vinculoSelecionado,
       antecedente: antecedente,
+      caracteristicas: {
+        ...antecedenteFields,
+        CaracteristicasSugeridas:
+          antecedenteSelecionado.CaracteristicaDoAntecedente
+            .caracteristicasSugeridas,
+      },
     };
-    
-    enviarFichaParaDatabase(
-      nome,
-      raca,
-      classe,
-      tendencia,
-      itensSelecionados, /* outros campos */
-      
-    );
-    
+
+    enviarFichaParaDatabase(nome, raca, classe, tendencia, itensSelecionados);
 
     // Em seguida, você pode redirecionar o usuário para outra página ou realizar outra ação
   };
@@ -153,7 +170,18 @@ const FichaPage = () => {
           onSelecionarVinculo={(e) => setVinculoSelecionado(e.target.value)}
         />
       )}
-      {etapa === 7 && <Etapa7 antecedente={antecedente} antecedenteSelecionado={antecedenteSelecionado}/>}
+      {etapa === 7 && (
+        <Etapa7
+          antecedente={antecedente}
+          antecedenteSelecionado={antecedenteSelecionado}
+          negocioGuildaSelecionado={negocioGuildaSelecionado}
+          setNegocioGuildaSelecionado={setNegocioGuildaSelecionado}
+          caracteristicasGuildaSelecionado={caracteristicasGuildaSelecionado}
+          setCaracteristicasGuildaSelecionado={
+            setCaracteristicasGuildaSelecionado
+          }
+        />
+      )}
       {/* Renderize outras etapas, se necessário */}
       {etapa < 10 ? (
         <button className={styles.button} onClick={handleNext}>

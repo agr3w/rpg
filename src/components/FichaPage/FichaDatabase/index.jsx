@@ -3,7 +3,15 @@
 import { getDatabase, ref, push } from "firebase/database";
 
 // Função para enviar informações para o Realtime Database
-export const enviarFichaParaDatabase = (nome, raca, classe, tendencia, antecedente /* outros campos */) => {
+export const enviarFichaParaDatabase = (
+  nome,
+  raca,
+  classe,
+  tendencia,
+  antecedente,
+  negocioGuildaSelecionado
+  /* outros campos */
+) => {
   // Crie uma referência para o nó onde você deseja armazenar as informações, por exemplo, "fichas"
   const database = getDatabase();
   const fichasRef = ref(database, "fichas");
@@ -14,7 +22,7 @@ export const enviarFichaParaDatabase = (nome, raca, classe, tendencia, anteceden
     raca: raca,
     classe: classe,
     tendencia: tendencia,
-    antecedente: antecedente
+    antecedente: antecedente,
     // Adicione mais campos conforme necessário
   };
 

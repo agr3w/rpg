@@ -2,7 +2,14 @@
 import React from "react";
 import styles from "pages/FichaPage/fichaPage.module.css";
 
-const Etapa7 = ({ antecedenteSelecionado, antecedente }) => {
+const Etapa7 = ({
+  antecedenteSelecionado,
+  antecedente,
+  negocioGuildaSelecionado,
+  setNegocioGuildaSelecionado,
+  caracteristicasGuildaSelecionado,
+  setCaracteristicasGuildaSelecionado,
+}) => {
   return (
     <div>
       <h2>Características do Antecedente</h2>
@@ -30,7 +37,11 @@ const Etapa7 = ({ antecedenteSelecionado, antecedente }) => {
       {antecedente === "Artesão de Guilda" && (
         <>
           <h3>Opções de Negócios da Guilda</h3>
-          <select>
+          <select
+            value={negocioGuildaSelecionado}
+            onChange={(e) => setNegocioGuildaSelecionado(e.target.value)}
+          >
+            <option value="">Selecione um negócio da guilda</option>
             {antecedenteSelecionado.CaracteristicaDoAntecedente.negociosGuilda.map(
               (opcao) => (
                 <option key={opcao} value={opcao}>
@@ -41,7 +52,12 @@ const Etapa7 = ({ antecedenteSelecionado, antecedente }) => {
           </select>
 
           <h3>Características da Guilda</h3>
-          <select>
+          <select
+            value={caracteristicasGuildaSelecionado}
+            onChange={(e) =>
+              setCaracteristicasGuildaSelecionado(e.target.value)
+            }
+          >
             {antecedenteSelecionado.CaracteristicaDoAntecedente.caracteristicasGuilda.map(
               (opcao) => (
                 <option key={opcao} value={opcao}>
