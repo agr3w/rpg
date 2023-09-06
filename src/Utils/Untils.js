@@ -3,7 +3,16 @@ export function encontrarItensPorNome(nomeItem, array) {
     const habilidades = item.habilidades || [];
     const dadosDeVida = item.dadosDeVida || [];
     const descricao = item.descricao || [];
-    const todosItens = habilidades.concat(dadosDeVida, descricao);
+    const proficienciaPericia = item.proficienciaPericia || [];
+    const idiomas = item.idiomas || [];
+    const equipamento = item.equipamento || [];
+    const todosItens = habilidades.concat(
+      dadosDeVida,
+      descricao,
+      proficienciaPericia,
+      idiomas,
+      equipamento,
+    );
 
     if (item.nome === nomeItem) {
       itens.push(...todosItens);
@@ -17,39 +26,39 @@ export function encontrarItensPorNome(nomeItem, array) {
 
 // fichaUtils.js
 
-  // verificação de antecedente
-  // const getArtesaoCaracteristicasFields = (antecedente) => {
-  //   if (antecedente === "Artesão de Guilda") {
-  //     return {
-  //       CaracterísticasDaGuilda: caracteristicasGuildaSelecionado,
-  //       NegocioDaGuilda: negocioGuildaSelecionado,
-  //     };
-  //   }
-  //   return {};
-  // };
+// verificação de antecedente
+// const getArtesaoCaracteristicasFields = (antecedente) => {
+//   if (antecedente === "Artesão de Guilda") {
+//     return {
+//       CaracterísticasDaGuilda: caracteristicasGuildaSelecionado,
+//       NegocioDaGuilda: negocioGuildaSelecionado,
+//     };
+//   }
+//   return {};
+// };
 
-  // const getAcolitoCaracteristicasFields = (antecedente) => {
-  //   if (antecedente === "Acólito") {
-  //     return {
-  //       caracteristicaAbrigoDosFiéis:
-  //         antecedenteSelecionado.CaracteristicaDoAntecedente
-  //           .caracteristicaAbrigoDosFiéis,
-  //     };
-  //   }
-  //   return {};
-  // };
+// const getAcolitoCaracteristicasFields = (antecedente) => {
+//   if (antecedente === "Acólito") {
+//     return {
+//       caracteristicaAbrigoDosFiéis:
+//         antecedenteSelecionado.CaracteristicaDoAntecedente
+//           .caracteristicaAbrigoDosFiéis,
+//     };
+//   }
+//   return {};
+// };
 
-  // const getArtistaCaracteristicasFields = (antecedente) => {
-  //   if (antecedente === "Artista") {
-  //     return {
-  //       rotinasArtisticas: rotinasArtisticasSelcioando,
-  //       caracteristicaDemandaPopular:
-  //         antecedenteSelecionado.CaracteristicaDoAntecedente
-  //           .caracteristicaDemandaPopular,
-  //     };
-  //   }
-  //   return {};
-  // };
+// const getArtistaCaracteristicasFields = (antecedente) => {
+//   if (antecedente === "Artista") {
+//     return {
+//       rotinasArtisticas: rotinasArtisticasSelcioando,
+//       caracteristicaDemandaPopular:
+//         antecedenteSelecionado.CaracteristicaDoAntecedente
+//           .caracteristicaDemandaPopular,
+//     };
+//   }
+//   return {};
+// };
 
 export const getArtesaoCaracteristicasFields = (
   antecedente,
@@ -65,21 +74,32 @@ export const getArtesaoCaracteristicasFields = (
   return {};
 };
 
-export const getAcolitoCaracteristicasFields = (antecedente, antecedenteSelecionado) => {
+export const getAcolitoCaracteristicasFields = (
+  antecedente,
+  antecedenteSelecionado
+) => {
   if (antecedente === "Acólito") {
     return {
-      caracteristicaAbrigoDosFiéis: antecedenteSelecionado.CaracteristicaDoAntecedente.caracteristicaAbrigoDosFiéis,
+      caracteristicaAbrigoDosFiéis:
+        antecedenteSelecionado.CaracteristicaDoAntecedente
+          .caracteristicaAbrigoDosFiéis,
     };
   }
   return {};
 };
 
-export const getArtistaCaracteristicasFields = (antecedente, rotinasArtisticas, antecedenteSelecionado) => {
+export const getArtistaCaracteristicasFields = (
+  antecedente,
+  rotinasArtisticas,
+  antecedenteSelecionado
+) => {
   if (antecedente === "Artista") {
     return {
       rotinasArtisticas,
-      caracteristicaDemandaPopular: antecedenteSelecionado.CaracteristicaDoAntecedente.caracteristicaDemandaPopular,
-      };
+      caracteristicaDemandaPopular:
+        antecedenteSelecionado.CaracteristicaDoAntecedente
+          .caracteristicaDemandaPopular,
     };
+  }
   return {};
 };

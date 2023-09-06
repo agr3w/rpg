@@ -2,7 +2,7 @@
 import React from "react";
 import styles from "pages/FichaPage/fichaPage.module.css";
 
-const Etapa5 = ({ antecedente, setAntecedente, antecedentesOptions }) => {
+const Etapa5 = ({ antecedente, setAntecedente, antecedentesOptions, itensDaAntecedencia }) => {
   return (
     <>
       <label className={styles.label}>Antecedente:</label>
@@ -18,6 +18,13 @@ const Etapa5 = ({ antecedente, setAntecedente, antecedentesOptions }) => {
           </option>
         ))}
       </select>
+      {/* não necessariamente precisa se chamar item, dps é só mudar no Utilits,
+       quer dizer q podemos ter várias divs com vários nomes, dando para deixar bonito */}
+      <div>
+        {itensDaAntecedencia.map((item, index) => (
+          <p key={index}>{item}</p>
+        ))}
+      </div>
     </>
   );
 };

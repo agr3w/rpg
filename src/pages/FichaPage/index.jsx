@@ -23,6 +23,7 @@ const FichaPage = () => {
   const [itensDaRaca, setItensDaRaca] = useState([]);
   const [itensDaClasse, setItensDaClasse] = useState([]);
   const [itensDaTendencia, setItensDaTendencia] = useState([]);
+  const [itensDaAntecedencia, setItensAntecedencia] = useState([]);
   const [antecedente, setAntecedente] = useState("");
   const [antecedenteSelecionado, setAntecedenteSelecionado] = useState(null);
   const [tracoPersonalidadeSelecionado, setTracoPersonalidadeSelecionado] =
@@ -55,6 +56,10 @@ const FichaPage = () => {
       setItensDaRaca([]); // Se a raça não for encontrada, limpe a lista de itens
     }
   }, [raca]);
+
+  useEffect(() => {
+    setItensAntecedencia(encontrarItensPorNome(antecedente, antecedentes ));
+  }, [antecedente]);
 
   useEffect(() => {
     // Quando a raça selecionada mudar, encontre os itens correspondentes
@@ -158,7 +163,8 @@ const FichaPage = () => {
         <Etapa5
           antecedente={antecedente}
           setAntecedente={setAntecedente}
-          antecedentesOptions={antecedentes.map((a) => a.nome)} // Substitua com suas opções de antecedentes
+          antecedentesOptions={antecedentes.map((a) => a.nome)}
+          itensDaAntecedencia={itensDaAntecedencia}
         />
       )}
       {etapa === 6 && antecedenteSelecionado && (
@@ -181,7 +187,8 @@ const FichaPage = () => {
         />
       )}
       {etapa === 7 && (
-        <Etapa7
+        // continuar
+        <Etapa7 
           antecedente={antecedente}
           antecedenteSelecionado={antecedenteSelecionado}
           negocioGuildaSelecionado={negocioGuildaSelecionado}
