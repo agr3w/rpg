@@ -9,9 +9,10 @@ import Etapa3 from "components/FichaPage/Etapa3";
 import { encontrarItensPorNome } from "Utils/Untils";
 import { tendencias } from "Array/Tendencias";
 import Etapa4 from "components/FichaPage/Etapa4";
-import { antecedenteAcólito, antecedentes } from "Array/Antecedentes";
+import { antecedentes } from "Array/Antecedentes";
 import Etapa6 from "components/FichaPage/Etapa6";
 import Etapa5 from "components/FichaPage/Etapa5";
+import Etapa7 from "components/FichaPage/Etapa7";
 
 const FichaPage = () => {
   const [nome, setNome] = useState("");
@@ -64,7 +65,7 @@ const FichaPage = () => {
         setAntecedenteSelecionado(antecedenteEncontrado);
       }
     }
-    if (etapa < 7) {
+    if (etapa < 10) {
       setEtapa(etapa + 1);
     }
   };
@@ -77,7 +78,23 @@ const FichaPage = () => {
 
   const handleConcluir = () => {
     // Primeiro, envie as informações para o Realtime Database
-    enviarFichaParaDatabase(nome, raca, classe, tendencia /* outros campos */);
+    const itensSelecionados = {
+      tracoPersonalidade: tracoPersonalidadeSelecionado,
+      ideal: idealSelecionado,
+      defeito: defeitoSelecionado,
+      vinculo: vinculoSelecionado,
+      antecedente: antecedente,
+    };
+    
+    enviarFichaParaDatabase(
+      nome,
+      raca,
+      classe,
+      tendencia,
+      itensSelecionados, /* outros campos */
+      
+    );
+    
 
     // Em seguida, você pode redirecionar o usuário para outra página ou realizar outra ação
   };
@@ -130,13 +147,15 @@ const FichaPage = () => {
           onSelecionarTracoPersonalidade={(e) =>
             setTracoPersonalidadeSelecionado(e.target.value)
           }
+          setTracoPersonalidadeSelecionado={setTracoPersonalidadeSelecionado}
           onSelecionarIdeal={(e) => setIdealSelecionado(e.target.value)}
           onSelecionarDefeito={(e) => setDefeitoSelecionado(e.target.value)}
           onSelecionarVinculo={(e) => setVinculoSelecionado(e.target.value)}
         />
       )}
+      {etapa === 7 && <Etapa7 antecedente={antecedente} antecedenteSelecionado={antecedenteSelecionado}/>}
       {/* Renderize outras etapas, se necessário */}
-      {etapa < 7 ? (
+      {etapa < 10 ? (
         <button className={styles.button} onClick={handleNext}>
           Próxima Etapa
         </button>
