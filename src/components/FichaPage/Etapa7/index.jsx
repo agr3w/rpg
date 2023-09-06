@@ -9,7 +9,8 @@ const Etapa7 = ({
   setNegocioGuildaSelecionado,
   caracteristicasGuildaSelecionado,
   setCaracteristicasGuildaSelecionado,
-
+  rotinasArtisticasSelcioando,
+  setRotinasArtisticasSelecioando,
 }) => {
   return (
     <div>
@@ -78,7 +79,10 @@ const Etapa7 = ({
       )}
       {antecedente === "Artista" && (
         <>
-          <select>
+          <select
+            value={rotinasArtisticasSelcioando}
+            onChange={(e) => setRotinasArtisticasSelecioando(e.target.value)}
+          >
             {antecedenteSelecionado.CaracteristicaDoAntecedente.rotinasArtisticas.map(
               (opcao) => (
                 <option key={opcao} value={opcao}>

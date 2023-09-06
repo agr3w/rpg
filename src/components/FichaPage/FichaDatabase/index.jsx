@@ -32,3 +32,5 @@ export const enviarFichaParaDatabase = (
   // A novaFichaRef agora contém uma referência à entrada recém-criada no banco de dados
   // Você pode usar esta referência para atualizar ou recuperar os dados, se necessário
 };
+
+

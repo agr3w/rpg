@@ -6,7 +6,7 @@ import { racas, classes } from "Array/RacaEClasse";
 import Etapa1 from "components/FichaPage/Etapa1";
 import Etapa2 from "components/FichaPage/Etapa2";
 import Etapa3 from "components/FichaPage/Etapa3";
-import { encontrarItensPorNome } from "Utils/Untils";
+import { encontrarItensPorNome, getAcolitoCaracteristicasFields, getArtesaoCaracteristicasFields, getArtistaCaracteristicasFields } from "Utils/Untils";
 import { tendencias } from "Array/Tendencias";
 import Etapa4 from "components/FichaPage/Etapa4";
 import { antecedentes } from "Array/Antecedentes";
@@ -38,6 +38,9 @@ const FichaPage = () => {
     setCaracteristicasGuildaSelecionado,
   ] = useState("");
   const [caracteristicaAbrigoDosFiéisTest] = useState("");
+
+  const [rotinasArtisticasSelcioando, setRotinasArtisticasSelecioando] =
+    useState("");
 
   const racasOptions = racas.map((r) => r.nome);
   const classesOptions = classes.map((c) => c.nome);
@@ -83,32 +86,24 @@ const FichaPage = () => {
       setEtapa(etapa - 1);
     }
   };
-  // verificação de antecedente
-  const getArtesaoCaracteristicasFields = (antecedente) => {
-    if (antecedente === "Artesão de Guilda") {
-      return {
-        CaracterísticasDaGuilda: caracteristicasGuildaSelecionado,
-        NegocioDaGuilda: negocioGuildaSelecionado,
-      };
-    }
-    return {};
-  };
-
-  const getAcolitoCaracteristicasFields = (antecedente) => {
-    if (antecedente === "Acólito") {
-      return {
-        caracteristicaAbrigoDosFiéis:
-          antecedenteSelecionado.CaracteristicaDoAntecedente
-            .caracteristicaAbrigoDosFiéis,
-      };
-    }
-    return {};
-  };
 
   const handleConcluir = () => {
     // Primeiro, envie as informações para o Realtime Database
-    const ArtesaoField = getArtesaoCaracteristicasFields(antecedente);
-    const AcolitoField = getAcolitoCaracteristicasFields(antecedente);
+    const ArtesaoField = getArtesaoCaracteristicasFields(
+      antecedente,
+      caracteristicasGuildaSelecionado,
+      negocioGuildaSelecionado
+    );
+    const AcolitoField = getAcolitoCaracteristicasFields(
+      antecedente,
+      antecedenteSelecionado
+    );
+    const ArtistaField = getArtistaCaracteristicasFields(
+      antecedente,
+      rotinasArtisticasSelcioando,
+      antecedenteSelecionado
+    );
+  
 
     const itensSelecionados = {
       tracoPersonalidade: tracoPersonalidadeSelecionado,
@@ -118,8 +113,8 @@ const FichaPage = () => {
       antecedente: antecedente,
       caracteristicas: {
         ...ArtesaoField,
-        AcolitoField,
-        caracteristicaAbrigoDosFiéis: caracteristicaAbrigoDosFiéisTest,
+        ...AcolitoField,
+        ...ArtistaField,
         CaracteristicasSugeridas:
           antecedenteSelecionado.CaracteristicaDoAntecedente
             .caracteristicasSugeridas,
@@ -196,6 +191,8 @@ const FichaPage = () => {
             setCaracteristicasGuildaSelecionado
           }
           caracteristicaAbrigoDosFiéisTest={caracteristicaAbrigoDosFiéisTest}
+          rotinasArtisticasSelcioando={rotinasArtisticasSelcioando}
+          setRotinasArtisticasSelecioando={setRotinasArtisticasSelecioando}
         />
       )}
       {/* Renderize outras etapas, se necessário */}
