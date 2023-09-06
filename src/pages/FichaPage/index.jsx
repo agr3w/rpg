@@ -37,7 +37,7 @@ const FichaPage = () => {
     caracteristicasGuildaSelecionado,
     setCaracteristicasGuildaSelecionado,
   ] = useState("");
-  // const [negocioGuildaSelecionado, setNegocioGuildaSelecionado] = useState("");
+  const [caracteristicaAbrigoDosFiéisTest] = useState("");
 
   const racasOptions = racas.map((r) => r.nome);
   const classesOptions = classes.map((c) => c.nome);
@@ -94,9 +94,22 @@ const FichaPage = () => {
     return {};
   };
 
+  const getAcolitoCaracteristicasFields = (antecedente) => {
+    if (antecedente === "Acólito") {
+      return {
+        caracteristicaAbrigoDosFiéis:
+          antecedenteSelecionado.CaracteristicaDoAntecedente
+            .caracteristicaAbrigoDosFiéis,
+      };
+    }
+    return {};
+  };
+
   const handleConcluir = () => {
     // Primeiro, envie as informações para o Realtime Database
-    const antecedenteFields = getArtesaoCaracteristicasFields(antecedente);
+    const ArtesaoField = getArtesaoCaracteristicasFields(antecedente);
+    const AcolitoField = getAcolitoCaracteristicasFields(antecedente);
+
     const itensSelecionados = {
       tracoPersonalidade: tracoPersonalidadeSelecionado,
       ideal: idealSelecionado,
@@ -104,7 +117,9 @@ const FichaPage = () => {
       vinculo: vinculoSelecionado,
       antecedente: antecedente,
       caracteristicas: {
-        ...antecedenteFields,
+        ...ArtesaoField,
+        AcolitoField,
+        caracteristicaAbrigoDosFiéis: caracteristicaAbrigoDosFiéisTest,
         CaracteristicasSugeridas:
           antecedenteSelecionado.CaracteristicaDoAntecedente
             .caracteristicasSugeridas,
@@ -180,6 +195,7 @@ const FichaPage = () => {
           setCaracteristicasGuildaSelecionado={
             setCaracteristicasGuildaSelecionado
           }
+          caracteristicaAbrigoDosFiéisTest={caracteristicaAbrigoDosFiéisTest}
         />
       )}
       {/* Renderize outras etapas, se necessário */}

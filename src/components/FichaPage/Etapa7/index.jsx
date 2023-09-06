@@ -9,6 +9,7 @@ const Etapa7 = ({
   setNegocioGuildaSelecionado,
   caracteristicasGuildaSelecionado,
   setCaracteristicasGuildaSelecionado,
+
 }) => {
   return (
     <div>
