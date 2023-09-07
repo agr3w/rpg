@@ -1,0 +1,18 @@
+export const idiomasArray = [
+    "Comum",
+    "Anão",
+    "Elfo",
+    "Gnomo",
+    "Meio-Elfo",
+    "Meio-Orc",
+    "Halfling",
+    "Draconiano",
+    "Celestial",
+    "Abyssal",
+    "Infernal",
+    "Primordial",
+    "Silvestre",
+    "Subterrâneo",
+    "Profano",
+    "Dracônico",
+]

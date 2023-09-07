@@ -11,7 +11,7 @@ export function encontrarItensPorNome(nomeItem, array) {
       descricao,
       proficienciaPericia,
       idiomas,
-      equipamento,
+      equipamento
     );
 
     if (item.nome === nomeItem) {
@@ -63,12 +63,14 @@ export function encontrarItensPorNome(nomeItem, array) {
 export const getArtesaoCaracteristicasFields = (
   antecedente,
   caracteristicasGuildaSelecionado,
-  negocioGuildaSelecionado
+  negocioGuildaSelecionado,
+  idiomaDoAntecedente
 ) => {
   if (antecedente === "Artesão de Guilda") {
     return {
       CaracterísticasDaGuilda: caracteristicasGuildaSelecionado,
       NegocioDaGuilda: negocioGuildaSelecionado,
+      idioma: idiomaDoAntecedente,
     };
   }
   return {};
@@ -76,13 +78,17 @@ export const getArtesaoCaracteristicasFields = (
 
 export const getAcolitoCaracteristicasFields = (
   antecedente,
-  antecedenteSelecionado
+  antecedenteSelecionado,
+  idiomaDoAntecedente,
+  idiomaDoAntecendente2
 ) => {
   if (antecedente === "Acólito") {
     return {
       caracteristicaAbrigoDosFiéis:
         antecedenteSelecionado.CaracteristicaDoAntecedente
           .caracteristicaAbrigoDosFiéis,
+
+      Idiomas: { idiomaDoAntecedente, idiomaDoAntecendente2 },
     };
   }
   return {};

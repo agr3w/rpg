@@ -6,19 +6,27 @@ import { racas, classes } from "Array/RacaEClasse";
 import Etapa1 from "components/FichaPage/Etapa1";
 import Etapa2 from "components/FichaPage/Etapa2";
 import Etapa3 from "components/FichaPage/Etapa3";
-import { encontrarItensPorNome, getAcolitoCaracteristicasFields, getArtesaoCaracteristicasFields, getArtistaCaracteristicasFields } from "Utils/Untils";
+import {
+  encontrarItensPorNome,
+  getAcolitoCaracteristicasFields,
+  getArtesaoCaracteristicasFields,
+  getArtistaCaracteristicasFields,
+} from "Utils/Untils";
 import { tendencias } from "Array/Tendencias";
 import Etapa4 from "components/FichaPage/Etapa4";
 import { antecedentes } from "Array/Antecedentes";
 import Etapa6 from "components/FichaPage/Etapa6";
 import Etapa5 from "components/FichaPage/Etapa5";
 import Etapa7 from "components/FichaPage/Etapa7";
+import { idiomasArray } from "Array/Idiomas";
 
 const FichaPage = () => {
   const [nome, setNome] = useState("");
   const [raca, setRaca] = useState("");
   const [classe, setClasse] = useState("");
   const [tendencia, setTendencia] = useState("");
+  const [idiomaDoAntecedente, setIdiomaAntecedente] = useState("");
+  const [idiomaDoAntecendente2, setIdiomaAntecendente2] = useState("");
   const [etapa, setEtapa] = useState(1);
   const [itensDaRaca, setItensDaRaca] = useState([]);
   const [itensDaClasse, setItensDaClasse] = useState([]);
@@ -46,6 +54,7 @@ const FichaPage = () => {
   const racasOptions = racas.map((r) => r.nome);
   const classesOptions = classes.map((c) => c.nome);
   const TendenciasOptions = tendencias.map((t) => t.nome);
+  const idiomaOption = idiomasArray.map((i) => i);
 
   useEffect(() => {
     // Quando a raça selecionada mudar, encontre os itens correspondentes
@@ -58,7 +67,7 @@ const FichaPage = () => {
   }, [raca]);
 
   useEffect(() => {
-    setItensAntecedencia(encontrarItensPorNome(antecedente, antecedentes ));
+    setItensAntecedencia(encontrarItensPorNome(antecedente, antecedentes));
   }, [antecedente]);
 
   useEffect(() => {
@@ -97,18 +106,20 @@ const FichaPage = () => {
     const ArtesaoField = getArtesaoCaracteristicasFields(
       antecedente,
       caracteristicasGuildaSelecionado,
-      negocioGuildaSelecionado
+      negocioGuildaSelecionado,
+      idiomaDoAntecedente
     );
     const AcolitoField = getAcolitoCaracteristicasFields(
       antecedente,
-      antecedenteSelecionado
+      antecedenteSelecionado,
+      idiomaDoAntecedente,
+      idiomaDoAntecendente2
     );
     const ArtistaField = getArtistaCaracteristicasFields(
       antecedente,
       rotinasArtisticasSelcioando,
       antecedenteSelecionado
     );
-  
 
     const itensSelecionados = {
       tracoPersonalidade: tracoPersonalidadeSelecionado,
@@ -165,6 +176,11 @@ const FichaPage = () => {
           setAntecedente={setAntecedente}
           antecedentesOptions={antecedentes.map((a) => a.nome)}
           itensDaAntecedencia={itensDaAntecedencia}
+          idiomaDoAntecedente={idiomaDoAntecedente}
+          idiomaDoAntecendente2={idiomaDoAntecendente2}
+          setIdiomaAntecedente={setIdiomaAntecedente}
+          setIdiomaAntecendente2={setIdiomaAntecendente2}
+          idiomaOption={idiomaOption}
         />
       )}
       {etapa === 6 && antecedenteSelecionado && (
@@ -188,7 +204,7 @@ const FichaPage = () => {
       )}
       {etapa === 7 && (
         // continuar
-        <Etapa7 
+        <Etapa7
           antecedente={antecedente}
           antecedenteSelecionado={antecedenteSelecionado}
           negocioGuildaSelecionado={negocioGuildaSelecionado}

@@ -2,7 +2,18 @@
 import React from "react";
 import styles from "pages/FichaPage/fichaPage.module.css";
 
-const Etapa5 = ({ antecedente, setAntecedente, antecedentesOptions, itensDaAntecedencia }) => {
+const Etapa5 = ({
+  antecedente,
+  setAntecedente,
+  antecedentesOptions,
+  itensDaAntecedencia,
+
+  idiomaDoAntecedente,
+  idiomaDoAntecendente2,
+  setIdiomaAntecedente,
+  setIdiomaAntecendente2,
+  idiomaOption,
+}) => {
   return (
     <>
       <label className={styles.label}>Antecedente:</label>
@@ -25,6 +36,47 @@ const Etapa5 = ({ antecedente, setAntecedente, antecedentesOptions, itensDaAntec
           <p key={index}>{item}</p>
         ))}
       </div>
+      {antecedente === "Acólito" && (
+        <>
+          <select
+            value={idiomaDoAntecedente}
+            onChange={(e) => setIdiomaAntecedente(e.target.value)}
+          >
+            <option value="">Selecione Idioma</option>
+            {idiomaOption.map((opcao) => (
+              <option key={opcao} value={opcao}>
+                {opcao}
+              </option>
+            ))}
+          </select>
+          <select
+            value={idiomaDoAntecendente2}
+            onChange={(eb) => setIdiomaAntecendente2(eb.target.value)}
+          >
+            <option value="">Selecione Idioma</option>
+            {idiomaOption.map((opcao) => (
+              <option key={opcao} value={opcao}>
+                {opcao}
+              </option>
+            ))}
+          </select>
+        </>
+      )}
+      {antecedente === "Artesão de Guilda" && (
+        <>
+          <select
+            value={idiomaDoAntecedente}
+            onChange={(e) => setIdiomaAntecedente(e.target.value)}
+          >
+            <option value="">Selecione Idioma</option>
+            {idiomaOption.map((opcao) => (
+              <option key={opcao} value={opcao}>
+                {opcao}
+              </option>
+            ))}
+          </select>
+        </>
+      )}
     </>
   );
 };
