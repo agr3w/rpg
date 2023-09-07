@@ -19,6 +19,7 @@ import Etapa6 from "components/FichaPage/Etapa6";
 import Etapa5 from "components/FichaPage/Etapa5";
 import Etapa7 from "components/FichaPage/Etapa7";
 import { idiomasArray } from "Array/Idiomas";
+import Etapa8 from "components/FichaPage/Etapa8";
 
 const FichaPage = () => {
   const [nome, setNome] = useState("");
@@ -50,6 +51,8 @@ const FichaPage = () => {
 
   const [rotinasArtisticasSelcioando, setRotinasArtisticasSelecioando] =
     useState("");
+
+  const [riquezaInicial, setRiquezaInicial] = useState(0);
 
   const racasOptions = racas.map((r) => r.nome);
   const classesOptions = classes.map((c) => c.nome);
@@ -137,9 +140,13 @@ const FichaPage = () => {
       },
     };
 
-    enviarFichaParaDatabase(nome, raca, classe, tendencia, itensSelecionados);
+    enviarFichaParaDatabase(nome, raca, classe, tendencia, itensSelecionados, riquezaInicial);
 
     // Em seguida, você pode redirecionar o usuário para outra página ou realizar outra ação
+  };
+
+  const handleRiquezaInicialCalculada = (riqueza) => {
+    setRiquezaInicial(riqueza);
   };
 
   return (
@@ -216,6 +223,14 @@ const FichaPage = () => {
           caracteristicaAbrigoDosFiéisTest={caracteristicaAbrigoDosFiéisTest}
           rotinasArtisticasSelcioando={rotinasArtisticasSelcioando}
           setRotinasArtisticasSelecioando={setRotinasArtisticasSelecioando}
+        />
+      )}
+      {etapa === 8 && (
+        <Etapa8
+          riquezaInicial={riquezaInicial}
+          setRiquezaInicial={setRiquezaInicial}
+          classeSelecionada={classe}
+          onRiquezaInicialCalculada={handleRiquezaInicialCalculada}
         />
       )}
       {/* Renderize outras etapas, se necessário */}
