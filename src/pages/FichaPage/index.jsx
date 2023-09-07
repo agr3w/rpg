@@ -11,6 +11,7 @@ import {
   getAcolitoCaracteristicasFields,
   getArtesaoCaracteristicasFields,
   getArtistaCaracteristicasFields,
+  getHumanoCaracteristicasFields,
 } from "Utils/Untils";
 import { tendencias } from "Array/Tendencias";
 import Etapa4 from "components/FichaPage/Etapa4";
@@ -54,10 +55,15 @@ const FichaPage = () => {
 
   const [riquezaInicial, setRiquezaInicial] = useState(0);
 
+  const [idiomaRacaSelecionado, setIdiomaRacaSelecionado] = useState("");
+  const [idiomaRacaSelecionado2, setIdiomaRacaSelecionado2] = useState("");
+
   const racasOptions = racas.map((r) => r.nome);
   const classesOptions = classes.map((c) => c.nome);
   const TendenciasOptions = tendencias.map((t) => t.nome);
   const idiomaOption = idiomasArray.map((i) => i);
+
+  const racaSelecionada = racas.find((r) => r.nome === raca);
 
   useEffect(() => {
     // Quando a raça selecionada mudar, encontre os itens correspondentes
@@ -105,7 +111,14 @@ const FichaPage = () => {
   };
 
   const handleConcluir = () => {
-    // Primeiro, envie as informações para o Realtime Database
+    // Racas
+    const HuamnoField = getHumanoCaracteristicasFields(
+      racaSelecionada,
+      idiomaRacaSelecionado,
+      idiomaRacaSelecionado2
+    );
+
+    // Classes
     const ArtesaoField = getArtesaoCaracteristicasFields(
       antecedente,
       caracteristicasGuildaSelecionado,
@@ -124,6 +137,14 @@ const FichaPage = () => {
       antecedenteSelecionado
     );
 
+    // RacasParaMandar
+
+    const RacasEClassesInfo = {
+      Idiomas: { idiomaRacaSelecionado, idiomaRacaSelecionado2 },
+    };
+
+    // ClassesParaMandar
+
     const itensSelecionados = {
       tracoPersonalidade: tracoPersonalidadeSelecionado,
       ideal: idealSelecionado,
@@ -140,7 +161,17 @@ const FichaPage = () => {
       },
     };
 
-    enviarFichaParaDatabase(nome, raca, classe, tendencia, itensSelecionados, riquezaInicial);
+    // Envio
+
+    enviarFichaParaDatabase(
+      nome,
+      raca,
+      classe,
+      tendencia,
+      itensSelecionados,
+      riquezaInicial,
+      RacasEClassesInfo
+    );
 
     // Em seguida, você pode redirecionar o usuário para outra página ou realizar outra ação
   };
@@ -159,6 +190,12 @@ const FichaPage = () => {
           setRaca={setRaca}
           racasOptions={racasOptions}
           itensDaRaca={itensDaRaca}
+          racaSelecionada={racaSelecionada}
+          idiomaRacaSelecionado={idiomaRacaSelecionado}
+          setIdiomaRacaSelecionado={setIdiomaRacaSelecionado}
+          idiomaRacaSelecionado2={idiomaRacaSelecionado2}
+          setIdiomaRacaSelecionado2={setIdiomaRacaSelecionado2}
+          idiomaOption={idiomaOption}
         />
       )}
       {etapa === 3 && (

@@ -60,6 +60,27 @@ export function encontrarItensPorNome(nomeItem, array) {
 //   return {};
 // };
 
+// Raças
+
+export const getHumanoCaracteristicasFields = (
+  racaSelecionada,
+  idiomaRacaSelecionado,
+  idiomaRacaSelecionado2
+) => {
+  if (racaSelecionada === "Humano") {
+    return {
+      IdiomasDaRaca: {
+        idiomaRacaSelecionado,
+        idiomaRacaSelecionado2,
+      },
+      test: racaSelecionada
+    };
+  }
+  return {};
+};
+
+// Classes
+
 export const getArtesaoCaracteristicasFields = (
   antecedente,
   caracteristicasGuildaSelecionado,

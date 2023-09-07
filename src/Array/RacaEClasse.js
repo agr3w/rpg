@@ -7,7 +7,7 @@ export const racas = [
       "Habilidade +1 em todos os atributos",
       "Idiomas: Comum e um idioma adicional à escolha do jogador",
     ],
-    // Adicione mais informações específicas da raça, se necessário
+    idiomaRaca: ["Comum"],
   },
   {
     nome: "Elfo",
