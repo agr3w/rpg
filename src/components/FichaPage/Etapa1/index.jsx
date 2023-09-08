@@ -2,13 +2,16 @@
 
 import React from "react";
 import styles from "pages/FichaPage/fichaPage.module.css";
+import { TextField } from "@mui/material";
 
 const Etapa1 = ({ nome, setNome }) => {
   return (
     <div className={styles.etapaContainer}>
-      <label className={styles.label}>Nome:</label>
-      <input
-        type="text"
+      <h1 className={styles.h1}>Selecione um nome para seu personagem</h1>
+     <TextField
+        label="Nome do personagem"
+        variant="outlined"
+        fullWidth
         className={styles.input}
         value={nome}
         onChange={(e) => setNome(e.target.value)}

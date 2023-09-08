@@ -206,7 +206,7 @@ const FichaPage = () => {
 
   return (
     <div className={styles.pageContainer}>
-      <h1>Crie sua Ficha de Personagem</h1>
+      {/* <h1>Crie sua Ficha de Personagem</h1> */}
       {etapa === 1 && <Etapa1 nome={nome} setNome={setNome} />}
       {etapa === 2 && (
         <Etapa2
