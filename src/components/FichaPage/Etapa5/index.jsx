@@ -1,5 +1,5 @@
-// EtapaAnterior.js
 import React from "react";
+import { Select, MenuItem } from "@mui/material"; // Importe os componentes do Material-UI que você precisa
 import styles from "pages/FichaPage/fichaPage.module.css";
 
 const Etapa5 = ({
@@ -7,30 +7,27 @@ const Etapa5 = ({
   setAntecedente,
   antecedentesOptions,
   itensDaAntecedencia,
-
   idiomaDoAntecedente,
-  idiomaDoAntecendente2,
   setIdiomaAntecedente,
+  idiomaDoAntecendente2,
   setIdiomaAntecendente2,
   idiomaOption,
 }) => {
   return (
     <>
       <label className={styles.label}>Antecedente:</label>
-      <select
+      <Select
         className={styles.input}
         value={antecedente}
         onChange={(e) => setAntecedente(e.target.value)}
       >
-        <option value="">Selecione um antecedente</option>
+        <MenuItem value="">Selecione um antecedente</MenuItem>
         {antecedentesOptions.map((opcao) => (
-          <option key={opcao} value={opcao}>
+          <MenuItem key={opcao} value={opcao}>
             {opcao}
-          </option>
+          </MenuItem>
         ))}
-      </select>
-      {/* não necessariamente precisa se chamar item, dps é só mudar no Utilits,
-       quer dizer q podemos ter várias divs com vários nomes, dando para deixar bonito */}
+      </Select>
       <div>
         {itensDaAntecedencia.map((item, index) => (
           <p key={index}>{item}</p>
@@ -38,43 +35,43 @@ const Etapa5 = ({
       </div>
       {antecedente === "Acólito" && (
         <>
-          <select
+          <Select
             value={idiomaDoAntecedente}
             onChange={(e) => setIdiomaAntecedente(e.target.value)}
           >
-            <option value="">Selecione Idioma</option>
+            <MenuItem value="">Selecione Idioma</MenuItem>
             {idiomaOption.map((opcao) => (
-              <option key={opcao} value={opcao}>
+              <MenuItem key={opcao} value={opcao}>
                 {opcao}
-              </option>
+              </MenuItem>
             ))}
-          </select>
-          <select
+          </Select>
+          <Select
             value={idiomaDoAntecendente2}
             onChange={(eb) => setIdiomaAntecendente2(eb.target.value)}
           >
-            <option value="">Selecione Idioma</option>
+            <MenuItem value="">Selecione Idioma</MenuItem>
             {idiomaOption.map((opcao) => (
-              <option key={opcao} value={opcao}>
+              <MenuItem key={opcao} value={opcao}>
                 {opcao}
-              </option>
+              </MenuItem>
             ))}
-          </select>
+          </Select>
         </>
       )}
       {antecedente === "Artesão de Guilda" && (
         <>
-          <select
+          <Select
             value={idiomaDoAntecedente}
             onChange={(e) => setIdiomaAntecedente(e.target.value)}
           >
-            <option value="">Selecione Idioma</option>
+            <MenuItem value="">Selecione Idioma</MenuItem>
             {idiomaOption.map((opcao) => (
-              <option key={opcao} value={opcao}>
+              <MenuItem key={opcao} value={opcao}>
                 {opcao}
-              </option>
+              </MenuItem>
             ))}
-          </select>
+          </Select>
         </>
       )}
     </>

@@ -1,6 +1,5 @@
-// Etapa3.js
-
 import React from "react";
+import { Button, Select, MenuItem } from "@mui/material"; // Importando componentes do Material-UI
 import styles from "pages/FichaPage/fichaPage.module.css";
 
 const Etapa3 = ({
@@ -53,18 +52,18 @@ const Etapa3 = ({
   return (
     <>
       <label className={styles.label}>Classe:</label>
-      <select
+      <Select
         className={styles.input}
         value={classe}
         onChange={(e) => setClasse(e.target.value)}
       >
-        <option value="">Selecione uma classe</option>
+        <MenuItem value="">Selecione uma classe</MenuItem>
         {classesOptions.map((opcao) => (
-          <option key={opcao} value={opcao}>
+          <MenuItem key={opcao} value={opcao}>
             {opcao}
-          </option>
+          </MenuItem>
         ))}
-      </select>
+      </Select>
       <div>
         {/* Exiba os itens da classe selecionada */}
         {itensDaClasse.map((item, index) => (
@@ -77,11 +76,11 @@ const Etapa3 = ({
       {(classe === "Mago" || classe === "cu") && (
         <>
           <div>
-            <button onClick={handleTogglePainelHabilidades}>
+            <Button onClick={handleTogglePainelHabilidades}>
               {exibirPainelHabilidades
                 ? "Fechar Habilidades"
                 : "Ver Habilidades"}
-            </button>
+            </Button>
 
             {/* Painel de habilidades (será exibido se exibirPainelHabilidades for true) */}
             {exibirPainelHabilidades && (
@@ -141,39 +140,39 @@ const Etapa3 = ({
 
             <h1>Equipamentos da Classe:</h1>
             <p>{classeSelecioanda.equipamentos.equipamentoObgt}</p>
-            <select
+            <Select
               value={equipamentosClasseSelecionada1}
               onChange={(e) => setEquipamentoClasseSelecionado1(e.target.value)}
             >
-              <option value="">Equipamentos da Classe</option>
+              <MenuItem value="">Equipamentos da Classe</MenuItem>
               {classeSelecioanda.equipamentos.equipamentoAlpha1.map((opcao) => (
-                <option key={opcao} value={opcao}>
+                <MenuItem key={opcao} value={opcao}>
                   {opcao}
-                </option>
-              ))}{" "}
-            </select>
-            <select
+                </MenuItem>
+              ))}
+            </Select>
+            <Select
               value={equipamentosClasseSelecionada2}
               onChange={(e) => setEquipamentoClasseSelecionado2(e.target.value)}
             >
-              <option value="">Equipamentos da Classe</option>
+              <MenuItem value="">Equipamentos da Classe</MenuItem>
               {classeSelecioanda.equipamentos.equipamentoAlpha2.map((opcao) => (
-                <option key={opcao} value={opcao}>
+                <MenuItem key={opcao} value={opcao}>
                   {opcao}
-                </option>
-              ))}{" "}
-            </select>
-            <select
+                </MenuItem>
+              ))}
+            </Select>
+            <Select
               value={equipamentosClasseSelecionada3}
               onChange={(e) => setEquipamentoClasseSelecionado3(e.target.value)}
             >
-              <option value="">Equipamentos da Classe</option>
+              <MenuItem value="">Equipamentos da Classe</MenuItem>
               {classeSelecioanda.equipamentos.equipamentoAlpha3.map((opcao) => (
-                <option key={opcao} value={opcao}>
+                <MenuItem key={opcao} value={opcao}>
                   {opcao}
-                </option>
-              ))}{" "}
-            </select>
+                </MenuItem>
+              ))}
+            </Select>
           </div>
         </>
       )}

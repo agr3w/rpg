@@ -1,26 +1,31 @@
 // Etapa4.js
 import React from "react";
 import styles from "pages/FichaPage/fichaPage.module.css";
+import { FormControl, InputLabel, MenuItem, Select, Typography } from "@mui/material";
 
 const Etapa4 = ({ tendencia, setTendencia, TendenciasOptions, itensDaTendencia }) => {
   return (
     <>
-      <label className={styles.label}>Tendência:</label>
-      <select
-        className={styles.input}
-        value={tendencia}
-        onChange={(e) => setTendencia(e.target.value)}
-      >
-        <option value="">Selecione uma tendência</option>
-        {TendenciasOptions.map((opcao) => (
-          <option key={opcao} value={opcao}>
-            {opcao}
-          </option>
-        ))}
-      </select>
+      <FormControl fullWidth>
+        <InputLabel>Tendência:</InputLabel>
+        <Select
+          value={tendencia}
+          onChange={(e) => setTendencia(e.target.value)}
+          label="Tendência"
+        >
+          <MenuItem value="">
+            <em>Selecione uma tendência</em>
+          </MenuItem>
+          {TendenciasOptions.map((opcao) => (
+            <MenuItem key={opcao} value={opcao}>
+              {opcao}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
       <div>
         {itensDaTendencia.map((item, index) => (
-          <p key={index}>{item}</p>
+          <Typography key={index}>{item}</Typography>
         ))}
       </div>
     </>

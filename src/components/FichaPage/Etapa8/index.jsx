@@ -1,3 +1,4 @@
+import { Button } from "@mui/material";
 import { calcularRiquezaInicialPorClasse } from "Utils/DiceRoller";
 import React, { useState } from "react";
 
@@ -34,9 +35,13 @@ function Etapa8({
     <div>
       <h3>Riqueza Inicial</h3>
       <p>{riquezaInicial} peças de ouro (PO)</p>
-      <button onClick={calcularRiquezaInicial} disabled={botaoPressionado}>
+      <Button
+        variant="contained"
+        onClick={calcularRiquezaInicial}
+        disabled={botaoPressionado}
+      >
         Calcular Riqueza
-      </button>
+      </Button>
     </div>
   );
 }

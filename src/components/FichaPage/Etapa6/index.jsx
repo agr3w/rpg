@@ -1,6 +1,7 @@
 // Etapa5.js
 import React from "react";
 import styles from "pages/FichaPage/fichaPage.module.css";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
 const Etapa6 = ({
   tracoPersonalidade,
@@ -18,61 +19,77 @@ const Etapa6 = ({
 }) => {
   return (
     <div>
-      <label className={styles.label}>Traço de Personalidade:</label>
-      <select
-        className={styles.input}
-        value={tracoPersonalidadeSelecionado}
-        onChange={onSelecionarTracoPersonalidade}
-      >
-        <option value="">Selecione um traço de personalidade</option>
-        {tracoPersonalidade.map((traco, index) => (
-          <option key={index} value={traco}>
-            {traco}
-          </option>
-        ))}
-      </select>
+      <FormControl fullWidth>
+        <InputLabel>Traço de Personalidade:</InputLabel>
+        <Select
+          value={tracoPersonalidadeSelecionado}
+          onChange={onSelecionarTracoPersonalidade}
+          label="Traço de Personalidade"
+        >
+          <MenuItem value="">
+            <em>Selecione um traço de personalidade</em>
+          </MenuItem>
+          {tracoPersonalidade.map((traco, index) => (
+            <MenuItem key={index} value={traco}>
+              {traco}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
-      <label className={styles.label}>Ideal:</label>
-      <select
-        className={styles.input}
-        value={idealSelecionado}
-        onChange={onSelecionarIdeal}
-      >
-        <option value="">Selecione um ideal</option>
-        {ideal.map((item, index) => (
-          <option key={index} value={item}>
-            {item}
-          </option>
-        ))}
-      </select>
+      <FormControl fullWidth>
+        <InputLabel>Ideal:</InputLabel>
+        <Select
+          value={idealSelecionado}
+          onChange={onSelecionarIdeal}
+          label="Ideal"
+        >
+          <MenuItem value="">
+            <em>Selecione um ideal</em>
+          </MenuItem>
+          {ideal.map((item, index) => (
+            <MenuItem key={index} value={item}>
+              {item}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
-      <label className={styles.label}>Defeito:</label>
-      <select
-        className={styles.input}
-        value={defeitoSelecionado}
-        onChange={onSelecionarDefeito}
-      >
-        <option value="">Selecione um defeito</option>
-        {defeito.map((item, index) => (
-          <option key={index} value={item}>
-            {item}
-          </option>
-        ))}
-      </select>
+      <FormControl fullWidth>
+        <InputLabel>Defeito:</InputLabel>
+        <Select
+          value={defeitoSelecionado}
+          onChange={onSelecionarDefeito}
+          label="Defeito"
+        >
+          <MenuItem value="">
+            <em>Selecione um defeito</em>
+          </MenuItem>
+          {defeito.map((item, index) => (
+            <MenuItem key={index} value={item}>
+              {item}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
-      <label className={styles.label}>Vínculo:</label>
-      <select
-        className={styles.input}
-        value={vinculoSelecionado}
-        onChange={onSelecionarVinculo}
-      >
-        <option value="">Selecione um vínculo</option>
-        {vinculo.map((item, index) => (
-          <option key={index} value={item}>
-            {item}
-          </option>
-        ))}
-      </select>
+      <FormControl fullWidth>
+        <InputLabel>Vínculo:</InputLabel>
+        <Select
+          value={vinculoSelecionado}
+          onChange={onSelecionarVinculo}
+          label="Vínculo"
+        >
+          <MenuItem value="">
+            <em>Selecione um vínculo</em>
+          </MenuItem>
+          {vinculo.map((item, index) => (
+            <MenuItem key={index} value={item}>
+              {item}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
     </div>
   );
 };
