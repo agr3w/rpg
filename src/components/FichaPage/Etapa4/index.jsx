@@ -6,8 +6,9 @@ import { FormControl, InputLabel, MenuItem, Select, Typography } from "@mui/mate
 const Etapa4 = ({ tendencia, setTendencia, TendenciasOptions, itensDaTendencia }) => {
   return (
     <>
+    <h1 className={styles.h1}>Tendência do personagem</h1>
       <FormControl fullWidth>
-        <InputLabel>Tendência:</InputLabel>
+        <InputLabel>Tendência</InputLabel>
         <Select
           value={tendencia}
           onChange={(e) => setTendencia(e.target.value)}

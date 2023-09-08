@@ -7,7 +7,7 @@ import { TextField } from "@mui/material";
 const Etapa1 = ({ nome, setNome }) => {
   return (
     <div className={styles.etapaContainer}>
-      <h1 className={styles.h1}>Selecione um nome para seu personagem</h1>
+      <h1 className={styles.h1}>Nome do personagem</h1>
      <TextField
         label="Nome do personagem"
         variant="outlined"

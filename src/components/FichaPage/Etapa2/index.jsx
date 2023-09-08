@@ -20,6 +20,7 @@ const Etapa2 = ({
 }) => {
   return (
     <>
+    <h1 className={styles.h1}>Selecione uma Raça</h1>
       <FormControl fullWidth>
         <InputLabel>Raça</InputLabel>
         <Select
@@ -37,31 +38,33 @@ const Etapa2 = ({
           ))}
         </Select>
       </FormControl>
-      <div>
+      <div className={styles.espacamentoTextoItem}>
         {/* Exiba os itens da raça selecionada */}
         {itensDaRaca.map((item, index) => (
-          <p key={index}>{item}</p>
+          <li key={index}>{item}</li>
         ))}
       </div>
       {raca === "Humano" && (
         <>
-          <FormControl fullWidth>
-            <InputLabel>Idiomas da Raça</InputLabel>
-            <Select
-              value={idiomaRacaSelecionado}
-              onChange={(e) => setIdiomaRacaSelecionado(e.target.value)}
-              label="Idiomas da Raça"
-            >
-              <MenuItem value="">
-                <em>Idiomas da Raça</em>
-              </MenuItem>
-              {racaSelecionada.idiomaRaca.map((opcao) => (
-                <MenuItem key={opcao} value={opcao}>
-                  {opcao}
+          <div className={styles.espacamentoSelects}>
+            <FormControl fullWidth>
+              <InputLabel>Idiomas da Raça</InputLabel>
+              <Select
+                value={idiomaRacaSelecionado}
+                onChange={(e) => setIdiomaRacaSelecionado(e.target.value)}
+                label="Idiomas da Raça"
+              >
+                <MenuItem value="">
+                  <em>Idiomas da Raça</em>
                 </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+                {racaSelecionada.idiomaRaca.map((opcao) => (
+                  <MenuItem key={opcao} value={opcao}>
+                    {opcao}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
           <FormControl fullWidth>
             <InputLabel>Selecione o segundo Idioma</InputLabel>
             <Select

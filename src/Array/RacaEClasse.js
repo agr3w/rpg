@@ -12,7 +12,7 @@ export const racas = [
   {
     nome: "Elfo",
     habilidades: ["Habilidade +2 em Destreza", "Idiomas: Comum e Élfico"],
-    // Outras informações específicas da raça
+    idiomaRaca: ["Elfico"],
   },
   // Adicione mais raças aqui
 ];
@@ -37,8 +37,8 @@ export const classes = [
       armaduras: "Nenhuma",
       armas: ["adagas, ", "dardos, ", "fundas, ", "bordões, ", "bestas leves"],
       ferramentas: "Nenhuma",
-      testesDeResistecia: ["Inteligência, ", "Sabedoria"],
-      periciasLabel: "escolha duas dentre",
+      testesDeResistecia: [" Inteligência, ", "Sabedoria"],
+      periciasLabel: "escolha duas dentre:",
       perficiasMinimo: "2",
       periciasSelecao: [
         "Arcanismo",

@@ -35,12 +35,11 @@ export const antecedenteAcólito = {
     "Depois de escolher um objetivo, eu fico obcecado em cumpri-lo, até mesmo em detrimento de qualquer outra coisa em minha vida.",
   ],
   proficienciaPericia: ["Intuição", "Religião"],
-  idiomas: "Dois à sua escolha",
   equipamento:
     "Um símbolo sagrado (um presente dado quando você entrou no templo), um livro de preces ou uma conta de orações, 5 varetas de incenso, vestimentas, um conjunto de roupas comuns e uma algibeira contendo 15 po",
   CaracteristicaDoAntecedente: {
-    caracteristicaAbrigoDosFiéis:
-      "Como um acólito, você detém o respeito daqueles que compartilham de sua fé, e você pode realizar cerimônias de sua divindade. Você e seus companheiros de aventura podem até receber cura e caridade de um templo, santuário ou outro posto de sua fé, embora devam fornecer quaisquer componentes materiais necessários para as magias. Aqueles que compartilham de sua religião vão garantir a você (mas apenas você), custeando um estilo de vida modesto. Você também pode possuir laços com um templo específico devotado à sua divindade ou panteão, e fixar residência nele. Pode ser o templo que você está acostumado a servir, se ainda tiver boas relações com ele, ou um templo no qual você encontrou um novo lar. Enquanto frequentar as redondezas desse templo, você pode solicitar os sacerdotes para assisti-lo, desde que essa assistência não seja de alguma forma perigosa e que você sempre esteja em uma boa relação com seu templo.",
+    caracteristicaAbrigoDosFiéis:[
+      "Como um acólito, você é respeitado por aqueles que compartilham sua fé, pode realizar cerimônias religiosas e receber cura e caridade de locais de culto. Pessoas da mesma religião podem apoiar seu estilo de vida modesto. Você pode até ter vínculos com um templo específico e pedir ajuda quando estiver por perto, desde que não seja perigoso e mantenha boas relações com o templo."],
     caracteristicasSugeridas: [
       "Acólitos são moldados pela sua experiência em templos ou comunidades religiosas. Seu estudo da história e dogmas de sua fé, e sua relação com os templos, santuários ou hierarquias afetam seus maneirismos e ideais. Seus defeitos podem ser uma hipocrisia oculta ou ideias hereges, ou um ideal ou vínculo visto como fanatismo.",
     ],
@@ -50,8 +49,7 @@ export const antecedenteAcólito = {
 const antecedenteArtesaoGuilda = {
   nome: "Artesão de Guilda",
   proficienciaPericia: ["Intuição", "Persuasão"],
-  proficienciaFerramentas: ["Um tipo de ferramenta de artesão"],
-  idiomas: "Um à sua escolha",
+  proficienciaFerramentasAntecedente: ["Um tipo de ferramenta de artesão"],
   equipamento:
     "Um conjunto de ferramentas de artesão (à sua escolha), uma carta de apresentação da sua guilda, um conjunto de roupas de viajante e uma algibeira com 15 po",
   CaracteristicaDoAntecedente: {
@@ -128,7 +126,7 @@ const antecedenteArtesaoGuilda = {
 const antecedenteArtista = {
   nome: "Artista",
   proficienciaPericia: ["Acrobacia", "Atuação"],
-  proficienciaFerramentas: [
+  proficienciaFerramentasAntecedente: [
     "Kit de disfarce",
     "Um tipo de instrumento musical",
   ],

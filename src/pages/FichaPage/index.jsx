@@ -16,9 +16,9 @@ import {
 import { tendencias } from "Array/Tendencias";
 import Etapa4 from "components/FichaPage/Etapa4";
 import { antecedentes } from "Array/Antecedentes";
-import Etapa6 from "components/FichaPage/Etapa6";
+import Etapa6 from "components/FichaPage/Etapa7";
 import Etapa5 from "components/FichaPage/Etapa5";
-import Etapa7 from "components/FichaPage/Etapa7";
+import Etapa7 from "components/FichaPage/Etapa6";
 import { idiomasArray } from "Array/Idiomas";
 import Etapa8 from "components/FichaPage/Etapa8";
 
@@ -67,8 +67,7 @@ const FichaPage = () => {
 
   const [periciasClasseSelecionadas, setPericiasSelecionadas] = useState([]);
 
-  const [exibirPainelHabilidades, setExibirPainelHabilidades] = useState("")
-
+  const [exibirPainelHabilidades, setExibirPainelHabilidades] = useState("");
 
   const racasOptions = racas.map((r) => r.nome);
   const classesOptions = classes.map((c) => c.nome);
@@ -264,6 +263,22 @@ const FichaPage = () => {
       )}
       {etapa === 6 && antecedenteSelecionado && (
         <Etapa6
+          antecedente={antecedente}
+          antecedenteSelecionado={antecedenteSelecionado}
+          negocioGuildaSelecionado={negocioGuildaSelecionado}
+          setNegocioGuildaSelecionado={setNegocioGuildaSelecionado}
+          caracteristicasGuildaSelecionado={caracteristicasGuildaSelecionado}
+          setCaracteristicasGuildaSelecionado={
+            setCaracteristicasGuildaSelecionado
+          }
+          caracteristicaAbrigoDosFiéisTest={caracteristicaAbrigoDosFiéisTest}
+          rotinasArtisticasSelcioando={rotinasArtisticasSelcioando}
+          setRotinasArtisticasSelecioando={setRotinasArtisticasSelecioando}
+        />
+      )}
+      {etapa === 7 && (
+        // continuar
+        <Etapa7
           tracoPersonalidade={antecedenteSelecionado.tracoPersonalidade}
           ideal={antecedenteSelecionado.ideal}
           defeito={antecedenteSelecionado.defeito}
@@ -279,22 +294,6 @@ const FichaPage = () => {
           onSelecionarIdeal={(e) => setIdealSelecionado(e.target.value)}
           onSelecionarDefeito={(e) => setDefeitoSelecionado(e.target.value)}
           onSelecionarVinculo={(e) => setVinculoSelecionado(e.target.value)}
-        />
-      )}
-      {etapa === 7 && (
-        // continuar
-        <Etapa7
-          antecedente={antecedente}
-          antecedenteSelecionado={antecedenteSelecionado}
-          negocioGuildaSelecionado={negocioGuildaSelecionado}
-          setNegocioGuildaSelecionado={setNegocioGuildaSelecionado}
-          caracteristicasGuildaSelecionado={caracteristicasGuildaSelecionado}
-          setCaracteristicasGuildaSelecionado={
-            setCaracteristicasGuildaSelecionado
-          }
-          caracteristicaAbrigoDosFiéisTest={caracteristicaAbrigoDosFiéisTest}
-          rotinasArtisticasSelcioando={rotinasArtisticasSelcioando}
-          setRotinasArtisticasSelecioando={setRotinasArtisticasSelecioando}
         />
       )}
       {etapa === 8 && (

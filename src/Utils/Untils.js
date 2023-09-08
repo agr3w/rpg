@@ -4,13 +4,12 @@ export function encontrarItensPorNome(nomeItem, array) {
     const dadosDeVida = item.dadosDeVida || [];
     const descricao = item.descricao || [];
     const proficienciaPericia = item.proficienciaPericia || [];
-    const idiomas = item.idiomas || [];
+    const proficienciaFerramentasAntecedente = item.proficienciaFerramentasAntecedente || [];
     const todosItens = habilidades.concat(
       dadosDeVida,
       descricao,
       proficienciaPericia,
-      idiomas,
-
+      proficienciaFerramentasAntecedente
     );
 
     if (item.nome === nomeItem) {
@@ -72,7 +71,7 @@ export const getHumanoCaracteristicasFields = (
         idiomaRacaSelecionado,
         idiomaRacaSelecionado2,
       },
-      test: racaSelecionada
+      test: racaSelecionada,
     };
   }
   return {};
@@ -122,6 +121,8 @@ export const getArtistaCaracteristicasFields = (
   if (antecedente === "Artista") {
     return {
       rotinasArtisticas,
+      proficienciaPericiaAntecedente:
+        antecedenteSelecionado.proficienciaPericia,
       caracteristicaDemandaPopular:
         antecedenteSelecionado.CaracteristicaDoAntecedente
           .caracteristicaDemandaPopular,
