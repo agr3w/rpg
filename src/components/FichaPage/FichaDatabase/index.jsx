@@ -10,7 +10,8 @@ export const enviarFichaParaDatabase = (
   tendencia,
   antecedente,
   riquezaInicial,
-  RacasEClassesInfo
+  RacasInfo,
+  Classesinfo
   /* outros campos */
 ) => {
   // Crie uma referência para o nó onde você deseja armazenar as informações, por exemplo, "fichas"
@@ -25,7 +26,8 @@ export const enviarFichaParaDatabase = (
     tendencia: tendencia,
     antecedenteDetalhes: antecedente,
     riquezaInicial: riquezaInicial,
-    IdiomasDaRaca: RacasEClassesInfo,
+    DetalhesDaRaça: RacasInfo,
+    DetalhesDaClasse: Classesinfo,
     // Adicione mais campos conforme necessário
   };
 
@@ -35,5 +37,3 @@ export const enviarFichaParaDatabase = (
   // A novaFichaRef agora contém uma referência à entrada recém-criada no banco de dados
   // Você pode usar esta referência para atualizar ou recuperar os dados, se necessário
 };
-
-

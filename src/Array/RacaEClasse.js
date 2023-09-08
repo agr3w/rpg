@@ -1,4 +1,4 @@
-// racasEClasses.js
+// RAÇAS
 
 export const racas = [
   {
@@ -17,20 +17,46 @@ export const racas = [
   // Adicione mais raças aqui
 ];
 
+// CLASSES
+
 export const classes = [
   {
     nome: "Guerreiro",
+    equipamentos: {},
     habilidades: [
       "Armadura e escudo de todas as armaduras",
       "Armas simples e marciais",
     ],
-    equipamento: "oi", //ssó arrumar, utilizar a mesma função da etapa 7
+    //ssó arrumar, utilizar a mesma função da etapa 7
     dadosDeVida: "1d10 pontos de vida por nível",
     // Outras informações específicas da classe
   },
   {
     nome: "Mago",
+    proficiencias: {
+      armaduras: "Nenhuma",
+      armas: ["adagas, ", "dardos, ", "fundas, ", "bordões, ", "bestas leves"],
+      ferramentas: "Nenhuma",
+      testesDeResistecia: ["Inteligência, ", "Sabedoria"],
+      periciasLabel: "escolha duas dentre",
+      perficiasMinimo: "2",
+      periciasSelecao: [
+        "Arcanismo",
+        "História",
+        "Intuição",
+        "Investigação",
+        "Medicina",
+        "Religião",
+      ],
+    },
     habilidades: ["Magias arcanas", "Livros de magia"],
+    equipamentos: {
+      equipamentoAlpha1: ["Um bordão", "Uma adaga"],
+      equipamentoAlpha2: ["Uma bolsa de componentes", "um foco arcano"],
+      equipamentoAlpha3: ["Um pacote de estudioso", "Um pacote de explorador"],
+      equipamentoObgt: ["Um grimório"],
+    },
+
     dadosDeVida: "1d6 pontos de vida por nível",
     // Outras informações específicas da classe
   },

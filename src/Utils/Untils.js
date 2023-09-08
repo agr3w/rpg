@@ -5,13 +5,12 @@ export function encontrarItensPorNome(nomeItem, array) {
     const descricao = item.descricao || [];
     const proficienciaPericia = item.proficienciaPericia || [];
     const idiomas = item.idiomas || [];
-    const equipamento = item.equipamento || [];
     const todosItens = habilidades.concat(
       dadosDeVida,
       descricao,
       proficienciaPericia,
       idiomas,
-      equipamento
+
     );
 
     if (item.nome === nomeItem) {

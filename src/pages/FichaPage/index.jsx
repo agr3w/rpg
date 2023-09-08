@@ -58,12 +58,22 @@ const FichaPage = () => {
   const [idiomaRacaSelecionado, setIdiomaRacaSelecionado] = useState("");
   const [idiomaRacaSelecionado2, setIdiomaRacaSelecionado2] = useState("");
 
+  const [equipamentosClasseSelecionada1, setEquipamentoClasseSelecionado1] =
+    useState("");
+  const [equipamentosClasseSelecionada2, setEquipamentoClasseSelecionado2] =
+    useState("");
+  const [equipamentosClasseSelecionada3, setEquipamentoClasseSelecionado3] =
+    useState("");
+
+  const [periciasClasseSelecionadas, setPericiasSelecionadas] = useState([]);
+
   const racasOptions = racas.map((r) => r.nome);
   const classesOptions = classes.map((c) => c.nome);
   const TendenciasOptions = tendencias.map((t) => t.nome);
   const idiomaOption = idiomasArray.map((i) => i);
 
   const racaSelecionada = racas.find((r) => r.nome === raca);
+  const classeSelecioanda = classes.find((c) => c.nome === classe);
 
   useEffect(() => {
     // Quando a raça selecionada mudar, encontre os itens correspondentes
@@ -139,11 +149,21 @@ const FichaPage = () => {
 
     // RacasParaMandar
 
-    const RacasEClassesInfo = {
+    const RacasInfo = {
       Idiomas: { idiomaRacaSelecionado, idiomaRacaSelecionado2 },
     };
 
     // ClassesParaMandar
+
+    const Classesinfo = {
+      Equipamentos: {
+        equipamentosClasseSelecionada1,
+        equipamentosClasseSelecionada2,
+        equipamentosClasseSelecionada3,
+        equipamentoObgt: classeSelecioanda.equipamentos.equipamentoObgt,
+      },
+      periciasClasseSelecionadas,
+    };
 
     const itensSelecionados = {
       tracoPersonalidade: tracoPersonalidadeSelecionado,
@@ -170,7 +190,8 @@ const FichaPage = () => {
       tendencia,
       itensSelecionados,
       riquezaInicial,
-      RacasEClassesInfo
+      RacasInfo,
+      Classesinfo
     );
 
     // Em seguida, você pode redirecionar o usuário para outra página ou realizar outra ação
@@ -204,6 +225,15 @@ const FichaPage = () => {
           setClasse={setClasse}
           classesOptions={classesOptions}
           itensDaClasse={itensDaClasse}
+          equipamentosClasseSelecionada1={equipamentosClasseSelecionada1}
+          setEquipamentoClasseSelecionado1={setEquipamentoClasseSelecionado1}
+          equipamentosClasseSelecionada2={equipamentosClasseSelecionada2}
+          setEquipamentoClasseSelecionado2={setEquipamentoClasseSelecionado2}
+          equipamentosClasseSelecionada3={equipamentosClasseSelecionada3}
+          setEquipamentoClasseSelecionado3={setEquipamentoClasseSelecionado3}
+          classeSelecioanda={classeSelecioanda}
+          periciasClasseSelecionadas={periciasClasseSelecionadas}
+          setPericiasSelecionadas={setPericiasSelecionadas}
         />
       )}
       {etapa === 4 && (
