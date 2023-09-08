@@ -67,6 +67,9 @@ const FichaPage = () => {
 
   const [periciasClasseSelecionadas, setPericiasSelecionadas] = useState([]);
 
+  const [exibirPainelHabilidades, setExibirPainelHabilidades] = useState("")
+
+
   const racasOptions = racas.map((r) => r.nome);
   const classesOptions = classes.map((c) => c.nome);
   const TendenciasOptions = tendencias.map((t) => t.nome);
@@ -234,6 +237,8 @@ const FichaPage = () => {
           classeSelecioanda={classeSelecioanda}
           periciasClasseSelecionadas={periciasClasseSelecionadas}
           setPericiasSelecionadas={setPericiasSelecionadas}
+          setExibirPainelHabilidades={setExibirPainelHabilidades}
+          exibirPainelHabilidades={exibirPainelHabilidades}
         />
       )}
       {etapa === 4 && (

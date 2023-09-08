@@ -29,7 +29,7 @@
   }
   
   .input {
-    width: 100%;
+    width: 95%;
     padding: 12px;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -51,4 +51,26 @@
   .button:hover {
     background-color: #0056b3;
   }
+
+
+
+
+
+
+
+
+
+  /* Etapa 3 (classes) */
+
+ /* painel das habilidades */
+.painelHabilidades {
+  position: absolute;
+  top: 50px; /* Ajuste a posição vertical desejada em pixels */
+  left: 300px; /* Ajuste a posição horizontal desejada em pixels */
+  background-color: white; /* Cor de fundo do painel */
+  border: 1px solid #ccc; /* Borda do painel */
+  padding: 10px; /* Espaçamento interno do painel */
+  z-index: 1000; /* Defina um valor alto para z-index para ficar acima de outros elementos */
+}
+
   

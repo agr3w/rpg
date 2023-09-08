@@ -49,7 +49,12 @@ export const classes = [
         "Religião",
       ],
     },
-    habilidades: ["Magias arcanas", "Livros de magia"],
+    habilidadesClasse: {
+      habilidadeNv1: ["CONJURAÇÃO e ", "RECUPERAÇÃO ARCANA"],
+      habilidadeNv2: ["TRADIÇÃO ARCANA"],
+      habilidadeNv3: ["NADA"],
+      habilidadeNv4: ["INCREMENTO NO VALOR DE HABILIDADE"],
+    },
     equipamentos: {
       equipamentoAlpha1: ["Um bordão", "Uma adaga"],
       equipamentoAlpha2: ["Uma bolsa de componentes", "um foco arcano"],

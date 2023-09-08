@@ -21,8 +21,15 @@ const Etapa3 = ({
   periciasClasseSelecionadas,
   setPericiasSelecionadas,
 
+  setExibirPainelHabilidades,
+  exibirPainelHabilidades,
+
   classeSelecioanda,
 }) => {
+  const handleTogglePainelHabilidades = () => {
+    setExibirPainelHabilidades(!exibirPainelHabilidades);
+  };
+
   const handleCheckboxChange = (e) => {
     const periciaSelecionada = e.target.value;
     // Verifique se a pericia já está selecionada
@@ -70,6 +77,34 @@ const Etapa3 = ({
       {(classe === "Mago" || classe === "cu") && (
         <>
           <div>
+            <button onClick={handleTogglePainelHabilidades}>
+              {exibirPainelHabilidades
+                ? "Fechar Habilidades"
+                : "Ver Habilidades"}
+            </button>
+
+            {/* Painel de habilidades (será exibido se exibirPainelHabilidades for true) */}
+            {exibirPainelHabilidades && (
+              <div className={`${styles.painelHabilidades}`}>
+                <h2>Habilidades da classe</h2>
+                <p>
+                  Habilidades nível 1:
+                  {classeSelecioanda.habilidadesClasse.habilidadeNv1}
+                </p>
+                <p>
+                  Habilidades nível 2:
+                  {classeSelecioanda.habilidadesClasse.habilidadeNv2}
+                </p>
+                <p>
+                  Habilidades nível 3:
+                  {classeSelecioanda.habilidadesClasse.habilidadeNv3}
+                </p>
+                <p>
+                  Habilidades nível 4:
+                  {classeSelecioanda.habilidadesClasse.habilidadeNv4}
+                </p>
+              </div>
+            )}
             <div>
               <h1>Proficiencias:</h1>
               <p>Armaduras: {classeSelecioanda.proficiencias.armaduras}</p>
