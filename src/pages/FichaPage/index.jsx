@@ -23,7 +23,7 @@ import Etapa7 from "components/FichaPage/Etapa7";
 import Etapa6 from "components/FichaPage/Etapa6";
 import Etapa9 from "components/FichaPage/Etapa9";
 
-const FichaPage = () => {
+const FichaCriar = () => {
   const [nome, setNome] = useState("");
   const [raca, setRaca] = useState("");
   const [classe, setClasse] = useState("");
@@ -340,4 +340,4 @@ const FichaPage = () => {
   );
 };
 
-export default FichaPage;
+export default FichaCriar;

@@ -5,7 +5,9 @@ import MusicasPage from "pages/musicas";
 import LivrosPage from "pages/livros";
 import NotePage from "pages/Notes";
 import FolderPage from "pages/foldersPage";
-import FichaPage from "pages/FichaPage";
+import FichaPage from "pages/FichaPage/fichaCompleta";
+import FichaCriar from "pages/FichaPage";
+import FichaDetalhes from "pages/FichaDetalhes";
 
 function Rout() {
   return (
@@ -17,8 +19,9 @@ function Rout() {
           <Route path="/livros" element={<LivrosPage />} />
           <Route path="/anotacoes" element={<NotePage />} />
           <Route path="/folders/:folderId" element={<FolderPage/>} />
-          <Route path="/ficha/etapa1" element={<FichaPage />} />
-
+          <Route path="/fichas" element={< FichaPage/>} />
+          <Route path="/criar-ficha" element={<FichaCriar />} />
+          <Route path='/ficha-completa/:nome' element={<FichaDetalhes />} />
         </Routes>
       </Router>
     </>

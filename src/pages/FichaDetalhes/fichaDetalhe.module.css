@@ -1,0 +1,61 @@
+
+.pageContainer {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  
+  .pageTitle {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .card {
+    margin: 16px 0;
+  }
+  
+  .cardContent {
+    padding: 16px;
+  }
+  
+  .sectionTitle {
+    font-size: 20px;
+    color: #333;
+    margin-top: 10px;
+    text-decoration: underline #bf8f00;
+  }
+  
+  .listItem {
+    margin-left: 10px;
+    padding: 5px 0;
+  }
+
+  /* atributos */
+  
+  .titleAtributos {
+    text-align: center;
+    
+    padding-bottom: 20px;
+    text-decoration: underline #bf8f00;
+  }
+
+  .atributos {
+    position: absolute;
+    background-color: #f5f5f5;
+    top: 10%;
+    left: 20%;
+    padding: 25px;
+    font-size: 22px;
+  }
+
+  .listItemAtributos {
+    padding: 20px 5px;
+    border: black 1px solid;
+    text-align: center;
+  }
