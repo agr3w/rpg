@@ -8,11 +8,22 @@ export const racas = [
       "Idiomas: Comum e um idioma adicional à escolha do jogador",
     ],
     idiomaRaca: ["Comum"],
+    habilidadeBonus: {
+      Força: 1,
+      Destreza: 1,
+      Constituição: 1,
+      Inteligência: 1,
+      Sabedoria: 1,
+      Carisma: 1,
+    },
   },
   {
     nome: "Elfo",
     habilidades: ["Habilidade +2 em Destreza", "Idiomas: Comum e Élfico"],
     idiomaRaca: ["Elfico"],
+    habilidadeBonus: {
+      Destreza: 2,
+    },
   },
   // Adicione mais raças aqui
 ];

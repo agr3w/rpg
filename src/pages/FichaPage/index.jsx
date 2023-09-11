@@ -16,11 +16,12 @@ import {
 import { tendencias } from "Array/Tendencias";
 import Etapa4 from "components/FichaPage/Etapa4";
 import { antecedentes } from "Array/Antecedentes";
-import Etapa6 from "components/FichaPage/Etapa7";
 import Etapa5 from "components/FichaPage/Etapa5";
-import Etapa7 from "components/FichaPage/Etapa6";
 import { idiomasArray } from "Array/Idiomas";
 import Etapa8 from "components/FichaPage/Etapa8";
+import Etapa7 from "components/FichaPage/Etapa7";
+import Etapa6 from "components/FichaPage/Etapa6";
+import Etapa9 from "components/FichaPage/Etapa9";
 
 const FichaPage = () => {
   const [nome, setNome] = useState("");
@@ -48,7 +49,7 @@ const FichaPage = () => {
     caracteristicasGuildaSelecionado,
     setCaracteristicasGuildaSelecionado,
   ] = useState("");
-  const [caracteristicaAbrigoDosFiéisTest] = useState("");
+  const [caracteristicaAbrigoDosFiéis] = useState("");
 
   const [rotinasArtisticasSelcioando, setRotinasArtisticasSelecioando] =
     useState("");
@@ -68,6 +69,15 @@ const FichaPage = () => {
   const [periciasClasseSelecionadas, setPericiasSelecionadas] = useState([]);
 
   const [exibirPainelHabilidades, setExibirPainelHabilidades] = useState("");
+
+  const [valoresHabilidade, setValoresHabilidade] = useState({
+    Força: "",
+    Destreza: "",
+    Constituição: "",
+    Inteligência: "",
+    Sabedoria: "",
+    Carisma: "",
+  });
 
   const racasOptions = racas.map((r) => r.nome);
   const classesOptions = classes.map((c) => c.nome);
@@ -153,6 +163,7 @@ const FichaPage = () => {
 
     const RacasInfo = {
       Idiomas: { idiomaRacaSelecionado, idiomaRacaSelecionado2 },
+      Atributos: valoresHabilidade,
     };
 
     // ClassesParaMandar
@@ -193,7 +204,7 @@ const FichaPage = () => {
       itensSelecionados,
       riquezaInicial,
       RacasInfo,
-      Classesinfo
+      Classesinfo,
     );
 
     // Em seguida, você pode redirecionar o usuário para outra página ou realizar outra ação
@@ -271,7 +282,7 @@ const FichaPage = () => {
           setCaracteristicasGuildaSelecionado={
             setCaracteristicasGuildaSelecionado
           }
-          caracteristicaAbrigoDosFiéisTest={caracteristicaAbrigoDosFiéisTest}
+          caracteristicaAbrigoDosFiéis={caracteristicaAbrigoDosFiéis}
           rotinasArtisticasSelcioando={rotinasArtisticasSelcioando}
           setRotinasArtisticasSelecioando={setRotinasArtisticasSelecioando}
         />
@@ -304,7 +315,13 @@ const FichaPage = () => {
           onRiquezaInicialCalculada={handleRiquezaInicialCalculada}
         />
       )}
-      {/* Renderize outras etapas, se necessário */}
+      {etapa === 9 && (
+        <Etapa9
+        racaSelecionada={racaSelecionada}
+          valoresHabilidade={valoresHabilidade}
+          setValoresHabilidade={setValoresHabilidade}
+        />
+      )}
       {etapa < 10 ? (
         <button className={styles.button} onClick={handleNext}>
           Próxima Etapa
