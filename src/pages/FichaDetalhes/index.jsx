@@ -4,7 +4,7 @@ import "firebase/database";
 import { useParams } from "react-router-dom";
 import { Card, CardContent, Typography } from "@mui/material";
 import styles from "./fichaDetalhe.module.css";
-import { racas } from "Array/RacaEClasse";
+import { classes, racas } from "Array/RacaEClasse";
 
 const FichaDetalhes = () => {
   const { nome } = useParams();
@@ -38,6 +38,7 @@ const FichaDetalhes = () => {
     );
   }
   const racaSelecionada = racas.find((r) => r.nome === ficha.raca);
+  const classeSelecioanda = classes.find((c) => c.nome === ficha.classe);
 
   // Verifique se a raça selecionada foi encontrada
   if (racaSelecionada) {
@@ -73,38 +74,48 @@ const FichaDetalhes = () => {
         <Card className={styles.card}>
           <CardContent className={styles.cardContent}>
             <Typography variant="h6">Nome: {ficha.nome}</Typography>
+            <Typography variant="h6">Classe: {ficha.classe}</Typography>
+            <Typography variant="h6">Raça: {ficha.raca}</Typography>
 
             {/* Detalhes da Classe */}
             <Typography variant="h6" className={styles.sectionTitle}>
               Detalhes da Classe
             </Typography>
             <Typography>
-              Equipamento Obrigatório: {ficha.equipamentoObgt}
+              Equipamento Obrigatório:{" "}
+              {ficha.DetalhesDaClasse.Equipamentos.equipamentoObgt}
             </Typography>
             <Typography>Equipamentos Selecionados:</Typography>
             <ul>
               <li className={styles.listItem}>
-                {ficha.equipamentosClasseSelecionada1}
+                {
+                  ficha.DetalhesDaClasse.Equipamentos
+                    .equipamentosClasseSelecionada1
+                }
               </li>
               <li className={styles.listItem}>
-                {ficha.equipamentosClasseSelecionada2}
+                {
+                  ficha.DetalhesDaClasse.Equipamentos
+                    .equipamentosClasseSelecionada2
+                }
               </li>
               <li className={styles.listItem}>
-                {ficha.equipamentosClasseSelecionada3}
+                {
+                  ficha.DetalhesDaClasse.Equipamentos
+                    .equipamentosClasseSelecionada3
+                }
               </li>
             </ul>
-            {ficha.periciasClasseSelecionadas &&
-              ficha.periciasClasseSelecionadas.length > 0 && (
-                <div>
+
+            {ficha.classe === "Mago" && (
+                <>
                   <Typography>Perícias da Classe:</Typography>
                   <ul>
-                    {ficha.periciasClasseSelecionadas.map((pericia, index) => (
-                      <li className={styles.listItem} key={index}>
-                        {pericia}
-                      </li>
+                    {ficha.DetalhesDaClasse.periciasClasseSelecionadas.map((pericia) => (
+                      <li className={styles.listItem}>{pericia}</li>
                     ))}
                   </ul>
-                </div>
+                </>
               )}
 
             {/* Detalhes da Raça */}
@@ -112,7 +123,9 @@ const FichaDetalhes = () => {
               Detalhes da Raça
             </Typography>
             <div className={styles.atributos}>
-              <Typography variant="h4" className={styles.titleAtributos}>Atributos:</Typography>
+              <Typography variant="h4" className={styles.titleAtributos}>
+                Atributos:
+              </Typography>
               <ul>
                 <li className={styles.listItemAtributos}>
                   Força: {atributosComBonus.Força}{" "}
@@ -140,7 +153,7 @@ const FichaDetalhes = () => {
                 </li>
               </ul>
             </div>
-            <Typography variant="h6">Idiomas da Raça:</Typography>
+            <Typography>Idiomas da Raça:</Typography>
             <ul>
               <li className={styles.listItem}>
                 {ficha.DetalhesDaRaça.Idiomas.idiomaRacaSelecionado}
