@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import { Card, CardContent, Typography } from "@mui/material";
 import styles from "./fichaDetalhe.module.css";
 import { classes, racas } from "Array/RacaEClasse";
+import { antecedentes } from "Array/Antecedentes";
 
 const FichaDetalhes = () => {
   const { nome } = useParams();
@@ -39,6 +40,9 @@ const FichaDetalhes = () => {
   }
   const racaSelecionada = racas.find((r) => r.nome === ficha.raca);
   const classeSelecioanda = classes.find((c) => c.nome === ficha.classe);
+  const AntecedenteSelecioando = antecedentes.find(
+    (a) => a.nome === ficha.antecedente
+  );
 
   // Verifique se a raça selecionada foi encontrada
   if (racaSelecionada) {
@@ -73,9 +77,14 @@ const FichaDetalhes = () => {
         </Typography>
         <Card className={styles.card}>
           <CardContent className={styles.cardContent}>
-            <Typography variant="h6">Nome: {ficha.nome}</Typography>
-            <Typography variant="h6">Classe: {ficha.classe}</Typography>
-            <Typography variant="h6">Raça: {ficha.raca}</Typography>
+            <div>
+              <Typography variant="h6">Nome: {ficha.nome}</Typography>
+              <Typography variant="h6">Classe: {ficha.classe}</Typography>
+              <Typography variant="h6">Raça: {ficha.raca}</Typography>
+              <Typography variant="h6">
+                Riqueza Inicial: {ficha.riquezaInicial}
+              </Typography>
+            </div>
 
             {/* Detalhes da Classe */}
             <Typography variant="h6" className={styles.sectionTitle}>
@@ -108,15 +117,17 @@ const FichaDetalhes = () => {
             </ul>
 
             {ficha.classe === "Mago" && (
-                <>
-                  <Typography>Perícias da Classe:</Typography>
-                  <ul>
-                    {ficha.DetalhesDaClasse.periciasClasseSelecionadas.map((pericia) => (
+              <>
+                <Typography>Perícias da Classe:</Typography>
+                <ul>
+                  {ficha.DetalhesDaClasse.periciasClasseSelecionadas.map(
+                    (pericia) => (
                       <li className={styles.listItem}>{pericia}</li>
-                    ))}
-                  </ul>
-                </>
-              )}
+                    )
+                  )}
+                </ul>
+              </>
+            )}
 
             {/* Detalhes da Raça */}
             <Typography variant="h6" className={styles.sectionTitle}>
@@ -177,12 +188,50 @@ const FichaDetalhes = () => {
                   .CaracteristicasSugeridas
               }
             </Typography>
+
+            {ficha.antecedenteDetalhes.antecedente === "Artesão de Guilda" && (
+              <>
+                <Typography>
+                  Características Da Guilda:
+                  {
+                    ficha.antecedenteDetalhes.caracteristicas
+                      .CaracterísticasDaGuilda
+                  }
+                </Typography>
+                <Typography>
+                  Negocios Da Guilda:
+                  {ficha.antecedenteDetalhes.caracteristicas.NegocioDaGuilda}
+                </Typography>
+                <Typography>
+                  Idioma adicional:
+                  {ficha.antecedenteDetalhes.caracteristicas.idioma}
+                </Typography>
+              </>
+            )}
+            <div className={styles.tendencias}>
+              <Typography variant="h6" className={styles.sectionTitle}>
+                Tendências
+              </Typography>
+              <Typography>
+                Traco De Personalidade:{" "}
+                {ficha.antecedenteDetalhes.tracoPersonalidade}
+              </Typography>
+              <Typography>
+                Defeito: {ficha.antecedenteDetalhes.defeito}
+              </Typography>
+              <Typography>
+                Ideial: {ficha.antecedenteDetalhes.tracoPersonalidade}
+              </Typography>
+              <Typography>
+                Vinculo: {ficha.antecedenteDetalhes.vinculo}
+              </Typography>
+            </div>
           </CardContent>
         </Card>
       </div>
     );
   } else {
-    return <Typography variant="h4">Raça não encontrada</Typography>;
+    return <Typography variant="h4">Ficha não encontrada</Typography>;
   }
 };
 
