@@ -1,49 +1,100 @@
-import { Button } from "@mui/material";
-import { calcularRiquezaInicialPorClasse } from "Utils/DiceRoller";
-import React, { useState } from "react";
+// Etapa5.js
+import React from "react";
+import styles from "pages/FichaPage/fichaPage.module.css";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
-function Etapa8({
-  classeSelecionada,
-  onRiquezaInicialCalculada,
-  riquezaInicial,
-  setRiquezaInicial,
-}) {
-  const [botaoPressionado, setBotaoPressionado] = useState(false);
-
-  // Função para calcular a riqueza inicial com base na classe selecionada
-  const calcularRiquezaInicial = () => {
-    if (!botaoPressionado) {
-      // Aqui você pode usar a função calcularRiquezaInicialPorClasse que criamos anteriormente
-      const riqueza = calcularRiquezaInicialPorClasse(classeSelecionada);
-      setRiquezaInicial(riqueza);
-
-      // Chamamos a função onRiquezaInicialCalculada passando a riqueza calculada
-      onRiquezaInicialCalculada(riqueza);
-
-      // Defina o botão como pressionado
-      setBotaoPressionado(true);
-    }
-    // Aqui você pode usar a função calcularRiquezaInicialPorClasse que criamos anteriormente
-    const riqueza = calcularRiquezaInicialPorClasse(classeSelecionada);
-    setRiquezaInicial(riqueza);
-
-    // Chamamos a função onRiquezaInicialCalculada passando a riqueza calculada
-    onRiquezaInicialCalculada(riqueza);
-  };
-
+const Etapa8 = ({
+  tracoPersonalidade,
+  ideal,
+  defeito,
+  vinculo,
+  tracoPersonalidadeSelecionado,
+  idealSelecionado,
+  defeitoSelecionado,
+  vinculoSelecionado,
+  onSelecionarTracoPersonalidade,
+  onSelecionarIdeal,
+  onSelecionarDefeito,
+  onSelecionarVinculo,
+}) => {
   return (
-    <div>
-      <h3>Riqueza Inicial</h3>
-      <p>{riquezaInicial} peças de ouro (PO)</p>
-      <Button
-        variant="contained"
-        onClick={calcularRiquezaInicial}
-        disabled={botaoPressionado}
-      >
-        Calcular Riqueza
-      </Button>
-    </div>
+    <>
+      <h1 className={styles.h1}>Traços do personagem</h1>
+      <div className={styles.espacamentoSelects}>
+        <FormControl fullWidth>
+          <InputLabel>Traço de Personalidade:</InputLabel>
+          <Select
+            value={tracoPersonalidadeSelecionado}
+            onChange={onSelecionarTracoPersonalidade}
+            label="Traço de Personalidade"
+          >
+            <MenuItem value="">
+              <em>Selecione um traço de personalidade</em>
+            </MenuItem>
+            {tracoPersonalidade.map((traco, index) => (
+              <MenuItem key={index} value={traco}>
+                {traco}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl fullWidth>
+          <InputLabel>Ideal:</InputLabel>
+          <Select
+            value={idealSelecionado}
+            onChange={onSelecionarIdeal}
+            label="Ideal"
+          >
+            <MenuItem value="">
+              <em>Selecione um ideal</em>
+            </MenuItem>
+            {ideal.map((item, index) => (
+              <MenuItem key={index} value={item}>
+                {item}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl fullWidth>
+          <InputLabel>Defeito:</InputLabel>
+          <Select
+            value={defeitoSelecionado}
+            onChange={onSelecionarDefeito}
+            label="Defeito"
+          >
+            <MenuItem value="">
+              <em>Selecione um defeito</em>
+            </MenuItem>
+            {defeito.map((item, index) => (
+              <MenuItem key={index} value={item}>
+                {item}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl fullWidth>
+          <InputLabel>Vínculo:</InputLabel>
+          <Select
+            value={vinculoSelecionado}
+            onChange={onSelecionarVinculo}
+            label="Vínculo"
+          >
+            <MenuItem value="">
+              <em>Selecione um vínculo</em>
+            </MenuItem>
+            {vinculo.map((item, index) => (
+              <MenuItem key={index} value={item}>
+                {item}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </div>
+    </>
   );
-}
+};
 
 export default Etapa8;

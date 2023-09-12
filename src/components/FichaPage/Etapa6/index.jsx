@@ -1,126 +1,102 @@
-// Etapa7.js
 import React from "react";
+import { Select, MenuItem, FormControl, InputLabel } from "@mui/material"; // Importe os componentes do Material-UI que você precisa
 import styles from "pages/FichaPage/fichaPage.module.css";
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
 const Etapa6 = ({
-  antecedenteSelecionado,
   antecedente,
-  negocioGuildaSelecionado,
-  setNegocioGuildaSelecionado,
-  caracteristicasGuildaSelecionado,
-  setCaracteristicasGuildaSelecionado,
-  rotinasArtisticasSelcioando,
-  setRotinasArtisticasSelecioando,
+  setAntecedente,
+  antecedentesOptions,
+  itensDaAntecedencia,
+  idiomaDoAntecedente,
+  setIdiomaAntecedente,
+  idiomaDoAntecendente2,
+  setIdiomaAntecendente2,
+  idiomaOption,
 }) => {
   return (
-    <div>
-      <h1 className={styles.h1}>Características do Antecedente</h1>
+    <>
+    <h1 className={styles.h1}>Selecione o Antecedente</h1>
+      <FormControl fullWidth>
+        <InputLabel>Antecedente</InputLabel>
+        <Select
+          label="Antecendente"
+          value={antecedente}
+          onChange={(e) => setAntecedente(e.target.value)}
+        >
+          <MenuItem value="">Selecione um antecedente</MenuItem>
+          {antecedentesOptions.map((opcao) => (
+            <MenuItem key={opcao} value={opcao}>
+              {opcao}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <div className={styles.espacamentoTextoItem}>
+        <label className={styles.label}>Proficiências adicionais:</label>
+        {itensDaAntecedencia.map((item, index) => (
+          <li key={index}>{item}</li>
+        ))}
+      </div>
       {antecedente === "Acólito" && (
         <>
-          <h1 className={styles.h2}>Características Abrigo dos Fiés:</h1>
-          <div className={styles.divTexto}>
-            <p>
-              {
-                antecedenteSelecionado.CaracteristicaDoAntecedente
-                  .caracteristicaAbrigoDosFiéis
-              }
-            </p>
-          </div>
-          <div className={styles.divTexto}>
-            <p>
-              {
-                antecedenteSelecionado.CaracteristicaDoAntecedente
-                  .caracteristicasSugeridas
-              }
-            </p>
+          <div className={styles.espacamentoSelects}>
+            <label className={styles.label}>Idiomas adicionais:</label>
+            <FormControl fullWidth>
+              <InputLabel>Idioma</InputLabel>
+              <Select
+                label="Idioma"
+                value={idiomaDoAntecedente}
+                onChange={(e) => setIdiomaAntecedente(e.target.value)}
+              >
+                <MenuItem value="">Selecione Idioma</MenuItem>
+                {idiomaOption.map((opcao) => (
+                  <MenuItem key={opcao} value={opcao}>
+                    {opcao}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth>
+              <InputLabel>Idioma</InputLabel>
+              <Select
+                label="Idioma"
+                value={idiomaDoAntecendente2}
+                onChange={(eb) => setIdiomaAntecendente2(eb.target.value)}
+              >
+                <MenuItem value="">Selecione Idioma</MenuItem>
+                {idiomaOption.map((opcao) => (
+                  <MenuItem key={opcao} value={opcao}>
+                    {opcao}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </div>
         </>
       )}
       {antecedente === "Artesão de Guilda" && (
         <>
-          <h3>Opções de Negócios da Guilda</h3>
-          <FormControl fullWidth>
-            <InputLabel>Selecione um negócio da guilda</InputLabel>
-            <Select
-              value={negocioGuildaSelecionado}
-              onChange={(e) => setNegocioGuildaSelecionado(e.target.value)}
-            >
-              <MenuItem value="">
-                <em>Selecione um negócio da guilda</em>
-              </MenuItem>
-              {antecedenteSelecionado.CaracteristicaDoAntecedente.negociosGuilda.map(
-                (opcao) => (
+          <div className={styles.espacamentoSelects}>
+            <label className={styles.label}>Idiomas adicionais:</label>
+            <FormControl fullWidth>
+              <InputLabel>Idioma</InputLabel>
+              <Select
+                label="Idioma"
+                value={idiomaDoAntecedente}
+                onChange={(e) => setIdiomaAntecedente(e.target.value)}
+              >
+                <MenuItem value="">Selecione Idioma</MenuItem>
+                {idiomaOption.map((opcao) => (
                   <MenuItem key={opcao} value={opcao}>
                     {opcao}
                   </MenuItem>
-                )
-              )}
-            </Select>
-          </FormControl>
-
-          <h3>Características da Guilda</h3>
-          <FormControl fullWidth>
-            <InputLabel>Selecione uma característica da guilda</InputLabel>
-            <Select
-              value={caracteristicasGuildaSelecionado}
-              onChange={(e) =>
-                setCaracteristicasGuildaSelecionado(e.target.value)
-              }
-            >
-              {antecedenteSelecionado.CaracteristicaDoAntecedente.caracteristicasGuilda.map(
-                (opcao) => (
-                  <MenuItem key={opcao} value={opcao}>
-                    {opcao}
-                  </MenuItem>
-                )
-              )}
-            </Select>
-          </FormControl>
-          <h3>Características Sugeridas</h3>
-          <p>
-            {
-              antecedenteSelecionado.CaracteristicaDoAntecedente
-                .caracteristicasSugeridas
-            }
-          </p>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
         </>
       )}
-      {antecedente === "Artista" && (
-        <>
-          <FormControl fullWidth>
-            <InputLabel>Selecione uma rotina artística</InputLabel>
-            <Select
-              value={rotinasArtisticasSelcioando}
-              onChange={(e) => setRotinasArtisticasSelecioando(e.target.value)}
-            >
-              {antecedenteSelecionado.CaracteristicaDoAntecedente.rotinasArtisticas.map(
-                (opcao) => (
-                  <MenuItem key={opcao} value={opcao}>
-                    {opcao}
-                  </MenuItem>
-                )
-              )}
-            </Select>
-          </FormControl>
-          <h3>Características Demanda Popular</h3>
-          <p>
-            {
-              antecedenteSelecionado.CaracteristicaDoAntecedente
-                .caracteristicaDemandaPopular
-            }
-          </p>
-          <h3>Características Sugeridas</h3>
-          <p>
-            {
-              antecedenteSelecionado.CaracteristicaDoAntecedente
-                .caracteristicasSugeridas
-            }
-          </p>
-        </>
-      )}
-      {/* Adicione mais blocos condicionais para outros antecedentes, se necessário */}
-    </div>
+    </>
   );
 };
 

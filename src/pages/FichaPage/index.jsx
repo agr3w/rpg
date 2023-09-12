@@ -2,30 +2,31 @@
 import React, { useState, useEffect } from "react";
 import styles from "./fichaPage.module.css";
 import { enviarFichaParaDatabase } from "components/FichaPage/FichaDatabase";
-import { racas, classes } from "Array/RacaEClasse";
-import Etapa1 from "components/FichaPage/Etapa1";
-import Etapa2 from "components/FichaPage/Etapa2";
-import Etapa3 from "components/FichaPage/Etapa3";
+import { racas, classes, subRacasArray } from "Array/RacaEClasse";
 import {
   encontrarItensPorNome,
   getAcolitoCaracteristicasFields,
   getArtesaoCaracteristicasFields,
   getArtistaCaracteristicasFields,
-  getHumanoCaracteristicasFields,
 } from "Utils/Untils";
 import { tendencias } from "Array/Tendencias";
-import Etapa4 from "components/FichaPage/Etapa4";
 import { antecedentes } from "Array/Antecedentes";
-import Etapa5 from "components/FichaPage/Etapa5";
 import { idiomasArray } from "Array/Idiomas";
-import Etapa8 from "components/FichaPage/Etapa8";
-import Etapa7 from "components/FichaPage/Etapa7";
+import Etapa1 from "components/FichaPage/Etapa1";
+import Etapa2 from "components/FichaPage/Etapa2";
+import Etapa4 from "components/FichaPage/Etapa4";
+import Etapa5 from "components/FichaPage/Etapa5";
 import Etapa6 from "components/FichaPage/Etapa6";
+import Etapa7 from "components/FichaPage/Etapa7";
+import Etapa8 from "components/FichaPage/Etapa8";
 import Etapa9 from "components/FichaPage/Etapa9";
+import Etapa10 from "components/FichaPage/Etapa10";
+import Etapa3 from "components/FichaPage/Etapa3";
 
 const FichaCriar = () => {
   const [nome, setNome] = useState("");
   const [raca, setRaca] = useState("");
+  const [SubRaca, setSubRaca] = useState("");
   const [classe, setClasse] = useState("");
   const [tendencia, setTendencia] = useState("");
   const [idiomaDoAntecedente, setIdiomaAntecedente] = useState("");
@@ -83,9 +84,14 @@ const FichaCriar = () => {
   const classesOptions = classes.map((c) => c.nome);
   const TendenciasOptions = tendencias.map((t) => t.nome);
   const idiomaOption = idiomasArray.map((i) => i);
+  // const SubRacasOptions = subRacasArray.map((s) => s.subRacaNome);
 
   const racaSelecionada = racas.find((r) => r.nome === raca);
   const classeSelecioanda = classes.find((c) => c.nome === classe);
+  const SubRacasOptions = racaSelecionada && racaSelecionada.SubRacas
+  ? racaSelecionada.SubRacas.map((subRaca) => subRaca.subRacaNome)
+  : [];
+
 
   useEffect(() => {
     // Quando a raça selecionada mudar, encontre os itens correspondentes
@@ -121,7 +127,7 @@ const FichaCriar = () => {
         setAntecedenteSelecionado(antecedenteEncontrado);
       }
     }
-    if (etapa < 10) {
+    if (etapa < 11) {
       setEtapa(etapa + 1);
     }
   };
@@ -134,11 +140,6 @@ const FichaCriar = () => {
 
   const handleConcluir = () => {
     // Racas
-    const HuamnoField = getHumanoCaracteristicasFields(
-      racaSelecionada,
-      idiomaRacaSelecionado,
-      idiomaRacaSelecionado2
-    );
 
     // Classes
     const ArtesaoField = getArtesaoCaracteristicasFields(
@@ -235,6 +236,16 @@ const FichaCriar = () => {
       )}
       {etapa === 3 && (
         <Etapa3
+          raca={raca}
+          SubRaca={SubRaca}
+          setSubRaca={setSubRaca}
+          racaSelecionada={racaSelecionada}
+          SubRacasOptions={SubRacasOptions}
+        />
+      )}
+
+      {etapa === 4 && (
+        <Etapa4
           classe={classe}
           setClasse={setClasse}
           classesOptions={classesOptions}
@@ -252,16 +263,16 @@ const FichaCriar = () => {
           exibirPainelHabilidades={exibirPainelHabilidades}
         />
       )}
-      {etapa === 4 && (
-        <Etapa4
+      {etapa === 5 && (
+        <Etapa5
           tendencia={tendencia}
           setTendencia={setTendencia}
           TendenciasOptions={TendenciasOptions}
           itensDaTendencia={itensDaTendencia}
         />
       )}
-      {etapa === 5 && (
-        <Etapa5
+      {etapa === 6 && (
+        <Etapa6
           antecedente={antecedente}
           setAntecedente={setAntecedente}
           antecedentesOptions={antecedentes.map((a) => a.nome)}
@@ -273,8 +284,8 @@ const FichaCriar = () => {
           idiomaOption={idiomaOption}
         />
       )}
-      {etapa === 6 && antecedenteSelecionado && (
-        <Etapa6
+      {etapa === 7 && antecedenteSelecionado && (
+        <Etapa7
           antecedente={antecedente}
           antecedenteSelecionado={antecedenteSelecionado}
           negocioGuildaSelecionado={negocioGuildaSelecionado}
@@ -288,9 +299,9 @@ const FichaCriar = () => {
           setRotinasArtisticasSelecioando={setRotinasArtisticasSelecioando}
         />
       )}
-      {etapa === 7 && (
+      {etapa === 8 && (
         // continuar
-        <Etapa7
+        <Etapa8
           tracoPersonalidade={antecedenteSelecionado.tracoPersonalidade}
           ideal={antecedenteSelecionado.ideal}
           defeito={antecedenteSelecionado.defeito}
@@ -308,22 +319,22 @@ const FichaCriar = () => {
           onSelecionarVinculo={(e) => setVinculoSelecionado(e.target.value)}
         />
       )}
-      {etapa === 8 && (
-        <Etapa8
+      {etapa === 9 && (
+        <Etapa9
           riquezaInicial={riquezaInicial}
           setRiquezaInicial={setRiquezaInicial}
           classeSelecionada={classe}
           onRiquezaInicialCalculada={handleRiquezaInicialCalculada}
         />
       )}
-      {etapa === 9 && (
-        <Etapa9
+      {etapa === 10 && (
+        <Etapa10
           racaSelecionada={racaSelecionada}
           valoresHabilidade={valoresHabilidade}
           setValoresHabilidade={setValoresHabilidade}
         />
       )}
-      {etapa < 10 ? (
+      {etapa < 11 ? (
         <button className={styles.button} onClick={handleNext}>
           Próxima Etapa
         </button>

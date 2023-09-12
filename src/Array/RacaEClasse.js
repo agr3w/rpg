@@ -1,3 +1,16 @@
+export const subRacasArray = [
+  {
+    subRacaNome: "Anão da Colina",
+    HabilidadesSubRaca: [
+      "Sabedoria +1",
+      "Tenacidade Anã. Seu máximo de pontos de vida aumentam em 1, e cada vez que o anão da colina sobe um nível, ele recebe 1 ponto de vida adicional",
+    ],
+    habilidadeBonusSubRaca: {
+      Sabedoria: 1,
+    },
+  },
+];
+
 // RAÇAS
 
 export const racas = [
@@ -5,7 +18,6 @@ export const racas = [
     nome: "Anão",
     habilidades: [
       "Constituição +2",
-      "Idiomas: Comum e um idioma adicional à escolha do jogador",
       "Deslocamento: 7,5 metros",
       "Visão no escuro: Acostumado à vida subterrânea,você tem uma visão superior no escuro e na penumbra Você enxerga na penumbra a até 18 metros como se fosse luz plena, e no escuro como se fosse na penumbra. Você não pode discernir cores no escuro, apenas tons de cinza",
       "Resiliência Anã: Você possui vantagem em testes de resistência contra venenos e resistência contra dano de veneno",
@@ -28,8 +40,8 @@ export const racas = [
     habilidadeBonus: {
       Constituição: 2,
     },
-    SubRacas: {
-      subRaca1: {
+    SubRacas: [
+      {
         subRacaNome: "Anão da Colina",
         HabilidadesSubRaca: [
           "Sabedoria +1",
@@ -39,7 +51,7 @@ export const racas = [
           Sabedoria: 1,
         },
       },
-      subRaca2: {
+      {
         subRacaNome: "Anão da Montanha",
         HabilidadesSubRaca: [
           "Força +2",
@@ -50,7 +62,7 @@ export const racas = [
         },
         proficienciaSubRacaArmaduras: ["Armaduras Lesves", "Armaduras Médias"],
       },
-    },
+    ],
   },
 
   // ---------------------------------------------------------------------------------------------------------------  //

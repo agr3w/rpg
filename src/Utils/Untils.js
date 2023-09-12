@@ -9,7 +9,7 @@ export function encontrarItensPorNome(nomeItem, array) {
       dadosDeVida,
       descricao,
       proficienciaPericia,
-      proficienciaFerramentasAntecedente
+      proficienciaFerramentasAntecedente,
     );
 
     if (item.nome === nomeItem) {

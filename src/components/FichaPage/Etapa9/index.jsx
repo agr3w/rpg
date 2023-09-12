@@ -1,95 +1,49 @@
-import React from "react";
-import { Typography, Grid, FormControl, Select, MenuItem } from "@mui/material";
+import { Button } from "@mui/material";
+import { calcularRiquezaInicialPorClasse } from "Utils/DiceRoller";
+import React, { useState } from "react";
 
-const Etapa9 = ({
-  racaSelecionada,
-  valoresHabilidade,
-  setValoresHabilidade,
-}) => {
-  const habilidades = [
-    "Força",
-    "Destreza",
-    "Constituição",
-    "Inteligência",
-    "Sabedoria",
-    "Carisma",
-  ];
+function Etapa9 ({
+  classeSelecionada,
+  onRiquezaInicialCalculada,
+  riquezaInicial,
+  setRiquezaInicial,
+}) {
+  const [botaoPressionado, setBotaoPressionado] = useState(false);
 
-  // const pontosDisponiveis = 27;
+  // Função para calcular a riqueza inicial com base na classe selecionada
+  const calcularRiquezaInicial = () => {
+    if (!botaoPressionado) {
+      // Aqui você pode usar a função calcularRiquezaInicialPorClasse que criamos anteriormente
+      const riqueza = calcularRiquezaInicialPorClasse(classeSelecionada);
+      setRiquezaInicial(riqueza);
 
-  const handleSelecionarValor = (habilidade, valor) => {
-    if (Object.values(valoresHabilidade).includes(valor.toString())) {
-      setValoresHabilidade({ ...valoresHabilidade, [habilidade]: "" });
-    } else {
-      setValoresHabilidade({
-        ...valoresHabilidade,
-        [habilidade]: valor.toString(),
-      });
+      // Chamamos a função onRiquezaInicialCalculada passando a riqueza calculada
+      onRiquezaInicialCalculada(riqueza);
+
+      // Defina o botão como pressionado
+      setBotaoPressionado(true);
     }
-  };
+    // Aqui você pode usar a função calcularRiquezaInicialPorClasse que criamos anteriormente
+    const riqueza = calcularRiquezaInicialPorClasse(classeSelecionada);
+    setRiquezaInicial(riqueza);
 
-  const calcularBonus = (valor) => {
-    if (valor >= 14) {
-      return "+2";
-    } else if (valor >= 12) {
-      return "+1";
-    } else {
-      return "+0";
-    }
-  };
-
-  const opcoesDisponiveis = (habilidade) => {
-    const valoresSelecionados = Object.values(valoresHabilidade).map((valor) =>
-      valor.toString()
-    );
-    const bonusRaca = racaSelecionada.habilidadeBonus[habilidade] || 0;
-
-    const valoresPossiveis = [
-      { value: 15, realValue: 15 },
-      { value: 14, realValue: 14 },
-      { value: 13, realValue: 13 },
-      { value: 12, realValue: 12 },
-      { value: 10, realValue: 10 },
-      { value: 8, realValue: 8 },
-    ];
-
-    return valoresPossiveis
-      .map((opcao) => ({ ...opcao, value: opcao.value + bonusRaca })) // Adicione o bônus da raça
-      .filter(
-        (opcao) =>
-          !valoresSelecionados.includes(opcao.realValue.toString()) ||
-          valoresHabilidade[habilidade] === opcao.realValue.toString()
-      );
+    // Chamamos a função onRiquezaInicialCalculada passando a riqueza calculada
+    onRiquezaInicialCalculada(riqueza);
   };
 
   return (
     <div>
-      <Typography variant="h4">Distribuir Pontos de Habilidade</Typography>
-      {/* <Typography>Points Available: {pontosDisponiveis}</Typography> */}
-      <Grid container spacing={2}>
-        {habilidades.map((habilidade, index) => (
-          <Grid item xs={4} key={index}>
-          <Typography>
-            {habilidade} {valoresHabilidade[habilidade] && `(${calcularBonus(valoresHabilidade[habilidade])})`}
-          </Typography>
-          <FormControl fullWidth>
-            <Select
-              value={valoresHabilidade[habilidade]}
-              onChange={(e) => handleSelecionarValor(habilidade, e.target.value)}
-            >
-              <MenuItem value="">Escolha</MenuItem>
-              {opcoesDisponiveis(habilidade).map((opcao, index) => (
-                <MenuItem key={index} value={opcao.realValue}>
-                  {opcao.value} ({calcularBonus(opcao.realValue)})
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
-        ))}
-      </Grid>
+      <h3>Riqueza Inicial</h3>
+      <p>{riquezaInicial} peças de ouro (PO)</p>
+      <Button
+        variant="contained"
+        onClick={calcularRiquezaInicial}
+        disabled={botaoPressionado}
+      >
+        Calcular Riqueza
+      </Button>
     </div>
   );
-};
+}
 
 export default Etapa9;
