@@ -1,6 +1,6 @@
 // FichaDatabase.js
 
-import { app, database } from "APIs/firebaseConfig";
+import { app } from "APIs/firebaseConfig";
 import { getDatabase, ref, push } from "firebase/database";
 
 // Função para enviar informações para o Realtime Database

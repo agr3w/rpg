@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 import firebase from "firebase/compat/app";
 import "firebase/database";
 import { useParams } from "react-router-dom";
-import { Button, Card, CardContent, Typography } from "@mui/material";
+import { Card, CardContent, Typography } from "@mui/material";
 import styles from "./fichaDetalhe.module.css";
-import { classes, racas } from "Array/RacaEClasse";
-import { antecedentes } from "Array/Antecedentes";
+import { racas } from "Array/RacaEClasse";
 import BotaoPainelHabilidade from "components/FichaPage/BotãoPainelHabilidade";
 
 const FichaDetalhes = () => {
@@ -40,10 +39,6 @@ const FichaDetalhes = () => {
     );
   }
   const racaSelecionada = racas.find((r) => r.nome === ficha.raca);
-  const classeSelecioanda = classes.find((c) => c.nome === ficha.classe);
-  const AntecedenteSelecioando = antecedentes.find(
-    (a) => a.nome === ficha.antecedente
-  );
 
   // Verifique se a raça selecionada foi encontrada
   if (racaSelecionada) {

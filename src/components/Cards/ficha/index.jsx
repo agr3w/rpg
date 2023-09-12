@@ -11,7 +11,7 @@ const FichaCard = () => {
         <TfiMarkerAlt size={24} />
         <h2>Ficha</h2>
       </div>
-      <Link to="/ficha/etapa1">
+      <Link to="/fichas">
         <img src={img} alt="Ficha" />
       </Link>
     </div>
