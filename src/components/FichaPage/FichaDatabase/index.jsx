@@ -1,5 +1,6 @@
 // FichaDatabase.js
 
+import { app, database } from "APIs/firebaseConfig";
 import { getDatabase, ref, push } from "firebase/database";
 
 // Função para enviar informações para o Realtime Database
@@ -11,12 +12,13 @@ export const enviarFichaParaDatabase = (
   antecedente,
   riquezaInicial,
   RacasInfo,
-  Classesinfo,
+  Classesinfo
   /* outros campos */
 ) => {
   // Crie uma referência para o nó onde você deseja armazenar as informações, por exemplo, "fichas"
   const database = getDatabase();
   const fichasRef = ref(database, "fichas");
+  const ID = app.database().ref().child("fichas").push().key;
 
   // Crie um objeto com as informações que você deseja armazenar
   const novaFicha = {
@@ -28,6 +30,7 @@ export const enviarFichaParaDatabase = (
     riquezaInicial: riquezaInicial,
     DetalhesDaRaça: RacasInfo,
     DetalhesDaClasse: Classesinfo,
+    ID,
     // Adicione mais campos conforme necessário
   };
 

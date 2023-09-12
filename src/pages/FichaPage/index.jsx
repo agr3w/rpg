@@ -169,6 +169,7 @@ const FichaCriar = () => {
     // ClassesParaMandar
 
     const Classesinfo = {
+      imagens: classeSelecioanda.imagens,
       Equipamentos: {
         equipamentosClasseSelecionada1,
         equipamentosClasseSelecionada2,
@@ -204,7 +205,7 @@ const FichaCriar = () => {
       itensSelecionados,
       riquezaInicial,
       RacasInfo,
-      Classesinfo,
+      Classesinfo
     );
 
     // Em seguida, você pode redirecionar o usuário para outra página ou realizar outra ação
@@ -317,7 +318,7 @@ const FichaCriar = () => {
       )}
       {etapa === 9 && (
         <Etapa9
-        racaSelecionada={racaSelecionada}
+          racaSelecionada={racaSelecionada}
           valoresHabilidade={valoresHabilidade}
           setValoresHabilidade={setValoresHabilidade}
         />

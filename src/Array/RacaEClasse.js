@@ -44,6 +44,10 @@ export const classes = [
   },
   {
     nome: "Mago",
+    // adicionar as imgs no storage 500X400
+    imagens: [
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2Fconjura%C3%A7%C3%A3o1.png?alt=media&token=4605c5b2-798d-49a2-b4e3-49c502fee9db",
+    ],
     proficiencias: {
       armaduras: "Nenhuma",
       armas: ["adagas, ", "dardos, ", "fundas, ", "bordões, ", "bestas leves"],

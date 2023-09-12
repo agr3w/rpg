@@ -28,6 +28,20 @@ const FichasPage = () => {
     };
   }, []);
 
+  // Função para excluir uma ficha pelo ID
+  const handleDeleteArray = () => {
+    // Remova a array do banco de dados Firebase
+    const databaseRef = firebase.database().ref("fichas");
+
+    // Tente excluir a array
+    try {
+      databaseRef.remove();
+      console.log("Array excluída com sucesso");
+    } catch (error) {
+      console.error("Erro ao excluir array:", error);
+    }
+  };
+
   return (
     <div>
       <Typography variant="h4" color={"white"}>Fichas de Personagem</Typography>
@@ -41,8 +55,8 @@ const FichasPage = () => {
       </Button>
       <div>
         {fichas.map((ficha, index) => (
-          <Card key={index} style={{ margin: "16px 0" } }>
-            <CardContent >
+          <Card key={index} style={{ margin: "16px 0" }}>
+            <CardContent>
               <Typography variant="h6">Ficha {index + 1}</Typography>
               <Typography>Nome: {ficha.nome}</Typography>
               <Typography>Raça: {ficha.raca}</Typography>
@@ -51,9 +65,17 @@ const FichasPage = () => {
                 variant="contained"
                 color="primary"
                 component={Link}
-                to={`/ficha-completa/${ficha.nome}`} // Redireciona para a página da ficha completa
+                to={`/ficha-completa/${ficha.ID}`} // Redireciona para a página da ficha completa
               >
                 Ver Ficha Completa
+              </Button>
+              {/* Botão de Exclusão */}
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={() => handleDeleteArray(ficha.ID)}
+              >
+                Excluir
               </Button>
             </CardContent>
           </Card>

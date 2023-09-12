@@ -2,21 +2,22 @@ import React, { useState, useEffect } from "react";
 import firebase from "firebase/compat/app";
 import "firebase/database";
 import { useParams } from "react-router-dom";
-import { Card, CardContent, Typography } from "@mui/material";
+import { Button, Card, CardContent, Typography } from "@mui/material";
 import styles from "./fichaDetalhe.module.css";
 import { classes, racas } from "Array/RacaEClasse";
 import { antecedentes } from "Array/Antecedentes";
+import BotaoPainelHabilidade from "components/FichaPage/BotãoPainelHabilidade";
 
 const FichaDetalhes = () => {
-  const { nome } = useParams();
+  const { ID } = useParams();
   const [ficha, setFicha] = useState(null);
 
   useEffect(() => {
     const databaseRef = firebase.database().ref("fichas");
 
     databaseRef
-      .orderByChild("nome")
-      .equalTo(nome)
+      .orderByChild("ID")
+      .equalTo(ID)
       .once("value")
       .then((snapshot) => {
         const fichaData = snapshot.val();
@@ -27,7 +28,7 @@ const FichaDetalhes = () => {
           setFicha(null);
         }
       });
-  }, [nome]);
+  }, [ID]);
 
   if (!ficha) {
     return (
@@ -77,12 +78,23 @@ const FichaDetalhes = () => {
         </Typography>
         <Card className={styles.card}>
           <CardContent className={styles.cardContent}>
-            <div>
-              <Typography variant="h6">Nome: {ficha.nome}</Typography>
-              <Typography variant="h6">Classe: {ficha.classe}</Typography>
-              <Typography variant="h6">Raça: {ficha.raca}</Typography>
+            <div className={styles.header}>
               <Typography variant="h6">
-                Riqueza Inicial: {ficha.riquezaInicial}
+                <span>Nome:</span> {ficha.nome}
+              </Typography>
+              <Typography variant="h6">
+                <span>Classe:</span> {ficha.classe}
+              </Typography>
+              <Typography variant="h6">
+                <span>Raça: </span>
+                {ficha.raca}
+              </Typography>
+              <Typography variant="h6">
+                <span>Tendencia: </span>
+                {ficha.tendencia}
+              </Typography>
+              <Typography variant="h6">
+                <span>Riqueza Inicial: </span> {ficha.riquezaInicial}
               </Typography>
             </div>
 
@@ -95,37 +107,40 @@ const FichaDetalhes = () => {
               {ficha.DetalhesDaClasse.Equipamentos.equipamentoObgt}
             </Typography>
             <Typography>Equipamentos Selecionados:</Typography>
-            <ul>
-              <li className={styles.listItem}>
-                {
-                  ficha.DetalhesDaClasse.Equipamentos
-                    .equipamentosClasseSelecionada1
-                }
-              </li>
-              <li className={styles.listItem}>
-                {
-                  ficha.DetalhesDaClasse.Equipamentos
-                    .equipamentosClasseSelecionada2
-                }
-              </li>
-              <li className={styles.listItem}>
-                {
-                  ficha.DetalhesDaClasse.Equipamentos
-                    .equipamentosClasseSelecionada3
-                }
-              </li>
-            </ul>
+
+            <li className={styles.listItem}>
+              {
+                ficha.DetalhesDaClasse.Equipamentos
+                  .equipamentosClasseSelecionada1
+              }
+            </li>
+            <li className={styles.listItem}>
+              {
+                ficha.DetalhesDaClasse.Equipamentos
+                  .equipamentosClasseSelecionada2
+              }
+            </li>
+            <li className={styles.listItem}>
+              {
+                ficha.DetalhesDaClasse.Equipamentos
+                  .equipamentosClasseSelecionada3
+              }
+            </li>
+
+            <div className={styles.espacamentoTextoItem}>
+              <BotaoPainelHabilidade imagens={ficha.DetalhesDaClasse.imagens} />
+            </div>
 
             {ficha.classe === "Mago" && (
               <>
                 <Typography>Perícias da Classe:</Typography>
-                <ul>
+                <>
                   {ficha.DetalhesDaClasse.periciasClasseSelecionadas.map(
                     (pericia) => (
-                      <li className={styles.listItem}>{pericia}</li>
+                      <li className={styles.listItem} key={pericia}>{pericia}</li>
                     )
                   )}
-                </ul>
+                </>
               </>
             )}
 
@@ -175,53 +190,66 @@ const FichaDetalhes = () => {
             </ul>
 
             {/* Detalhes do Antecedente */}
-            <Typography variant="h6" className={styles.sectionTitle}>
-              Detalhes do Antecedente
-            </Typography>
-            <Typography>
-              Antecedente: {ficha.antecedenteDetalhes.antecedente}
-            </Typography>
-            <Typography>
-              Características Sugeridas:{" "}
-              {
-                ficha.antecedenteDetalhes.caracteristicas
-                  .CaracteristicasSugeridas
-              }
-            </Typography>
+
+            <div className={styles.espacamentoTextoItem}>
+              <Typography variant="h6" className={styles.sectionTitle}>
+                Detalhes do Antecedente
+              </Typography>
+              <div className={styles.espacamentoTextoItem}>
+                <Typography>
+                  Antecedente: {ficha.antecedenteDetalhes.antecedente}
+                </Typography>
+              </div>
+              <Typography>
+                Características Sugeridas:{" "}
+                {
+                  ficha.antecedenteDetalhes.caracteristicas
+                    .CaracteristicasSugeridas
+                }
+              </Typography>
+            </div>
 
             {ficha.antecedenteDetalhes.antecedente === "Artesão de Guilda" && (
               <>
+                <div className={styles.espacamentoTextoItem}>
+                  <Typography>
+                    Características Da Guilda:{" "}
+                    {
+                      ficha.antecedenteDetalhes.caracteristicas
+                        .CaracterísticasDaGuilda
+                    }
+                  </Typography>
+                </div>
                 <Typography>
-                  Características Da Guilda:
-                  {
-                    ficha.antecedenteDetalhes.caracteristicas
-                      .CaracterísticasDaGuilda
-                  }
-                </Typography>
-                <Typography>
-                  Negocios Da Guilda:
+                  Negocios Da Guilda:{" "}
                   {ficha.antecedenteDetalhes.caracteristicas.NegocioDaGuilda}
                 </Typography>
-                <Typography>
-                  Idioma adicional:
-                  {ficha.antecedenteDetalhes.caracteristicas.idioma}
-                </Typography>
+                <div className={styles.espacamentoTextoItem}>
+                  <Typography>
+                    Idioma adicional:{" "}
+                    {ficha.antecedenteDetalhes.caracteristicas.idioma}
+                  </Typography>
+                </div>
               </>
             )}
             <div className={styles.tendencias}>
               <Typography variant="h6" className={styles.sectionTitle}>
                 Tendências
               </Typography>
-              <Typography>
-                Traco De Personalidade:{" "}
-                {ficha.antecedenteDetalhes.tracoPersonalidade}
-              </Typography>
+              <div className={styles.espacamentoTextoItem}>
+                <Typography>
+                  Traco De Personalidade:{" "}
+                  {ficha.antecedenteDetalhes.tracoPersonalidade}
+                </Typography>
+              </div>
               <Typography>
                 Defeito: {ficha.antecedenteDetalhes.defeito}
               </Typography>
-              <Typography>
-                Ideial: {ficha.antecedenteDetalhes.tracoPersonalidade}
-              </Typography>
+              <div className={styles.espacamentoTextoItem}>
+                <Typography>
+                  Ideial: {ficha.antecedenteDetalhes.tracoPersonalidade}
+                </Typography>
+              </div>
               <Typography>
                 Vinculo: {ficha.antecedenteDetalhes.vinculo}
               </Typography>

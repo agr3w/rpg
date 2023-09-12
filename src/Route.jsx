@@ -21,7 +21,7 @@ function Rout() {
           <Route path="/folders/:folderId" element={<FolderPage/>} />
           <Route path="/fichas" element={< FichaPage/>} />
           <Route path="/criar-ficha" element={<FichaCriar />} />
-          <Route path='/ficha-completa/:nome' element={<FichaDetalhes />} />
+          <Route path='/ficha-completa/:ID' element={<FichaDetalhes />} />
         </Routes>
       </Router>
     </>
