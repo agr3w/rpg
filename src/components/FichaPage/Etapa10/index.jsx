@@ -6,6 +6,7 @@ const Etapa10 = ({
   valoresHabilidade,
   setValoresHabilidade,
   SubRaca,
+  habilidadeBonusSubRaca
 }) => {
   const habilidades = [
     "Força",
@@ -39,9 +40,8 @@ const Etapa10 = ({
       valor.toString()
     );
     const bonusRaca = racaSelecionada.proficienciaHabilidadeBonus[habilidade] || 0;
-    const bonusSubRaca = SubRaca.habilidadeBonusSubRaca[habilidade] || 0;
-
-
+    const bonusSubRaca = habilidadeBonusSubRaca[habilidade] || 0; // Adicione o bônus da sub-raça
+  
     const valoresPossiveis = [
       { value: 15, realValue: 15 },
       { value: 14, realValue: 14 },
@@ -50,9 +50,12 @@ const Etapa10 = ({
       { value: 10, realValue: 10 },
       { value: 8, realValue: 8 },
     ];
-
+  
     return valoresPossiveis
-      .map((opcao) => ({ ...opcao, value: opcao.value + bonusRaca + bonusSubRaca})) // Adicione o bônus da raça
+      .map((opcao) => ({
+        ...opcao,
+        value: opcao.value + bonusRaca + bonusSubRaca,
+      })) // Adicione o bônus da raça e da sub-raça
       .filter(
         (opcao) =>
           !valoresSelecionados.includes(opcao.realValue.toString()) ||

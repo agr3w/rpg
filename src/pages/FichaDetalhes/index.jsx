@@ -39,9 +39,10 @@ const FichaDetalhes = () => {
     );
   }
   const racaSelecionada = racas.find((r) => r.nome === ficha.raca);
-  const detalhes = racaSelecionada.SubRacas.find(
-    (subRaca) => subRaca.subRacaNome === ficha.DetalhesDaRaça.subRaca.SubRaca
-  );
+  const subRacaSelecionada = ficha.DetalhesDaRaça.subRaca.SubRaca;
+const subRacaDetalhes = racaSelecionada.SubRacas.find(
+  (subRaca) => subRaca.subRacaNome === subRacaSelecionada
+);
 
   // Verifique se a raça selecionada foi encontrada
   if (racaSelecionada) {
@@ -49,31 +50,22 @@ const FichaDetalhes = () => {
     const habilidadeBonus = racaSelecionada.proficienciaHabilidadeBonus;
 
     // Função para somar os atributos com os bônus
-    const somarAtributos = (atributos, bonus, subRaca) => {
+    const somarAtributos = (atributos, bonusRaca, bonusSubRaca) => {
       const atributosComBonus = {
-        Força: parseInt(atributos.Força) + parseInt(bonus.Força),
-        Destreza: parseInt(atributos.Destreza) + parseInt(bonus.Destreza),
-        Constituição:
-          parseInt(atributos.Constituição) + parseInt(bonus.Constituição),
-        Inteligência:
-          parseInt(atributos.Inteligência) + parseInt(bonus.Inteligência),
-        Sabedoria: parseInt(atributos.Sabedoria) + parseInt(bonus.Sabedoria),
-        Carisma: parseInt(atributos.Carisma) + parseInt(bonus.Carisma),
+        Força: parseInt(atributos.Força) + parseInt(bonusRaca.Força) + parseInt(bonusSubRaca.Força || 0),
+        Destreza: parseInt(atributos.Destreza) + parseInt(bonusRaca.Destreza) + parseInt(bonusSubRaca.Destreza || 0),
+        Constituição: parseInt(atributos.Constituição) + parseInt(bonusRaca.Constituição) + parseInt(bonusSubRaca.Constituição || 0),
+        Inteligência: parseInt(atributos.Inteligência) + parseInt(bonusRaca.Inteligência) + parseInt(bonusSubRaca.Inteligência || 0),
+        Sabedoria: parseInt(atributos.Sabedoria) + parseInt(bonusRaca.Sabedoria) + parseInt(bonusSubRaca.Sabedoria || 0),
+        Carisma: parseInt(atributos.Carisma) + parseInt(bonusRaca.Carisma) + parseInt(bonusSubRaca.Carisma || 0),
       };
-
-      // Se uma sub-raça estiver selecionada, adicione seu bônus
-      if (subRaca && subRaca.habilidadeBonusSubRaca) {
-        for (const atributo in subRaca.habilidadeBonusSubRaca) {
-          atributosComBonus[atributo] += parseInt(
-            subRaca.habilidadeBonusSubRaca[atributo]
-          );
-        }
-      }
-
+    
+      // Se uma sub-raça estiver selecionada, adicione seus bônus
       return atributosComBonus;
     };
-
-    const atributosComBonus = somarAtributos(atributos, habilidadeBonus);
+    
+    const atributosComBonus = somarAtributos(atributos, habilidadeBonus, subRacaDetalhes ? subRacaDetalhes.habilidadeBonusSubRaca : {});
+    
 
     const calcularBonus = (valorAtributo) => {
       const bonus = Math.floor((valorAtributo - 10) / 2);

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "./fichaPage.module.css";
 import { enviarFichaParaDatabase } from "components/FichaPage/FichaDatabase";
-import { racas, classes, subRacasArray } from "Array/RacaEClasse";
+import { racas, classes } from "Array/RacaEClasse";
 import {
   encontrarItensPorNome,
   getAcolitoCaracteristicasFields,
@@ -88,9 +88,9 @@ const FichaCriar = () => {
   const TendenciasOptions = tendencias.map((t) => t.nome);
   const idiomaOption = idiomasArray.map((i) => i);
   const racaSelecionada = racas.find((r) => r.nome === raca);
-  const detalhes = racaSelecionada.SubRacas.find(
-    (subRaca) => subRaca.subRacaNome === racas
-  );
+  // const detalhes = racaSelecionada.SubRacas.find(
+  //   (subRaca) => subRaca.subRacaNome === racas
+  // );
   const classeSelecioanda = classes.find((c) => c.nome === classe);
   const SubRacasOptions =
     racaSelecionada && racaSelecionada.SubRacas
@@ -184,6 +184,7 @@ const FichaCriar = () => {
       subRaca: {
         SubRaca: SubRaca,
         idiomasSubRaca: IdiomaAltoElfo,
+        atributosSubRaca: detalhesSubRaca.habilidadeBonusSubRaca
       },
     };
 
@@ -359,6 +360,7 @@ const FichaCriar = () => {
           valoresHabilidade={valoresHabilidade}
           setValoresHabilidade={setValoresHabilidade}
           SubRaca={SubRaca}
+          habilidadeBonusSubRaca={detalhesSubRaca.habilidadeBonusSubRaca}
         />
       )}
       {etapa < 11 ? (
