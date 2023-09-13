@@ -1,6 +1,20 @@
-.classeMago {
-  background-image: url(./backgounds/1306600.jpg);
+.classeBardo {
+  background-image: url(./backgounds/bard.jpg);
+  background-position: top;
+  background-size: auto;
+  min-height: 100vh;
+}
+
+.classeBárbaro {
+  background-image: url(./backgounds/Barbarian.jpg);
   background-position: bottom;
+  background-size: auto;
+  min-height: 100vh;
+}
+
+.classeBruxo {
+  background-image: url(./backgounds/Warlock.jpg);
+  background-position: center;
   background-size: auto;
   min-height: 100vh;
 }
@@ -12,14 +26,7 @@
   min-height: 100vh;
 }
 
-.classe {
-  background-image: url(./backgounds/1306600.jpg);
-  background-position: bottom;
-  background-size: auto;
-  min-height: 100vh;
-}
-
-.classe {
+.classeMago {
   background-image: url(./backgounds/1306600.jpg);
   background-position: bottom;
   background-size: auto;
@@ -136,5 +143,4 @@
   color: black;
   text-decoration: none;
   font-weight: bold;
-
 }

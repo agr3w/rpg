@@ -74,6 +74,9 @@ const FichaCriar = () => {
   const [equipamentosClasseSelecionada3, setEquipamentoClasseSelecionado3] =
     useState("");
 
+    const [equipamentosClasseSelecionada4, setEquipamentoClasseSelecionado4] =
+    useState("");
+
   const [periciasClasseSelecionadas, setPericiasSelecionadas] = useState([]);
 
   const [exibirPainelHabilidades, setExibirPainelHabilidades] = useState("");
@@ -200,6 +203,7 @@ const FichaCriar = () => {
         equipamentosClasseSelecionada1,
         equipamentosClasseSelecionada2,
         equipamentosClasseSelecionada3,
+        equipamentosClasseSelecionada4,
         equipamentoObgt: classeSelecioanda.equipamentos.equipamentoObgt,
       },
       periciasClasseSelecionadas,
@@ -242,6 +246,9 @@ const FichaCriar = () => {
   };
 
   const classeBackgrounds = {
+    Bárbaro: styleFundo.classeBárbaro,
+    Bardo: styleFundo.classeBardo,
+    Bruxo: styleFundo.classeBruxo,
     Mago: styleFundo.classeMago,
     Guerreiro: styleFundo.classeGuerreiro,
     Ladino: styleFundo.classeLadino,
@@ -304,6 +311,10 @@ const FichaCriar = () => {
               equipamentosClasseSelecionada3={equipamentosClasseSelecionada3}
               setEquipamentoClasseSelecionado3={
                 setEquipamentoClasseSelecionado3
+              }
+              equipamentosClasseSelecionada4={equipamentosClasseSelecionada4}
+              setEquipamentoClasseSelecionado4={
+                setEquipamentoClasseSelecionado4
               }
               classeSelecioanda={classeSelecioanda}
               periciasClasseSelecionadas={periciasClasseSelecionadas}
