@@ -80,8 +80,19 @@ const Etapa4 = ({
         ))}
       </div>
 
-      {/* Lembrar das variações de equipamentos, pois uns possuem até 5 selects */}
-      {(classe === "Mago" || classe === "Bárbaro" || classe === "Bardo") && (
+      {/* 2 Selects de Equipamentos */}
+      {(classe === "Bárbaro" ||
+        classe === "Bardo" ||
+        classe === "Bruxo" ||
+        classe === "Clérigo" ||
+        classe === "Druida" ||
+        classe === "Feiticeiro" ||
+        classe === "Guerreiro" ||
+        classe === "Ladino" ||
+        classe === "Mago" ||
+        classe === "Monge" ||
+        classe === "Paladino" ||
+        classe === "Patrulheiro") && (
         <>
           <Button onClick={handleTogglePainelHabilidades}>
             {exibirPainelHabilidades ? "Fechar Habilidades" : "Ver Habilidades"}
@@ -201,8 +212,36 @@ const Etapa4 = ({
           </div>
         </>
       )}
-
-      {(classe === "Mago" || classe === "Bardo") && (
+      {/* 3 Selects de Equipamentos */}
+      {(classe === "Bardo" ||
+        classe === "Bruxo" ||
+        classe === "Druida" ||
+        classe === "Feiticeiro" ||
+        classe === "Guerreiro" ||
+        classe === "Ladino" ||
+        classe === "Mago" ||
+        classe === "Paladino" ||
+        classe === "Patrulheiro") && (
+        <>
+          <FormControl fullWidth>
+            <InputLabel>Equipamento 3</InputLabel>
+            <Select
+              label="Equipamento 3"
+              value={equipamentosClasseSelecionada3}
+              onChange={(e) => setEquipamentoClasseSelecionado3(e.target.value)}
+            >
+              <MenuItem value="">Equipamentos da Classe</MenuItem>
+              {classeSelecioanda.equipamentos.equipamentoAlpha3.map((opcao) => (
+                <MenuItem key={opcao} value={opcao}>
+                  {opcao}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </>
+      )}
+      {/* 4 Selects de Equipamentos */}
+      {(classe === "Clérigo" || classe === "Bardo") && (
         <>
           <FormControl fullWidth>
             <InputLabel>Equipamento 3</InputLabel>
