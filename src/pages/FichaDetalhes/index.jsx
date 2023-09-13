@@ -102,18 +102,15 @@ const FichaDetalhes = () => {
       return bonus >= 0 ? `(+${bonus})` : `(${bonus})`;
     };
 
+    const classeBackgrounds = {
+      Mago: styles.classeMago,
+      Guerreiro: styles.classeGuerreiro,
+      Ladino: styles.classeLadino,
+      // Adicione mais classes e estilos aqui
+    };
+
     const getClasseBackground = (classe) => {
-      switch (classe) {
-        case "Mago":
-          return styles.classeMago;
-        case "Guerreiro":
-          return styles.classeGuerreiro;
-        case "Ladino":
-          return styles.classeLadino;
-        // Adicione mais casos para outras classes, se necessário
-        default:
-          return ""; // Classe padrão se não houver correspondência
-      }
+      return classeBackgrounds[classe] || ""; // Use a classe padrão se não houver correspondência
     };
 
     return (
@@ -347,10 +344,7 @@ const FichaDetalhes = () => {
         </div>
         <Typography className={styles.support}>
           BackGround Art By:{" "}
-          <Link
-            to= {backgrounds[ficha.classe]}
-            className={styles.supportLink}
-          >
+          <Link to={backgrounds[ficha.classe]} className={styles.supportLink}>
             {backgrounds[ficha.classe]}
           </Link>
         </Typography>

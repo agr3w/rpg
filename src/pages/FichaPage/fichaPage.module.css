@@ -1,11 +1,16 @@
 /* FichaPage.module.css */
 
+.espacamento{
+  padding: 30px;
+}
+
 .pageContainer {
   max-width: 600px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 30px;
   background-color: #f5f5f5;
   border-radius: 10px;
+  border: black 2px solid;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
   font-family: Arial, Helvetica, sans-serif;
 }

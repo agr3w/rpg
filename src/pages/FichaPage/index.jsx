@@ -1,6 +1,7 @@
 // FichaPage.js
 import React, { useState, useEffect } from "react";
 import styles from "./fichaPage.module.css";
+import styleFundo from "pages/FichaDetalhes/fichaDetalhe.module.css";
 import { enviarFichaParaDatabase } from "components/FichaPage/FichaDatabase";
 import { racas, classes } from "Array/RacaEClasse";
 import {
@@ -22,6 +23,9 @@ import Etapa8 from "components/FichaPage/Etapa8";
 import Etapa9 from "components/FichaPage/Etapa9";
 import Etapa10 from "components/FichaPage/Etapa10";
 import Etapa3 from "components/FichaPage/Etapa3";
+import { Typography } from "@mui/material";
+import { Link } from "react-router-dom";
+import { backgrounds } from "pages/FichaDetalhes/backgounds/arrayLinksBackgrounds";
 
 const FichaCriar = () => {
   const [nome, setNome] = useState("");
@@ -184,7 +188,7 @@ const FichaCriar = () => {
       subRaca: {
         SubRaca: SubRaca,
         idiomasSubRaca: IdiomaAltoElfo,
-        atributosSubRaca: detalhesSubRaca.habilidadeBonusSubRaca
+        atributosSubRaca: detalhesSubRaca.habilidadeBonusSubRaca,
       },
     };
 
@@ -237,146 +241,176 @@ const FichaCriar = () => {
     setRiquezaInicial(riqueza);
   };
 
-  return (
-    <div className={styles.pageContainer}>
-      {/* <h1>Crie sua Ficha de Personagem</h1> */}
-      {etapa === 1 && <Etapa1 nome={nome} setNome={setNome} />}
-      {etapa === 2 && (
-        <Etapa2
-          raca={raca}
-          setRaca={setRaca}
-          racasOptions={racasOptions}
-          itensDaRaca={itensDaRaca}
-          racaSelecionada={racaSelecionada}
-          idiomaRacaSelecionado={idiomaRacaSelecionado}
-          setIdiomaRacaSelecionado={setIdiomaRacaSelecionado}
-          idiomaRacaSelecionado2={idiomaRacaSelecionado2}
-          setIdiomaRacaSelecionado2={setIdiomaRacaSelecionado2}
-          idiomaOption={idiomaOption}
-        />
-      )}
-      {etapa === 3 && (
-        <Etapa3
-          raca={raca}
-          SubRaca={SubRaca}
-          setSubRaca={setSubRaca}
-          racaSelecionada={racaSelecionada}
-          SubRacasOptions={SubRacasOptions}
-          detalhesSubRaca={detalhesSubRaca}
-          setDetalhesSubRaca={setDetalhesSubRaca}
-          idiomaOption={idiomaOption}
-          setIdiomaAltoElfoSelecioando={setIdiomaAltoElfoSelecioando}
-          IdiomaAltoElfo={IdiomaAltoElfo}
-          handleSubRacaChange={handleSubRacaChange}
-        />
-      )}
+  const classeBackgrounds = {
+    Mago: styleFundo.classeMago,
+    Guerreiro: styleFundo.classeGuerreiro,
+    Ladino: styleFundo.classeLadino,
+    // Adicione mais classes e estilos aqui
+  };
 
-      {etapa === 4 && (
-        <Etapa4
-          classe={classe}
-          setClasse={setClasse}
-          classesOptions={classesOptions}
-          itensDaClasse={itensDaClasse}
-          equipamentosClasseSelecionada1={equipamentosClasseSelecionada1}
-          setEquipamentoClasseSelecionado1={setEquipamentoClasseSelecionado1}
-          equipamentosClasseSelecionada2={equipamentosClasseSelecionada2}
-          setEquipamentoClasseSelecionado2={setEquipamentoClasseSelecionado2}
-          equipamentosClasseSelecionada3={equipamentosClasseSelecionada3}
-          setEquipamentoClasseSelecionado3={setEquipamentoClasseSelecionado3}
-          classeSelecioanda={classeSelecioanda}
-          periciasClasseSelecionadas={periciasClasseSelecionadas}
-          setPericiasSelecionadas={setPericiasSelecionadas}
-          setExibirPainelHabilidades={setExibirPainelHabilidades}
-          exibirPainelHabilidades={exibirPainelHabilidades}
-        />
-      )}
-      {etapa === 5 && (
-        <Etapa5
-          tendencia={tendencia}
-          setTendencia={setTendencia}
-          TendenciasOptions={TendenciasOptions}
-          itensDaTendencia={itensDaTendencia}
-        />
-      )}
-      {etapa === 6 && (
-        <Etapa6
-          antecedente={antecedente}
-          setAntecedente={setAntecedente}
-          antecedentesOptions={antecedentes.map((a) => a.nome)}
-          itensDaAntecedencia={itensDaAntecedencia}
-          idiomaDoAntecedente={idiomaDoAntecedente}
-          idiomaDoAntecendente2={idiomaDoAntecendente2}
-          setIdiomaAntecedente={setIdiomaAntecedente}
-          setIdiomaAntecendente2={setIdiomaAntecendente2}
-          idiomaOption={idiomaOption}
-        />
-      )}
-      {etapa === 7 && antecedenteSelecionado && (
-        <Etapa7
-          antecedente={antecedente}
-          antecedenteSelecionado={antecedenteSelecionado}
-          negocioGuildaSelecionado={negocioGuildaSelecionado}
-          setNegocioGuildaSelecionado={setNegocioGuildaSelecionado}
-          caracteristicasGuildaSelecionado={caracteristicasGuildaSelecionado}
-          setCaracteristicasGuildaSelecionado={
-            setCaracteristicasGuildaSelecionado
-          }
-          caracteristicaAbrigoDosFiéis={caracteristicaAbrigoDosFiéis}
-          rotinasArtisticasSelcioando={rotinasArtisticasSelcioando}
-          setRotinasArtisticasSelecioando={setRotinasArtisticasSelecioando}
-        />
-      )}
-      {etapa === 8 && (
-        // continuar
-        <Etapa8
-          tracoPersonalidade={antecedenteSelecionado.tracoPersonalidade}
-          ideal={antecedenteSelecionado.ideal}
-          defeito={antecedenteSelecionado.defeito}
-          vinculo={antecedenteSelecionado.vinculo}
-          tracoPersonalidadeSelecionado={tracoPersonalidadeSelecionado}
-          idealSelecionado={idealSelecionado}
-          defeitoSelecionado={defeitoSelecionado}
-          vinculoSelecionado={vinculoSelecionado}
-          onSelecionarTracoPersonalidade={(e) =>
-            setTracoPersonalidadeSelecionado(e.target.value)
-          }
-          setTracoPersonalidadeSelecionado={setTracoPersonalidadeSelecionado}
-          onSelecionarIdeal={(e) => setIdealSelecionado(e.target.value)}
-          onSelecionarDefeito={(e) => setDefeitoSelecionado(e.target.value)}
-          onSelecionarVinculo={(e) => setVinculoSelecionado(e.target.value)}
-        />
-      )}
-      {etapa === 9 && (
-        <Etapa9
-          riquezaInicial={riquezaInicial}
-          setRiquezaInicial={setRiquezaInicial}
-          classeSelecionada={classe}
-          onRiquezaInicialCalculada={handleRiquezaInicialCalculada}
-        />
-      )}
-      {etapa === 10 && (
-        <Etapa10
-          racaSelecionada={racaSelecionada}
-          valoresHabilidade={valoresHabilidade}
-          setValoresHabilidade={setValoresHabilidade}
-          SubRaca={SubRaca}
-          habilidadeBonusSubRaca={detalhesSubRaca.habilidadeBonusSubRaca}
-        />
-      )}
-      {etapa < 11 ? (
-        <button className={styles.button} onClick={handleNext}>
-          Próxima Etapa
-        </button>
-      ) : (
-        <button className={styles.button} onClick={handleConcluir}>
-          Concluir
-        </button>
-      )}
-      {etapa > 1 && (
-        <button className={styles.button} onClick={handlePrevious}>
-          Etapa Anterior
-        </button>
-      )}
+  const getClasseBackground = (classe) => {
+    return classeBackgrounds[classe] || ""; // Use a classe padrão se não houver correspondência
+  };
+
+  return (
+    <div className={getClasseBackground(classe)}>
+      <div className={styles.espacamento}>
+        <div className={styles.pageContainer}>
+          {etapa === 1 && <Etapa1 nome={nome} setNome={setNome} />}
+          {etapa === 2 && (
+            <Etapa2
+              raca={raca}
+              setRaca={setRaca}
+              racasOptions={racasOptions}
+              itensDaRaca={itensDaRaca}
+              racaSelecionada={racaSelecionada}
+              idiomaRacaSelecionado={idiomaRacaSelecionado}
+              setIdiomaRacaSelecionado={setIdiomaRacaSelecionado}
+              idiomaRacaSelecionado2={idiomaRacaSelecionado2}
+              setIdiomaRacaSelecionado2={setIdiomaRacaSelecionado2}
+              idiomaOption={idiomaOption}
+            />
+          )}
+          {etapa === 3 && (
+            <Etapa3
+              raca={raca}
+              SubRaca={SubRaca}
+              setSubRaca={setSubRaca}
+              racaSelecionada={racaSelecionada}
+              SubRacasOptions={SubRacasOptions}
+              detalhesSubRaca={detalhesSubRaca}
+              setDetalhesSubRaca={setDetalhesSubRaca}
+              idiomaOption={idiomaOption}
+              setIdiomaAltoElfoSelecioando={setIdiomaAltoElfoSelecioando}
+              IdiomaAltoElfo={IdiomaAltoElfo}
+              handleSubRacaChange={handleSubRacaChange}
+            />
+          )}
+
+          {etapa === 4 && (
+            <Etapa4
+              classe={classe}
+              setClasse={setClasse}
+              classesOptions={classesOptions}
+              itensDaClasse={itensDaClasse}
+              equipamentosClasseSelecionada1={equipamentosClasseSelecionada1}
+              setEquipamentoClasseSelecionado1={
+                setEquipamentoClasseSelecionado1
+              }
+              equipamentosClasseSelecionada2={equipamentosClasseSelecionada2}
+              setEquipamentoClasseSelecionado2={
+                setEquipamentoClasseSelecionado2
+              }
+              equipamentosClasseSelecionada3={equipamentosClasseSelecionada3}
+              setEquipamentoClasseSelecionado3={
+                setEquipamentoClasseSelecionado3
+              }
+              classeSelecioanda={classeSelecioanda}
+              periciasClasseSelecionadas={periciasClasseSelecionadas}
+              setPericiasSelecionadas={setPericiasSelecionadas}
+              setExibirPainelHabilidades={setExibirPainelHabilidades}
+              exibirPainelHabilidades={exibirPainelHabilidades}
+            />
+          )}
+          {etapa === 5 && (
+            <Etapa5
+              tendencia={tendencia}
+              setTendencia={setTendencia}
+              TendenciasOptions={TendenciasOptions}
+              itensDaTendencia={itensDaTendencia}
+            />
+          )}
+          {etapa === 6 && (
+            <Etapa6
+              antecedente={antecedente}
+              setAntecedente={setAntecedente}
+              antecedentesOptions={antecedentes.map((a) => a.nome)}
+              itensDaAntecedencia={itensDaAntecedencia}
+              idiomaDoAntecedente={idiomaDoAntecedente}
+              idiomaDoAntecendente2={idiomaDoAntecendente2}
+              setIdiomaAntecedente={setIdiomaAntecedente}
+              setIdiomaAntecendente2={setIdiomaAntecendente2}
+              idiomaOption={idiomaOption}
+            />
+          )}
+          {etapa === 7 && antecedenteSelecionado && (
+            <Etapa7
+              antecedente={antecedente}
+              antecedenteSelecionado={antecedenteSelecionado}
+              negocioGuildaSelecionado={negocioGuildaSelecionado}
+              setNegocioGuildaSelecionado={setNegocioGuildaSelecionado}
+              caracteristicasGuildaSelecionado={
+                caracteristicasGuildaSelecionado
+              }
+              setCaracteristicasGuildaSelecionado={
+                setCaracteristicasGuildaSelecionado
+              }
+              caracteristicaAbrigoDosFiéis={caracteristicaAbrigoDosFiéis}
+              rotinasArtisticasSelcioando={rotinasArtisticasSelcioando}
+              setRotinasArtisticasSelecioando={setRotinasArtisticasSelecioando}
+            />
+          )}
+          {etapa === 8 && (
+            // continuar
+            <Etapa8
+              tracoPersonalidade={antecedenteSelecionado.tracoPersonalidade}
+              ideal={antecedenteSelecionado.ideal}
+              defeito={antecedenteSelecionado.defeito}
+              vinculo={antecedenteSelecionado.vinculo}
+              tracoPersonalidadeSelecionado={tracoPersonalidadeSelecionado}
+              idealSelecionado={idealSelecionado}
+              defeitoSelecionado={defeitoSelecionado}
+              vinculoSelecionado={vinculoSelecionado}
+              onSelecionarTracoPersonalidade={(e) =>
+                setTracoPersonalidadeSelecionado(e.target.value)
+              }
+              setTracoPersonalidadeSelecionado={
+                setTracoPersonalidadeSelecionado
+              }
+              onSelecionarIdeal={(e) => setIdealSelecionado(e.target.value)}
+              onSelecionarDefeito={(e) => setDefeitoSelecionado(e.target.value)}
+              onSelecionarVinculo={(e) => setVinculoSelecionado(e.target.value)}
+            />
+          )}
+          {etapa === 9 && (
+            <Etapa9
+              riquezaInicial={riquezaInicial}
+              setRiquezaInicial={setRiquezaInicial}
+              classeSelecionada={classe}
+              onRiquezaInicialCalculada={handleRiquezaInicialCalculada}
+            />
+          )}
+          {etapa === 10 && (
+            <Etapa10
+              racaSelecionada={racaSelecionada}
+              valoresHabilidade={valoresHabilidade}
+              setValoresHabilidade={setValoresHabilidade}
+              SubRaca={SubRaca}
+              habilidadeBonusSubRaca={detalhesSubRaca.habilidadeBonusSubRaca}
+            />
+          )}
+          {etapa < 11 ? (
+            <button className={styles.button} onClick={handleNext}>
+              Próxima Etapa
+            </button>
+          ) : (
+            <button className={styles.button} onClick={handleConcluir}>
+              Concluir
+            </button>
+          )}
+          {etapa > 1 && (
+            <button className={styles.button} onClick={handlePrevious}>
+              Etapa Anterior
+            </button>
+          )}
+        </div>
+      </div>
+      <Typography className={styleFundo.support}>
+        BackGround Art By:{" "}
+        <Link to={backgrounds[classe]} className={styleFundo.supportLink}>
+          {backgrounds[classe]}
+        </Link>
+      </Typography>
     </div>
   );
 };

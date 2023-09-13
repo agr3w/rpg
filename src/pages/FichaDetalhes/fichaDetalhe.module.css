@@ -1,132 +1,140 @@
 .classeMago {
   background-image: url(./backgounds/1306600.jpg);
   background-position: bottom;
+  background-size: auto;
+  min-height: 100vh;
 }
 
 .classeGuerreiro {
   background-image: url(./backgounds/1306600.jpg);
   background-position: bottom;
+  background-size: auto;
+  min-height: 100vh;
 }
 
 .classe {
   background-image: url(./backgounds/1306600.jpg);
   background-position: bottom;
+  background-size: auto;
+  min-height: 100vh;
 }
 
 .classe {
   background-image: url(./backgounds/1306600.jpg);
   background-position: bottom;
+  background-size: auto;
+  min-height: 100vh;
 }
 
-.fundo { 
+.fundo {
   padding: 60px 0;
 }
 
-
 .pageContainer {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f5f5f5;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-    font-family: Arial, Helvetica, sans-serif;
-  }
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  font-family: Arial, Helvetica, sans-serif;
+}
 
-  .espacamentoTextoItem {
-    margin: 15px 0;
-    line-height: 30px;
-  }
-  
-  .pageTitle {
-    font-size: 24px;
-    color: #333;
-    margin-bottom: 20px;
-    text-align: center;
-  }
-  
-  .card {
-    margin: 16px 0;
-  }
-  
-  .cardContent {
-    padding: 16px;
-  }
-  
-  .sectionTitle {
-    font-size: 20px;
-    color: #333;
-    margin-top: 10px;
-    color: #833C0B;
-    font-weight: 600;
-    text-decoration: underline #bf8f00;
-  }
-  
-  .listItem {
-    margin-left: 10px;
-    padding: 5px 0;
-  }
+.espacamentoTextoItem {
+  margin: 15px 0;
+  line-height: 30px;
+}
 
-  .spanBold {
-    font-weight: bold;
-  }
+.pageTitle {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
 
-  /* Header */
+.card {
+  margin: 16px 0;
+}
 
-  .header {
-    display: flex;
-    border-bottom: #bf8f00 solid 1px;
-    flex-wrap: wrap;
-    justify-content: space-between;
-  }
+.cardContent {
+  padding: 16px;
+}
 
-  .header span{
-    font-weight: bold;
-    color: #833C0B;
-  }
+.sectionTitle {
+  font-size: 20px;
+  color: #333;
+  margin-top: 10px;
+  color: #833c0b;
+  font-weight: 600;
+  text-decoration: underline #bf8f00;
+}
 
-  /* atributos */
-  
-  .titleAtributos {
-    font-weight: bold;
-    text-align: center;
-    color: #833C0B;
-    padding-bottom: 20px;
-    text-decoration: underline #bf8f00;
-  }
+.listItem {
+  margin-left: 10px;
+  padding: 5px 0;
+}
 
-  .atributos {
-    position: absolute;
-    background-color: #f5f5f5;
-    top: 10%;
-    left: 20%;
-    padding: 25px;
-    font-size: 22px;
-    border-radius: 10px;
-    
-  }
+.spanBold {
+  font-weight: bold;
+}
 
-  .listItemAtributos {
-    display: flex;
-    padding: 20px 15px;
-    border: black 1px solid;
-    text-align: start;
-    align-items: center;
-  }
+/* Header */
 
-  .iconAtributo {
-    padding-right: 10px;
-  }
+.header {
+  display: flex;
+  border-bottom: #bf8f00 solid 1px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
 
-  /* support */
+.header span {
+  font-weight: bold;
+  color: #833c0b;
+}
 
-  .support {
-    font-size: 18px;
-    padding: 15px;
-    font-weight: bold;
-  }
+/* atributos */
 
-  .supportLink {
-    color: black;
-    text-decoration: none;
-  }
+.titleAtributos {
+  font-weight: bold;
+  text-align: center;
+  color: #833c0b;
+  padding-bottom: 20px;
+  text-decoration: underline #bf8f00;
+}
+
+.atributos {
+  position: absolute;
+  background-color: #f5f5f5;
+  top: 10%;
+  left: 20%;
+  padding: 25px;
+  font-size: 22px;
+  border-radius: 10px;
+}
+
+.listItemAtributos {
+  display: flex;
+  padding: 20px 15px;
+  border: black 1px solid;
+  text-align: start;
+  align-items: center;
+}
+
+.iconAtributo {
+  padding-right: 10px;
+}
+
+/* support */
+
+.support {
+  font-size: 18px;
+  padding: 15px;
+  font-weight: bold;
+}
+
+.supportLink {
+  color: black;
+  text-decoration: none;
+  font-weight: bold;
+
+}
