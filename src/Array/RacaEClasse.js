@@ -477,18 +477,393 @@ export const racas = [
 
 export const classes = [
   {
-    nome: "Guerreiro",
-    equipamentos: {},
-    habilidades: [
-      "Armadura e escudo de todas as armaduras",
-      "Armas simples e marciais",
+    nome: "Bárbaro",
+    icone: "Url_icone_Classe",
+    // adicionar as imgs no storage 500X400
+    imagens: [
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2Fconjura%C3%A7%C3%A3o1.png?alt=media&token=4605c5b2-798d-49a2-b4e3-49c502fee9db",
     ],
-    //ssó arrumar, utilizar a mesma função da etapa 7
+    proficiencias: {
+      armaduras: "Armaduras Leves, Armaduras Médias e Escudos",
+      armas: "Armas Simples e Armas Marciais",
+      ferramentas: "Nenhuma",
+      testesDeResistecia: " Força e Constituição",
+      periciasLabel: "escolha duas dentre:",
+      perficiasMinimo: "2",
+      periciasSelecao: [
+        "Adestrar Animais",
+        "Atletismo",
+        "Intimidação",
+        "Natureza",
+        "Percepção",
+        "Sobrevivência",
+      ],
+    },
+    habilidadesClasse: {
+      habilidadeNv1: "Furia e Defesa sem Armadura",
+      habilidadeNv2: "Ataque Descuidado e Sentido de Perigo",
+    },
+    equipamentos: {
+      equipamentoAlpha1: [
+        "Um machado grande",
+        "Qualquer Arma marcial corpo-a-corpo",
+      ],
+      equipamentoAlpha2: ["Dois machados de mão", "Qualquer Arma simples"],
+      equipamentoObgt: ["Um pacote de aventureiros e Quatro azagaias"],
+    },
+
+    dadosDeVida: "1d12 pontos de vida por nível",
+    // Outras informações específicas da classe
+  },
+
+  // ---------------------------------------------------------------------------------------------------------------  //
+
+  {
+    nome: "Bardo",
+    icone: "Url_icone_Classe",
+    // adicionar as imgs no storage 500X400
+    imagens: [
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2Fconjura%C3%A7%C3%A3o1.png?alt=media&token=4605c5b2-798d-49a2-b4e3-49c502fee9db",
+    ],
+    proficiencias: {
+      armaduras: "Armaduras Leves",
+      armas:
+        "Armas simples, bestas de mão, espadas longas, rapieiras, espadas curtas ",
+      ferramentas: "Três instrumentos musicais, à sua escolha",
+      testesDeResistecia: " Destreza e Carisma",
+      periciasLabel: "escolha três dentre:",
+      perficiasMinimo: "3",
+      periciasSelecao: [
+        "Acrobacia",
+        "Arcanismo",
+        "Atletismo",
+        "Atuação",
+        "Enganação",
+        "Furtividade",
+        "Historia",
+        "intimidação",
+        "Intuição",
+        "investigação",
+        "Lidar com Animais",
+        "Medicina",
+        "Natureza",
+        "Percepção",
+        "Persuação",
+        "Prestidigitação",
+        "Religião",
+        "Sobrevivência",
+      ],
+    },
+    habilidadesClasse: {
+      habilidadeNv1: "Conjuração e Inspiração de Bardo",
+      habilidadeNv2: "Versatilidade e Canção de Descanso",
+      habilidadeNv3: "Colégio de Bardo e Aptidão",
+      habilidadeNv4: "incremento no valor de habilidade",
+    },
+    equipamentos: {
+      equipamentoAlpha1: [
+        "Uma rapieira",
+        "Uma espada longa",
+        "Qualuer Arma Simples",
+      ],
+      equipamentoAlpha2: ["Um pacote de diplomacia", "Um pacote de artista"],
+      equipamentoAlpha3: ["Um lute", "Qualquer outro instrumento musical"],
+      equipamentoObgt: ["Armadura de couro e uma adaga"],
+    },
+
+    dadosDeVida: "1d8 pontos de vida por nível",
+    // Outras informações específicas da classe
+  },
+
+  // ---------------------------------------------------------------------------------------------------------------  //
+
+  {
+    nome: "Bruxo",
+    icone: "Url_icone_Classe",
+    imagens: ["URL_DA_IMAGEM_DO_BRUXO"],
+    proficiencias: {
+      armaduras: "Armaduras Leves",
+      armas: "Armas Simples",
+      ferramentas: "Nenhuma",
+      testesDeResistecia: "Sabedoria e Carisma",
+      periciasLabel: "Escolha duas dentre:",
+      perficiasMinimo: "2",
+      periciasSelecao: [
+        "Arcanismo",
+        "Enganação",
+        "História",
+        "Intimidação",
+        "Investigação",
+        "Natureza",
+        "Religião",
+      ],
+    },
+    habilidadesClasse: {
+      habilidadeNv1: "Patrono Transcedental e Magia de Pacto",
+      habilidadeNv2: "Recuperação Arcana",
+    },
+    equipamentos: {
+      equipamentoAlpha1: [
+        "(a) Uma besta leve e 20 virotes",
+        "(b) Qualquer arma simples",
+      ],
+      equipamentoAlpha2: ["(a) Uma bolsa de componentes", "(b) Um foco arcano"],
+      equipamentoAlpha3: [
+        "(a) Um pacote de estudioso",
+        "(b) Um pacote de explorador",
+      ],
+      equipamentoObgt: [
+        "Armadura de couro, Qualquer arma simples e Duas adagas",
+      ],
+    },
+    dadosDeVida: "1d8 pontos de vida por nível",
+    // Outras informações específicas da classe
+  },
+
+  // ---------------------------------------------------------------------------------------------------------------  //
+  {
+    nome: "Clérigo",
+    icone: "Url_icone_Classe",
+    imagens: ["URL_DA_IMAGEM_DO_CLERIGO"],
+    proficiencias: {
+      armaduras: "Armaduras Leves, Armaduras Médias, Escudos",
+      armas: "Todas as Armas Simples",
+      ferramentas: "Nenhuma",
+      testesDeResistecia: "Sabedoria e Carisma",
+      periciasLabel: "Escolha duas dentre:",
+      perficiasMinimo: "2",
+      periciasSelecao: [
+        "História",
+        "Intuição",
+        "Medicina",
+        "Persuasão",
+        "Religião",
+      ],
+    },
+    habilidadesClasse: {
+      habilidadeNv1: "Conjuração e Domínio Divino",
+      habilidadeNv2: "Canalizar Divindade",
+      habilidadeNv3: "Nada",
+      habilidadeNv4: "Incremento no Valor de Habilidade",
+    },
+    equipamentos: {
+      equipamentoAlpha1: [
+        "(a) Uma maça",
+        "(b) Um martelo de guerra (se for proficiente)",
+      ],
+      equipamentoAlpha2: [
+        "(a) Brunea",
+        "(b) Armadura de couro",
+        "(c) Cota de malha (se for proficiente)",
+      ],
+      equipamentoAlpha3: [
+        "(a) Uma besta leve e 20 virotes",
+        "(b) Qualquer arma simples",
+      ],
+      equipamentoAlpha4: [
+        "(a) Um pacote de sacerdote",
+        "(b) Um pacote de aventureiro",
+      ],
+      equipamentoObgt: ["Um escudo e Um símbolo sagrado"],
+    },
+    dadosDeVida: "1d8 pontos de vida por nível",
+    // Outras informações específicas da classe
+  },
+  // ---------------------------------------------------------------------------------------------------------------  //
+  {
+    nome: "Druida",
+    icone: "Url_icone_Classe",
+    imagens: ["URL_DA_IMAGEM_DO_DRUIDA"],
+    proficiencias: {
+      armaduras:
+        "Armaduras Leves, Armaduras Médias, Escudos (Druidas não vestirão armaduras ou usarão escudos feitos de metal)",
+      armas:
+        "Clavas, Adagas, Dardos, Azagaias, Maças, Bordões, Cimitarras, Foice, Funda e Lanças",
+      ferramentas: "Kit de Herbalismo",
+      testesDeResistecia: "Inteligência e Sabedoria",
+      periciasLabel: "Escolha duas dentre:",
+      perficiasMinimo: "2",
+      periciasSelecao: [
+        "Arcanismo",
+        "Adestrar Animais",
+        "Intuição",
+        "Medicina",
+        "Natureza",
+        "Percepção",
+        "Religião",
+        "Sobrevivência",
+      ],
+    },
+    habilidadesClasse: {
+      habilidadeNv1: "Druídico e Conjuração",
+      habilidadeNv2: "Forma Selvagem e Círculo Druídico",
+    },
+    equipamentos: {
+      equipamentoAlpha1: [
+        "(a) Um escudo de madeira",
+        "(b) Qualquer arma simples",
+      ],
+      equipamentoAlpha2: [
+        "(a) Uma cimitarra",
+        "(b) Qualquer arma corpo-a-corpo simples",
+      ],
+      equipamentoAlpha3: [
+        "(a) Um pacote de estudioso",
+        "(b) Um pacote de explorador",
+      ],
+      equipamentoObgt: [
+        "Armadura de couro, Um pacote de aventureiro e Um foco druídico",
+      ],
+    },
+    dadosDeVida: "1d8 pontos de vida por nível",
+    // Outras informações específicas da classe
+  },
+
+  // ---------------------------------------------------------------------------------------------------------------  //
+
+  {
+    nome: "Feiticeiro",
+    icone: "Url_icone_Classe",
+    imagens: ["URL_DA_IMAGEM_DO_FEITICEIRO"],
+    proficiencias: {
+      armaduras: "Nenhuma",
+      armas: "Adagas, Dardos, Fundas, Bordões e Bestas Leves",
+      ferramentas: "Nenhuma",
+      testesDeResistecia: "Constituição, Carisma",
+      periciasLabel: "Escolha duas dentre:",
+      perficiasMinimo: "2",
+      periciasSelecao: [
+        "Arcanismo",
+        "Enganação",
+        "Intuição",
+        "Intimidação",
+        "Persuasão",
+        "Religião",
+      ],
+    },
+    habilidadesClasse: {
+      habilidadeNv1: "Conjuração e Origem de Feitiçaria",
+      habilidadeNv2: "Fonte de Magia",
+    },
+    equipamentos: {
+      equipamentoAlpha1: [
+        "(a) Uma besta leve e 20 virotes",
+        "(b) Qualquer arma simples",
+      ],
+      equipamentoAlpha2: ["(a) Uma bolsa de componentes", "(b) Um foco arcano"],
+      equipamentoAlpha3: [
+        "(a) Um pacote de explorador",
+        "(b) Um pacote de aventureiro",
+      ],
+      equipamentoObgt: [],
+    },
+    dadosDeVida: "1d6 pontos de vida por nível",
+    // Outras informações específicas da classe
+  },
+
+  // ---------------------------------------------------------------------------------------------------------------  //
+
+  {
+    nome: "Guerreiro",
+    icone: "Url_icone_Classe",
+    imagens: ["URL_DA_IMAGEM_DO_GUERREIRO"],
+    proficiencias: {
+      armaduras: "Todas as armaduras, escudos",
+      armas: "Armas simples, armas marciais",
+      ferramentas: "Nenhuma",
+      testesDeResistecia: "Força, Constituição",
+      periciasLabel: "Escolha duas dentre:",
+      perficiasMinimo: "2",
+      periciasSelecao: [
+        "Acrobacia",
+        "Adestrar Animais",
+        "Atletismo",
+        "História",
+        "Intuição",
+        "Intimidação",
+        "Percepção",
+        "Sobrevivência",
+      ],
+    },
+    habilidadesClasse: {
+      habilidadeNv1: "Estilo de Luta, Segunda Vida",
+      habilidadeNv2: "Ação Extra",
+    },
+    equipamentos: {
+      equipamentoAlpha1: [
+        "(a) Cota de malha",
+        "(b) Gibão de peles, arco longo e 20 flechas",
+      ],
+      equipamentoAlpha2: [
+        "(a) Uma arma marcial e um escudo",
+        "(b) Duas armas marciais",
+      ],
+      equipamentoAlpha3: [
+        "(a) Uma besta leve e 20 virotes",
+        "(b) Dois machados de arremesso",
+      ],
+      equipamentoObgt: [],
+    },
     dadosDeVida: "1d10 pontos de vida por nível",
     // Outras informações específicas da classe
   },
+
+  // ---------------------------------------------------------------------------------------------------------------  //
+
+  {
+    nome: "Ladino",
+    icone: "Url_icone_Classe",
+    imagens: ["URL_DA_IMAGEM_DO_LADINO"],
+    proficiencias: {
+      armaduras: "Armaduras leves",
+      armas:
+        "Armas simples, bestas de mão, espadas longas, rapieiras, espadas curtas",
+      ferramentas: "Ferramentas de ladrão",
+      testesDeResistecia: "Destreza, Inteligência",
+      periciasLabel: "Escolha quatro dentre:",
+      perficiasMinimo: "4",
+      periciasSelecao: [
+        "Acrobacia",
+        "Atletismo",
+        "Atuação",
+        "Enganação",
+        "Furtividade",
+        "Intimidação",
+        "Intuição",
+        "Investigação",
+        "Percepção",
+        "Persuasão",
+        "Prestidigitação",
+      ],
+    },
+    habilidadesClasse: {
+      habilidadeNv1: "Especialização, Ataque Furtivo e Gíria de Ladrão",
+      habilidadeNv2: "Ação Ardilosa",
+    },
+    equipamentos: {
+      equipamentoAlpha1: ["(a) Uma rapieira", "(b) Uma espada longa"],
+      equipamentoAlpha2: [
+        "(a) Um arco curto e uma aljava com 20 flechas",
+        "(b) Uma espada curta",
+      ],
+      equipamentoAlpha3: [
+        "(a) Um pacote de assaltante",
+        "(b) Um pacote de aventureiro",
+        "(c) Um pacote de explorador",
+      ],
+      equipamentoObgt: [
+        "Armadura de couro, Duas adagas e Ferramentas de ladrão",
+      ],
+    },
+    dadosDeVida: "1d8 pontos de vida por nível",
+    // Outras informações específicas da classe
+  },
+
+  // ---------------------------------------------------------------------------------------------------------------  //
+
   {
     nome: "Mago",
+    icone: "Url_icone_Classe",
     // adicionar as imgs no storage 500X400
     imagens: [
       "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2Fconjura%C3%A7%C3%A3o1.png?alt=media&token=4605c5b2-798d-49a2-b4e3-49c502fee9db",
@@ -525,5 +900,131 @@ export const classes = [
     dadosDeVida: "1d6 pontos de vida por nível",
     // Outras informações específicas da classe
   },
-  // Adicione mais classes aqui
+
+  // ---------------------------------------------------------------------------------------------------------------  //
+  {
+    nome: "Monge",
+    icone: "Url_icone_Classe",
+    imagens: ["URL_DA_IMAGEM_DO_MONGE"],
+    proficiencias: {
+      armaduras: "Nenhuma",
+      armas: "Armas simples, espadas curtas",
+      ferramentas:
+        "Escolha um tipo de ferramenta de artesão ou um instrumento musical",
+      testesDeResistecia: "Força, Destreza",
+      periciasLabel: "Escolha duas dentre:",
+      perficiasMinimo: "2",
+      periciasSelecao: [
+        "Acrobacia",
+        "Atletismo",
+        "Furtividade",
+        "História",
+        "Intuição",
+        "Religião",
+      ],
+    },
+    habilidadesClasse: {
+      habilidadeNv1: "Defesa Sem Armadura e Artes marciais",
+      habilidadeNv2: "Chi e Movimento Sem Armadura",
+    },
+    equipamentos: {
+      equipamentoAlpha1: ["(a) Uma espada curta", "(b) Qualquer arma simples"],
+      equipamentoAlpha2: [
+        "(a) Um pacote de explorador",
+        "(b) Um pacote de aventureiro",
+      ],
+      equipamentoObgt: ["10 dardos"],
+    },
+    dadosDeVida: "1d8 pontos de vida por nível",
+    // Outras informações específicas da classe
+  },
+
+  // ---------------------------------------------------------------------------------------------------------------  //
+  {
+    nome: "Paladino",
+    icone: "Url_icone_Classe",
+    imagens: ["URL_DA_IMAGEM_DO_PALADINO"],
+    proficiencias: {
+      armaduras: "Todas as armaduras, escudos",
+      armas: "Armas simples, armas marciais",
+      ferramentas: "Nenhum",
+      testesDeResistecia: "Sabedoria, Carisma",
+      periciasLabel: "Escolha duas dentre:",
+      perficiasMinimo: "2",
+      periciasSelecao: [
+        "Atletismo",
+        "Intuição",
+        "Intimidação",
+        "Medicina",
+        "Persuasão",
+        "Religião",
+      ],
+    },
+    habilidadesClasse: {
+      habilidadeNv1: "Sentido Divino e Cura pelas Mãos",
+      habilidadeNv2: "Estilo de Luta e Conjuração",
+    },
+    equipamentos: {
+      equipamentoAlpha1: [
+        "(a) Uma arma marcial e um escudo",
+        "(b) Duas armas marciais",
+      ],
+      equipamentoAlpha2: [
+        "(a) Cinco azagaias",
+        "(b) Qualquer arma simples corpo-a-corpo",
+      ],
+      equipamentoAlpha3: [
+        "(a) Um pacote de sacerdote",
+        "(b) Um pacote de aventureiro",
+      ],
+      equipamentoObgt: ["Cota de malha e Um símbolo sagrado"],
+    },
+    dadosDeVida: "1d10 pontos de vida por nível",
+    // Outras informações específicas da classe
+  },
+
+  // ---------------------------------------------------------------------------------------------------------------  //
+  {
+    nome: "Patrulheiro",
+    icone: "Url_icone_Classe",
+    imagens: ["URL_DA_IMAGEM_DO_PATRULHEIRO"],
+    proficiencias: {
+      armaduras: "Armaduras leves, armaduras médias, escudos",
+      armas: "Armas simples, armas marciais",
+      ferramentas: "Nenhuma",
+      testesDeResistecia: "Força, Destreza",
+      periciasLabel: "Escolha três dentre:",
+      perficiasMinimo: "3",
+      periciasSelecao: [
+        "Adestrar Animais",
+        "Atletismo",
+        "Furtividade",
+        "Intuição",
+        "Investigação",
+        "Natureza",
+        "Percepção",
+        "Sobrevivência",
+      ],
+    },
+    habilidadesClasse: {
+      habilidadeNv1: "Inimigo Favorito e Explorador Natural",
+      habilidadeNv2: "Estilo de Luta e Conjuração",
+    },
+    equipamentos: {
+      equipamentoAlpha1: ["(a) Brunea", "(b) Armadura de couro"],
+      equipamentoAlpha2: [
+        "(a) Duas espadas curtas",
+        "(b) Duas armas simples corpo-a-corpo",
+      ],
+      equipamentoAlpha3: [
+        "(a) Um pacote de explorador",
+        "(b) Um pacote de aventureiro",
+      ],
+      equipamentoObgt: ["Um arco longo e Uma aljava com 20 flechas"],
+    },
+    dadosDeVida: "1d10 pontos de vida por nível",
+    // Outras informações específicas da classe
+  },
+
+  // ---------------------------------------------------------------------------------------------------------------  //
 ];

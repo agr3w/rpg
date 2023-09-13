@@ -81,148 +81,144 @@ const Etapa4 = ({
       </div>
 
       {/* Lembrar das variações de equipamentos, pois uns possuem até 5 selects */}
-
-      {(classe === "Mago" || classe === "cu") && (
+      {(classe === "Mago" || classe === "Bárbaro" || classe === "Bardo") && (
         <>
-          <div>
-            <Button onClick={handleTogglePainelHabilidades}>
-              {exibirPainelHabilidades
-                ? "Fechar Habilidades"
-                : "Ver Habilidades"}
-            </Button>
+          <Button onClick={handleTogglePainelHabilidades}>
+            {exibirPainelHabilidades ? "Fechar Habilidades" : "Ver Habilidades"}
+          </Button>
 
-            {/* Painel de habilidades (será exibido se exibirPainelHabilidades for true) */}
-            {exibirPainelHabilidades && (
-              <div className={`${styles.painelHabilidades}`}>
-                <h2 className={styles.h2Habilidades}>Habilidades da classe</h2>
-                <div className={styles.espacamentoTextoItem}>
-                  <li>
-                    Habilidades nível 1:
-                    {classeSelecioanda.habilidadesClasse.habilidadeNv1}
-                  </li>
-                  <li>
-                    Habilidades nível 2:
-                    {classeSelecioanda.habilidadesClasse.habilidadeNv2}
-                  </li>
-                  <li>
-                    Habilidades nível 3:
-                    {classeSelecioanda.habilidadesClasse.habilidadeNv3}
-                  </li>
-                  <li>
-                    Habilidades nível 4:
-                    {classeSelecioanda.habilidadesClasse.habilidadeNv4}
-                  </li>
-                </div>
-              </div>
-            )}
-            <div>
-              <h1 className={styles.h2}>Proficiencias:</h1>
+          {/* Painel de habilidades (será exibido se exibirPainelHabilidades for true) */}
+          {exibirPainelHabilidades && (
+            <div className={`${styles.painelHabilidades}`}>
+              <h2 className={styles.h2Habilidades}>Habilidades da classe</h2>
               <div className={styles.espacamentoTextoItem}>
-                <li>Armaduras: {classeSelecioanda.proficiencias.armaduras}</li>
-                <li>Armas: {classeSelecioanda.proficiencias.armas}</li>
                 <li>
-                  Ferramentas: {classeSelecioanda.proficiencias.ferramentas}
+                  Habilidades nível 1:
+                  {classeSelecioanda.habilidadesClasse.habilidadeNv1}
                 </li>
                 <li>
-                  Testes de resistência:
-                  {classeSelecioanda.proficiencias.testesDeResistecia}
+                  Habilidades nível 2:
+                  {classeSelecioanda.habilidadesClasse.habilidadeNv2}
                 </li>
-              </div>
-              <h2 className={styles.h2}>
-                Perícias, {classeSelecioanda.proficiencias.periciasLabel}
-              </h2>
-              <div className={styles.espacamentoTextoItem}>
-                {classeSelecioanda.proficiencias.periciasSelecao.map(
-                  (pericia) => (
-                    <label key={pericia}>
-                      <input
-                        className={styles.checkBox}
-                        type="checkbox"
-                        value={pericia}
-                        checked={periciasClasseSelecionadas.includes(pericia)}
-                        onChange={handleCheckboxChange}
-                        disabled={
-                          periciasClasseSelecionadas.length ===
-                            classeSelecioanda.proficiencias.perficiasMinimo &&
-                          !periciasClasseSelecionadas.includes(pericia)
-                        }
-                      />
-                      {pericia}
-                    </label>
-                  )
-                )}
+                <li>
+                  Habilidades nível 3:
+                  {classeSelecioanda.habilidadesClasse.habilidadeNv3}
+                </li>
+                <li>
+                  Habilidades nível 4:
+                  {classeSelecioanda.habilidadesClasse.habilidadeNv4}
+                </li>
               </div>
             </div>
-
-            {/* Aqui corta as restricoes de classe para n ficar gigante */}
-
-            <h2 className={styles.h2}>Equipamentos da Classe:</h2>
-            <li className={styles.espacamentoTextoItem}>
-              Item obrigatório: {classeSelecioanda.equipamentos.equipamentoObgt}
-            </li>
-            <div className={styles.espacamentoSelects}>
-              <label className={styles.label}>
-                Selecione os equipamentos da classe:
-              </label>
-              <FormControl fullWidth>
-                <InputLabel>Equipamento 1</InputLabel>
-                <Select
-                  label="Equipamento 1"
-                  value={equipamentosClasseSelecionada1}
-                  onChange={(e) =>
-                    setEquipamentoClasseSelecionado1(e.target.value)
-                  }
-                >
-                  <MenuItem value="">Equipamentos da Classe</MenuItem>
-                  {classeSelecioanda.equipamentos.equipamentoAlpha1.map(
-                    (opcao) => (
-                      <MenuItem key={opcao} value={opcao}>
-                        {opcao}
-                      </MenuItem>
-                    )
-                  )}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth>
-                <InputLabel>Equipamento 2</InputLabel>
-                <Select
-                  label="Equipamento 2"
-                  value={equipamentosClasseSelecionada2}
-                  onChange={(e) =>
-                    setEquipamentoClasseSelecionado2(e.target.value)
-                  }
-                >
-                  <MenuItem value="">Equipamentos da Classe</MenuItem>
-                  {classeSelecioanda.equipamentos.equipamentoAlpha2.map(
-                    (opcao) => (
-                      <MenuItem key={opcao} value={opcao}>
-                        {opcao}
-                      </MenuItem>
-                    )
-                  )}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth>
-                <InputLabel>Equipamento 3</InputLabel>
-                <Select
-                  label="Equipamento 3"
-                  value={equipamentosClasseSelecionada3}
-                  onChange={(e) =>
-                    setEquipamentoClasseSelecionado3(e.target.value)
-                  }
-                >
-                  <MenuItem value="">Equipamentos da Classe</MenuItem>
-                  {classeSelecioanda.equipamentos.equipamentoAlpha3.map(
-                    (opcao) => (
-                      <MenuItem key={opcao} value={opcao}>
-                        {opcao}
-                      </MenuItem>
-                    )
-                  )}
-                </Select>
-              </FormControl>
+          )}
+          <div>
+            <h1 className={styles.h2}>Proficiencias:</h1>
+            <div className={styles.espacamentoTextoItem}>
+              <li>Armaduras: {classeSelecioanda.proficiencias.armaduras}</li>
+              <li>Armas: {classeSelecioanda.proficiencias.armas}</li>
+              <li>
+                Ferramentas: {classeSelecioanda.proficiencias.ferramentas}
+              </li>
+              <li>
+                Testes de resistência:
+                {classeSelecioanda.proficiencias.testesDeResistecia}
+              </li>
+            </div>
+            <h2 className={styles.h2}>
+              Perícias, {classeSelecioanda.proficiencias.periciasLabel}
+            </h2>
+            <div className={styles.espacamentoTextoItem}>
+              {classeSelecioanda.proficiencias.periciasSelecao.map(
+                (pericia) => (
+                  <label key={pericia}>
+                    <input
+                      className={styles.checkBox}
+                      type="checkbox"
+                      value={pericia}
+                      checked={periciasClasseSelecionadas.includes(pericia)}
+                      onChange={handleCheckboxChange}
+                      disabled={
+                        periciasClasseSelecionadas.length ===
+                          classeSelecioanda.proficiencias.perficiasMinimo &&
+                        !periciasClasseSelecionadas.includes(pericia)
+                      }
+                    />
+                    {pericia}
+                  </label>
+                )
+              )}
             </div>
           </div>
+
+          {/* Aqui corta as restricoes de classe para n ficar gigante */}
+
+          <h2 className={styles.h2}>Equipamentos da Classe:</h2>
+          <li className={styles.espacamentoTextoItem}>
+            Item obrigatório: {classeSelecioanda.equipamentos.equipamentoObgt}
+          </li>
+          <div className={styles.espacamentoSelects}>
+            <label className={styles.label}>
+              Selecione os equipamentos da classe:
+            </label>
+            <FormControl fullWidth>
+              <InputLabel>Equipamento 1</InputLabel>
+              <Select
+                label="Equipamento 1"
+                value={equipamentosClasseSelecionada1}
+                onChange={(e) =>
+                  setEquipamentoClasseSelecionado1(e.target.value)
+                }
+              >
+                <MenuItem value="">Equipamentos da Classe</MenuItem>
+                {classeSelecioanda.equipamentos.equipamentoAlpha1.map(
+                  (opcao) => (
+                    <MenuItem key={opcao} value={opcao}>
+                      {opcao}
+                    </MenuItem>
+                  )
+                )}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth>
+              <InputLabel>Equipamento 2</InputLabel>
+              <Select
+                label="Equipamento 2"
+                value={equipamentosClasseSelecionada2}
+                onChange={(e) =>
+                  setEquipamentoClasseSelecionado2(e.target.value)
+                }
+              >
+                <MenuItem value="">Equipamentos da Classe</MenuItem>
+                {classeSelecioanda.equipamentos.equipamentoAlpha2.map(
+                  (opcao) => (
+                    <MenuItem key={opcao} value={opcao}>
+                      {opcao}
+                    </MenuItem>
+                  )
+                )}
+              </Select>
+            </FormControl>
+          </div>
+        </>
+      )}
+
+      {(classe === "Mago" || classe === "Bardo") && (
+        <>
+          <FormControl fullWidth>
+            <InputLabel>Equipamento 3</InputLabel>
+            <Select
+              label="Equipamento 3"
+              value={equipamentosClasseSelecionada3}
+              onChange={(e) => setEquipamentoClasseSelecionado3(e.target.value)}
+            >
+              <MenuItem value="">Equipamentos da Classe</MenuItem>
+              {classeSelecioanda.equipamentos.equipamentoAlpha3.map((opcao) => (
+                <MenuItem key={opcao} value={opcao}>
+                  {opcao}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </>
       )}
     </>
