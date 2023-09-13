@@ -39,15 +39,18 @@ const FichaDetalhes = () => {
     );
   }
   const racaSelecionada = racas.find((r) => r.nome === ficha.raca);
+  const detalhes = racaSelecionada.SubRacas.find(
+    (subRaca) => subRaca.subRacaNome === ficha.DetalhesDaRaça.subRaca.SubRaca
+  );
 
   // Verifique se a raça selecionada foi encontrada
   if (racaSelecionada) {
     const atributos = ficha.DetalhesDaRaça.Atributos;
-    const habilidadeBonus = racaSelecionada.habilidadeBonus;
+    const habilidadeBonus = racaSelecionada.proficienciaHabilidadeBonus;
 
     // Função para somar os atributos com os bônus
-    const somarAtributos = (atributos, bonus) => {
-      return {
+    const somarAtributos = (atributos, bonus, subRaca) => {
+      const atributosComBonus = {
         Força: parseInt(atributos.Força) + parseInt(bonus.Força),
         Destreza: parseInt(atributos.Destreza) + parseInt(bonus.Destreza),
         Constituição:
@@ -57,6 +60,17 @@ const FichaDetalhes = () => {
         Sabedoria: parseInt(atributos.Sabedoria) + parseInt(bonus.Sabedoria),
         Carisma: parseInt(atributos.Carisma) + parseInt(bonus.Carisma),
       };
+
+      // Se uma sub-raça estiver selecionada, adicione seu bônus
+      if (subRaca && subRaca.habilidadeBonusSubRaca) {
+        for (const atributo in subRaca.habilidadeBonusSubRaca) {
+          atributosComBonus[atributo] += parseInt(
+            subRaca.habilidadeBonusSubRaca[atributo]
+          );
+        }
+      }
+
+      return atributosComBonus;
     };
 
     const atributosComBonus = somarAtributos(atributos, habilidadeBonus);
@@ -132,7 +146,9 @@ const FichaDetalhes = () => {
                 <>
                   {ficha.DetalhesDaClasse.periciasClasseSelecionadas.map(
                     (pericia) => (
-                      <li className={styles.listItem} key={pericia}>{pericia}</li>
+                      <li className={styles.listItem} key={pericia}>
+                        {pericia}
+                      </li>
                     )
                   )}
                 </>
@@ -183,6 +199,12 @@ const FichaDetalhes = () => {
                 {ficha.DetalhesDaRaça.Idiomas.idiomaRacaSelecionado2}
               </li>
             </ul>
+
+            {/* Sub-Raça */}
+
+            <Typography>Sub-Raça: {ficha.DetalhesDaRaça.subRaca.SubRaca}</Typography>
+
+             
 
             {/* Detalhes do Antecedente */}
 

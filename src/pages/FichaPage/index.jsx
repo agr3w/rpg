@@ -31,6 +31,8 @@ const FichaCriar = () => {
   const [tendencia, setTendencia] = useState("");
   const [idiomaDoAntecedente, setIdiomaAntecedente] = useState("");
   const [idiomaDoAntecendente2, setIdiomaAntecendente2] = useState("");
+  const [IdiomaAltoElfo, setIdiomaAltoElfoSelecioando] = useState(""); // Estado para armazenar o idioma do Alto Elfo
+
   const [etapa, setEtapa] = useState(1);
   const [itensDaRaca, setItensDaRaca] = useState([]);
   const [itensDaClasse, setItensDaClasse] = useState([]);
@@ -38,6 +40,7 @@ const FichaCriar = () => {
   const [itensDaAntecedencia, setItensAntecedencia] = useState([]);
   const [antecedente, setAntecedente] = useState("");
   const [antecedenteSelecionado, setAntecedenteSelecionado] = useState(null);
+  const [detalhesSubRaca, setDetalhesSubRaca] = useState(null);
   const [tracoPersonalidadeSelecionado, setTracoPersonalidadeSelecionado] =
     useState("");
   const [idealSelecionado, setIdealSelecionado] = useState("");
@@ -84,14 +87,15 @@ const FichaCriar = () => {
   const classesOptions = classes.map((c) => c.nome);
   const TendenciasOptions = tendencias.map((t) => t.nome);
   const idiomaOption = idiomasArray.map((i) => i);
-  // const SubRacasOptions = subRacasArray.map((s) => s.subRacaNome);
-
   const racaSelecionada = racas.find((r) => r.nome === raca);
+  const detalhes = racaSelecionada.SubRacas.find(
+    (subRaca) => subRaca.subRacaNome === racas
+  );
   const classeSelecioanda = classes.find((c) => c.nome === classe);
-  const SubRacasOptions = racaSelecionada && racaSelecionada.SubRacas
-  ? racaSelecionada.SubRacas.map((subRaca) => subRaca.subRacaNome)
-  : [];
-
+  const SubRacasOptions =
+    racaSelecionada && racaSelecionada.SubRacas
+      ? racaSelecionada.SubRacas.map((subRaca) => subRaca.subRacaNome)
+      : [];
 
   useEffect(() => {
     // Quando a raça selecionada mudar, encontre os itens correspondentes
@@ -117,8 +121,20 @@ const FichaCriar = () => {
     setItensDaClasse(itensDaClasse);
   }, [classe]);
 
+  const handleSubRacaChange = (e) => {
+    const subRacaSelecionada = e.target.value;
+    setSubRaca(subRacaSelecionada);
+
+    // Encontre os detalhes da sub-raça selecionada com base no nome da sub-raça
+    const detalhes = racaSelecionada.SubRacas.find(
+      (subRaca) => subRaca.subRacaNome === subRacaSelecionada
+    );
+
+    setDetalhesSubRaca(detalhes);
+  };
+
   const handleNext = () => {
-    if (etapa === 5 && antecedente !== "") {
+    if (etapa === 6 && antecedente !== "") {
       // Certifique-se de que o jogador tenha selecionado um antecedente
       const antecedenteEncontrado = antecedentes.find(
         (a) => a.nome === antecedente
@@ -165,6 +181,10 @@ const FichaCriar = () => {
     const RacasInfo = {
       Idiomas: { idiomaRacaSelecionado, idiomaRacaSelecionado2 },
       Atributos: valoresHabilidade,
+      subRaca: {
+        SubRaca: SubRaca,
+        idiomasSubRaca: IdiomaAltoElfo,
+      },
     };
 
     // ClassesParaMandar
@@ -241,6 +261,12 @@ const FichaCriar = () => {
           setSubRaca={setSubRaca}
           racaSelecionada={racaSelecionada}
           SubRacasOptions={SubRacasOptions}
+          detalhesSubRaca={detalhesSubRaca}
+          setDetalhesSubRaca={setDetalhesSubRaca}
+          idiomaOption={idiomaOption}
+          setIdiomaAltoElfoSelecioando={setIdiomaAltoElfoSelecioando}
+          IdiomaAltoElfo={IdiomaAltoElfo}
+          handleSubRacaChange={handleSubRacaChange}
         />
       )}
 
@@ -332,6 +358,7 @@ const FichaCriar = () => {
           racaSelecionada={racaSelecionada}
           valoresHabilidade={valoresHabilidade}
           setValoresHabilidade={setValoresHabilidade}
+          SubRaca={SubRaca}
         />
       )}
       {etapa < 11 ? (

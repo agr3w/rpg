@@ -1,16 +1,3 @@
-export const subRacasArray = [
-  {
-    subRacaNome: "Anão da Colina",
-    HabilidadesSubRaca: [
-      "Sabedoria +1",
-      "Tenacidade Anã. Seu máximo de pontos de vida aumentam em 1, e cada vez que o anão da colina sobe um nível, ele recebe 1 ponto de vida adicional",
-    ],
-    habilidadeBonusSubRaca: {
-      Sabedoria: 1,
-    },
-  },
-];
-
 // RAÇAS
 
 export const racas = [
@@ -37,28 +24,43 @@ export const racas = [
       "Ferramentas de Pedreiro",
     ],
     idiomaRaca: ["Comum e Anão"],
-    habilidadeBonus: {
+    proficienciaHabilidadeBonus: {
       Constituição: 2,
+      Força: 0,
+      Destreza: 0,
+      Inteligência: 0,
+      Sabedoria: 0,
+      Carisma: 0,
     },
     SubRacas: [
       {
         subRacaNome: "Anão da Colina",
-        HabilidadesSubRaca: [
+        habilidadesSubRaca: [
           "Sabedoria +1",
           "Tenacidade Anã. Seu máximo de pontos de vida aumentam em 1, e cada vez que o anão da colina sobe um nível, ele recebe 1 ponto de vida adicional",
         ],
         habilidadeBonusSubRaca: {
           Sabedoria: 1,
+          Constituição: 0,
+          Força: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Carisma: 0,
         },
       },
       {
         subRacaNome: "Anão da Montanha",
-        HabilidadesSubRaca: [
+        habilidadesSubRaca: [
           "Força +2",
           "Treinamento Anão com Armaduras: Você adquire proficiência em armaduras leves e médias.",
         ],
         habilidadeBonusSubRaca: {
           Força: 2,
+          Constituição: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Sabedoria: 0,
+          Carisma: 0,
         },
         proficienciaSubRacaArmaduras: ["Armaduras Lesves", "Armaduras Médias"],
       },
@@ -80,10 +82,10 @@ export const racas = [
     deslocamento: "9 metros",
     proficienciaPericia: "Percepção",
     idiomaRaca: ["Comum e Élfico"],
-    SubRacas: {
-      subRaca1: {
+    SubRacas: [
+      {
         subRacaNome: "Alto Elfo",
-        HabilidadesSubRaca: [
+        habilidadesSubRaca: [
           "Inteligência +1",
           "Treinamento Élfico com Armas. Você possui proficiência com espadas longas, espadas curtas, arcos longos e arcos curtos.",
           "Truque: Você conhece um truque, à sua escolha, da lista de truques do mago. Inteligência é a habilidade usado para conjurar este truque. ",
@@ -91,6 +93,11 @@ export const racas = [
         ],
         habilidadeBonusSubRaca: {
           Inteligência: 1,
+          Constituição: 0,
+          Força: 0,
+          Destreza: 0,
+          Sabedoria: 0,
+          Carisma: 0,
         },
         proficienciaSubRacaArmas: [
           "Espadas Longas",
@@ -99,9 +106,9 @@ export const racas = [
           "Arcos Curtos",
         ],
       },
-      subRaca2: {
+      {
         subRacaNome: "Elfo Da Floresta",
-        HabilidadesSubRaca: [
+        habilidadesSubRaca: [
           "Sabedoria +1",
           "Treinamento Élfico com Armas. Você possui proficiência com espadas longas, espadas curtas, arcos longos e arcos curtos.",
           "Pés Ligeiros. Seu deslocamento base de caminhada aumenta para 10,5 metros. ",
@@ -117,9 +124,9 @@ export const racas = [
           "Arcos Curtos",
         ],
       },
-      subRaca3: {
-        subRacaNome: "ELFO NEGRO (DROW)",
-        HabilidadesSubRaca: [
+      {
+        subRacaNome: "Elfo Negro (DROW)",
+        habilidadesSubRaca: [
           "Carisma +1",
           "Visão no Escuro Superior. Sua visão no escuro tem alcance de 36 metros de raio. ",
           "Sensibilidade à Luz Solar. Você possui desvantagem nas jogadas de ataque e testes de Sabedoria (Percepção) relacionados a visão quando você, o alvo do seu ataque, ou qualquer coisa que você está tentando perceber, esteja sob luz solar direta.",
@@ -128,6 +135,11 @@ export const racas = [
         ],
         habilidadeBonusSubRaca: {
           Carisma: 1,
+          Constituição: 0,
+          Força: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Sabedoria: 0,
         },
         proficienciaSubRacaArmas: [
           "Rapieiras",
@@ -135,10 +147,14 @@ export const racas = [
           "Bestas de Mão",
         ],
       },
-
-      habilidadeBonus: {
-        Destreza: 2,
-      },
+    ],
+    proficienciaHabilidadeBonus: {
+      Destreza: 2,
+      Constituição: 0,
+      Força: 0,
+      Inteligência: 0,
+      Sabedoria: 0,
+      Carisma: 0,
     },
   },
 
@@ -157,29 +173,44 @@ export const racas = [
     idiomaRaca: ["Comum e Halfling"],
     proficienciaHabilidadeBonus: {
       Destreza: 2,
+      Constituição: 0,
+      Força: 0,
+      Inteligência: 0,
+      Sabedoria: 0,
+      Carisma: 0,
     },
-    SubRacas: {
-      subRaca1: {
+    SubRacas: [
+      {
         subRacaNome: "Pés-Leves",
-        HabilidadesSubRaca: [
+        habilidadesSubRaca: [
           "Aumento no Valor de Habilidade. Seu valor de Carisma aumenta em 1.",
           "Furtividade Natural. Você pode tentar se esconder mesmo quando possuir apenas a cobertura de uma criatura que for no mínimo um tamanho maior que o seu.",
         ],
         habilidadeBonusSubRaca: {
           Carisma: 1,
+          Constituição: 0,
+          Força: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Sabedoria: 0,
         },
       },
-      subRaca2: {
+      {
         subRacaNome: "Robustos",
-        HabilidadesSubRaca: [
+        habilidadesSubRaca: [
           "Aumento no Valor de Habilidade. Seu valor de Constituição aumenta em 1.",
           "Resiliência dos Robustos. Você tem vantagem em testes de resistência contra veneno e tem resistência contra dano de veneno.",
         ],
         habilidadeBonusSubRaca: {
           Constituição: 1,
+          Força: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Sabedoria: 0,
+          Carisma: 0,
         },
       },
-    },
+    ],
   },
 
   // ---------------------------------------------------------------------------------------------------------------  //
@@ -191,7 +222,7 @@ export const racas = [
       "Idiomas: Comum e um idioma adicional à escolha do jogador",
     ],
     idiomaRaca: ["Comum"],
-    habilidadeBonus: {
+    proficienciaHabilidadeBonus: {
       Força: 1,
       Destreza: 1,
       Constituição: 1,
@@ -214,9 +245,13 @@ export const racas = [
     proficienciaHabilidadeBonus: {
       Força: 2,
       Carisma: 1,
+      Constituição: 0,
+      Destreza: 0,
+      Inteligência: 0,
+      Sabedoria: 0,
     },
-    SubRacas: {
-      subRaca1: {
+    SubRacas: [
+      {
         subRacaNome: "Azul",
         habilidadesSubRaca: [
           "Tipo de Dano: Elétrico",
@@ -224,7 +259,7 @@ export const racas = [
           "Resistência a Dano: Elétrico",
         ],
       },
-      subRaca2: {
+      {
         subRacaNome: "Branco",
         habilidadesSubRaca: [
           "Tipo de Dano: Frio",
@@ -232,7 +267,7 @@ export const racas = [
           "Resistência a Dano: Frio",
         ],
       },
-      subRaca3: {
+      {
         subRacaNome: "Bronze",
         habilidadesSubRaca: [
           "Tipo de Dano: Elétrico",
@@ -240,7 +275,7 @@ export const racas = [
           "Resistência a Dano: Elétrico",
         ],
       },
-      subRaca4: {
+      {
         subRacaNome: "Cobre",
         habilidadesSubRaca: [
           "Tipo de Dano: Ácido",
@@ -248,7 +283,7 @@ export const racas = [
           "Resistência a Dano: Ácido",
         ],
       },
-      subRaca5: {
+      {
         subRacaNome: "Latão",
         habilidadesSubRaca: [
           "Tipo de Dano: Fogo",
@@ -256,7 +291,7 @@ export const racas = [
           "Resistência a Dano: Fogo",
         ],
       },
-      subRaca6: {
+      {
         subRacaNome: "Negro",
         habilidadesSubRaca: [
           "Tipo de Dano: Ácido",
@@ -264,7 +299,7 @@ export const racas = [
           "Resistência a Dano: Ácido",
         ],
       },
-      subRaca7: {
+      {
         subRacaNome: "Ouro",
         habilidadesSubRaca: [
           "Tipo de Dano: Fogo",
@@ -272,7 +307,7 @@ export const racas = [
           "Resistência a Dano: Fogo",
         ],
       },
-      subRaca8: {
+      {
         subRacaNome: "Prata",
         habilidadesSubRaca: [
           "Tipo de Dano: Frio",
@@ -280,7 +315,7 @@ export const racas = [
           "Resistência a Dano: Frio",
         ],
       },
-      subRaca29: {
+      {
         subRacaNome: "Verde",
         habilidadesSubRaca: [
           "Tipo de Dano: Veneno",
@@ -288,7 +323,7 @@ export const racas = [
           "Resistência a Dano: Veneno",
         ],
       },
-      subRaca10: {
+      {
         subRacaNome: "Vermelho",
         habilidadesSubRaca: [
           "Tipo de Dano: Fogo",
@@ -296,7 +331,7 @@ export const racas = [
           "Resistência a Dano: Fogo",
         ],
       },
-    },
+    ],
   },
 
   // ---------------------------------------------------------------------------------------------------------------  //
@@ -314,9 +349,14 @@ export const racas = [
     idiomaRaca: ["Comum e Gnômico"],
     proficienciaHabilidadeBonus: {
       Inteligência: 2,
+      Constituição: 0,
+      Força: 0,
+      Destreza: 0,
+      Sabedoria: 0,
+      Carisma: 0,
     },
-    SubRacas: {
-      subRaca1: {
+    SubRacas: [
+      {
         subRacaNome: "Gnomo da Floresta",
         habilidadesSubRaca: [
           "Aumento no Valor de Habilidade. Seu valor de Destreza aumenta em 1.",
@@ -324,7 +364,7 @@ export const racas = [
           "Falar com Bestas Pequenas. Através de sons e gestos, você pode comunicar ideias simples para Bestas pequenas ou menores. Gnomos da floresta amam os animais e normalmente possuem esquilos, doninhas, coelhos, toupeiras, pica-paus e outras criaturas como amados animais de estimação.",
         ],
       },
-      subRaca2: {
+      {
         subRacaNome: "Gnomo das Rochas",
         habilidadesSubRaca: [
           "Aumento no Valor de Habilidade. Seu valor de Constituição aumenta em 1.",
@@ -337,7 +377,7 @@ export const racas = [
           "Caixa de Música",
         ],
       },
-    },
+    ],
   },
 
   // ---------------------------------------------------------------------------------------------------------------  //
@@ -355,6 +395,11 @@ export const racas = [
     deslocamento: "9 metros",
     proficienciaHabilidadeBonus: {
       Carisma: 2,
+      Constituição: 0,
+      Força: 0,
+      Destreza: 0,
+      Inteligência: 0,
+      Sabedoria: 0,
       Escolha: {
         Força: 1,
         Destreza: 1,
@@ -393,6 +438,10 @@ export const racas = [
     proficienciaHabilidadeBonus: {
       Força: 2,
       Constituição: 1,
+      Destreza: 0,
+      Inteligência: 0,
+      Sabedoria: 0,
+      Carisma: 0,
     },
     proficienciaPericia: "Intimidação",
   },
@@ -414,6 +463,10 @@ export const racas = [
     proficienciaHabilidadeBonus: {
       Inteligência: 1,
       Carisma: 2,
+      Constituição: 0,
+      Força: 0,
+      Destreza: 0,
+      Sabedoria: 0,
     },
   },
 ];

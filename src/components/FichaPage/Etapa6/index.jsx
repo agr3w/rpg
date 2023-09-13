@@ -32,7 +32,7 @@ const Etapa6 = ({
         </Select>
       </FormControl>
       <div className={styles.espacamentoTextoItem}>
-        <label className={styles.label}>Proficiências adicionais:</label>
+        <label className={styles.P_Habilidades} >Proficiências adicionais:</label>
         {itensDaAntecedencia.map((item, index) => (
           <li key={index}>{item}</li>
         ))}
@@ -40,9 +40,9 @@ const Etapa6 = ({
       {antecedente === "Acólito" && (
         <>
           <div className={styles.espacamentoSelects}>
-            <label className={styles.label}>Idiomas adicionais:</label>
+            <label className={styles.P_Habilidades}>Idiomas adicionais:</label>
             <FormControl fullWidth>
-              <InputLabel>Idioma</InputLabel>
+              <InputLabel>Idioma adicional</InputLabel>
               <Select
                 label="Idioma"
                 value={idiomaDoAntecedente}
@@ -57,7 +57,7 @@ const Etapa6 = ({
               </Select>
             </FormControl>
             <FormControl fullWidth>
-              <InputLabel>Idioma</InputLabel>
+              <InputLabel>Idioma adicional</InputLabel>
               <Select
                 label="Idioma"
                 value={idiomaDoAntecendente2}
@@ -77,7 +77,7 @@ const Etapa6 = ({
       {antecedente === "Artesão de Guilda" && (
         <>
           <div className={styles.espacamentoSelects}>
-            <label className={styles.label}>Idiomas adicionais:</label>
+            <label className={styles.P_Habilidades}>Idiomas adicionais:</label>
             <FormControl fullWidth>
               <InputLabel>Idioma</InputLabel>
               <Select

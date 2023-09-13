@@ -1,7 +1,13 @@
 // Etapa7.js
 import React from "react";
 import styles from "pages/FichaPage/fichaPage.module.css";
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Typography,
+} from "@mui/material";
 
 const Etapa7 = ({
   antecedenteSelecionado,
@@ -18,7 +24,7 @@ const Etapa7 = ({
       <h1 className={styles.h1}>Características do Antecedente</h1>
       {antecedente === "Acólito" && (
         <>
-          <h1 className={styles.h2}>Características Abrigo dos Fiés:</h1>
+          <h1 className={styles.h2Habilidades}>Características Abrigo dos Fiés:</h1>
           <div className={styles.divTexto}>
             <p>
               {
@@ -27,98 +33,94 @@ const Etapa7 = ({
               }
             </p>
           </div>
-          <div className={styles.divTexto}>
-            <p>
-              {
-                antecedenteSelecionado.CaracteristicaDoAntecedente
-                  .caracteristicasSugeridas
-              }
-            </p>
-          </div>
         </>
       )}
       {antecedente === "Artesão de Guilda" && (
         <>
-          <h3>Opções de Negócios da Guilda</h3>
-          <FormControl fullWidth>
-            <InputLabel>Selecione um negócio da guilda</InputLabel>
-            <Select
-              value={negocioGuildaSelecionado}
-              onChange={(e) => setNegocioGuildaSelecionado(e.target.value)}
-            >
-              <MenuItem value="">
-                <em>Selecione um negócio da guilda</em>
-              </MenuItem>
-              {antecedenteSelecionado.CaracteristicaDoAntecedente.negociosGuilda.map(
-                (opcao) => (
-                  <MenuItem key={opcao} value={opcao}>
-                    {opcao}
-                  </MenuItem>
-                )
-              )}
-            </Select>
-          </FormControl>
+          <div className={styles.espacamentoSelects}>
+            <FormControl fullWidth>
+              <InputLabel>Selecione um negócio da guilda</InputLabel>
+              <Select
+                label="Selecione um negócio da guilda"
+                value={negocioGuildaSelecionado}
+                onChange={(e) => setNegocioGuildaSelecionado(e.target.value)}
+              >
+                <MenuItem value="">
+                  <em>Selecione um negócio da guilda</em>
+                </MenuItem>
+                {antecedenteSelecionado.CaracteristicaDoAntecedente.negociosGuilda.map(
+                  (opcao) => (
+                    <MenuItem key={opcao} value={opcao}>
+                      {opcao}
+                    </MenuItem>
+                  )
+                )}
+              </Select>
+            </FormControl>
 
-          <h3>Características da Guilda</h3>
-          <FormControl fullWidth>
-            <InputLabel>Selecione uma característica da guilda</InputLabel>
-            <Select
-              value={caracteristicasGuildaSelecionado}
-              onChange={(e) =>
-                setCaracteristicasGuildaSelecionado(e.target.value)
-              }
-            >
-              {antecedenteSelecionado.CaracteristicaDoAntecedente.caracteristicasGuilda.map(
-                (opcao) => (
-                  <MenuItem key={opcao} value={opcao}>
-                    {opcao}
-                  </MenuItem>
-                )
-              )}
-            </Select>
-          </FormControl>
-          <h3>Características Sugeridas</h3>
-          <p>
-            {
-              antecedenteSelecionado.CaracteristicaDoAntecedente
-                .caracteristicasSugeridas
-            }
-          </p>
+            <FormControl fullWidth>
+              <InputLabel>Selecione uma característica da guilda</InputLabel>
+              <Select
+                label="Selecione uma característica da guilda"
+                value={caracteristicasGuildaSelecionado}
+                onChange={(e) =>
+                  setCaracteristicasGuildaSelecionado(e.target.value)
+                }
+              >
+                {antecedenteSelecionado.CaracteristicaDoAntecedente.caracteristicasGuilda.map(
+                  (opcao) => (
+                    <MenuItem key={opcao} value={opcao}>
+                      {opcao}
+                    </MenuItem>
+                  )
+                )}
+              </Select>
+            </FormControl>
+          </div>
         </>
       )}
       {antecedente === "Artista" && (
         <>
-          <FormControl fullWidth>
-            <InputLabel>Selecione uma rotina artística</InputLabel>
-            <Select
-              value={rotinasArtisticasSelcioando}
-              onChange={(e) => setRotinasArtisticasSelecioando(e.target.value)}
-            >
-              {antecedenteSelecionado.CaracteristicaDoAntecedente.rotinasArtisticas.map(
-                (opcao) => (
-                  <MenuItem key={opcao} value={opcao}>
-                    {opcao}
-                  </MenuItem>
-                )
-              )}
-            </Select>
-          </FormControl>
-          <h3>Características Demanda Popular</h3>
-          <p>
+          <div className={styles.espacamentoSelects}>
+            <FormControl fullWidth>
+              <InputLabel>Selecione uma rotina artística</InputLabel>
+              <Select
+                label="Selecione uma rotina artística"
+                value={rotinasArtisticasSelcioando}
+                onChange={(e) =>
+                  setRotinasArtisticasSelecioando(e.target.value)
+                }
+              >
+                {antecedenteSelecionado.CaracteristicaDoAntecedente.rotinasArtisticas.map(
+                  (opcao) => (
+                    <MenuItem key={opcao} value={opcao}>
+                      {opcao}
+                    </MenuItem>
+                  )
+                )}
+              </Select>
+            </FormControl>
+          </div>
+          <Typography variant="h6" className={styles.h2Habilidades}>
+            Características Demanda Popular
+          </Typography>
+          <p className={styles.divTexto}>
             {
               antecedenteSelecionado.CaracteristicaDoAntecedente
                 .caracteristicaDemandaPopular
             }
           </p>
-          <h3>Características Sugeridas</h3>
-          <p>
-            {
-              antecedenteSelecionado.CaracteristicaDoAntecedente
-                .caracteristicasSugeridas
-            }
-          </p>
         </>
       )}
+      <Typography variant="h6" className={styles.h2Habilidades}>
+        Características sugeridas
+      </Typography>
+      <p className={styles.divTexto}>
+        {
+          antecedenteSelecionado.CaracteristicaDoAntecedente
+            .caracteristicasSugeridas
+        }
+      </p>
       {/* Adicione mais blocos condicionais para outros antecedentes, se necessário */}
     </div>
   );

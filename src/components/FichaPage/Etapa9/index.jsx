@@ -1,6 +1,7 @@
 import { Button } from "@mui/material";
 import { calcularRiquezaInicialPorClasse } from "Utils/DiceRoller";
 import React, { useState } from "react";
+import styles from "pages/FichaPage/fichaPage.module.css"
 
 function Etapa9 ({
   classeSelecionada,
@@ -33,8 +34,8 @@ function Etapa9 ({
 
   return (
     <div>
-      <h3>Riqueza Inicial</h3>
-      <p>{riquezaInicial} peças de ouro (PO)</p>
+      <h3 className={styles.h2Habilidades }>Riqueza Inicial</h3>
+      <p className={styles.espacamentoTextoItem}>{riquezaInicial} peças de ouro (PO)</p>
       <Button
         variant="contained"
         onClick={calcularRiquezaInicial}

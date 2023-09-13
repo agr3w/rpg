@@ -4,60 +4,78 @@ import React from "react";
 import styles from "pages/FichaPage/fichaPage.module.css";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
-const Etapa3 = ({ racaSelecionada, SubRacasOptions, SubRaca, setSubRaca,raca }) => {
+const Etapa3 = ({
+  racaSelecionada,
+  SubRacasOptions,
+  SubRaca,
+  raca,
+  detalhesSubRaca,
+  idiomaOption,
+  setIdiomaAltoElfoSelecioando,
+  IdiomaAltoElfo,
+  handleSubRacaChange,
+}) => {
+  // Função para atualizar os detalhes da sub-raça quando uma nova sub-raça for selecionada
+
   return (
     <>
-      <h1 className={styles.h1}>Selecione uma Sub-Raça</h1>
       {(raca === "Anão" ||
         raca === "Elfo" ||
-        racaSelecionada === "Halfling" ||
-        racaSelecionada === "Draconato" ||
-        racaSelecionada === "Gnomo") && (
-        <FormControl fullWidth>
-          <InputLabel>Sub-Raça</InputLabel>
-          <Select
-            value={SubRaca}
-            onChange={(e) => setSubRaca(e.target.value)}
-            label="Sub-Raças"
-          >
-            <MenuItem value="">
-              <em>Selecione uma Sub-Raça</em>
-            </MenuItem>
-            {SubRacasOptions.map((opcao) => (
-              <MenuItem key={opcao} value={opcao}>
-                {opcao}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      )}
-      {/* {(racaSelecionada === "Anão" ||
-        racaSelecionada === "Elfo" ||
-        racaSelecionada === "Halfling" ||
-        racaSelecionada === "Draconato" ||
-        racaSelecionada === "Gnomo") && (
+        raca === "Halfling" ||
+        raca === "Draconato" ||
+        raca === "Gnomo") && (
         <>
-          <div className={styles.espacamentoSelects}>
+          <h1 className={styles.h1}>Selecione uma Sub-Raça</h1>
+          <FormControl fullWidth>
+            <InputLabel>Sub-Raça</InputLabel>
+            <Select
+              value={SubRaca}
+              onChange={handleSubRacaChange}
+              label="Sub-Raças"
+            >
+              <MenuItem value="">
+                <em>Selecione uma Sub-Raça</em>
+              </MenuItem>
+              {SubRacasOptions.map((opcao) => (
+                <MenuItem key={opcao} value={opcao}>
+                  {opcao}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          {detalhesSubRaca && (
+            <div className={styles.espacamentoTextoItem}>
+              {detalhesSubRaca.habilidadesSubRaca.map((habilidade, index) => (
+                <li key={index}>{habilidade}</li>
+              ))}
+            </div>
+          )}
+          {SubRaca === "Alto Elfo" && (
             <FormControl fullWidth>
-              <InputLabel>Idiomas da Raça</InputLabel>
+              <InputLabel>Idioma do Alto Elfo</InputLabel>
               <Select
-                value={idiomaRacaSelecionado}
-                onChange={(e) => setIdiomaRacaSelecionado(e.target.value)}
-                label="Idiomas da Raça"
+                value={IdiomaAltoElfo}
+                onChange={(e) => setIdiomaAltoElfoSelecioando(e.target.value)}
+                label="Idioma do Alto Elfo"
               >
                 <MenuItem value="">
-                  <em>Idiomas da Raça</em>
+                  <em>Selecione um Idioma</em>
                 </MenuItem>
-                {racaSelecionada.idiomaRaca.map((opcao) => (
-                  <MenuItem key={opcao} value={opcao}>
-                    {opcao}
+                {idiomaOption.map((idioma) => (
+                  <MenuItem key={idioma} value={idioma}>
+                    {idioma}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
-          </div>
+          )}
         </>
-      )} */}
+      )}
+      {(raca === "Meio-Elfo" || raca === "Meio-Orc" || raca === "Tiefling") && (
+        <>
+          <h1 className={styles.h1}>Sua classe não possue uma Sub-Classe</h1>
+        </>
+      )}
     </>
   );
 };

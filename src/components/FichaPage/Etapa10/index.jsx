@@ -5,6 +5,7 @@ const Etapa10 = ({
   racaSelecionada,
   valoresHabilidade,
   setValoresHabilidade,
+  SubRaca,
 }) => {
   const habilidades = [
     "Força",
@@ -28,21 +29,18 @@ const Etapa10 = ({
     }
   };
 
-  const calcularBonus = (valor) => {
-    if (valor >= 14) {
-      return "+2";
-    } else if (valor >= 12) {
-      return "+1";
-    } else {
-      return "+0";
-    }
+  const calcularBonus = (valorAtributo) => {
+    const bonus = Math.floor((valorAtributo - 10) / 2);
+    return bonus >= 0 ? `+${bonus}` : `${bonus}`;
   };
 
   const opcoesDisponiveis = (habilidade) => {
     const valoresSelecionados = Object.values(valoresHabilidade).map((valor) =>
       valor.toString()
     );
-    const bonusRaca = racaSelecionada.habilidadeBonus[habilidade] || 0;
+    const bonusRaca = racaSelecionada.proficienciaHabilidadeBonus[habilidade] || 0;
+    const bonusSubRaca = SubRaca.habilidadeBonusSubRaca[habilidade] || 0;
+
 
     const valoresPossiveis = [
       { value: 15, realValue: 15 },
@@ -54,7 +52,7 @@ const Etapa10 = ({
     ];
 
     return valoresPossiveis
-      .map((opcao) => ({ ...opcao, value: opcao.value + bonusRaca })) // Adicione o bônus da raça
+      .map((opcao) => ({ ...opcao, value: opcao.value + bonusRaca + bonusSubRaca})) // Adicione o bônus da raça
       .filter(
         (opcao) =>
           !valoresSelecionados.includes(opcao.realValue.toString()) ||
@@ -70,7 +68,7 @@ const Etapa10 = ({
         {habilidades.map((habilidade, index) => (
           <Grid item xs={4} key={index}>
           <Typography>
-            {habilidade} {valoresHabilidade[habilidade] && `(${calcularBonus(valoresHabilidade[habilidade])})`}
+            {habilidade} {valoresHabilidade[habilidade] && `${calcularBonus(valoresHabilidade[habilidade])}`}
           </Typography>
           <FormControl fullWidth>
             <Select
