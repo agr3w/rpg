@@ -1,3 +1,12 @@
+.classeMago {
+  background-image: url(./backgounds/1306600.jpg);
+  background-position: bottom;
+}
+
+.fundo { 
+  padding: 60px 0;
+}
+
 
 .pageContainer {
     max-width: 600px;
@@ -64,6 +73,7 @@
   /* atributos */
   
   .titleAtributos {
+    font-weight: bold;
     text-align: center;
     color: #833C0B;
     padding-bottom: 20px;
@@ -77,10 +87,31 @@
     left: 20%;
     padding: 25px;
     font-size: 22px;
+    border-radius: 10px;
+    
   }
 
   .listItemAtributos {
-    padding: 20px 5px;
+    display: flex;
+    padding: 20px 15px;
     border: black 1px solid;
-    text-align: center;
+    text-align: start;
+    align-items: center;
+  }
+
+  .iconAtributo {
+    padding-right: 10px;
+  }
+
+  /* support */
+
+  .support {
+    font-size: 18px;
+    padding: 15px;
+    font-weight: bold;
+  }
+
+  .supportLink {
+    color: black;
+    text-decoration: none;
   }
