@@ -23,7 +23,7 @@ import Etapa8 from "components/FichaPage/Etapa8";
 import Etapa9 from "components/FichaPage/Etapa9";
 import Etapa10 from "components/FichaPage/Etapa10";
 import Etapa3 from "components/FichaPage/Etapa3";
-import { Typography } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import { backgrounds } from "pages/FichaDetalhes/backgounds/arrayLinksBackgrounds";
 
@@ -74,7 +74,7 @@ const FichaCriar = () => {
   const [equipamentosClasseSelecionada3, setEquipamentoClasseSelecionado3] =
     useState("");
 
-    const [equipamentosClasseSelecionada4, setEquipamentoClasseSelecionado4] =
+  const [equipamentosClasseSelecionada4, setEquipamentoClasseSelecionado4] =
     useState("");
 
   const [periciasClasseSelecionadas, setPericiasSelecionadas] = useState([]);
@@ -249,9 +249,15 @@ const FichaCriar = () => {
     Bárbaro: styleFundo.classeBárbaro,
     Bardo: styleFundo.classeBardo,
     Bruxo: styleFundo.classeBruxo,
-    Mago: styleFundo.classeMago,
+    Clérigo: styleFundo.classeClérigo,
+    Druida: styleFundo.classeDruida,
+    Feiticeiro: styleFundo.classeFeiticeiro,
     Guerreiro: styleFundo.classeGuerreiro,
     Ladino: styleFundo.classeLadino,
+    Mago: styleFundo.classeMago,
+    Monge: styleFundo.classeMonge,
+    Paladino: styleFundo.classePaladino,
+    Patrulheiro: styleFundo.classePatrulheiro,
     // Adicione mais classes e estilos aqui
   };
 
@@ -397,22 +403,37 @@ const FichaCriar = () => {
               valoresHabilidade={valoresHabilidade}
               setValoresHabilidade={setValoresHabilidade}
               SubRaca={SubRaca}
-              habilidadeBonusSubRaca={detalhesSubRaca.habilidadeBonusSubRaca}
+              detalhesSubRaca={detalhesSubRaca}
             />
           )}
           {etapa < 11 ? (
-            <button className={styles.button} onClick={handleNext}>
+            <Button
+              variant="contained"
+              color="primary"
+              className={styles.button}
+              onClick={handleNext}
+            >
               Próxima Etapa
-            </button>
+            </Button>
           ) : (
-            <button className={styles.button} onClick={handleConcluir}>
+            <Button
+              variant="contained"
+              color="primary"
+              className={styles.button}
+              onClick={handleConcluir}
+            >
               Concluir
-            </button>
+            </Button>
           )}
           {etapa > 1 && (
-            <button className={styles.button} onClick={handlePrevious}>
+            <Button
+              variant="contained"
+              color="secondary"
+              className={styles.button}
+              onClick={handlePrevious}
+            >
               Etapa Anterior
-            </button>
+            </Button>
           )}
         </div>
       </div>

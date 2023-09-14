@@ -59,7 +59,7 @@ const Etapa4 = ({
   };
 
   return (
-    <div>
+    <div className={styles.div}>
       <h1 className={styles.h1}>Selecione uma classe</h1>
       <FormControl fullWidth>
         <InputLabel>Classe</InputLabel>
@@ -76,6 +76,7 @@ const Etapa4 = ({
           ))}
         </Select>
       </FormControl>
+
       <div className={styles.espacamentoTextoItem}>
         {/* Exiba os itens da classe selecionada */}
         {itensDaClasse.map((item, index) => (
@@ -97,7 +98,8 @@ const Etapa4 = ({
         classe === "Paladino" ||
         classe === "Patrulheiro") && (
         <>
-          <Button onClick={handleTogglePainelHabilidades}>
+          <Button variant={"contained"}
+          onClick={handleTogglePainelHabilidades}>
             {exibirPainelHabilidades ? "Fechar Habilidades" : "Ver Habilidades"}
           </Button>
 
@@ -113,14 +115,6 @@ const Etapa4 = ({
                 <li>
                   Habilidades nível 2:
                   {classeSelecioanda.habilidadesClasse.habilidadeNv2}
-                </li>
-                <li>
-                  Habilidades nível 3:
-                  {classeSelecioanda.habilidadesClasse.habilidadeNv3}
-                </li>
-                <li>
-                  Habilidades nível 4:
-                  {classeSelecioanda.habilidadesClasse.habilidadeNv4}
                 </li>
               </div>
             </div>
@@ -245,7 +239,7 @@ const Etapa4 = ({
         </>
       )}
       {/* 4 Selects de Equipamentos */}
-      {(classe === "Clérigo") && (
+      {classe === "Clérigo" && (
         <>
           <div className={styles.espacamentoSelects}>
             <FormControl fullWidth>

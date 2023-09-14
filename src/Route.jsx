@@ -5,7 +5,7 @@ import MusicasPage from "pages/musicas";
 import LivrosPage from "pages/livros";
 import NotePage from "pages/Notes";
 import FolderPage from "pages/foldersPage";
-import FichaPage from "pages/FichaPage/fichaCompleta";
+import FichaPage from "pages/FichaCompleta/fichaCompleta";
 import FichaCriar from "pages/FichaPage";
 import FichaDetalhes from "pages/FichaDetalhes";
 

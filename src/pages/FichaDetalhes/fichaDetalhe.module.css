@@ -19,9 +19,37 @@
   min-height: 100vh;
 }
 
+.classeClérigo {
+  background-image: url(./backgounds/cleric.jpg);
+  background-position: top;
+  background-size: auto;
+  min-height: 100vh;
+}
+
+.classeDruida {
+  background-image: url(./backgounds/Druid.jpg);
+  background-position: top;
+  background-size: auto;
+  min-height: 100vh;
+}
+
+.classeFeiticeiro {
+  background-image: url(./backgounds/Sorcerer.jpg);
+  background-position: top;
+  background-size: auto;
+  min-height: 100vh;
+}
+
 .classeGuerreiro {
-  background-image: url(./backgounds/1306600.jpg);
-  background-position: bottom;
+  background-image: url(./backgounds/warrior.jpg);
+  background-position: top;
+  background-size: auto;
+  min-height: 100vh;
+}
+
+.classeLadino {
+  background-image: url(./backgounds/Rogue.jpg);
+  background-position: center;
   background-size: auto;
   min-height: 100vh;
 }
@@ -29,6 +57,27 @@
 .classeMago {
   background-image: url(./backgounds/1306600.jpg);
   background-position: bottom;
+  background-size: auto;
+  min-height: 100vh;
+}
+
+.classeMonge {
+  background-image: url(./backgounds/Monk.jpg);
+  background-position: top;
+  background-size: auto;
+  min-height: 100vh;
+}
+
+.classePaladino {
+  background-image: url(./backgounds/Paladin.jpg);
+  background-position: center;
+  background-size: auto;
+  min-height: 100vh;
+}
+
+.classePatrulheiro {
+  background-image: url(./backgounds/theresa-konigseder-haller-half-elf-ranger.jpg);
+  background-position: top;
   background-size: auto;
   min-height: 100vh;
 }

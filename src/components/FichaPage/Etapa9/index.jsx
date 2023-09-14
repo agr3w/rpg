@@ -33,7 +33,7 @@ function Etapa9 ({
   };
 
   return (
-    <div>
+    <div className={styles.div}>
       <h3 className={styles.h2Habilidades }>Riqueza Inicial</h3>
       <p className={styles.espacamentoTextoItem}>{riquezaInicial} peças de ouro (PO)</p>
       <Button

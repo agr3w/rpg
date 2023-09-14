@@ -103,10 +103,18 @@ const FichaDetalhes = () => {
     };
 
     const classeBackgrounds = {
-      Mago: styles.classeMago,
+      Bárbaro: styles.classeBárbaro,
+      Bardo: styles.classeBardo,
+      Bruxo: styles.classeBruxo,
+      Clérigo: styles.classeClérigo,
+      Druida: styles.classeDruida,
+      Feiticeiro: styles.classeFeiticeiro,
       Guerreiro: styles.classeGuerreiro,
       Ladino: styles.classeLadino,
-      // Adicione mais classes e estilos aqui
+      Mago: styles.classeMago,
+      Monge: styles.classeMonge,
+      Paladino: styles.classePaladino,
+      Patrulheiro: styles.classePatrulheiro,
     };
 
     const getClasseBackground = (classe) => {

@@ -3,6 +3,7 @@ import firebase from "firebase/compat/app";
 import "firebase/database";
 import { Link } from "react-router-dom";
 import { Button, Card, CardContent, Typography } from "@mui/material";
+import styles from "./FichaCompleta.module.css";
 
 const FichasPage = () => {
   const [fichas, setFichas] = useState([]);
@@ -29,47 +30,76 @@ const FichasPage = () => {
   }, []);
 
   // Função para excluir uma ficha pelo ID
-  const handleDeleteArray = () => {
-    // Remova a array do banco de dados Firebase
+  const handleDeleteArray = (ID) => {
     const databaseRef = firebase.database().ref("fichas");
-
-    // Tente excluir a array
-    try {
-      databaseRef.remove();
-      console.log("Array excluída com sucesso");
-    } catch (error) {
-      console.error("Erro ao excluir array:", error);
-    }
+  
+    // Encontre a ficha correspondente pelo ID
+    databaseRef
+      .orderByChild("ID")
+      .equalTo(ID)
+      .once("value")
+      .then((snapshot) => {
+        // Verifique se há um nó correspondente
+        if (snapshot.exists()) {
+          // Obtenha a chave do primeiro nó correspondente (deve haver apenas um)
+          const chave = Object.keys(snapshot.val())[0];
+  
+          // Exclua a ficha inteira usando a chave
+          databaseRef.child(chave).remove()
+            .then(() => {
+              console.log("Ficha excluída com sucesso");
+            })
+            .catch((error) => {
+              console.error("Erro ao excluir ficha:", error);
+            });
+        } else {
+          console.log("Ficha não encontrada");
+        }
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar ficha:", error);
+      });
   };
+  
 
   return (
-    <div>
-      <Typography variant="h4" color={"white"}>Fichas de Personagem</Typography>
+    <div className={styles.container}>
+      <Typography variant="h4" className={styles.title}>
+        Fichas de Personagem
+      </Typography>
       <Button
         variant="contained"
         color="primary"
         component={Link}
         to="/criar-ficha"
+        className={styles.createButton}
       >
         Criar Nova Ficha
       </Button>
-      <div>
+      <div className={styles.cardContainer}>
         {fichas.map((ficha, index) => (
-          <Card key={index} style={{ margin: "16px 0" }}>
+          <Card key={index} className={styles.card}>
             <CardContent>
-              <Typography variant="h6">Ficha {index + 1}</Typography>
-              <Typography>Nome: {ficha.nome}</Typography>
-              <Typography>Raça: {ficha.raca}</Typography>
-              <Typography>Classe: {ficha.classe}</Typography>
+              <Typography variant="h6" className={styles.cardTitle}>
+                Ficha {index + 1}
+              </Typography>
+              <Typography className={styles.cardInfo}>
+                Nome: {ficha.nome}
+              </Typography>
+              <Typography className={styles.cardInfo}>
+                Raça: {ficha.raca}
+              </Typography>
+              <Typography className={styles.cardInfo}>
+                Classe: {ficha.classe}
+              </Typography>
               <Button
                 variant="contained"
                 color="primary"
                 component={Link}
-                to={`/ficha-completa/${ficha.ID}`} // Redireciona para a página da ficha completa
+                to={`/ficha-completa/${ficha.ID}`}
               >
                 Ver Ficha Completa
               </Button>
-              {/* Botão de Exclusão */}
               <Button
                 variant="contained"
                 color="secondary"

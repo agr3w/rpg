@@ -258,6 +258,14 @@ export const racas = [
           "Arma de Sopro: Linha de 1,5m/9m (teste de Des)",
           "Resistência a Dano: Elétrico",
         ],
+        habilidadeBonusSubRaca: {
+          Constituição: 0,
+          Força: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Sabedoria: 0,
+          Carisma: 0,
+        },
       },
       {
         subRacaNome: "Branco",
@@ -266,6 +274,14 @@ export const racas = [
           "Arma de Sopro: Cone de 4,5m (teste de Con)",
           "Resistência a Dano: Frio",
         ],
+        habilidadeBonusSubRaca: {
+          Constituição: 0,
+          Força: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Sabedoria: 0,
+          Carisma: 0,
+        },
       },
       {
         subRacaNome: "Bronze",
@@ -274,6 +290,14 @@ export const racas = [
           "Arma de Sopro: Linha de 1,5m/9m (teste de Des)",
           "Resistência a Dano: Elétrico",
         ],
+        habilidadeBonusSubRaca: {
+          Constituição: 0,
+          Força: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Sabedoria: 0,
+          Carisma: 0,
+        },
       },
       {
         subRacaNome: "Cobre",
@@ -282,6 +306,14 @@ export const racas = [
           "Arma de Sopro: Linha de 1,5m/9m (teste de Des)",
           "Resistência a Dano: Ácido",
         ],
+        habilidadeBonusSubRaca: {
+          Constituição: 0,
+          Força: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Sabedoria: 0,
+          Carisma: 0,
+        },
       },
       {
         subRacaNome: "Latão",
@@ -290,6 +322,14 @@ export const racas = [
           "Arma de Sopro: Linha de 1,5m/9m (teste de Des)",
           "Resistência a Dano: Fogo",
         ],
+        habilidadeBonusSubRaca: {
+          Constituição: 0,
+          Força: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Sabedoria: 0,
+          Carisma: 0,
+        },
       },
       {
         subRacaNome: "Negro",
@@ -298,6 +338,14 @@ export const racas = [
           "Arma de Sopro: Linha de 1,5m/9m (teste de Des)",
           "Resistência a Dano: Ácido",
         ],
+        habilidadeBonusSubRaca: {
+          Constituição: 0,
+          Força: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Sabedoria: 0,
+          Carisma: 0,
+        },
       },
       {
         subRacaNome: "Ouro",
@@ -306,6 +354,14 @@ export const racas = [
           "Arma de Sopro: Cone de 4,5m (teste de Des)",
           "Resistência a Dano: Fogo",
         ],
+        habilidadeBonusSubRaca: {
+          Constituição: 0,
+          Força: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Sabedoria: 0,
+          Carisma: 0,
+        },
       },
       {
         subRacaNome: "Prata",
@@ -314,6 +370,14 @@ export const racas = [
           "Arma de Sopro: Cone de 4,5m (teste de Con)",
           "Resistência a Dano: Frio",
         ],
+        habilidadeBonusSubRaca: {
+          Constituição: 0,
+          Força: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Sabedoria: 0,
+          Carisma: 0,
+        },
       },
       {
         subRacaNome: "Verde",
@@ -322,6 +386,14 @@ export const racas = [
           "Arma de Sopro: Cone de 4,5m (teste de Con)",
           "Resistência a Dano: Veneno",
         ],
+        habilidadeBonusSubRaca: {
+          Constituição: 0,
+          Força: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Sabedoria: 0,
+          Carisma: 0,
+        },
       },
       {
         subRacaNome: "Vermelho",
@@ -330,6 +402,14 @@ export const racas = [
           "Arma de Sopro: Cone de 4,5m (teste de Des)",
           "Resistência a Dano: Fogo",
         ],
+        habilidadeBonusSubRaca: {
+          Constituição: 0,
+          Força: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Sabedoria: 0,
+          Carisma: 0,
+        },
       },
     ],
   },
@@ -363,6 +443,14 @@ export const racas = [
           "Ilusionista Nato. Você conhece o truque ilusão menor. Inteligência é a sua habilidade usada para conjurá-la.",
           "Falar com Bestas Pequenas. Através de sons e gestos, você pode comunicar ideias simples para Bestas pequenas ou menores. Gnomos da floresta amam os animais e normalmente possuem esquilos, doninhas, coelhos, toupeiras, pica-paus e outras criaturas como amados animais de estimação.",
         ],
+        habilidadeBonusSubRaca: {
+          Constituição: 0,
+          Força: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Sabedoria: 0,
+          Carisma: 0,
+        },
       },
       {
         subRacaNome: "Gnomo das Rochas",
@@ -376,6 +464,14 @@ export const racas = [
           "Isqueiro Mecânico",
           "Caixa de Música",
         ],
+        habilidadeBonusSubRaca: {
+          Constituição: 0,
+          Força: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Sabedoria: 0,
+          Carisma: 0,
+        },
       },
     ],
   },
@@ -478,7 +574,6 @@ export const racas = [
 export const classes = [
   {
     nome: "Bárbaro",
-    icone: "Url_icone_Classe",
     // adicionar as imgs no storage 500X400
     imagens: [
       "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2Fconjura%C3%A7%C3%A3o1.png?alt=media&token=4605c5b2-798d-49a2-b4e3-49c502fee9db",
@@ -520,7 +615,6 @@ export const classes = [
 
   {
     nome: "Bardo",
-    icone: "Url_icone_Classe",
     // adicionar as imgs no storage 500X400
     imagens: [
       "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2Fconjura%C3%A7%C3%A3o1.png?alt=media&token=4605c5b2-798d-49a2-b4e3-49c502fee9db",
@@ -557,8 +651,6 @@ export const classes = [
     habilidadesClasse: {
       habilidadeNv1: "Conjuração e Inspiração de Bardo",
       habilidadeNv2: "Versatilidade e Canção de Descanso",
-      habilidadeNv3: "Colégio de Bardo e Aptidão",
-      habilidadeNv4: "incremento no valor de habilidade",
     },
     equipamentos: {
       equipamentoAlpha1: [
@@ -579,7 +671,6 @@ export const classes = [
 
   {
     nome: "Bruxo",
-    icone: "Url_icone_Classe",
     imagens: ["URL_DA_IMAGEM_DO_BRUXO"],
     proficiencias: {
       armaduras: "Armaduras Leves",
@@ -623,7 +714,6 @@ export const classes = [
   // ---------------------------------------------------------------------------------------------------------------  //
   {
     nome: "Clérigo",
-    icone: "Url_icone_Classe",
     imagens: ["URL_DA_IMAGEM_DO_CLERIGO"],
     proficiencias: {
       armaduras: "Armaduras Leves, Armaduras Médias, Escudos",
@@ -672,7 +762,6 @@ export const classes = [
   // ---------------------------------------------------------------------------------------------------------------  //
   {
     nome: "Druida",
-    icone: "Url_icone_Classe",
     imagens: ["URL_DA_IMAGEM_DO_DRUIDA"],
     proficiencias: {
       armaduras:
@@ -723,7 +812,6 @@ export const classes = [
 
   {
     nome: "Feiticeiro",
-    icone: "Url_icone_Classe",
     imagens: ["URL_DA_IMAGEM_DO_FEITICEIRO"],
     proficiencias: {
       armaduras: "Nenhuma",
@@ -765,7 +853,6 @@ export const classes = [
 
   {
     nome: "Guerreiro",
-    icone: "Url_icone_Classe",
     imagens: ["URL_DA_IMAGEM_DO_GUERREIRO"],
     proficiencias: {
       armaduras: "Todas as armaduras, escudos",
@@ -812,7 +899,6 @@ export const classes = [
 
   {
     nome: "Ladino",
-    icone: "Url_icone_Classe",
     imagens: ["URL_DA_IMAGEM_DO_LADINO"],
     proficiencias: {
       armaduras: "Armaduras leves",
@@ -863,7 +949,6 @@ export const classes = [
 
   {
     nome: "Mago",
-    icone: "Url_icone_Classe",
     // adicionar as imgs no storage 500X400
     imagens: [
       "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2Fconjura%C3%A7%C3%A3o1.png?alt=media&token=4605c5b2-798d-49a2-b4e3-49c502fee9db",
@@ -904,7 +989,6 @@ export const classes = [
   // ---------------------------------------------------------------------------------------------------------------  //
   {
     nome: "Monge",
-    icone: "Url_icone_Classe",
     imagens: ["URL_DA_IMAGEM_DO_MONGE"],
     proficiencias: {
       armaduras: "Nenhuma",
@@ -942,7 +1026,6 @@ export const classes = [
   // ---------------------------------------------------------------------------------------------------------------  //
   {
     nome: "Paladino",
-    icone: "Url_icone_Classe",
     imagens: ["URL_DA_IMAGEM_DO_PALADINO"],
     proficiencias: {
       armaduras: "Todas as armaduras, escudos",
@@ -986,7 +1069,6 @@ export const classes = [
   // ---------------------------------------------------------------------------------------------------------------  //
   {
     nome: "Patrulheiro",
-    icone: "Url_icone_Classe",
     imagens: ["URL_DA_IMAGEM_DO_PATRULHEIRO"],
     proficiencias: {
       armaduras: "Armaduras leves, armaduras médias, escudos",
