@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { FaUser } from "react-icons/fa";
 import styles from "./nav.module.css";
 
@@ -8,29 +8,29 @@ const Nav = () => {
     <nav className={styles.nav}>
       <ul className={styles.navList}>
         <li className={styles.navItem}>
-          <Link to="/" className={styles.navLink}>
+          <NavLink to="/" className={styles.navLink}>
             Início
-          </Link>
+          </NavLink>
         </li>
         <li className={styles.navItem}>
-          <Link to="/anotacoes" className={styles.navLink}>
+          <NavLink to="/anotacoes" className={styles.navLink}>
             Anotações
-          </Link>
+          </NavLink>
         </li>
         <li className={styles.navItem}>
-          <Link to="/livros" className={styles.navLink}>
+          <NavLink to="/livros" className={styles.navLink}>
             Livros
-          </Link>
+          </NavLink>
         </li>
         <li className={styles.navItem}>
-          <Link to="/musicas" className={styles.navLink}>
+          <NavLink to="/musicas" className={styles.navLink}>
             Músicas
-          </Link>
+          </NavLink>
         </li>
         <li className={styles.navItem}>
-          <Link to="/rpg" className={styles.navLink}>
+          <NavLink to="/rpg" className={styles.navLink}>
             Sessões de RPG
-          </Link>
+          </NavLink>
         </li>
       </ul>
       <div className={styles.profileIcon}>

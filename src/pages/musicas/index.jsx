@@ -4,6 +4,7 @@ import BotaoAdicionarMusica from "components/MusicaPage/botaoAddMusica";
 import MusicaCard from "components/MusicaPage/musicaCard";
 import { useMusicContext } from "APIs/MusicContext";
 import FiltroCategoria from "components/MusicaPage/filtroCategorias";
+import Nav from "components/nav";
 
 const MusicasPage = () => {
   const { musicas, adicionarMusica } = useMusicContext();
@@ -23,25 +24,28 @@ const MusicasPage = () => {
     : musicas;
 
   return (
-    <div className={styles.fundo}>
-      <div className={styles.musicasPage}>
-        <BotaoAdicionarMusica onMusicaAdded={adicionarMusica} />
-        <FiltroCategoria
-          categorias={categorias}
-          onFiltroCategoriaChange={handleFiltroCategoriaChange}
-        />
-        <div className={styles.musicasList}>
-          {musicasFiltradas.map((musica) => (
-            <MusicaCard
-              key={musica.id}
-              musica={musica}
-              nomeArquivoAudio={musica.nomeArquivoAudio}
-              nomeArquivoImagem={musica.nomeArquivoImagem}
-            />
-          ))}
+    <>
+      <Nav />
+      <div className={styles.fundo}>
+        <div className={styles.musicasPage}>
+          <BotaoAdicionarMusica onMusicaAdded={adicionarMusica} />
+          <FiltroCategoria
+            categorias={categorias}
+            onFiltroCategoriaChange={handleFiltroCategoriaChange}
+          />
+          <div className={styles.musicasList}>
+            {musicasFiltradas.map((musica) => (
+              <MusicaCard
+                key={musica.id}
+                musica={musica}
+                nomeArquivoAudio={musica.nomeArquivoAudio}
+                nomeArquivoImagem={musica.nomeArquivoImagem}
+              />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

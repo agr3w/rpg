@@ -15,6 +15,7 @@ import {
 import { ImBook } from "react-icons/im";
 import { SiStylelint } from "react-icons/si";
 import { backgrounds } from "./backgounds/arrayLinksBackgrounds";
+import Nav from "components/nav";
 
 const FichaDetalhes = () => {
   const { ID } = useParams();
@@ -47,7 +48,7 @@ const FichaDetalhes = () => {
       </div>
     );
   }
-  const classeSelecioanda = classes.find((c) => c.nome === ficha.classe)
+  const classeSelecioanda = classes.find((c) => c.nome === ficha.classe);
   const racaSelecionada = racas.find((r) => r.nome === ficha.raca);
   const subRacaSelecionada = ficha.DetalhesDaRaça.SubRacasInfo.SubRaca;
   const subRacaDetalhes = racaSelecionada.SubRacas.find(
@@ -124,6 +125,7 @@ const FichaDetalhes = () => {
 
     return (
       <div className={` ${getClasseBackground(ficha.classe)}`}>
+        <Nav />
         <div className={styles.fundo}>
           <div className={styles.pageContainer}>
             <Typography variant="h4" className={styles.pageTitle}>
@@ -156,8 +158,8 @@ const FichaDetalhes = () => {
                   <Typography variant="h6" className={styles.sectionTitle}>
                     Detalhes da Classe
                   </Typography>
-                  <li  className={styles.listItem}>
-                    P.V: {" "} {classeSelecioanda.dadosDeVida}
+                  <li className={styles.listItem}>
+                    P.V: {classeSelecioanda.dadosDeVida}
                   </li>
                 </div>
                 <Typography>
@@ -251,7 +253,7 @@ const FichaDetalhes = () => {
                   </Typography>
                 </div>
                 <li className={styles.listItem}>
-                  Deslocamento:{" "}{racaSelecionada.deslocamento}
+                  Deslocamento: {racaSelecionada.deslocamento}
                 </li>
                 {racaSelecionada.habilidades.map((habilidadesRaca) => (
                   <li className={styles.listItem}>{habilidadesRaca}</li>
