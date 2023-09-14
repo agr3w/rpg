@@ -4,7 +4,7 @@ import "firebase/database";
 import { Link, useParams } from "react-router-dom";
 import { Card, CardContent, Typography } from "@mui/material";
 import styles from "./fichaDetalhe.module.css";
-import { racas } from "Array/RacaEClasse";
+import { classes, racas } from "Array/RacaEClasse";
 import BotaoPainelHabilidade from "components/FichaPage/BotãoPainelHabilidade";
 import {
   GiHeavyFall,
@@ -47,6 +47,7 @@ const FichaDetalhes = () => {
       </div>
     );
   }
+  const classeSelecioanda = classes.find((c) => c.nome === ficha.classe)
   const racaSelecionada = racas.find((r) => r.nome === ficha.raca);
   const subRacaSelecionada = ficha.DetalhesDaRaça.SubRacasInfo.SubRaca;
   const subRacaDetalhes = racaSelecionada.SubRacas.find(
@@ -155,6 +156,9 @@ const FichaDetalhes = () => {
                   <Typography variant="h6" className={styles.sectionTitle}>
                     Detalhes da Classe
                   </Typography>
+                  <li  className={styles.listItem}>
+                    P.V: {" "} {classeSelecioanda.dadosDeVida}
+                  </li>
                 </div>
                 <Typography>
                   Equipamento Obrigatório:{" "}
@@ -246,9 +250,13 @@ const FichaDetalhes = () => {
                     Habilidades da Raça
                   </Typography>
                 </div>
+                <li className={styles.listItem}>
+                  Deslocamento:{" "}{racaSelecionada.deslocamento}
+                </li>
                 {racaSelecionada.habilidades.map((habilidadesRaca) => (
                   <li className={styles.listItem}>{habilidadesRaca}</li>
                 ))}
+
                 <Typography className={styles.sectionTitle}>
                   Idiomas da Raça:
                 </Typography>
@@ -280,7 +288,11 @@ const FichaDetalhes = () => {
                 {subRacaSelecionada === "Gnomo das Rochas" && (
                   <>
                     <li variant="h6" className={styles.espacamentoTextoItem}>
-                      Engenhoca:{" "}{ficha.DetalhesDaRaça.SubRacasInfo.SubRacaGnomoField.Engenhoca}
+                      Engenhoca:{" "}
+                      {
+                        ficha.DetalhesDaRaça.SubRacasInfo.SubRacaGnomoField
+                          .Engenhoca
+                      }
                     </li>
                   </>
                 )}
