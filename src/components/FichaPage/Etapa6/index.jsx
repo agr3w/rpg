@@ -44,7 +44,7 @@ const Etapa6 = ({
             <FormControl fullWidth>
               <InputLabel>Idioma adicional</InputLabel>
               <Select
-                label="Idioma"
+                label="Idioma adicional"
                 value={idiomaDoAntecedente}
                 onChange={(e) => setIdiomaAntecedente(e.target.value)}
               >
@@ -59,7 +59,7 @@ const Etapa6 = ({
             <FormControl fullWidth>
               <InputLabel>Idioma adicional</InputLabel>
               <Select
-                label="Idioma"
+                label="Idioma adicional"
                 value={idiomaDoAntecendente2}
                 onChange={(eb) => setIdiomaAntecendente2(eb.target.value)}
               >
@@ -79,9 +79,9 @@ const Etapa6 = ({
           <div className={styles.espacamentoSelects}>
             <label className={styles.P_Habilidades}>Idiomas adicionais:</label>
             <FormControl fullWidth>
-              <InputLabel>Idioma</InputLabel>
+              <InputLabel>Idioma adicional</InputLabel>
               <Select
-                label="Idioma"
+                label="Idioma adicional"
                 value={idiomaDoAntecedente}
                 onChange={(e) => setIdiomaAntecedente(e.target.value)}
               >

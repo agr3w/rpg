@@ -40,7 +40,9 @@ const Etapa2 = ({
       </FormControl>
       <div className={styles.divTexto}>
         {itensDaRaca.map((item, index) => (
-          <li key={index} className={styles.divTexto}>{item}</li>
+          <li key={index} className={styles.divTexto}>
+            {item}
+          </li>
         ))}
       </div>
       {(raca === "Anão" ||

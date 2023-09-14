@@ -48,7 +48,7 @@ const FichaDetalhes = () => {
     );
   }
   const racaSelecionada = racas.find((r) => r.nome === ficha.raca);
-  const subRacaSelecionada = ficha.DetalhesDaRaça.subRaca.SubRaca;
+  const subRacaSelecionada = ficha.DetalhesDaRaça.SubRacasInfo.SubRaca;
   const subRacaDetalhes = racaSelecionada.SubRacas.find(
     (subRaca) => subRaca.subRacaNome === subRacaSelecionada
   );
@@ -276,6 +276,14 @@ const FichaDetalhes = () => {
                 {subRacaDetalhes.habilidadesSubRaca.map((habilidades) => (
                   <li className={styles.listItem}>{habilidades}</li>
                 ))}
+
+                {subRacaSelecionada === "Gnomo das Rochas" && (
+                  <>
+                    <li variant="h6" className={styles.espacamentoTextoItem}>
+                      Engenhoca:{" "}{ficha.DetalhesDaRaça.SubRacasInfo.SubRacaGnomoField.Engenhoca}
+                    </li>
+                  </>
+                )}
 
                 {/* Detalhes do Antecedente */}
 

@@ -9,6 +9,8 @@ import {
   getAcolitoCaracteristicasFields,
   getArtesaoCaracteristicasFields,
   getArtistaCaracteristicasFields,
+  getSubRacasField,
+  getSubRacasGnomoField,
 } from "Utils/Untils";
 import { tendencias } from "Array/Tendencias";
 import { antecedentes } from "Array/Antecedentes";
@@ -90,6 +92,8 @@ const FichaCriar = () => {
     Carisma: "",
   });
 
+  const [Engenhocas, setEngenhocas] = useState("")
+
   const racasOptions = racas.map((r) => r.nome);
   const classesOptions = classes.map((c) => c.nome);
   const TendenciasOptions = tendencias.map((t) => t.nome);
@@ -150,8 +154,14 @@ const FichaCriar = () => {
         setAntecedenteSelecionado(antecedenteEncontrado);
       }
     }
-    if (etapa < 11) {
-      setEtapa(etapa + 1);
+    if (checkRequiredFields()) {
+      if (etapa < 11) {
+        setEtapa(etapa + 1);
+      }
+    } else {
+      alert(
+        "Por favor, preencha todos os campos obrigatórios antes de prosseguir."
+      );
     }
   };
 
@@ -162,7 +172,15 @@ const FichaCriar = () => {
   };
 
   const handleConcluir = () => {
-    // Racas
+    // SubRacas
+
+    const SubRacasField = getSubRacasField(
+      SubRaca,
+      IdiomaAltoElfo,
+      detalhesSubRaca
+    );
+
+    const SubRacaGnomoField = getSubRacasGnomoField(SubRaca, Engenhocas);
 
     // Classes
     const ArtesaoField = getArtesaoCaracteristicasFields(
@@ -188,11 +206,7 @@ const FichaCriar = () => {
     const RacasInfo = {
       Idiomas: { idiomaRacaSelecionado, idiomaRacaSelecionado2 },
       Atributos: valoresHabilidade,
-      subRaca: {
-        SubRaca: SubRaca,
-        idiomasSubRaca: IdiomaAltoElfo,
-        atributosSubRaca: detalhesSubRaca.habilidadeBonusSubRaca,
-      },
+      SubRacasInfo: { ...SubRacasField, SubRacaGnomoField },
     };
 
     // ClassesParaMandar
@@ -265,6 +279,37 @@ const FichaCriar = () => {
     return classeBackgrounds[classe] || ""; // Use a classe padrão se não houver correspondência
   };
 
+  const checkRequiredFields = () => {
+    switch (etapa) {
+      case 1:
+        return nome !== "";
+      case 2:
+        return raca !== "" && idiomaRacaSelecionado !== "";
+      case 4:
+        if (classe !== "") {
+          // Verifique se todas as checkboxes estão selecionadas
+          const todasSelecionadas =
+            periciasClasseSelecionadas.length ==
+            classeSelecioanda.proficiencias.perficiasMinimo;
+
+          return todasSelecionadas;
+        }
+        return false;
+      case 5:
+        return tendencia !== "";
+      case 6:
+        return antecedente !== "";
+      case 7:
+        return antecedente !== "" && !!antecedenteSelecionado;
+      case 9:
+        return riquezaInicial !== 0;
+      case 10:
+        return Object.values(valoresHabilidade).every((value) => value !== "");
+      default:
+        return true; // Não há verificações extras para outras etapas
+    }
+  };
+
   return (
     <div className={getClasseBackground(classe)}>
       <div className={styles.espacamento}>
@@ -297,6 +342,8 @@ const FichaCriar = () => {
               setIdiomaAltoElfoSelecioando={setIdiomaAltoElfoSelecioando}
               IdiomaAltoElfo={IdiomaAltoElfo}
               handleSubRacaChange={handleSubRacaChange}
+              Engenhocas={Engenhocas}
+              setEngenhocas={setEngenhocas}
             />
           )}
 
@@ -412,18 +459,27 @@ const FichaCriar = () => {
               color="primary"
               className={styles.button}
               onClick={handleNext}
+              disabled={!checkRequiredFields()}
             >
               Próxima Etapa
             </Button>
           ) : (
-            <Button
-              variant="contained"
-              color="primary"
-              className={styles.button}
-              onClick={handleConcluir}
-            >
-              Concluir
-            </Button>
+            <>
+              <Typography variant="h5" align="center">
+                Ficha Concluído
+              </Typography>
+              <Link to="/fichas" className={styles.link}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  className={styles.button}
+                  onClick={handleConcluir}
+                  disabled={!checkRequiredFields()}
+                >
+                  Concluir
+                </Button>
+              </Link>
+            </>
           )}
           {etapa > 1 && (
             <Button

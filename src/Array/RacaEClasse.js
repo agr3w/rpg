@@ -496,14 +496,7 @@ export const racas = [
       Destreza: 0,
       Inteligência: 0,
       Sabedoria: 0,
-      Escolha: {
-        Força: 1,
-        Destreza: 1,
-        Constituição: 1,
-        Inteligência: 1,
-        Sabedoria: 1,
-        Carisma: 1,
-      },
+
     },
     periciasRacaLabel: "escolha duas dentre:",
     perficiasRacaMinimo: "2",

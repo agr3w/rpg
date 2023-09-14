@@ -14,6 +14,8 @@ const Etapa3 = ({
   setIdiomaAltoElfoSelecioando,
   IdiomaAltoElfo,
   handleSubRacaChange,
+  Engenhocas,
+  setEngenhocas
 }) => {
   // Função para atualizar os detalhes da sub-raça quando uma nova sub-raça for selecionada
 
@@ -69,6 +71,27 @@ const Etapa3 = ({
               </Select>
             </FormControl>
           )}
+        </>
+      )}
+      {SubRaca === "Gnomo das Rochas" && (
+        <>
+          <FormControl fullWidth>
+              <InputLabel>Engenhocas</InputLabel>
+              <Select
+                value={Engenhocas}
+                onChange={(e) => setEngenhocas(e.target.value)}
+                label="Engenhocas"
+              >
+                <MenuItem value="">
+                  <em>Engenhocas</em>
+                </MenuItem>
+                {detalhesSubRaca.Engenhoca.map((Engenhocas) => (
+                  <MenuItem key={Engenhocas} value={Engenhocas}>
+                    {Engenhocas}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
         </>
       )}
       {(raca === "Meio-Elfo" || raca === "Meio-Orc" || raca === "Tiefling") && (
