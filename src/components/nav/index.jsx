@@ -28,8 +28,8 @@ const Nav = () => {
           </NavLink>
         </li>
         <li className={styles.navItem}>
-          <NavLink to="/rpg" className={styles.navLink}>
-            Sessões de RPG
+          <NavLink to="/Fichas" className={styles.navLink}>
+            Fichas
           </NavLink>
         </li>
       </ul>
