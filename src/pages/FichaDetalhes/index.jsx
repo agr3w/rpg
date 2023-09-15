@@ -16,13 +16,17 @@ import { ImBook } from "react-icons/im";
 import { SiStylelint } from "react-icons/si";
 import { backgrounds } from "./backgounds/arrayLinksBackgrounds";
 import Nav from "components/nav";
+import { getAuth } from "firebase/auth";
 
 const FichaDetalhes = () => {
   const { ID } = useParams();
   const [ficha, setFicha] = useState(null);
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const userID = user.uid;
 
   useEffect(() => {
-    const databaseRef = firebase.database().ref("fichas");
+    const databaseRef = firebase.database().ref(`fichas/${userID}`);
 
     databaseRef
       .orderByChild("ID")

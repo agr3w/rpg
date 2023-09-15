@@ -18,10 +18,10 @@ function Rout() {
           <Route path="/musicas" element={<MusicasPage />} />
           <Route path="/livros" element={<LivrosPage />} />
           <Route path="/anotacoes" element={<NotePage />} />
-          <Route path="/folders/:folderId" element={<FolderPage/>} />
-          <Route path="/fichas" element={< FichaPage/>} />
+          <Route path="/folders/:folderId" element={<FolderPage />} />
+          <Route path="/fichas" element={<FichaPage />} />
           <Route path="/criar-ficha" element={<FichaCriar />} />
-          <Route path='/ficha-completa/:ID' element={<FichaDetalhes />} />
+          <Route path="/ficha-completa/:ID" element={<FichaDetalhes />} />
         </Routes>
       </Router>
     </>

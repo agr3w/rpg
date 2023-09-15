@@ -193,3 +193,26 @@
   text-decoration: none;
   font-weight: bold;
 }
+
+@media screen and (max-width: 2181px) {
+  .atributos {
+    position: inherit;
+  }
+}
+
+@media screen and (max-width: 425px) {
+  .atributos {
+    flex-wrap: wrap;
+    font-size: 18px;
+  }
+  
+  .atributos h4 {
+    font-size: 26px;
+  }
+
+  .support {
+    word-break: break-all; /* Adicione esta linha */
+
+  }
+
+}

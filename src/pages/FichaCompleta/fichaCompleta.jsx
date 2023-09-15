@@ -5,13 +5,17 @@ import { Link } from "react-router-dom";
 import { Button, Card, CardContent, Typography } from "@mui/material";
 import styles from "./FichaCompleta.module.css";
 import Nav from "components/nav";
+import { getAuth } from "firebase/auth";
 
 const FichasPage = () => {
   const [fichas, setFichas] = useState([]);
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const userID = user.uid;
 
   useEffect(() => {
     // Carregue as fichas do Firebase Realtime Database
-    const databaseRef = firebase.database().ref("fichas");
+    const databaseRef = firebase.database().ref(`fichas/${userID}`);
 
     databaseRef.on("value", (snapshot) => {
       const fichasData = snapshot.val();
@@ -32,7 +36,7 @@ const FichasPage = () => {
 
   // Função para excluir uma ficha pelo ID
   const handleDeleteArray = (ID) => {
-    const databaseRef = firebase.database().ref("fichas");
+    const databaseRef = firebase.database().ref(`fichas/${userID}`);
 
     // Encontre a ficha correspondente pelo ID
     databaseRef

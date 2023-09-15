@@ -1,6 +1,5 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { FaUser } from "react-icons/fa";
 import styles from "./nav.module.css";
 
 const Nav = () => {
@@ -33,9 +32,6 @@ const Nav = () => {
           </NavLink>
         </li>
       </ul>
-      <div className={styles.profileIcon}>
-        <FaUser size={24} />
-      </div>
     </nav>
   );
 };

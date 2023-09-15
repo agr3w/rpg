@@ -1,10 +1,11 @@
 .nav {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     background-color: #333;
     color: white;
-    padding: 10px 20px;
+    padding: 20px 20px;
+    font-family: Arial, Helvetica, sans-serif;
   }
   
   .navList {
@@ -20,11 +21,14 @@
   .navLink {
     color: white;
     text-decoration: none;
-    transition: color 0.3s;
+    transition: 0.3s;
   }
   
   .navLink:hover {
+    transition: 0.3s;
+
     color: #ff9900;
+    text-decoration: underline;
   }
   
   .profileIcon {

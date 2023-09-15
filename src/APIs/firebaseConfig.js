@@ -20,6 +20,7 @@ const app = firebase.initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
 
+
 // const appCheck = initializeAppCheck(app, {
 //   provider: new ReCaptchaEnterpriseProvider(/* sua chave do site reCAPTCHA Enterprise */),
 //   isTokenAutoRefreshEnabled: true // Defina como true para permitir a atualização automática dos tokens.

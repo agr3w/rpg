@@ -39,3 +39,41 @@
   color: #fff;
   margin: 8px;
 }
+
+/* seu-novo-css.module.css */
+
+/* Estilos para tablets e celulares */
+@media screen and (max-width: 768px) {
+  .card {
+    width: calc(50% - 20px);
+  }
+}
+
+/* Estilos para celulares */
+@media screen and (max-width: 576px) {
+  .card {
+    width: calc(100% - 20px);
+  }
+
+  .title {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+
+  .createButton {
+    margin-bottom: 15px;
+  }
+
+  .cardTitle {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+  }
+
+  .cardInfo {
+    margin-bottom: 6px;
+  }
+
+  .card button {
+    margin: 6px;
+  }
+}
