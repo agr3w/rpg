@@ -20,7 +20,10 @@ export const deleteNoteFromFolder = async (folderId, noteId) => {
 
 // Função para excluir um folder e todas as notas nele
 export const deleteArrayFolder = async (folderId) => {
-  const foldersRef = app.database().ref("folders");
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const userID = user.uid;
+  const foldersRef = app.database().ref(`folders/${userID}`);
 
   try {
     // Verifique se a pasta possui notas

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { app } from "../APIs/firebaseConfig"; // Importe a configuração do Firebase
 
 import { createContext, useContext } from "react";
+import { getAuth } from "firebase/auth";
 
 const FolderContext = createContext();
 
@@ -11,20 +12,38 @@ export default FolderContext;
 
 export const FolderProvider = ({ children }) => {
   const [folders, setFolders] = useState([]);
+  const [userID, setUserID] = useState(null);
+
 
   useEffect(() => {
-    const foldersRef = app.database().ref("folders");
-    foldersRef.on("value", (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        setFolders(Object.values(data));
+    const auth = getAuth();
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUserID(user.uid);
+      } else {
+        setUserID(null);
       }
     });
   }, []);
 
+  useEffect(() => {
+    if (userID) {
+      const foldersRef = app.database().ref(`folders/${userID}`);
+      foldersRef.on("value", (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          setFolders(Object.values(data));
+        }
+      });
+    }
+  }, [userID]);
+
   // Função para adicionar uma nova pasta
   const addFolder = async (newFolder) => {
-    const foldersRef = app.database().ref("folders");
+    const auth = getAuth();
+    const user = auth.currentUser;
+    const userID = user.uid;
+    const foldersRef = app.database().ref(`folders/${userID}`);
     const newFolderRef = await foldersRef.push();
     const newFolderId = newFolderRef.key;
     await newFolderRef.set({
@@ -34,7 +53,7 @@ export const FolderProvider = ({ children }) => {
   };
 
   const addNoteToFolder = (folderId, note) => {
-    const foldersRef = app.database().ref("folders");
+    const foldersRef = app.database().ref(`folders/${userID}`);
   
     try {
       const folderRef = foldersRef.child(folderId);
@@ -49,7 +68,10 @@ export const FolderProvider = ({ children }) => {
   };
 
 const deleteNoteFromFolder = async (folderId, noteId) => {
-  const folderRef = app.database().ref(`folders/${folderId}`);
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const userID = user.uid;
+  const folderRef = app.database().ref(`folders/${userID}/${folderId}`);
 
   try {
     const folderSnapshot = await folderRef.once("value");
