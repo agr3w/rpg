@@ -6,6 +6,7 @@ import { app } from "APIs/firebaseConfig";
 import { useNoteContext } from "APIs/NoteContext";
 import { Button } from "@mui/material";
 import { CloudUpload } from "@mui/icons-material";
+import { getAuth } from "firebase/auth";
 
 const NoteAddGlobal = () => {
   const { addNote } = useNoteContext();
@@ -17,9 +18,12 @@ const NoteAddGlobal = () => {
 
   const handleAddNote = async () => {
     if (noteFile) {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      const userID = user.uid;
       const storage = app.storage();
       const storageRef = storage.ref();
-      const noteFileRef = storageRef.child(`arquivos/anotacoes/${noteFile.name}`);
+      const noteFileRef = storageRef.child(`arquivos/anotacoes/${userID}/${noteFile.name}`);
 
       await noteFileRef.put(noteFile);
       const noteFileUrl = await noteFileRef.getDownloadURL();

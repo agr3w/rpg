@@ -1,5 +1,6 @@
 // FolderDelete.js
 import { app } from "APIs/firebaseConfig";
+import { getAuth } from "firebase/auth";
 import { getStorage, ref, deleteObject } from "firebase/storage";
 
 // Função para excluir uma nota específica de um folder
@@ -42,10 +43,13 @@ export const deleteArrayFolder = async (folderId) => {
         // Percorra a lista de notas no folder
         for (const noteId in folderData) {
           // Exclua o arquivo de anotação no Storage
+          const auth = getAuth();
+          const user = auth.currentUser;
+          const userID = user.uid;
           const note = folderData[noteId];
           const noteRef = ref(
             storage,
-            `arquivos/anotacoes/pasta/${note.arquivoNomeCompleto}`
+            `arquivos/anotacoes/${userID}/pasta/${note.arquivoNomeCompleto}`
           );
 
           foldersRef.child(folderId).remove();

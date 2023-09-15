@@ -4,6 +4,7 @@ import { FaPlus } from "react-icons/fa";
 import styles from "./AddMusicButton.module.css"; // Substitua pelo estilo apropriado
 import { useMusicContext } from "APIs/MusicContext";
 import { app } from "APIs/firebaseConfig"; // Importe a configuração do Firebase
+import { getAuth } from "firebase/auth";
 
 const AddMusicButton = ({ onMusicAdded }) => {
   const { adicionarMusica, categorias } = useMusicContext();
@@ -51,15 +52,19 @@ const AddMusicButton = ({ onMusicAdded }) => {
   const handleAdicionarMusica = async () => {
     if (arquivo && titulo && imagem && categoria) {
       setIsUploading(true);
+      const auth = getAuth();
+      const user = auth.currentUser;
+      const userID = user.uid;
+      
 
       const storage = app.storage();
       const storageRef = storage.ref();
 
-      const arquivoRef = storageRef.child(`arquivos/musicas/${arquivo.name}`);
+      const arquivoRef = storageRef.child(`arquivos/musicas/${userID}/${arquivo.name}`);
       await arquivoRef.put(arquivo);
       const urlDoArquivo = await arquivoRef.getDownloadURL();
 
-      const imagemRef = storageRef.child(`imagens/${imagem.name}`);
+      const imagemRef = storageRef.child(`imagens/${userID}/${imagem.name}`);
       await imagemRef.put(imagem);
       const imagemUrl = await imagemRef.getDownloadURL();
 

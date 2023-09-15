@@ -1,6 +1,7 @@
 // BookContext.js
 import { createContext, useContext, useState, useEffect } from "react";
 import { app } from "../APIs/firebaseConfig"; // Import your Firebase app instance
+import { getAuth } from "firebase/auth";
 
 const BookContext = createContext();
 
@@ -30,7 +31,10 @@ export const BookProvider = ({ children }) => {
   };
 
   const deleteBook = async (bookId) => {
-    const bookRef = app.database().ref(`arquivos/livros/${bookId}`);
+    const auth = getAuth();
+    const user = auth.currentUser;
+    const userID = user.uid;
+    const bookRef = app.database().ref(`arquivos/livros/${userID}/${bookId}`);
     await bookRef.remove();
   };
 

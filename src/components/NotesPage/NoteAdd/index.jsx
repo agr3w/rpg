@@ -4,6 +4,7 @@ import { app } from "APIs/firebaseConfig";
 import { useFolderContext } from "APIs/FolderContext"; // Importe o contexto de folders
 import { Button } from "@mui/material";
 import { CloudUpload } from "@mui/icons-material";
+import { getAuth } from "firebase/auth";
 
 const NoteAdd = ({ folderId }) => {
   const { addNoteToFolder } = useFolderContext(); // Use a função de adicionar notas ao folder
@@ -15,10 +16,13 @@ const NoteAdd = ({ folderId }) => {
 
   const handleAddNote = async () => {
     if (noteFile) {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      const userID = user.uid;
       const storage = app.storage();
       const storageRef = storage.ref();
       const noteFileRef = storageRef.child(
-        `arquivos/anotacoes/pasta/${noteFile.name}`
+        `arquivos/anotacoes/${userID}/pasta/${noteFile.name}`
       );
 
       await noteFileRef.put(noteFile);

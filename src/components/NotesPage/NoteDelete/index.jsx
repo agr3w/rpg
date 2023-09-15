@@ -2,6 +2,7 @@
 import { getStorage, ref, deleteObject } from "firebase/storage";
 import { getFirestore, doc, deleteDoc } from "firebase/firestore";
 import { app } from "APIs/firebaseConfig"; // Importe a instância do aplicativo Firebase
+import { getAuth } from "firebase/auth";
 
 export const deleteArrayNote = async (noteId) => {
     const notesRef = app.database().ref("notes");
@@ -27,10 +28,13 @@ export const deleteArrayNoteFromFolder = async (folderId, noteId) => {
 };
 
 export function deleteNoteFolder(note) {
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const userID = user.uid;
   const storage = getStorage(app);
   const noteRef = ref (
     storage,
-    `gs://test-b6bc2.appspot.com/arquivos/anotacoes/pasta/${note.arquivoNomeCompleto}`
+    `gs://test-b6bc2.appspot.com/arquivos/anotacoes/${userID}/pasta/${note.arquivoNomeCompleto}`
   )
   const db = getFirestore(app)
   const noteDocRef = doc(db, "notes", note.id);
@@ -54,11 +58,12 @@ export function deleteNoteFolder(note) {
 }
 
 export function deleteNote(note) {
-  // Referência para o arquivo de anotação no Firebase Storage
-  const storage = getStorage(app);
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const userID = user.uid;  const storage = getStorage(app);
   const noteRef = ref(
     storage,
-    `gs://test-b6bc2.appspot.com/arquivos/anotacoes/${note.arquivoNomeCompleto}` //necessita de file extension arrumar***
+    `gs://test-b6bc2.appspot.com/arquivos/anotacoes/${userID}/${note.arquivoNomeCompleto}` //necessita de file extension arrumar***
   );
 
   // Referência para o documento no Firebase Firestore

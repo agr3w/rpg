@@ -1,6 +1,7 @@
 import { getStorage, ref, deleteObject } from "firebase/storage";
 import { getFirestore, doc, deleteDoc } from "firebase/firestore";
 import { app } from "APIs/firebaseConfig"; // Importe a instância do aplicativo Firebase
+import { getAuth } from "firebase/auth";
 
 export const deleteArrayLivro = async (livroId) => {
     const livrosRef = app.database().ref("books");
@@ -19,11 +20,12 @@ export const deleteArrayLivro = async (livroId) => {
 
 
 export function deletarLivro(livro) {
-  // Referência para o arquivo de áudio no Firebase Storage
-  const storage = getStorage(app);
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const userID = user.uid;  const storage = getStorage(app);
   const livroRef = ref(
     storage,
-    `gs://test-b6bc2.appspot.com/arquivos/livros/${livro.titulo}.pdf`
+    `gs://test-b6bc2.appspot.com/arquivos/livros/${userID}/${livro.titulo}.pdf`
   );
 
   // Referência para o documento no Firebase Firestore

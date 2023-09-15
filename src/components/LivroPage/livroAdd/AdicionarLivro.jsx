@@ -4,6 +4,7 @@ import styles from "./BotaoAdicionarLivro.module.css"; // Certifique-se de ter o
 import { app } from "APIs/firebaseConfig"; // Importe a configuração do Firebase
 import { useBookContext } from "APIs/BookContext";
 import { Button } from "@mui/material";
+import { getAuth } from "firebase/auth";
 
 const BotaoAdicionarLivro = () => {
   const { addBook } = useBookContext();
@@ -24,9 +25,14 @@ const BotaoAdicionarLivro = () => {
       setIsLoading(true);
 
       // Primeiro, faça o upload do arquivo PDF para o Firebase Storage
+      const auth = getAuth();
+      const user = auth.currentUser;
+      const userID = user.uid;
       const storage = app.storage();
       const storageRef = storage.ref();
-      const arquivoRef = storageRef.child(`arquivos/livros/${books.name}`); // Defina o caminho desejado no Storage
+      const arquivoRef = storageRef.child(
+        `arquivos/livros/${userID}/${books.name}`
+      ); // Defina o caminho desejado no Storage
 
       await arquivoRef.put(books);
 
@@ -35,7 +41,7 @@ const BotaoAdicionarLivro = () => {
 
       // Crie um ID único para o livro usando o método push()
       const novoLivro = {
-        id: app.database().ref().child("livros").push().key, // Gere um ID único
+        id: app.database().ref().child(`livros/${userID}`).push().key, // Gere um ID único
         titulo: books.name.replace(/\.[^/.]+$/, ""), // Nome do arquivo sem extensão
         urlDoArquivo,
       };
