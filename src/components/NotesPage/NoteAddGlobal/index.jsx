@@ -30,7 +30,7 @@ const NoteAddGlobal = () => {
 
       // Crie um novo objeto de nota
       const newNote = {
-        id: app.database().ref().child("notes").push().key,
+        id: app.database().ref().child(`notes/${userID}`).push().key,
         arquivoNomeCompleto: noteFile.name,
         title: noteFile.name.replace(/\.[^/.]+$/, ""),
         url: noteFileUrl,
