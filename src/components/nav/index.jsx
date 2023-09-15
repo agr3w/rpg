@@ -3,6 +3,9 @@ import { NavLink } from "react-router-dom";
 import styles from "./nav.module.css";
 
 const Nav = () => {
+  const handleSupportClick = () => {
+    window.location.href = "mailto:suzanakampa12@gmail.com";
+  };
   return (
     <nav className={styles.nav}>
       <ul className={styles.navList}>
@@ -30,6 +33,9 @@ const Nav = () => {
           <NavLink to="/Fichas" className={styles.navLink}>
             Fichas
           </NavLink>
+        </li>
+        <li className={styles.navLink} onClick={handleSupportClick}>
+          Suporte
         </li>
       </ul>
     </nav>

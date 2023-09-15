@@ -26,7 +26,7 @@
   
   .navLink:hover {
     transition: 0.3s;
-
+    cursor: pointer;
     color: #ff9900;
     text-decoration: underline;
   }
