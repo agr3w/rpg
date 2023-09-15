@@ -18,6 +18,8 @@ const App = () => {
       .then((userCredential) => {
         const user = userCredential.user;
         console.log('Usuário autenticado anonimamente:', user);
+        // Store authentication status in localStorage
+        localStorage.setItem('isAuthenticated', 'true');
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -27,8 +29,12 @@ const App = () => {
   };
 
   useEffect(() => {
-    signInAnonymously();
-  }, []); // Chame a função uma vez quando o componente for montado
+    // Check if the user was previously authenticated and logged in
+    const isAuthenticated = localStorage.getItem('isAuthenticated');
+    if (!isAuthenticated) {
+      signInAnonymously();
+    }
+  }, []); // Chame a funç
 
   return (
     <React.StrictMode>

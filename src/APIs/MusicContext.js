@@ -95,7 +95,7 @@ export const MusicProvider = ({ children }) => {
     const storage = getStorage(app);
     const arquivoRef = ref(
       storage,
-      `https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/${novaMusica.arquivo.name}`
+      `https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/${userID}/${novaMusica.arquivo.name}`
     );
     await uploadBytes(arquivoRef, novaMusica.arquivo);
 
