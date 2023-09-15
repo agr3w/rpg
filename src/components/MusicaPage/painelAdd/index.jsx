@@ -69,7 +69,7 @@ const AddMusicButton = ({ onMusicAdded }) => {
       const imagemUrl = await imagemRef.getDownloadURL();
 
       const novaMusica = {
-        id: app.database().ref().child("musicas").push().key,
+        id: app.database().ref().child(`musicas/${userID}`).push().key,
         titulo: titulo,
         categoria: categoria,
         nomeArquivoAudio: arquivo.name, // Adicione o nome real do arquivo de áudio

@@ -3,7 +3,10 @@ import { getAuth } from "firebase/auth";
 import "firebase/database"; // Importe os serviços do Firebase que você está usando, como 'database', 'storage', etc.
 
 export const deletarArray = async (musicaId) => {
-  const musicasRef = app.database().ref("musicas"); // Usar a instância do aplicativo Firebase
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const userID = user.uid;
+  const musicasRef = app.database().ref(`musicas/${userID}`); // Usar a instância do aplicativo Firebase
 
   // Encontre a referência da música com base no ID
   const musicaParaExcluirRef = musicasRef.child(musicaId);

@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { app } from "../APIs/firebaseConfig"; // Importar a instância do aplicativo Firebase
 import { getStorage, ref, getDownloadURL, uploadBytes } from "firebase/storage";
+import { getAuth } from "firebase/auth";
 
 const MusicContext = createContext();
 
@@ -10,6 +11,7 @@ export const useMusicContext = () => useContext(MusicContext);
 
 export const MusicProvider = ({ children }) => {
   const [musicas, setMusicas] = useState([]);
+  const [userID, setUserID] = useState(null);
   const [categorias, setCategorias] = useState([
     "Sem categoria",
     "Épico e Orquestral",
@@ -21,17 +23,33 @@ export const MusicProvider = ({ children }) => {
   const [isLooping, setIsLooping] = useState(false);
 
   useEffect(() => {
-    const musicasRef = app.database().ref("musicas"); // Usar a instância do aplicativo Firebase
-    musicasRef.on("value", (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        setMusicas(Object.values(data));
+    const auth = getAuth();
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUserID(user.uid);
+      } else {
+        setUserID(null);
       }
     });
   }, []);
 
+  useEffect(() => {
+    if (userID) {
+      const foldersRef = app.database().ref(`musicas/${userID}`);
+      foldersRef.on("value", (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          setMusicas(Object.values(data));
+        }
+      });
+    }
+  }, [userID]);
+
   const adicionarMusica = async (novaMusica) => {
-    const musicasRef = app.database().ref("musicas"); // Usar a instância do aplicativo Firebase
+    const auth = getAuth();
+    const user = auth.currentUser;
+    const userID = user.uid;
+    const musicasRef = app.database().ref(`musicas/${userID}`); // Usar a instância do aplicativo Firebase
 
     // Crie um ID único para a música usando o método push()
     const novaMusicaRef = musicasRef.push();
@@ -50,7 +68,7 @@ export const MusicProvider = ({ children }) => {
 
   // Ler os dados da coleção de músicas usando o método once()
   const lerMusicas = () => {
-    const musicasRef = app.database().ref("musicas"); // Usar a instância do aplicativo Firebase
+    const musicasRef = app.database().ref(`musicas/${userID}`); // Usar a instância do aplicativo Firebase
     musicasRef
       .once("value")
       .then((snapshot) => {
@@ -67,8 +85,11 @@ export const MusicProvider = ({ children }) => {
 
   // Função para adicionar uma nova música
   const adicionarMusicaArquivo = async (novaMusica) => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    const userID = user.uid;
     const db = getFirestore(app);
-    const musicasCollection = collection(db, "musicas");
+    const musicasCollection = collection(db, `musicas/${userID}`);
 
     // Primeiro, faça o upload do arquivo MP3 para o Firebase Storage
     const storage = getStorage(app);
