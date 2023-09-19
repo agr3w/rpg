@@ -112,9 +112,7 @@ export const getSubRacasField = (SubRaca, IdiomaAltoElfo, detalhesSubRaca) => {
 };
 
 export const getSubRacasGnomoField = (SubRaca, Engenhocas) => {
-  if (
-    SubRaca === "Gnomo das Rochas"
-  ) {
+  if (SubRaca === "Gnomo das Rochas") {
     return {
       Engenhoca: Engenhocas,
     };
@@ -126,15 +124,13 @@ export const getSubRacasGnomoField = (SubRaca, Engenhocas) => {
 
 export const getArtesaoCaracteristicasFields = (
   antecedente,
-  caracteristicasGuildaSelecionado,
-  negocioGuildaSelecionado,
-  idiomaDoAntecedente
+  CarcDosAntecedentes1,
+  CarcDosAntecedentes2
 ) => {
   if (antecedente === "Artesão de Guilda") {
     return {
-      CaracterísticasDaGuilda: caracteristicasGuildaSelecionado,
-      NegocioDaGuilda: negocioGuildaSelecionado,
-      idioma: idiomaDoAntecedente,
+      CarcDosAntecedentes1: CarcDosAntecedentes1,
+      CarcDosAntecedentes2: CarcDosAntecedentes2,
     };
   }
   return {};
@@ -142,17 +138,17 @@ export const getArtesaoCaracteristicasFields = (
 
 export const getAcolitoCaracteristicasFields = (
   antecedente,
-  antecedenteSelecionado,
-  idiomaDoAntecedente,
-  idiomaDoAntecendente2
+  antecedenteSelecionado
 ) => {
-  if (antecedente === "Acólito") {
+  if (
+    antecedente === "Acólito" ||
+    antecedente === "Marinheiro" ||
+    antecedente === "Nobre" ||
+    antecedente === "Órfão"
+  ) {
     return {
-      caracteristicaAbrigoDosFiéis:
-        antecedenteSelecionado.CaracteristicaDoAntecedente
-          .caracteristicaAbrigoDosFiéis,
-
-      Idiomas: { idiomaDoAntecedente, idiomaDoAntecendente2 },
+      CaracteristicasGerais:
+        antecedenteSelecionado.CaracteristicaDoAntecedente.CaracteristicaTexto1,
     };
   }
   return {};
@@ -160,17 +156,50 @@ export const getAcolitoCaracteristicasFields = (
 
 export const getArtistaCaracteristicasFields = (
   antecedente,
-  rotinasArtisticas,
+  CarcDosAntecedentes3,
   antecedenteSelecionado
 ) => {
-  if (antecedente === "Artista") {
+  if (
+    antecedente === "Charlatão" ||
+    antecedente === "Artista" ||
+    antecedente === "Charlatão" ||
+    antecedente === "Criminoso" ||
+    antecedente === "Eremita" ||
+    antecedente === "Forasteiro" ||
+    antecedente === "Sábio" ||
+    antecedente === "Soldado"
+  ) {
     return {
-      rotinasArtisticas,
-      proficienciaPericiaAntecedente:
-        antecedenteSelecionado.proficienciaPericia,
-      caracteristicaDemandaPopular:
-        antecedenteSelecionado.CaracteristicaDoAntecedente
-          .caracteristicaDemandaPopular,
+      CarcDosAntecedentes3,
+      CaracteristicasGerais:
+        antecedenteSelecionado.CaracteristicaDoAntecedente.CaracteristicaTexto1,
+    };
+  }
+  return {};
+};
+
+export const getIdiomasAntecendete = (antecedente, idiomaDoAntecedente) => {
+  if (
+    antecedente === "Artesão de Guilda " ||
+    antecedente === "Eremita" ||
+    antecedente === "Forasteiro" ||
+    antecedente === "Nobre"
+  ) {
+    return {
+      Idiomas: idiomaDoAntecedente,
+    };
+  }
+  return {};
+};
+
+export const getIdiomasAntecendete1 = (
+  antecedente,
+  idiomaDoAntecendente2,
+  idiomaDoAntecedente
+) => {
+  if (antecedente === "Acólito" || antecedente === "Sábio") {
+    return {
+      Idiomas: { idiomaDoAntecedente, idiomaDoAntecendente2 },
     };
   }
   return {};

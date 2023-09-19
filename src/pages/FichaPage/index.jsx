@@ -9,6 +9,8 @@ import {
   getAcolitoCaracteristicasFields,
   getArtesaoCaracteristicasFields,
   getArtistaCaracteristicasFields,
+  getIdiomasAntecendete,
+  getIdiomasAntecendete1,
   getSubRacasField,
   getSubRacasGnomoField,
 } from "Utils/Untils";
@@ -54,15 +56,9 @@ const FichaCriar = () => {
   const [vinculoSelecionado, setVinculoSelecionado] = useState("");
 
   // Antecedente detalhe
-  const [negocioGuildaSelecionado, setNegocioGuildaSelecionado] = useState("");
-  const [
-    caracteristicasGuildaSelecionado,
-    setCaracteristicasGuildaSelecionado,
-  ] = useState("");
-  const [caracteristicaAbrigoDosFiéis] = useState("");
-
-  const [rotinasArtisticasSelcioando, setRotinasArtisticasSelecioando] =
-    useState("");
+  const [CarcDosAntecedentes1, setCarcDosAntecedents1] = useState("");
+  const [CarcDosAntecedentes2, setCarcDosAntecedentes2] = useState("");
+  const [CarcDosAntecedentes3, setCarcDosAntecedents3] = useState("");
 
   const [riquezaInicial, setRiquezaInicial] = useState(0);
 
@@ -92,7 +88,7 @@ const FichaCriar = () => {
     Carisma: "",
   });
 
-  const [Engenhocas, setEngenhocas] = useState("")
+  const [Engenhocas, setEngenhocas] = useState("");
 
   const racasOptions = racas.map((r) => r.nome);
   const classesOptions = classes.map((c) => c.nome);
@@ -182,11 +178,11 @@ const FichaCriar = () => {
 
     const SubRacaGnomoField = getSubRacasGnomoField(SubRaca, Engenhocas);
 
-    // Classes
+    // Antecedentes
     const ArtesaoField = getArtesaoCaracteristicasFields(
       antecedente,
-      caracteristicasGuildaSelecionado,
-      negocioGuildaSelecionado,
+      CarcDosAntecedentes1,
+      CarcDosAntecedentes2,
       idiomaDoAntecedente
     );
     const AcolitoField = getAcolitoCaracteristicasFields(
@@ -197,8 +193,18 @@ const FichaCriar = () => {
     );
     const ArtistaField = getArtistaCaracteristicasFields(
       antecedente,
-      rotinasArtisticasSelcioando,
+      CarcDosAntecedentes3,
       antecedenteSelecionado
+    );
+
+    const IdiomasAntecedente = getIdiomasAntecendete(
+      antecedente,
+      idiomaDoAntecedente
+    );
+    const IdiomasAntecedente1 = getIdiomasAntecendete1(
+      antecedente,
+      idiomaDoAntecedente,
+      idiomaDoAntecendente2
     );
 
     // RacasParaMandar
@@ -233,6 +239,8 @@ const FichaCriar = () => {
         ...ArtesaoField,
         ...AcolitoField,
         ...ArtistaField,
+        ...IdiomasAntecedente1,
+        ...IdiomasAntecedente,
         CaracteristicasSugeridas:
           antecedenteSelecionado.CaracteristicaDoAntecedente
             .caracteristicasSugeridas,
@@ -401,17 +409,12 @@ const FichaCriar = () => {
             <Etapa7
               antecedente={antecedente}
               antecedenteSelecionado={antecedenteSelecionado}
-              negocioGuildaSelecionado={negocioGuildaSelecionado}
-              setNegocioGuildaSelecionado={setNegocioGuildaSelecionado}
-              caracteristicasGuildaSelecionado={
-                caracteristicasGuildaSelecionado
-              }
-              setCaracteristicasGuildaSelecionado={
-                setCaracteristicasGuildaSelecionado
-              }
-              caracteristicaAbrigoDosFiéis={caracteristicaAbrigoDosFiéis}
-              rotinasArtisticasSelcioando={rotinasArtisticasSelcioando}
-              setRotinasArtisticasSelecioando={setRotinasArtisticasSelecioando}
+              CarcDosAntecedentes1={CarcDosAntecedentes1}
+              setCarcDosAntecedents1={setCarcDosAntecedents1}
+              CarcDosAntecedentes2={CarcDosAntecedentes2}
+              setCarcDosAntecedentes2={setCarcDosAntecedentes2}
+              CarcDosAntecedentes3={CarcDosAntecedentes3}
+              setCarcDosAntecedents3={setCarcDosAntecedents3}
             />
           )}
           {etapa === 8 && (
