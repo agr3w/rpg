@@ -1077,7 +1077,14 @@ export const classes = [
   // ---------------------------------------------------------------------------------------------------------------  //
   {
     nome: "Monge",
-    imagens: ["URL_DA_IMAGEM_DO_MONGE"],
+    imagens: [
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FMonge%2FDefesa%20Sem%20Armadura%20Monge.png?alt=media&token=f6f2f19a-ff67-472c-86db-f4b2ee9908c6",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FMonge%2FArtes%20Marciais.png?alt=media&token=e3e374f9-b6cf-4d53-8f6f-07a456f1a6f0",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FMonge%2FChi.png?alt=media&token=c390084c-24b6-4b3d-85e7-f05a601e6e34",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FMonge%2FChi%202.png?alt=media&token=c9ebcc11-aa6f-4a34-9953-1a5619ce58b6",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FMonge%2Fmovimento%20sem%20armadura.png?alt=media&token=ad61992f-37ae-4026-80bb-548fe2d97ed4",
+      "",
+    ],
     proficiencias: {
       armaduras: "Nenhuma",
       armas: "Armas simples, espadas curtas",
