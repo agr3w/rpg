@@ -980,7 +980,12 @@ export const classes = [
 
   {
     nome: "Ladino",
-    imagens: ["URL_DA_IMAGEM_DO_LADINO"],
+    imagens: [
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FLadino%2FEspecializa%C3%A7%C3%A3o.png?alt=media&token=0fca9a48-e44a-4626-92a0-93781b8ca42b",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FLadino%2FAtaque%20Furtivo.png?alt=media&token=a458717b-70b6-42af-8837-86325046b8a1",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FLadino%2FGiria%20de%20Ladrao.jpg?alt=media&token=f956bab5-b09a-411e-a9af-68d56956214d",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FLadino%2FAcao%20Ardilosa.png?alt=media&token=79d143e9-373b-4703-8423-ca98b7505d47",
+    ],
     proficiencias: {
       armaduras: "Armaduras leves",
       armas:
