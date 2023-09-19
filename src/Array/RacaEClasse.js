@@ -1171,7 +1171,13 @@ export const classes = [
   // ---------------------------------------------------------------------------------------------------------------  //
   {
     nome: "Patrulheiro",
-    imagens: ["URL_DA_IMAGEM_DO_PATRULHEIRO"],
+    imagens: [
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FPatrulheiro%2FInimigo%20Favorito.png?alt=media&token=a6c052d2-5045-421c-a552-297e93162c5a",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FPatrulheiro%2FExplorador%20natural.png?alt=media&token=3ed89f1b-4a6e-4b86-8620-9446f129e7c4",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FPatrulheiro%2FEstilo%20de%20luta%20patrulheiro.jpg?alt=media&token=d74bf12f-4e40-4dab-bb53-d259b37ef056",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FPatrulheiro%2FConjura%C3%A7%C3%A3o%20Patrulheiro.png?alt=media&token=475c7276-ae37-4edf-aedb-3e4361dbbd7a",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FPatrulheiro%2FConjuracao%20patrulheiro%20%202.png?alt=media&token=9ee7c919-6e6b-46f9-9c82-09ac54a905f1",
+    ],
     proficiencias: {
       armaduras: "Armaduras leves, armaduras médias, escudos",
       armas: "Armas simples, armas marciais",
