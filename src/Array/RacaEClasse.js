@@ -1037,7 +1037,11 @@ export const classes = [
     nome: "Mago",
     // adicionar as imgs no storage 500X400
     imagens: [
-      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2Fconjura%C3%A7%C3%A3o1.png?alt=media&token=4605c5b2-798d-49a2-b4e3-49c502fee9db",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FMago%2FConjuracao%20Mago%201.png?alt=media&token=e218d3d2-1e69-45a2-b17e-9f9f1a7a4397",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FMago%2FConjuracao%20Mago%202.png?alt=media&token=ea47da45-9354-4e0c-bc51-c4ffca29a922",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FMago%2FConjuracao%20Mago%203.png?alt=media&token=6322c487-83b2-4371-adf6-83733b292b64",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FMago%2FRecuperacao%20Arcana.png?alt=media&token=eb28c6dc-8b6e-435c-8c1e-384c0bc0c17f",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FMago%2FTradicao%20Arcana.png?alt=media&token=ff95ec77-77d0-41cb-8e89-77941b01f7af",
     ],
     proficiencias: {
       armaduras: "Nenhuma",
@@ -1056,10 +1060,8 @@ export const classes = [
       ],
     },
     habilidadesClasse: {
-      habilidadeNv1: ["CONJURAÇÃO e ", "RECUPERAÇÃO ARCANA"],
+      habilidadeNv1: ["CONJURAÇÃO e RECUPERAÇÃO ARCANA"],
       habilidadeNv2: ["TRADIÇÃO ARCANA"],
-      habilidadeNv3: ["NADA"],
-      habilidadeNv4: ["INCREMENTO NO VALOR DE HABILIDADE"],
     },
     equipamentos: {
       equipamentoAlpha1: ["Um bordão", "Uma adaga"],
