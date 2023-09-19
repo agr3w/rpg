@@ -668,7 +668,9 @@ export const classes = [
     nome: "Bardo",
     // adicionar as imgs no storage 500X400
     imagens: [
-      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FBardo%2FConjura%C3%A7%C3%A3o%20Bardo.png?alt=media&token=9279abd7-ed4b-487d-aabb-fe1ae270a820",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FBardo%2FConjura%C3%A7%C3%A3o%20Bardo%201.png?alt=media&token=cdc0b81b-cd95-4778-b7f8-868607df5bfb",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FBardo%2FConjura%C3%A7%C3%A3o%20Bardo%202.png?alt=media&token=59281fd9-4f36-4d5b-bcd3-ca2ddd0ee80f",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FBardo%2FConjura%C3%A7%C3%A3o%20Bardo%203.png?alt=media&token=1aaded95-17e1-479b-842c-3b49e5c8e56f",
       "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FBardo%2FInspiracao%20Bardo.png?alt=media&token=7b964d53-c646-4fdb-9a0d-3aa117d3ce1c",
       "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FBardo%2FVersatilidade.png?alt=media&token=0dfaded0-7e17-46a5-b9b6-266d0eb60bce",
       "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FBardo%2FCancao%20de%20descanso.png?alt=media&token=76873621-f9b4-4b2e-96dc-8dfcc776b1e9",
