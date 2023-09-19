@@ -883,7 +883,13 @@ export const classes = [
 
   {
     nome: "Feiticeiro",
-    imagens: ["URL_DA_IMAGEM_DO_FEITICEIRO"],
+    imagens: [
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FFeiticeiro%2FConjuracao%20Feiticeiro%201.png?alt=media&token=4eab3f8e-3302-44d6-a63a-594bf7816ff9",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FFeiticeiro%2FConjuracao%20Feiticeiro%202.png?alt=media&token=95f502e1-76bb-4af9-979d-1afc96a271b0",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FFeiticeiro%2FOrigem%20do%20Feitico.jpg?alt=media&token=fadffe53-b680-492c-8629-eace6582cc1a",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FFeiticeiro%2FFonte%20de%20Magia.png?alt=media&token=d4aa2b0a-8a2c-44f2-9163-bdedfdfc4956",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FFeiticeiro%2FFonte%20de%20Magia%202.png?alt=media&token=16ef5f73-d02a-45f6-8ef6-e3ee4f3966e2",
+    ],
     proficiencias: {
       armaduras: "Nenhuma",
       armas: "Adagas, Dardos, Fundas, Bordões e Bestas Leves",
