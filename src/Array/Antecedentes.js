@@ -398,7 +398,8 @@ const antecedenteForasteiro = {
       "Peregrino",
       "Saqueador tribal",
     ],
-
+    caracteristicasSugeridas:
+      "Geralmente considerados rudes e grosseiros dentre o povo civilizado, forasteiros tem pouco respeito pelas sutilezas da vida urbana. Os laços de tribo, clã, família e mundo natural de que fazem parte são os vínculos mais importantes para os forasteiros.",
     LabelCaracteristicaTexto1: "Andarilho",
     CaracteristicaTexto1:
       "Você tem uma memória excelente para mapas e geografia, e você sempre pode recobrar o plano geral de terrenos, assentamentos ou outras características ao seu redor. Além disso, você pode encontrar comida e água fresca para você a até cinco outras pessoas a cada dia, considerando que a terra ofereça bagas, pequenas frutas, água e similares.",
@@ -467,7 +468,8 @@ const antecedenteHeroiDoPovo = {
       "Um ser celestial, feérico, ou similar, deu-me uma bênção ou revelou minha origem secreta.",
       "Recrutado para o exército de um lorde, eu prevaleci na liderança e fui condecorado por heroísmo.",
     ],
-
+    caracteristicasSugeridas:
+      "Um herói do povo é uma pessoa comum, para melhor ou para pior. Muitos olham para suas origens humildes como uma virtude, não um defeito, e seus lares e comunidades permanecem muito importantes para eles.",
     LabelCaracteristicaTexto1: "Hospitalidade Rústica",
     CaracteristicaTexto1:
       "Já que você ascendeu da categoria de pessoas comuns até onde você está agora, é fácil se misturar a eles. Você pode encontrar lugar entre os camponeses para se esconder, descansar ou se recuperar, a menos que isso ofereça um risco direto a eles. Eles o esconderão da lei e de qualquer um que venha perguntando por você, desde que não tenham que arriscar suas vidas.",

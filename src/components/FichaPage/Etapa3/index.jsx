@@ -28,7 +28,8 @@ const Etapa3 = ({
         raca === "Gnomo" ||
         raca === "Meio-Elfo" ||
         raca === "Meio-Orc" ||
-        raca === "Tiefling") && (
+        raca === "Tiefling" ||
+        raca === "Humano") && (
         <>
           <h1 className={styles.h1}>Selecione uma Sub-Raça</h1>
           <FormControl fullWidth>

@@ -114,7 +114,6 @@
   background-color: #0056b3;
 }
 
-
 /* Etapa 3 (classes) */
 
 /* painel das habilidades */
@@ -126,4 +125,11 @@
   border: 1px solid #ccc; /* Borda do painel */
   padding: 10px; /* Espaçamento interno do painel */
   z-index: 1000; /* Defina um valor alto para z-index para ficar acima de outros elementos */
+  
+}
+
+@media screen and (max-width: 2220px) {
+  .painelHabilidades {
+    position: inherit;
+  }
 }
