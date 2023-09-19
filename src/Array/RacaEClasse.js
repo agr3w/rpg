@@ -930,7 +930,11 @@ export const classes = [
 
   {
     nome: "Guerreiro",
-    imagens: ["URL_DA_IMAGEM_DO_GUERREIRO"],
+    imagens: [
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FGuerreiro%2FEstilo%20de%20Luta.png?alt=media&token=2b2e1260-fe27-44a6-a6e8-c87f12808cad",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FGuerreiro%2FRetomar%20folego.png?alt=media&token=48d53748-d0cf-4a69-be49-63c1ba94035a",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FGuerreiro%2FSurto%20de%20acao.jpg?alt=media&token=4be43142-e193-43da-8cc1-58f38beecb16",
+    ],
     proficiencias: {
       armaduras: "Todas as armaduras, escudos",
       armas: "Armas simples, armas marciais",
@@ -950,8 +954,8 @@ export const classes = [
       ],
     },
     habilidadesClasse: {
-      habilidadeNv1: "Estilo de Luta, Segunda Vida",
-      habilidadeNv2: "Ação Extra",
+      habilidadeNv1: "Estilo de Luta, Retomar Folego",
+      habilidadeNv2: "Surto de Acção",
     },
     equipamentos: {
       equipamentoAlpha1: [
