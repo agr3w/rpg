@@ -825,7 +825,15 @@ export const classes = [
   // ---------------------------------------------------------------------------------------------------------------  //
   {
     nome: "Druida",
-    imagens: ["URL_DA_IMAGEM_DO_DRUIDA"],
+    imagens: [
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FDruida%2FDruidico.png?alt=media&token=45e01956-7716-4c3b-a78b-415a1fb6f2df",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FDruida%2FConjuracao%20Druida%201.png?alt=media&token=e80a84e0-e475-4671-b925-e5e173c2b878",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FDruida%2FConjuracao%20Druida%202.png?alt=media&token=3310fdf4-8811-4988-a38d-ef866c4f16cc",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FDruida%2FForma%20Selvagem%201.png?alt=media&token=e8aed1bf-0149-45fb-9d42-04413a4f18eb",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FDruida%2FForma%20Selvagem%202.png?alt=media&token=343cfd16-3213-4fa0-9128-6f3a2d5e5ae1",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FDruida%2FForma%20Selvagem%203.png?alt=media&token=0f3a017a-eee9-4b10-864d-5dbad061da0e",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FDruida%2FCirculo%20Druicico.png?alt=media&token=8da4ea87-8af6-46e4-998c-91a670082ac7",
+    ],
     proficiencias: {
       armaduras:
         "Armaduras Leves, Armaduras Médias, Escudos (Druidas não vestirão armaduras ou usarão escudos feitos de metal)",
