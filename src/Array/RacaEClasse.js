@@ -624,7 +624,10 @@ export const classes = [
     nome: "Bárbaro",
     // adicionar as imgs no storage 500X400
     imagens: [
-      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2Fconjura%C3%A7%C3%A3o1.png?alt=media&token=4605c5b2-798d-49a2-b4e3-49c502fee9db",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FBarbaro%2FFuria.png?alt=media&token=0b96ac46-a9d6-43a3-a9b8-e692daa59ca6",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FBarbaro%2FDefesa%20Sem%20Armadura.png?alt=media&token=8b2a9158-e972-4bbf-ac68-88d6ac8c8d8d",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FBarbaro%2FAtaque%20Descuidado.png?alt=media&token=3680c741-5ec5-47b8-921c-875298d04bcf",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FBarbaro%2FSentido%20De%20Perigo.png?alt=media&token=c2e0eae6-4cf9-4248-b020-7ee167a9aeb8",
     ],
     proficiencias: {
       armaduras: "Armaduras Leves, Armaduras Médias e Escudos",
@@ -665,7 +668,10 @@ export const classes = [
     nome: "Bardo",
     // adicionar as imgs no storage 500X400
     imagens: [
-      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2Fconjura%C3%A7%C3%A3o1.png?alt=media&token=4605c5b2-798d-49a2-b4e3-49c502fee9db",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FBardo%2FConjura%C3%A7%C3%A3o%20Bardo.png?alt=media&token=9279abd7-ed4b-487d-aabb-fe1ae270a820",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FBardo%2FInspiracao%20Bardo.png?alt=media&token=7b964d53-c646-4fdb-9a0d-3aa117d3ce1c",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FBardo%2FVersatilidade.png?alt=media&token=0dfaded0-7e17-46a5-b9b6-266d0eb60bce",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FBardo%2FCancao%20de%20descanso.png?alt=media&token=76873621-f9b4-4b2e-96dc-8dfcc776b1e9",
     ],
     proficiencias: {
       armaduras: "Armaduras Leves",
