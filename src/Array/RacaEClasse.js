@@ -230,6 +230,20 @@ export const racas = [
       Sabedoria: 1,
       Carisma: 1,
     },
+    SubRacas: [
+      {
+        subRacaNome: "Sem SubRaca",
+        habilidadesSubRaca: ["Nenhuma"],
+        habilidadeBonusSubRaca: {
+          Constituição: 0,
+          Força: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Sabedoria: 0,
+          Carisma: 0,
+        },
+      },
+    ],
   },
 
   // ---------------------------------------------------------------------------------------------------------------  //
@@ -496,7 +510,6 @@ export const racas = [
       Destreza: 0,
       Inteligência: 0,
       Sabedoria: 0,
-
     },
     periciasRacaLabel: "escolha duas dentre:",
     perficiasRacaMinimo: "2",
@@ -507,6 +520,20 @@ export const racas = [
       "Investigação",
       "Medicina",
       "Religião",
+    ],
+    SubRacas: [
+      {
+        subRacaNome: "Sem SubRaca",
+        habilidadesSubRaca: ["Nenhuma"],
+        habilidadeBonusSubRaca: {
+          Constituição: 0,
+          Força: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Sabedoria: 0,
+          Carisma: 0,
+        },
+      },
     ],
   },
 
@@ -533,6 +560,20 @@ export const racas = [
       Carisma: 0,
     },
     proficienciaPericia: "Intimidação",
+    SubRacas: [
+      {
+        subRacaNome: "Sem SubRaca",
+        habilidadesSubRaca: ["Nenhuma"],
+        habilidadeBonusSubRaca: {
+          Constituição: 0,
+          Força: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Sabedoria: 0,
+          Carisma: 0,
+        },
+      },
+    ],
   },
 
   // ---------------------------------------------------------------------------------------------------------------  //
@@ -557,6 +598,20 @@ export const racas = [
       Destreza: 0,
       Sabedoria: 0,
     },
+    SubRacas: [
+      {
+        subRacaNome: "Sem SubRaca",
+        habilidadesSubRaca: ["Nenhuma"],
+        habilidadeBonusSubRaca: {
+          Constituição: 0,
+          Força: 0,
+          Destreza: 0,
+          Inteligência: 0,
+          Sabedoria: 0,
+          Carisma: 0,
+        },
+      },
+    ],
   },
 ];
 

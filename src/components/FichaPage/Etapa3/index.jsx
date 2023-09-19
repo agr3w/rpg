@@ -15,7 +15,7 @@ const Etapa3 = ({
   IdiomaAltoElfo,
   handleSubRacaChange,
   Engenhocas,
-  setEngenhocas
+  setEngenhocas,
 }) => {
   // Função para atualizar os detalhes da sub-raça quando uma nova sub-raça for selecionada
 
@@ -25,7 +25,10 @@ const Etapa3 = ({
         raca === "Elfo" ||
         raca === "Halfling" ||
         raca === "Draconato" ||
-        raca === "Gnomo") && (
+        raca === "Gnomo" ||
+        raca === "Meio-Elfo" ||
+        raca === "Meio-Orc" ||
+        raca === "Tiefling") && (
         <>
           <h1 className={styles.h1}>Selecione uma Sub-Raça</h1>
           <FormControl fullWidth>
@@ -76,27 +79,22 @@ const Etapa3 = ({
       {SubRaca === "Gnomo das Rochas" && (
         <>
           <FormControl fullWidth>
-              <InputLabel>Engenhocas</InputLabel>
-              <Select
-                value={Engenhocas}
-                onChange={(e) => setEngenhocas(e.target.value)}
-                label="Engenhocas"
-              >
-                <MenuItem value="">
-                  <em>Engenhocas</em>
+            <InputLabel>Engenhocas</InputLabel>
+            <Select
+              value={Engenhocas}
+              onChange={(e) => setEngenhocas(e.target.value)}
+              label="Engenhocas"
+            >
+              <MenuItem value="">
+                <em>Engenhocas</em>
+              </MenuItem>
+              {detalhesSubRaca.Engenhoca.map((Engenhocas) => (
+                <MenuItem key={Engenhocas} value={Engenhocas}>
+                  {Engenhocas}
                 </MenuItem>
-                {detalhesSubRaca.Engenhoca.map((Engenhocas) => (
-                  <MenuItem key={Engenhocas} value={Engenhocas}>
-                    {Engenhocas}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-        </>
-      )}
-      {(raca === "Meio-Elfo" || raca === "Meio-Orc" || raca === "Tiefling") && (
-        <>
-          <h1 className={styles.h1}>Sua classe não possue uma Sub-Classe</h1>
+              ))}
+            </Select>
+          </FormControl>
         </>
       )}
     </>

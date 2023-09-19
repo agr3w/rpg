@@ -100,7 +100,8 @@ export const getSubRacasField = (SubRaca, IdiomaAltoElfo, detalhesSubRaca) => {
     SubRaca === "Verde" ||
     SubRaca === "Vermelho" ||
     SubRaca === "Gnomo da Floresta" ||
-    SubRaca === "Gnomo das Rochas"
+    SubRaca === "Gnomo das Rochas" ||
+    SubRaca === "Sem SubRaca"
   ) {
     return {
       SubRaca: SubRaca,
