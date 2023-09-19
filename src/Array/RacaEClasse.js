@@ -1121,7 +1121,14 @@ export const classes = [
   // ---------------------------------------------------------------------------------------------------------------  //
   {
     nome: "Paladino",
-    imagens: ["URL_DA_IMAGEM_DO_PALADINO"],
+    imagens: [
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FPaladino%2FSentido%20Divino.png?alt=media&token=8afe6c2a-c671-4a8c-9290-c3bb933cc17d",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FPaladino%2FCura%20pela%20M%C3%A3os.png?alt=media&token=48e686c3-46ef-4325-839d-fd8b7e43beaa",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FPaladino%2FEstilo%20de%20luta%20Paladino.jpg?alt=media&token=25f8b478-fd1f-4cb9-91bf-d0a571aa1a50",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FPaladino%2FConjuracao%20Paladino%201.png?alt=media&token=0604694e-9b2d-4057-96d6-71c7f465015b",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FPaladino%2FConjuracao%20Paladino%202.png?alt=media&token=2e0d5f68-1d98-4764-b738-2b6256858c77",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FPaladino%2FDestrui%C3%A7%C3%A3o%20Divina.png?alt=media&token=4a64402d-00f3-48c3-b216-6f53e9a6c76a",
+    ],
     proficiencias: {
       armaduras: "Todas as armaduras, escudos",
       armas: "Armas simples, armas marciais",
@@ -1140,7 +1147,7 @@ export const classes = [
     },
     habilidadesClasse: {
       habilidadeNv1: "Sentido Divino e Cura pelas Mãos",
-      habilidadeNv2: "Estilo de Luta e Conjuração",
+      habilidadeNv2: "Estilo de Luta Conjuração e Destuição Divina",
     },
     equipamentos: {
       equipamentoAlpha1: [
