@@ -725,7 +725,12 @@ export const classes = [
 
   {
     nome: "Bruxo",
-    imagens: ["URL_DA_IMAGEM_DO_BRUXO"],
+    imagens: [
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FBruxo%2FPatrono%20Ancestral.png?alt=media&token=a7401f03-cbd6-46b2-9b29-effd9bf914b8",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FBruxo%2FMagia%20de%20pact1o.jpg.png?alt=media&token=ad039d9a-4357-4a07-a5f6-3f25a2ede6df",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FBruxo%2FMagia%20de%20pacto2.jpg.png?alt=media&token=98b0fbeb-3008-4bce-8984-165f07ed5615",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FBruxo%2FInvoca%C3%A7%C3%A3o%20Mistica.png?alt=media&token=2f471d11-48a3-40f1-bc6b-3cee6adb3951",
+    ],
     proficiencias: {
       armaduras: "Armaduras Leves",
       armas: "Armas Simples",
@@ -745,7 +750,7 @@ export const classes = [
     },
     habilidadesClasse: {
       habilidadeNv1: "Patrono Transcedental e Magia de Pacto",
-      habilidadeNv2: "Recuperação Arcana",
+      habilidadeNv2: "Invocação Mística",
     },
     equipamentos: {
       equipamentoAlpha1: [
@@ -768,7 +773,13 @@ export const classes = [
   // ---------------------------------------------------------------------------------------------------------------  //
   {
     nome: "Clérigo",
-    imagens: ["URL_DA_IMAGEM_DO_CLERIGO"],
+    imagens: [
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FClerigo%2FConjuracao%20Clerigo%201.png?alt=media&token=00b1fc65-a474-43e2-885b-d02ea46f9240",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FClerigo%2FConjuracao%20Clerigo%202.png?alt=media&token=c424aff0-41df-4132-9e20-3409ff8967a6",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FClerigo%2FDominio%20Divino.png?alt=media&token=fc5e1d6d-1ada-463c-8cfe-d0bf71c325b0",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FClerigo%2FCanalizar%20Divindade%201.png?alt=media&token=89836a5f-2daf-4cad-91d8-3279cd36f9cc",
+      "https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/o/ImagensHabilidades%2FClerigo%2FCanalizar%20Divindade%202.png?alt=media&token=49e8e5b5-ad91-4482-b224-8a19c20c080e",
+    ],
     proficiencias: {
       armaduras: "Armaduras Leves, Armaduras Médias, Escudos",
       armas: "Todas as Armas Simples",
@@ -787,8 +798,6 @@ export const classes = [
     habilidadesClasse: {
       habilidadeNv1: "Conjuração e Domínio Divino",
       habilidadeNv2: "Canalizar Divindade",
-      habilidadeNv3: "Nada",
-      habilidadeNv4: "Incremento no Valor de Habilidade",
     },
     equipamentos: {
       equipamentoAlpha1: [
