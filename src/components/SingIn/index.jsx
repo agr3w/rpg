@@ -1,17 +1,14 @@
-// AuthComponent.jsx
-
 import React, { useState } from "react";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "APIs/firebaseConfig";
 import { Link } from "react-router-dom";
-import { Button } from "@mui/material";
+import { Button, TextField, Typography } from "@mui/material";
+import styles from "./AuthComponent.module.css";
 
 const AuthComponent = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleSignIn = () => {
     const auth = getAuth(app);
@@ -19,32 +16,67 @@ const AuthComponent = () => {
       .then((userCredential) => {
         const user = userCredential.user;
         console.log("User signed in:", user);
+        setError(""); // Reset error message on successful sign-in
       })
       .catch((error) => {
         const errorCode = error.code;
-        const errorMessage = error.message;
-        console.error("Sign in error:", errorMessage);
+        if (errorCode === "auth/user-not-found") {
+          setError("Usuário não encontrado. Verifique o email.");
+        } else if (errorCode === "auth/wrong-password") {
+          setError("Senha incorreta. Tente novamente.");
+        } else {
+          setError("Ocorreu um erro ao fazer login. Tente novamente.");
+        }
       });
   };
 
   return (
-    <div>
-      <input
+    <div className={styles.authForm}>
+      <h2>Login</h2>
+      <TextField
+        label="Email"
         type="email"
-        placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        variant="outlined"
+        className={styles.inputField}
+        style={{ margin: "10px" }}
       />
-      <input
+      <TextField
+        label="Password"
         type="password"
-        placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        variant="outlined"
+        className={styles.inputField}
+        style={{ margin: "10px" }}
       />
-      <Link to={"/Registrar-se"}>
-        <Button>Registrar-se</Button>
-      </Link>
-      <Button onClick={handleSignIn}>Entrar</Button>
+      {error && (
+        <Typography
+          style={{ marginTop: "0", marginBottom: "10px" }}
+          color="error"
+        >
+          {error}
+        </Typography>
+      )}
+      <Button
+        variant="contained"
+        onClick={handleSignIn}
+        className={styles.signInButton}
+        style={{ marginTop: "0", marginBottom: "10px" }}
+      >
+        Entrar
+      </Button>
+      <Typography
+        variant="body1"
+        style={{ marginTop: "5px" }}
+        className={styles.registerLink}
+      >
+        Ainda não tem uma conta?{" "}
+        <Link to={"/Registrar-se"} className={styles.link}>
+          Registrar-se
+        </Link>
+      </Typography>
     </div>
   );
 };

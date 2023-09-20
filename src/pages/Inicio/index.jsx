@@ -55,50 +55,43 @@ export default function Inicio() {
             <div className={`card ${styles.card} ${styles.rightColumn}`}>
               <FichaCard />
             </div>
-            {mostrarPainel && (
-              <div>
-                <div className={styles.fundoEscuro}></div>
-
-                <div className={styles.painel}>
-                  <iframe
-                    width="560"
-                    height="315"
-                    src="https://www.youtube.com/embed/yjy1dBc2lbc?si=7Pd4-EdQGeugnfuJ"
-                    title="YouTube video player"
-                  ></iframe>
-                  <div className={styles.textoExplicativo}>
-                    <p>
-                      Bem-vindo ao RPG Organizer! Esta plataforma foi criada
-                      para tornar sua vida como mestre de RPG mais fácil.
-                    </p>
-                    <p>
-                      Assista ao vídeo acima para uma introdução rápida e comece
-                      a explorar o RPG Organizer para uma experiência de RPG
-                      mais organizada e envolvente!
-                    </p>
-                  </div>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    className={styles.botaoFechar}
-                    onClick={fecharPainel}
-                  >
-                    Fechar Painel
-                  </Button>
-                </div>
-              </div>
-            )}
             <div className={styles.blurred_bg}></div>
           </div>
         ) : (
-          // Exibir mensagem para usuário não autenticado
           <div className={styles.naoAutenticado}>
-            <p>Você precisa estar autenticado para acessar esta página.</p>
-            <Link to={"/login"}>
-              <Button variant="contained" color="primary">
-                Autenticar
-              </Button>
-            </Link>
+            <div>
+              <div className={styles.fundoEscuro}></div>
+
+              <div className={styles.painel}>
+                <iframe
+                  width="560"
+                  height="315"
+                  src="https://www.youtube.com/embed/yjy1dBc2lbc?si=7Pd4-EdQGeugnfuJ"
+                  title="YouTube video player"
+                ></iframe>
+                <div className={styles.textoExplicativo}>
+                  <p>
+                    Bem-vindo ao RPG Organizer! Esta plataforma foi criada para
+                    tornar sua vida como mestre de RPG mais fácil.
+                  </p>
+                  <p>
+                    Assista ao vídeo acima para uma introdução rápida e comece a
+                    explorar o RPG Organizer para uma experiência de RPG mais
+                    organizada e envolvente!
+                  </p>
+                </div>
+                <Link to={"/login"}>
+                  <Button variant="contained" color="primary">
+                    Fazer o Login
+                  </Button>
+                </Link>
+                <Link to={"/Registrar-se"} style={{ margin: "0 20px" }}>
+                  <Button variant="contained" color="primary">
+                    Fazer o Registro
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
         )}
       </div>

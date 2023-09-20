@@ -1,0 +1,37 @@
+.authForm h2 {
+  font-size: 26px;
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 10px 0;
+}
+
+.authForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  max-width: 400px;
+  margin: 0 auto;
+  background-color: white;
+}
+
+.inputField {
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.signInButton {
+  background-color: #2196f3;
+  color: white;
+  margin-top: 10px;
+}
+
+.registerLink {
+  margin-top: 10px;
+}
+
+.link {
+  color: #2196f3;
+  text-decoration: none;
+}

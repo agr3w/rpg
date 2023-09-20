@@ -9,11 +9,6 @@ const Nav = () => {
     window.location.href = "mailto:suzanakampa12@gmail.com";
   };
 
-  const handleLoginClick = () => {
-    // Redirecionar para a página de login quando o ícone de pessoa for clicado
-    window.location.href = "/login";
-  };
-
   const [usuarioAutenticado, setUsuarioAutenticado] = useState(null);
 
   useEffect(() => {
@@ -64,7 +59,7 @@ const Nav = () => {
               Suporte
             </li>
             <li className={styles.navLink}>
-              <NavLink onClick={handleLoginClick} className={styles.userIcon}>
+              <NavLink to={"/logOut"} className={styles.userIcon}>
                 <FiUser size={22} />
               </NavLink>
             </li>
