@@ -293,6 +293,8 @@ const FichaCriar = () => {
         return nome !== "";
       case 2:
         return raca !== "" && idiomaRacaSelecionado !== "";
+      case 3:
+        return SubRaca !== "" && SubRaca !== "";
       case 4:
         if (classe !== "") {
           // Verifique se todas as checkboxes estão selecionadas
