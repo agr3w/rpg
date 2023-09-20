@@ -12,6 +12,7 @@
     list-style: none;
     display: flex;
     gap: 20px;
+    align-items: center;
   }
   
   .navItem {
@@ -31,11 +32,12 @@
     text-decoration: underline;
   }
   
-  .profileIcon {
+  .userIcon {
     display: flex;
     align-items: center;
-    cursor: pointer;
+    color: white;
   }
+  
 
   @media screen and (max-width: 768px) {
     .nav {

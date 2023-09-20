@@ -1,14 +1,14 @@
 // Outro componente onde você deseja utilizar a autenticação
-import AuthComponent from 'components/SingUp';
+import AuthComponent from 'components/SingIn';
 import React from 'react';
 
-const YourComponent = () => {
+const Login = () => {
   return (
     <div>
-      <h1>Seu componente</h1>
+      <h1>Pagina de Login</h1>
       <AuthComponent />
     </div>
   );
 };
 
-export default YourComponent;
+export default Login;

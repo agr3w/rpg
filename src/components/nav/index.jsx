@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
+import { FiUser } from "react-icons/fi"; // Importe o ícone de pessoa
 import styles from "./nav.module.css";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const Nav = () => {
   const handleSupportClick = () => {
     window.location.href = "mailto:suzanakampa12@gmail.com";
+  };
+
+  const handleLoginClick = () => {
+    // Redirecionar para a página de login quando o ícone de pessoa for clicado
+    window.location.href = "/login";
   };
 
   const [usuarioAutenticado, setUsuarioAutenticado] = useState(null);
@@ -56,6 +62,11 @@ const Nav = () => {
             </li>
             <li className={styles.navLink} onClick={handleSupportClick}>
               Suporte
+            </li>
+            <li className={styles.navLink}>
+              <NavLink onClick={handleLoginClick} className={styles.userIcon}>
+                <FiUser size={22} />
+              </NavLink>
             </li>
           </ul>
         </nav>

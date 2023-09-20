@@ -8,8 +8,9 @@ import FolderPage from "pages/foldersPage";
 import FichaPage from "pages/FichaCompleta/fichaCompleta";
 import FichaCriar from "pages/FichaPage";
 import FichaDetalhes from "pages/FichaDetalhes";
-import YourComponent from "pages/login";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import Login from "pages/login";
+import Register from "pages/Regsiter";
 
 function Rout() {
   const [usuarioAutenticado, setUsuarioAutenticado] = useState(null);
@@ -33,9 +34,14 @@ function Rout() {
     <Router>
       <Routes>
         <Route path="/" element={<Inicio />} />
-        <Route path="/*" element={<Inicio />} /> {/* Fazer uma pagina 404 */}
-
-        {usuarioAutenticado ? (
+        <Route path="/*" element={<Inicio />} /> {/* Página 404 */}
+        {!usuarioAutenticado && (
+          <>
+            <Route path="/login" element={<Login />} />
+            <Route path="/Registrar-se" element={<Register />} />
+          </>
+        )}
+        {usuarioAutenticado && (
           <>
             <Route path="/musicas" element={<MusicasPage />} />
             <Route path="/livros" element={<LivrosPage />} />
@@ -45,8 +51,6 @@ function Rout() {
             <Route path="/criar-ficha" element={<FichaCriar />} />
             <Route path="/ficha-completa/:ID" element={<FichaDetalhes />} />
           </>
-        ) : (
-          <Route path="/login" element={<YourComponent />} />
         )}
       </Routes>
     </Router>
