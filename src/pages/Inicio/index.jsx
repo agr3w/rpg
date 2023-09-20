@@ -13,7 +13,6 @@ import { app } from "APIs/firebaseConfig";
 import { Link } from "react-router-dom";
 
 export default function Inicio() {
-  const [mostrarPainel, setMostrarPainel] = useState(false);
   const [usuarioAutenticado, setUsuarioAutenticado] = useState(null);
 
   useEffect(() => {

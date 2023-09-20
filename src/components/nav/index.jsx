@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { FiUser } from "react-icons/fi"; // Importe o ícone de pessoa
+import { FiUser } from "react-icons/fi";
 import styles from "./nav.module.css";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import { Box, Button, Modal, Typography } from "@mui/material";
 
 const Nav = () => {
   const handleSupportClick = () => {
@@ -10,21 +11,31 @@ const Nav = () => {
   };
 
   const [usuarioAutenticado, setUsuarioAutenticado] = useState(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     const auth = getAuth();
 
-    // Verificar o estado de autenticação do usuário
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        // O usuário está autenticado
         setUsuarioAutenticado(user);
       } else {
-        // O usuário não está autenticado
         setUsuarioAutenticado(null);
       }
     });
   }, []);
+
+  const handleLogout = () => {
+    // Fazer logout
+    const auth = getAuth();
+    signOut(auth)
+      .then(() => {
+        console.log("Usuário desconectado");
+      })
+      .catch((error) => {
+        console.error("Erro durante o logout:", error);
+      });
+  };
   return (
     <>
       {usuarioAutenticado ? (
@@ -58,14 +69,63 @@ const Nav = () => {
             <li className={styles.navLink} onClick={handleSupportClick}>
               Suporte
             </li>
-            <li className={styles.navLink}>
-              <NavLink to={"/logOut"} className={styles.userIcon}>
-                <FiUser size={22} />
-              </NavLink>
+            <li
+              className={styles.navLink}
+              onClick={() => setShowLogoutModal(true)}
+            >
+              <FiUser size={22} />
             </li>
           </ul>
         </nav>
       ) : null}
+      {/* Modal de logout */}
+      {showLogoutModal && (
+        <Modal
+          open={showLogoutModal}
+          onClose={() => setShowLogoutModal(false)}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Box className={styles.logoutModal}>
+            <Typography
+              variant="h6"
+              id="modal-modal-title"
+              color={"white"}
+              style={{
+                margin: "10px",
+                textAlign: "center"
+              }}
+            >
+              Deseja sair?
+            </Typography>
+            <Button
+              onClick={handleLogout}
+              variant="contained"
+              color="primary"
+              style={{
+                margin: "0 0 0 20px",
+              }}
+            >
+              Sair
+            </Button>
+            <Button
+              onClick={() => setShowLogoutModal(false)}
+              variant="contained"
+              color="secondary"
+              style={{
+                margin: "20px",
+              }}
+            >
+              Cancelar
+            </Button>
+          </Box>
+        </Modal>
+      )}
     </>
   );
 };
