@@ -7,7 +7,7 @@ import MusicasCard from "components/Cards/musicas";
 import Nav from "components/nav";
 import img from "./Nota.png";
 import FichaCard from "components/Cards/ficha";
-import { Button } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { app } from "APIs/firebaseConfig";
 import { Link } from "react-router-dom";
@@ -30,10 +30,6 @@ export default function Inicio() {
       }
     });
   }, []);
-
-  const fecharPainel = () => {
-    setMostrarPainel(false);
-  };
 
   return (
     <>
@@ -63,6 +59,7 @@ export default function Inicio() {
               <div className={styles.fundoEscuro}></div>
 
               <div className={styles.painel}>
+                <Typography variant="h4" style={{ textAlign: "center", paddingBottom: "20px" }}>Seja bem-Vindo</Typography>
                 <iframe
                   width="560"
                   height="315"

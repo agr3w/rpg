@@ -2,13 +2,15 @@ import React, { useState } from "react";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "APIs/firebaseConfig";
 import { Link } from "react-router-dom";
-import { Button, TextField, Typography } from "@mui/material";
+import { Button, IconButton, TextField, Typography } from "@mui/material";
 import styles from "./AuthComponent.module.css";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const AuthComponent = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSignIn = () => {
     const auth = getAuth(app);
@@ -29,6 +31,9 @@ const AuthComponent = () => {
         }
       });
   };
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   return (
     <div className={styles.authForm}>
@@ -44,12 +49,23 @@ const AuthComponent = () => {
       />
       <TextField
         label="Password"
-        type="password"
+        type={showPassword ? "text" : "password"}
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         variant="outlined"
         className={styles.inputField}
         style={{ margin: "10px" }}
+        InputProps={{
+          endAdornment: (
+            <IconButton
+              aria-label="toggle password visibility"
+              onClick={handleTogglePasswordVisibility}
+              edge="end"
+            >
+              {showPassword ? <Visibility /> : <VisibilityOff />}
+            </IconButton>
+          ),
+        }}
       />
       {error && (
         <Typography
