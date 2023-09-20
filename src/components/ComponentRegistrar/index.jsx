@@ -50,8 +50,8 @@ const RegisterComponent = () => {
     const auth = getAuth();
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        const user = userCredential.user;
-        console.log("User registered:", user);
+        // const user = userCredential.user;
+        // console.log("User registered:", user);
         setError(""); // Reset error message
       })
       .catch((error) => {

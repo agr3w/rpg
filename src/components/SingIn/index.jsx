@@ -16,8 +16,8 @@ const AuthComponent = () => {
     const auth = getAuth(app);
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        const user = userCredential.user;
-        console.log("User signed in:", user);
+        // const user = userCredential.user;
+        // console.log("User signed in:", user);
         setError(""); // Reset error message on successful sign-in
       })
       .catch((error) => {
