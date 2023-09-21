@@ -2,15 +2,14 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
       content="Site de suporte para mestres de RPG, principalmente D&D"
     />
     <title>RPG Organizer</title>
-
     <style media="screen">
       body {
         background: #eceff1;
@@ -20,55 +19,48 @@
         padding: 0;
       }
     </style>
+    <script defer="defer" src="/static/js/main.2c9900a4.js"></script>
+    <link href="/static/css/main.556946db.css" rel="stylesheet" />
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-
-    <!-- Carregar o React e a aplicação -->
     <script src="/static/js/bundle.js"></script>
     <script src="/static/js/0.chunk.js"></script>
     <script src="/static/js/main.chunk.js"></script>
-
-    <!-- Firebase SDK scripts (opcional) -->
     <script
-      defer
+      defer="defer"
       src="/__/firebase/10.4.0/firebase-app-compat.js"
     ></script>
-    <!-- Inclua apenas os recursos do Firebase que você precisa -->
     <script
-      defer
+      defer="defer"
       src="/__/firebase/10.4.0/firebase-auth-compat.js"
     ></script>
     <script
-      defer
+      defer="defer"
       src="/__/firebase/10.4.0/firebase-database-compat.js"
     ></script>
-    <!-- Adicione outros scripts Firebase conforme necessário -->
-
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        const loadEl = document.querySelector("#load");
+        const e = document.querySelector("#load");
         try {
-          let app = firebase.app();
-          let features = [
-            "auth",
-            "database",
-            "firestore",
-            "functions",
-            "messaging",
-            "storage",
-            "analytics",
-            "remoteConfig",
-            "performance",
-          ].filter((feature) => typeof app[feature] === "function");
-          loadEl.textContent = `Firebase SDK loaded with ${features.join(
-            ", "
-          )}`;
-        } catch (e) {
-          console.error(e);
-          loadEl.textContent =
-            "Error loading the Firebase SDK, check the console.";
+          let t = firebase.app(),
+            o = [
+              "auth",
+              "database",
+              "firestore",
+              "functions",
+              "messaging",
+              "storage",
+              "analytics",
+              "remoteConfig",
+              "performance",
+            ].filter((e) => "function" == typeof t[e]);
+          e.textContent = `Firebase SDK loaded with ${o.join(", ")}`;
+        } catch (t) {
+          console.error(t),
+            (e.textContent =
+              "Error loading the Firebase SDK, check the console.");
         }
       });
     </script>

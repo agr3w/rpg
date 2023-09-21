@@ -1,0 +1,31 @@
+{
+  "files": {
+    "main.css": "/static/css/main.556946db.css",
+    "main.js": "/static/js/main.2c9900a4.js",
+    "static/media/cleric.jpg": "/static/media/cleric.fa435b6e059839ac1703.jpg",
+    "static/media/Monk.jpg": "/static/media/Monk.9a25deb40fc233ea4eea.jpg",
+    "static/media/bard.jpg": "/static/media/bard.3beb19814604919cf8cc.jpg",
+    "static/media/Warlock.jpg": "/static/media/Warlock.b7bde73b587dd840284b.jpg",
+    "static/media/warrior.jpg": "/static/media/warrior.8996fac94fad12f567a1.jpg",
+    "static/media/forest.jpg": "/static/media/forest.464e707ea86d45d3030c.jpg",
+    "static/media/Rogue.jpg": "/static/media/Rogue.865c0faa783ae0298f9c.jpg",
+    "static/media/Druid.jpg": "/static/media/Druid.ef0401ec8bcb05e2ca31.jpg",
+    "static/media/Barbarian.jpg": "/static/media/Barbarian.38edfd8ce55f7cb416ed.jpg",
+    "static/media/1306600.jpg": "/static/media/1306600.8096cb1da6a6cd106ef4.jpg",
+    "static/media/theresa-konigseder-haller-half-elf-ranger.jpg": "/static/media/theresa-konigseder-haller-half-elf-ranger.e6b86ea578dcb3115ccd.jpg",
+    "static/media/Sorcerer.jpg": "/static/media/Sorcerer.b510cf1d65ccc3523c24.jpg",
+    "static/media/Paladin.jpg": "/static/media/Paladin.607375f57b2afc9d3909.jpg",
+    "static/media/giphy.gif": "/static/media/giphy.ade3a96f2d157e3cca8a.gif",
+    "static/media/ded.webp": "/static/media/ded.f1c85b49fa373e45b466.webp",
+    "static/media/Ficha.webp": "/static/media/Ficha.954cf82391af1b8bb7f0.webp",
+    "static/media/anota.jpg": "/static/media/anota.ca8942bb63ac2e44f545.jpg",
+    "static/media/Nota.png": "/static/media/Nota.a0016f1621c05d7cef9b.png",
+    "index.html": "/index.html",
+    "main.556946db.css.map": "/static/css/main.556946db.css.map",
+    "main.2c9900a4.js.map": "/static/js/main.2c9900a4.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.556946db.css",
+    "static/js/main.2c9900a4.js"
+  ]
+}
