@@ -4,7 +4,10 @@ import { app } from "APIs/firebaseConfig"; // Importe a instância do aplicativo
 import { getAuth } from "firebase/auth";
 
 export const deleteArrayLivro = async (livroId) => {
-    const livrosRef = app.database().ref("books");
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const userID = user.uid;
+    const livrosRef = app.database().ref(`books/${userID}`);
     console.log("livrosRef", livrosRef.toString());
 
     const livrosExcluirRef = livrosRef.child(livroId);

@@ -94,7 +94,10 @@
   margin-top: 10px;
 }
 
-
+iframe {
+  width: 560px;
+  height: 315px;
+}
 
 @media screen and (max-width: 1550px) {
   .fundo {
@@ -103,6 +106,10 @@
   .homePage {
     padding: 20px;
   }
+  .painel {
+    width: auto;
+  }
+  
   /* Adicione outros estilos específicos para essa resolução aqui */
 }
 
@@ -121,7 +128,27 @@
     gap: 5px; /* Ajuste o espaço entre os elementos conforme necessário */
   }
 
+  iframe {
+    width: 250px;
+    height: 141px;
+  }
 
+  .botaoLink {
+    display: flex;
+  }
   
   /* Adicione outros estilos específicos para essa resolução aqui */
+}
+
+@media screen and (max-width: 320px) {
+  .botaoLink {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .painel {
+    margin: 0;
+    padding: 20px;
+  }
 }

@@ -9,19 +9,37 @@ export const useBookContext = () => useContext(BookContext);
 
 export const BookProvider = ({ children }) => {
   const [books, setBooks] = useState([]);
+  const [userID, setUserID] = useState(null);
+
 
   useEffect(() => {
-    const booksRef = app.database().ref("books");
-    booksRef.on("value", (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        setBooks(Object.values(data));
+    const auth = getAuth();
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUserID(user.uid);
+      } else {
+        setUserID(null);
       }
     });
   }, []);
 
+  useEffect(() => {
+    if (userID) {
+      const foldersRef = app.database().ref(`books/${userID}`);
+      foldersRef.on("value", (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          setBooks(Object.values(data));
+        }
+      });
+    }
+  }, [userID]);
+
   const addBook = async (newBook) => {
-    const booksRef = app.database().ref("books");
+    const auth = getAuth();
+    const user = auth.currentUser;
+    const userID = user.uid;
+    const booksRef = app.database().ref(`books/${userID}`);
     const newBookRef = booksRef.push();
     const newBookId = newBookRef.key;
     await newBookRef.set({

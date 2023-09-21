@@ -56,7 +56,7 @@ export default function Inicio() {
             </div>
           </div>
         ) : (
-          <div className={styles.naoAutenticado}>
+          <div className={styles.responsiveContainer}>
             <div>
               <div className={styles.fundoEscuro}></div>
 
@@ -67,12 +67,13 @@ export default function Inicio() {
                 >
                   Seja bem-Vindo
                 </Typography>
-                <iframe
-                  width="560"
-                  height="315"
-                  src="https://www.youtube.com/embed/lRb5rnWd_Xc?si=7f-b6SULaUMct2yp"
-                  title="YouTube video player"
-                ></iframe>
+                <div className={styles.iframeStyle}>
+                  <iframe
+                    src="https://www.youtube.com/embed/lRb5rnWd_Xc?si=7f-b6SULaUMct2yp"
+                    title="YouTube video player"
+                    allowFullScreen
+                  ></iframe>
+                </div>
                 <div className={styles.textoExplicativo}>
                   <p>
                     Bem-vindo ao RPG Organizer! Esta plataforma foi criada para
@@ -84,16 +85,18 @@ export default function Inicio() {
                     organizada e envolvente!
                   </p>
                 </div>
-                <Link to={"/login"}>
-                  <Button variant="contained" color="primary">
-                    Fazer o Login
-                  </Button>
-                </Link>
-                <Link to={"/Registrar-se"} style={{ margin: "0 20px" }}>
-                  <Button variant="contained" color="primary">
-                    Fazer o Registro
-                  </Button>
-                </Link>
+                <div className={styles.botaoLink}>
+                  <Link to={"/login"} style={{ marginBottom: "20px" }}>
+                    <Button variant="contained" color="primary">
+                      Fazer o Login
+                    </Button>
+                  </Link>
+                  <Link to={"/Registrar-se"} style={{ margin: "0 20px" }}>
+                    <Button variant="contained" color="primary">
+                      Fazer o Registro
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
