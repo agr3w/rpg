@@ -70,7 +70,7 @@ export default function Inicio() {
                 <iframe
                   width="560"
                   height="315"
-                  src="https://www.youtube.com/embed/yjy1dBc2lbc?si=7Pd4-EdQGeugnfuJ"
+                  src="https://www.youtube.com/embed/lRb5rnWd_Xc?si=7f-b6SULaUMct2yp"
                   title="YouTube video player"
                 ></iframe>
                 <div className={styles.textoExplicativo}>
