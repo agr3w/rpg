@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.1cace54a.css",
-    "main.js": "/static/js/main.2e1e689f.js",
+    "main.css": "/static/css/main.f7356064.css",
+    "main.js": "/static/js/main.b004cbc4.js",
     "static/media/cleric.jpg": "/static/media/cleric.fa435b6e059839ac1703.jpg",
     "static/media/Monk.jpg": "/static/media/Monk.9a25deb40fc233ea4eea.jpg",
     "static/media/bard.jpg": "/static/media/bard.3beb19814604919cf8cc.jpg",
@@ -13,19 +13,19 @@
     "static/media/Barbarian.jpg": "/static/media/Barbarian.38edfd8ce55f7cb416ed.jpg",
     "static/media/1306600.jpg": "/static/media/1306600.8096cb1da6a6cd106ef4.jpg",
     "static/media/theresa-konigseder-haller-half-elf-ranger.jpg": "/static/media/theresa-konigseder-haller-half-elf-ranger.e6b86ea578dcb3115ccd.jpg",
+    "static/media/livroDragao.png": "/static/media/livroDragao.efbbea9cf76a5eef4ae1.png",
     "static/media/Sorcerer.jpg": "/static/media/Sorcerer.b510cf1d65ccc3523c24.jpg",
     "static/media/Paladin.jpg": "/static/media/Paladin.607375f57b2afc9d3909.jpg",
-    "static/media/giphy.gif": "/static/media/giphy.ade3a96f2d157e3cca8a.gif",
-    "static/media/ded.webp": "/static/media/ded.f1c85b49fa373e45b466.webp",
-    "static/media/Ficha.webp": "/static/media/Ficha.954cf82391af1b8bb7f0.webp",
-    "static/media/anota.jpg": "/static/media/anota.ca8942bb63ac2e44f545.jpg",
-    "static/media/Nota.png": "/static/media/Nota.a0016f1621c05d7cef9b.png",
+    "static/media/tumblr_okx6d5BR4K1rnbw6mo1_540.webp": "/static/media/tumblr_okx6d5BR4K1rnbw6mo1_540.2e6938d8601843757456.webp",
+    "static/media/Caderno.png": "/static/media/Caderno.53eadf7c4702f420dbf2.png",
+    "static/media/fichanova.png": "/static/media/fichanova.e5ecfbbec71d09281d5d.png",
+    "static/media/notanova.png": "/static/media/notanova.74bfb3157b0d36a1ebaa.png",
     "index.html": "/index.html",
-    "main.1cace54a.css.map": "/static/css/main.1cace54a.css.map",
-    "main.2e1e689f.js.map": "/static/js/main.2e1e689f.js.map"
+    "main.f7356064.css.map": "/static/css/main.f7356064.css.map",
+    "main.b004cbc4.js.map": "/static/js/main.b004cbc4.js.map"
   },
   "entrypoints": [
-    "static/css/main.1cace54a.css",
-    "static/js/main.2e1e689f.js"
+    "static/css/main.f7356064.css",
+    "static/js/main.b004cbc4.js"
   ]
 }
