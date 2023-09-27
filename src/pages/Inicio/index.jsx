@@ -1,11 +1,11 @@
 // Inicio.js
 import React, { useEffect, useState } from "react";
 import styles from "./inicio.module.css";
+import styleFundo from "pages/FichaDetalhes/fichaDetalhe.module.css";
 import LivrosCard from "components/Cards/livors";
 import AnotacoesCard from "components/Cards/anotacoes";
 import MusicasCard from "components/Cards/musicas";
 import Nav from "components/nav";
-import img from "./Nota.png";
 import FichaCard from "components/Cards/ficha";
 import { Button, Typography } from "@mui/material";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
@@ -43,7 +43,7 @@ export default function Inicio() {
                   <AnotacoesCard />
                 </div>
                 <div className={`card ${styles.card}`}>
-                  <MusicasCard imageUrl={img} />
+                  <MusicasCard />
                 </div>
               </div>
               <div className={`card ${styles.card} ${styles.rightColumn}`}>
@@ -54,6 +54,15 @@ export default function Inicio() {
               </div>
               <div className={styles.blurred_bg}></div>
             </div>
+            <Typography className={styleFundo.support}>
+              BackGround Art By:{" "}
+              <Link
+                to="https://waneella.tumblr.com/post/156858332747/preparing-pixel-art-video-backgrounds-for"
+                className={styleFundo.supportLink}
+              >
+                Waneella Pixel Art
+              </Link>
+            </Typography>
           </div>
         ) : (
           <div className={styles.responsiveContainer}>

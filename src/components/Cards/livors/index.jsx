@@ -1,8 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { FaBook } from "react-icons/fa"; // Ícone de livros
-import styles from "./livrosCard.module.css"; // Estilos do card
-import img from "./ded.webp";
+import styles from "../cards.module.css"; // Estilos do card
+import img from "./livroDragao.png";
 
 const LivrosCard = () => {
   return (

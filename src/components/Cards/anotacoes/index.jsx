@@ -1,8 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { TfiMarkerAlt } from "react-icons/tfi"; // Ícone de livros
-import styles from "./anotacoes.module.css"; // Estilos do card
-import img from "./anota.jpg"
+import styles from "../cards.module.css"; // Estilos do card
+import img from "./Caderno.png"
 
 const AnotacoesCard = () => {
   return (
