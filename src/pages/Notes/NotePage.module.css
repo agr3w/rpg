@@ -12,8 +12,12 @@
 }
 
 .notePage {
-  max-width: 1920px; /* Set the desired maximum width for the page */
+  min-width: auto; /* Set the desired maximum width for the page */
   margin: 0 auto; /* Center align the content within the page */
+  background-image: url(FundoAnotacoes.webp);
+  background-size: cover;
+  min-height: 1080px;
+  max-height: 2550px;
 }
 
 /* Add this to make the folderCard and noteList sections wrap when the width is limited */

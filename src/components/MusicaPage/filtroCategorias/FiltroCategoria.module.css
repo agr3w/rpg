@@ -19,8 +19,8 @@
   
   .select:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    border-color: #737878;
+    box-shadow: 0 0 0 3px #73787833;
   }
   
   /* Additional styles for Material UI integration */

@@ -14,7 +14,16 @@ const BotaoAdicionarLivro = () => {
   const handleArquivoChange = (e) => {
     const arquivo = e.target.files[0];
     if (arquivo) {
-      setBooks(arquivo);
+      // Verificar se o arquivo é PDF
+      if (arquivo.type !== "application/pdf") {
+        // Mostrar alerta se não for um arquivo PDF
+        alert("Por favor, selecione apenas arquivos PDF.");
+        // Limpar o campo de arquivo
+        e.target.value = null;
+        setBooks(null);
+      } else {
+        setBooks(arquivo);
+      }
     } else {
       setBooks(null);
     }
@@ -63,7 +72,7 @@ const BotaoAdicionarLivro = () => {
         </span>
         <input
           type="file"
-          accept="application/pdf"
+          accept=".pdf"
           onChange={handleArquivoChange}
           className={styles.fileInput}
         />

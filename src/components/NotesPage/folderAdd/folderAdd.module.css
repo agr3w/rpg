@@ -16,7 +16,7 @@
   background-color: #f5f5f5;
   padding: 20px;
   border-radius: 5px;
-  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 5px rgb(92 104 102)
 }
 
 .folderAdd input[type="text"] {
@@ -27,7 +27,7 @@
 }
 
 .folderAdd button {
-  background-color: var(--background-button);
+  background-color: #646c88;
   color: #fff;
   border: none;
   padding: 10px 15px;

@@ -23,7 +23,7 @@ const MusicaCard = ({ musica, nomeArquivoAudio, nomeArquivoImagem }) => {
   };
 
   return (
-    <Card className={styles.musicaCard}>
+    <Card className={styles.musicaCard} style={{backgroundColor: "rgb(203 205 205)"}}>
       <div className={styles.imageContainer}>
         <CardMedia
           component="img"
@@ -66,7 +66,7 @@ const MusicaCard = ({ musica, nomeArquivoAudio, nomeArquivoImagem }) => {
         <Button
           onClick={handleDeletarArray}
           variant="contained"
-          color="error"
+          color="secondary"
           className={styles.deleteButton}
           startIcon={<FaTrash size={16} />}
         >

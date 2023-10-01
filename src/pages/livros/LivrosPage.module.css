@@ -1,11 +1,16 @@
 /* LivrosPage.module.css */
 
 .livrosPage {
-  margin: 0 auto;
-  max-width: 1920px;
+  margin: 0 auto; /* Center align the content within the page */
+  background-image: url(./backgroundLivros.webp);
+  background-position: bottom;
+  background-size: cover;
+  min-height: 1080px;
+  max-height: 2550px;
 }
 
 .livrosList {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 }
+

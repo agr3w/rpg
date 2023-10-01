@@ -7,8 +7,11 @@ body {
 }
 
 .musicasPage {
-  max-width: 1920px;
-  margin: 0 auto;
+  margin: 0 auto; /* Center align the content within the page */
+  background-image: url(./FundoMusicas.webp);
+  background-size: cover;
+  min-height: 1080px;
+  max-height: 2550px;
 }
 
 .musicasList {

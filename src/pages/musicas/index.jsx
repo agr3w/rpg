@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import styles from "./MusicasPage.module.css";
+import styleFundo from "pages/FichaDetalhes/fichaDetalhe.module.css";
 import BotaoAdicionarMusica from "components/MusicaPage/botaoAddMusica";
 import MusicaCard from "components/MusicaPage/musicaCard";
 import { useMusicContext } from "APIs/MusicContext";
 import FiltroCategoria from "components/MusicaPage/filtroCategorias";
 import Nav from "components/nav";
+import { Typography } from "@mui/material";
+import { Link } from "react-router-dom";
 
 const MusicasPage = () => {
   const { musicas, adicionarMusica } = useMusicContext();
@@ -43,6 +46,15 @@ const MusicasPage = () => {
               />
             ))}
           </div>
+          <Typography className={styleFundo.support} >
+            BackGround Art By:{" "}
+            <Link
+              to="https://waneella.tumblr.com/post/157664690747/details-here"
+              className={styleFundo.supportLink}
+            >
+              Waneella Pixel Art
+            </Link>
+          </Typography>
         </div>
       </div>
     </>

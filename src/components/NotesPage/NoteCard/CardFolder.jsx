@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "./NoteCard.module.css";
+import imgNote from "../NoteCard/IconeNote.png"
 import {
   deleteArrayNoteFromFolder,
   deleteNoteFolder,
@@ -19,7 +20,7 @@ const NoteCardFolder = ({ note, folderId }) => {
       <div className={styles.link_img}>
         <Link to={note.url}>
           <img
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/PDF_file_icon.svg/833px-PDF_file_icon.svg.png"
+            src={imgNote}
             alt=""
             width={100}
           />

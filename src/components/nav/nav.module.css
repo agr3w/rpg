@@ -2,7 +2,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #333;
+    background-color: #8b8f91de;
     color: white;
     padding: 20px 20px;
     font-family: Arial, Helvetica, sans-serif;
@@ -28,7 +28,7 @@
   .navLink:hover {
     transition: 0.3s;
     cursor: pointer;
-    color: #ff9900;
+    color: #DFD6CD;
     text-decoration: underline;
   }
   

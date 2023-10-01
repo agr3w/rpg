@@ -1,8 +1,10 @@
 import React from "react";
-import { FaTrash, FaFileImage } from "react-icons/fa"; // Importe o ícone desejado
+import { FaTrash } from "react-icons/fa"; // Importe o ícone desejado
+import imgNote from "./IconeLivro.png";
 import styles from "./livroCard.module.css";
 import { deletarLivro, deleteArrayLivro } from "../livroDelete/Deletarlivro";
 import { Link } from "react-router-dom";
+import { Button } from "@mui/material";
 
 const LivroCard = ({ livro }) => {
   const handleDeletarLivro = () => {
@@ -14,12 +16,23 @@ const LivroCard = ({ livro }) => {
   return (
     <div className={`${styles.livroCard} ${styles.cardWithLink}`}>
       <p>Título: {livro.titulo}</p>
-      <Link to={livro.urlDoArquivo} className={styles.Link} target="_blank" rel="noopener noreferrer">
-        <FaFileImage size={104} />
-      </Link>
-      <button onClick={handleDeletarLivro}>
+      <div className={styles.imgLink}>
+        <Link
+          to={livro.urlDoArquivo}
+          className={styles.Link}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img src={imgNote} alt="" width={100} />
+        </Link>
+      </div>
+      <Button
+        onClick={handleDeletarLivro}
+        color="secondary"
+        variant="contained"
+      >
         <FaTrash size={16} /> Deletar Livro
-      </button>
+      </Button>
     </div>
   );
 };
