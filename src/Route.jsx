@@ -11,6 +11,7 @@ import FichaDetalhes from "pages/FichaDetalhes";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Login from "pages/login";
 import Register from "pages/Regsiter";
+import MapasPage from "pages/MapasPage";
 
 function Rout() {
   const [usuarioAutenticado, setUsuarioAutenticado] = useState(null);
@@ -50,6 +51,7 @@ function Rout() {
             <Route path="/fichas" element={<FichaPage />} />
             <Route path="/criar-ficha" element={<FichaCriar />} />
             <Route path="/ficha-completa/:ID" element={<FichaDetalhes />} />
+            <Route path="/mapas" element={<MapasPage />} />
           </>
         )}
       </Routes>
