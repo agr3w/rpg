@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.58dc77b9.css",
-    "main.js": "/static/js/main.667fbeff.js",
+    "main.css": "/static/css/main.168f23c0.css",
+    "main.js": "/static/js/main.00dcc5d7.js",
     "static/media/cleric.jpg": "/static/media/cleric.fa435b6e059839ac1703.jpg",
     "static/media/Monk.jpg": "/static/media/Monk.9a25deb40fc233ea4eea.jpg",
     "static/media/bard.jpg": "/static/media/bard.3beb19814604919cf8cc.jpg",
@@ -12,6 +12,7 @@
     "static/media/Druid.jpg": "/static/media/Druid.ef0401ec8bcb05e2ca31.jpg",
     "static/media/Barbarian.jpg": "/static/media/Barbarian.38edfd8ce55f7cb416ed.jpg",
     "static/media/1306600.jpg": "/static/media/1306600.8096cb1da6a6cd106ef4.jpg",
+    "static/media/MapsIcon.png": "/static/media/MapsIcon.1531e0ce4057dd65e842.png",
     "static/media/theresa-konigseder-haller-half-elf-ranger.jpg": "/static/media/theresa-konigseder-haller-half-elf-ranger.e6b86ea578dcb3115ccd.jpg",
     "static/media/livroDragao.png": "/static/media/livroDragao.efbbea9cf76a5eef4ae1.png",
     "static/media/Sorcerer.jpg": "/static/media/Sorcerer.b510cf1d65ccc3523c24.jpg",
@@ -20,17 +21,23 @@
     "static/media/IconeLivro.png": "/static/media/IconeLivro.faf6456f86942e1a1d44.png",
     "static/media/Caderno.png": "/static/media/Caderno.53eadf7c4702f420dbf2.png",
     "static/media/IconeNote.png": "/static/media/IconeNote.3e4db21f652aa04387ca.png",
+    "static/media/Castle.gif": "/static/media/Castle.9495ecc713ac427c399e.gif",
     "static/media/fichanova.png": "/static/media/fichanova.e5ecfbbec71d09281d5d.png",
     "static/media/notanova.png": "/static/media/notanova.74bfb3157b0d36a1ebaa.png",
+    "static/media/Czepekuy.jpg": "/static/media/Czepekuy.d9c898e048d8dab3a0ec.jpg",
+    "static/media/2mtt.jpg": "/static/media/2mtt.8b5c9cd6f8d779fb24c6.jpg",
+    "static/media/Battlemps.png": "/static/media/Battlemps.a9727282b8224449492d.png",
     "static/media/FundoAnotacoes.webp": "/static/media/FundoAnotacoes.73933a644ecee86e2378.webp",
+    "static/media/D&D maps.jpg": "/static/media/D&D maps.2c6225f1e3acf3489497.jpg",
     "static/media/FundoMusicas.webp": "/static/media/FundoMusicas.1c989e46999ff2a0bab3.webp",
     "static/media/backgroundLivros.webp": "/static/media/backgroundLivros.1150e7eaeb0b936b3429.webp",
+    "static/media/Wata.webp": "/static/media/Wata.bc561c501da5dac8292e.webp",
     "index.html": "/index.html",
-    "main.58dc77b9.css.map": "/static/css/main.58dc77b9.css.map",
-    "main.667fbeff.js.map": "/static/js/main.667fbeff.js.map"
+    "main.168f23c0.css.map": "/static/css/main.168f23c0.css.map",
+    "main.00dcc5d7.js.map": "/static/js/main.00dcc5d7.js.map"
   },
   "entrypoints": [
-    "static/css/main.58dc77b9.css",
-    "static/js/main.667fbeff.js"
+    "static/css/main.168f23c0.css",
+    "static/js/main.00dcc5d7.js"
   ]
 }
