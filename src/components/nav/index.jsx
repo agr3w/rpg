@@ -46,26 +46,6 @@ const Nav = () => {
                 Início
               </NavLink>
             </li>
-            <li className={styles.navItem}>
-              <NavLink to="/anotacoes" className={styles.navLink}>
-                Anotações
-              </NavLink>
-            </li>
-            <li className={styles.navItem}>
-              <NavLink to="/livros" className={styles.navLink}>
-                Livros
-              </NavLink>
-            </li>
-            <li className={styles.navItem}>
-              <NavLink to="/musicas" className={styles.navLink}>
-                Músicas
-              </NavLink>
-            </li>
-            <li className={styles.navItem}>
-              <NavLink to="/Fichas" className={styles.navLink}>
-                Fichas
-              </NavLink>
-            </li>
             <li className={styles.navLink} onClick={handleSupportClick}>
               Suporte
             </li>

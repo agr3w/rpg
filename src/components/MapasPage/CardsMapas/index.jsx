@@ -16,7 +16,7 @@ const getIconByNome = (nome) => {
     case "Reddit":
       return <RedditIcon />;
     default:
-      return <AiOutlineGlobal size={18}/>;
+      return <AiOutlineGlobal size={18} />;
   }
 };
 
@@ -24,29 +24,29 @@ const MapaCard = ({ titulo, imagem, link, icone }) => {
   const Icone = getIconByNome(icone);
 
   return (
-    <Card
-      className={styles.card}
-      style={{ backgroundColor: "rgb(128 148 152)", borderRadius: "8px" }}
-    >
-      <CardMedia component="img" alt={titulo} height="140" image={imagem} />
-      <CardContent>
-        <div className={styles.cardContent}>
-          {Icone && <div className={styles.icon}>{Icone}</div>}
-          <Typography variant="h5" component="div">
-            {titulo}
-          </Typography>
-        </div>
-        <Button
-          variant="contained"
-          color="primary"
-          href={link}
-          target="_blank"
-          style={{ marginTop: "10px" }}
-        >
-          Abrir Mapa
-        </Button>
-      </CardContent>
-    </Card>
+      <Card
+        className={styles.card}
+        style={{ backgroundColor: "rgb(128 148 152)", borderRadius: "8px" }}
+      >
+        <CardMedia component="img" alt={titulo} height="140" image={imagem} />
+        <CardContent>
+          <div className={styles.cardContent}>
+            {Icone && <div className={styles.icon}>{Icone}</div>}
+            <Typography variant="h5" component="div">
+              {titulo}
+            </Typography>
+          </div>
+          <Button
+            variant="contained"
+            color="primary"
+            href={link}
+            target="_blank"
+            style={{ marginTop: "10px" }}
+          >
+            Abrir Mapa
+          </Button>
+        </CardContent>
+      </Card>
   );
 };
 

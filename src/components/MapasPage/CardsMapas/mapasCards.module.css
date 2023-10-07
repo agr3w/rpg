@@ -1,6 +1,6 @@
 /* mapasCards.module.css */
+
 .card {
-  min-width: auto;
   width: 300px;
   margin: 10px;
   display: inline-block;
@@ -14,4 +14,12 @@
 
 .icon {
   margin-right: 10px;
+}
+@media screen and (max-width: 425px) {
+  .card {
+    max-width: 600px;
+    width: auto;
+    display: flex;
+    flex-direction: column;
+  }
 }
