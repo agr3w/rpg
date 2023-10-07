@@ -43,7 +43,7 @@ const MapaCard = ({ titulo, imagem, link, icone }) => {
             target="_blank"
             style={{ marginTop: "10px" }}
           >
-            Abrir Mapa
+            Ver Mapas
           </Button>
         </CardContent>
       </Card>

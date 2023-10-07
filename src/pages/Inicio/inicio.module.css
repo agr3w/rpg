@@ -128,11 +128,17 @@ iframe {
     padding: 10px; /* Ajuste o preenchimento conforme necessário */
   }
 
+  .grid {
+    display: flex;
+    flex-direction: column;
+  }
+
   .card {
     margin-bottom: 10px; /* Ajuste a margem conforme necessário */
   }
 
   .homePage {
+    display: flex;
     flex-direction: column; /* Altere o layout para empilhado verticalmente */
     gap: 5px; /* Ajuste o espaço entre os elementos conforme necessário */
   }
