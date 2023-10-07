@@ -12,6 +12,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { app } from "APIs/firebaseConfig";
 import { Link } from "react-router-dom";
 import Loading from "components/Loading";
+import MapsCard from "components/Cards/maps/indsx";
 
 export default function Inicio() {
   const [usuarioAutenticado, setUsuarioAutenticado] = useState(null);
@@ -47,10 +48,15 @@ export default function Inicio() {
                 </div>
               </div>
               <div className={`card ${styles.card} ${styles.rightColumn}`}>
-                <LivrosCard />
+                <MapsCard />
               </div>
-              <div className={`card ${styles.card} ${styles.rightColumn}`}>
-                <FichaCard />
+              <div className={styles.grid}>
+                <div className={`card ${styles.card} ${styles.rightColumn}`}>
+                  <LivrosCard />
+                </div>
+                <div className={`card ${styles.card} ${styles.rightColumn}`}>
+                  <FichaCard />
+                </div>
               </div>
               <div className={styles.blurred_bg}></div>
             </div>
