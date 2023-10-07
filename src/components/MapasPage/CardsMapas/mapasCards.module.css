@@ -1,0 +1,17 @@
+/* mapasCards.module.css */
+.card {
+  min-width: auto;
+  width: 300px;
+  margin: 10px;
+  display: inline-block;
+  border: 1px solid #829698;
+}
+
+.cardContent {
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  margin-right: 10px;
+}

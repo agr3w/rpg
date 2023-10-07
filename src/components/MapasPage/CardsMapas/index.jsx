@@ -1,5 +1,5 @@
-// Importe o ícone do Material-UI correspondente ao nome
-import RedditIcon from "@mui/icons-material/Reddit";
+// MapaCard.js
+import React from "react";
 import {
   Button,
   Card,
@@ -7,14 +7,16 @@ import {
   CardMedia,
   Typography,
 } from "@mui/material";
+import RedditIcon from "@mui/icons-material/Reddit";
+import { AiOutlineGlobal } from "react-icons/ai";
+import styles from "./mapasCards.module.css";
 
 const getIconByNome = (nome) => {
   switch (nome) {
     case "Reddit":
       return <RedditIcon />;
-    // Adicione mais casos conforme necessário
     default:
-      return null;
+      return <AiOutlineGlobal size={18}/>;
   }
 };
 
@@ -22,16 +24,25 @@ const MapaCard = ({ titulo, imagem, link, icone }) => {
   const Icone = getIconByNome(icone);
 
   return (
-    <Card style={{ width: "300px", margin: "10px", display: "inline-block" }}>
+    <Card
+      className={styles.card}
+      style={{ backgroundColor: "rgb(128 148 152)", borderRadius: "8px" }}
+    >
       <CardMedia component="img" alt={titulo} height="140" image={imagem} />
       <CardContent>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          {Icone && <div style={{ marginRight: "10px" }}>{Icone}</div>}
+        <div className={styles.cardContent}>
+          {Icone && <div className={styles.icon}>{Icone}</div>}
           <Typography variant="h5" component="div">
             {titulo}
           </Typography>
         </div>
-        <Button variant="contained" color="primary" href={link} target="_blank">
+        <Button
+          variant="contained"
+          color="primary"
+          href={link}
+          target="_blank"
+          style={{ marginTop: "10px" }}
+        >
           Abrir Mapa
         </Button>
       </CardContent>
