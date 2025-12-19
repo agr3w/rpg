@@ -9,6 +9,7 @@ import FichaPage from "pages/FichaCompleta/fichaCompleta";
 import FichaCriar from "pages/FichaPage";
 import FichaDetalhes from "pages/FichaDetalhes";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebaseConfig";
 import Login from "pages/login";
 import Register from "pages/Regsiter";
 import MapasPage from "pages/MapasPage";

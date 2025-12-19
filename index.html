@@ -1,33 +1,37 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Site de suporte para mestres de RPG, principalmente D&D"
-    />
-    <title>RPG Organizer</title>
+<html lang="pt-BR">
 
-    <style media="screen">
-      body {
-        background: #eceff1;
-        color: rgba(0, 0, 0, 0.87);
-        font-family: Roboto, Helvetica, Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-      }
-    </style>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="/favicon.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Site de suporte para mestres de RPG" />
+  <title>RPG Organizer</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Roboto, sans-serif;
+      background: #eceff1;
+    }
+  </style>
+</head>
 
-    <!-- comentar -->
+<body>
+  <div id="root"></div>
 
-    <!-- <script src="/static/js/bundle.js"></script>
+  <!-- <script defer src="/__/firebase/10.4.0/firebase-app-compat.js"></script>
+  <script defer src="/__/firebase/10.4.0/firebase-auth-compat.js"></script>
+  <script defer src="/__/firebase/10.4.0/firebase-firestore-compat.js"></script> -->
+  <script type="module" src="/src/index.jsx"></script>
+</body>
+
+</html>
+
+<!-- comentar -->
+
+<!-- <script src="/static/js/bundle.js"></script>
     <script src="/static/js/0.chunk.js"></script>
     <script src="/static/js/main.chunk.js"></script>
 
@@ -78,5 +82,6 @@
         }
       });
     </script> -->
-  </body>
+</body>
+
 </html>

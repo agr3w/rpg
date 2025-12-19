@@ -1,9 +1,12 @@
 import React, { useState } from "react";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebaseConfig";
 import { Button, TextField, Typography, IconButton } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import styles from "./RegisterComponent.module.css";
 import { Link } from "react-router-dom";
+
+const emailIsValid = (email) => /\S+@\S+\.\S+/.test(email);
 
 const RegisterComponent = () => {
   const [email, setEmail] = useState("");
@@ -32,10 +35,16 @@ const RegisterComponent = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
+    const cleanedEmail = email.trim();
+    if (!emailIsValid(cleanedEmail)) {
+      setError("Email inválido");
+      return;
+    }
+
     if (!passwordValid) {
       setError(
-        "Password must be at least 8 characters long and contain at least one number."
+        "A senha deve ter pelo menos 8 caracteres e conter pelo menos um número."
       );
       return;
     }
@@ -45,19 +54,17 @@ const RegisterComponent = () => {
       return;
     }
 
-    // TODO: Add email format validation if needed
-
-    const auth = getAuth();
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // const user = userCredential.user;
-        // console.log("User registered:", user);
-        setError(""); // Reset error message
-      })
-      .catch((error) => {
-        console.error("Error during registration:", error);
-        setError("Error during registration. Please try again.");
+    try {
+      console.log("register payload:", {
+        email: cleanedEmail,
+        passwordLength: password.length,
       });
+      await createUserWithEmailAndPassword(auth, cleanedEmail, password);
+      setError("");
+    } catch (err) {
+      console.error("Error during registration:", err);
+      setError(err.message || "Erro durante o registro.");
+    }
   };
 
   return (

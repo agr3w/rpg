@@ -1,7 +1,7 @@
 // MusicContext.js
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
-import { app } from "../APIs/firebaseConfig"; // Importar a instância do aplicativo Firebase
+import { app } from "./firebaseConfig"; // Importar a instância do aplicativo Firebase
 import { getStorage, ref, getDownloadURL, uploadBytes } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 

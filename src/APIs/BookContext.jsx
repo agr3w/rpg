@@ -1,6 +1,6 @@
 // BookContext.js
 import { createContext, useContext, useState, useEffect } from "react";
-import { app } from "../APIs/firebaseConfig"; // Import your Firebase app instance
+import { app } from "./firebaseConfig"; // Import your Firebase app instance
 import { getAuth } from "firebase/auth";
 
 const BookContext = createContext();

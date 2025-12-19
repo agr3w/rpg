@@ -1,10 +1,15 @@
 import React, { useState } from "react";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { app } from "APIs/firebaseConfig";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
+import { auth } from "../../firebaseConfig";
 import { Link } from "react-router-dom";
 import { Button, IconButton, TextField, Typography } from "@mui/material";
 import styles from "./AuthComponent.module.css";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+
+const emailIsValid = (email) => /\S+@\S+\.\S+/.test(email);
 
 const AuthComponent = () => {
   const [email, setEmail] = useState("");
@@ -12,25 +17,48 @@ const AuthComponent = () => {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSignIn = () => {
-    const auth = getAuth(app);
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // const user = userCredential.user;
-        // console.log("User signed in:", user);
-        setError(""); // Reset error message on successful sign-in
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        if (errorCode === "auth/user-not-found") {
-          setError("Usuário não encontrado. Verifique o email.");
-        } else if (errorCode === "auth/wrong-password") {
-          setError("Senha incorreta. Tente novamente.");
-        } else {
-          setError("Ocorreu um erro ao fazer login. Tente novamente.");
-        }
-      });
+  const handleSignIn = async (e) => {
+    e.preventDefault();
+    const cleanedEmail = email.trim();
+    if (!emailIsValid(cleanedEmail)) {
+      setError("Email inválido");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Senha precisa ter ao menos 6 caracteres");
+      return;
+    }
+    try {
+      console.log("signin payload:", { email: cleanedEmail, passwordLength: password.length });
+      await signInWithEmailAndPassword(auth, cleanedEmail, password);
+    } catch (err) {
+      console.error("Erro ao logar:", err);
+      setError(err.message);
+      alert(err.message);
+    }
   };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    const cleanedEmail = email.trim();
+    if (!emailIsValid(cleanedEmail)) {
+      setError("Email inválido");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Senha precisa ter ao menos 6 caracteres");
+      return;
+    }
+    try {
+      console.log("register payload:", { email: cleanedEmail, passwordLength: password.length });
+      await createUserWithEmailAndPassword(auth, cleanedEmail, password);
+    } catch (err) {
+      console.error("Erro durante o registro:", err);
+      setError(err.message);
+      alert(err.message);
+    }
+  };
+
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -75,22 +103,20 @@ const AuthComponent = () => {
           {error}
         </Typography>
       )}
-      <Button
-        variant="contained"
-        onClick={handleSignIn}
-        className={styles.signInButton}
-        style={{ marginTop: "0", marginBottom: "10px" }}
-      >
+      <Button type="button" variant="contained" onClick={handleSignIn} className={styles.signInButton} style={{ marginTop: "0", marginBottom: "10px" }}>
         Entrar
+      </Button>
+      <Button type="button" variant="outlined" onClick={handleRegister} className={styles.registerButton} style={{ marginTop: "0", marginBottom: "10px" }}>
+        Registrar-se
       </Button>
       <Typography
         variant="body1"
         style={{ marginTop: "5px" }}
         className={styles.registerLink}
       >
-        Ainda não tem uma conta?{" "}
-        <Link to={"/Registrar-se"} className={styles.link}>
-          Registrar-se
+        Já tem uma conta?{" "}
+        <Link to={"/Login"} className={styles.link}>
+          Login
         </Link>
       </Typography>
     </div>

@@ -3,7 +3,7 @@ import styles from "./folderAdd.module.css";
 import { Button, TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
-const { useState } = require("react");
+import { useState } from "react";
 
 export const FolderAdd = () => {
   const { addFolder } = useFolderContext();

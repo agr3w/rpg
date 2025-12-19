@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { app } from "../APIs/firebaseConfig";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebaseConfig";
 
 const BookContext = createContext();
 
@@ -8,6 +10,7 @@ export const useBookContext = () => useContext(BookContext);
 
 export const BookProvider = ({ children }) => {
   const [livros, setLivros] = useState([]);
+  const [usuarioAutenticado, setUsuarioAutenticado] = useState(null);
 
   useEffect(() => {
     const livrosRef = app.firestore().collection("livros");
@@ -20,6 +23,14 @@ export const BookProvider = ({ children }) => {
       setLivros(data);
     });
 
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    // Verificar o estado de autenticação do usuário
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUsuarioAutenticado(user ? user : null);
+    });
     return () => unsubscribe();
   }, []);
 
@@ -39,6 +50,7 @@ export const BookProvider = ({ children }) => {
       value={{
         livros,
         adicionarLivro,
+        usuarioAutenticado,
         // ... outras funções
       }}
     >
