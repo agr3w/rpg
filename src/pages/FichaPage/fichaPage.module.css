@@ -1,5 +1,6 @@
 /* FichaPage.module.css */
 
+/*
 .espacamento {
   padding: 30px;
 }
@@ -58,7 +59,6 @@
   margin-left: 10px;
 }
 
-/* espacamentos */
 
 .espacamentoSelects {
   margin: 20px 0;
@@ -107,24 +107,22 @@
   margin-right: 20px;
   cursor: pointer;
   font-size: 18px;
-  transition: background-color 0.3s; /* Adicionando uma transição suave para a mudança de cor de fundo */
+  transition: background-color 0.3s; 
 }
 
 .button:hover {
   background-color: #0056b3;
 }
 
-/* Etapa 3 (classes) */
 
-/* painel das habilidades */
 .painelHabilidades {
   position: absolute;
-  top: 50px; /* Ajuste a posição vertical desejada em pixels */
-  left: 300px; /* Ajuste a posição horizontal desejada em pixels */
-  background-color: white; /* Cor de fundo do painel */
-  border: 1px solid #ccc; /* Borda do painel */
-  padding: 10px; /* Espaçamento interno do painel */
-  z-index: 1000; /* Defina um valor alto para z-index para ficar acima de outros elementos */
+  top: 50px; 
+  left: 300px;
+  background-color: white;
+  border: 1px solid #ccc; 
+  padding: 10px; 
+  z-index: 1000; 
 }
 
 @media screen and (max-width: 2220px) {
@@ -132,3 +130,5 @@
     position: inherit;
   }
 }
+
+*/

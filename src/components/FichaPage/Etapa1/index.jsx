@@ -1,22 +1,23 @@
-// Etapa1.js
-
 import React from "react";
-import styles from "pages/FichaPage/fichaPage.module.css";
 import { TextField } from "@mui/material";
+import LayoutFicha from "components/FichaLayout/LayoutFicha"; // Ajuste o import conforme sua pasta
 
 const Etapa1 = ({ nome, setNome }) => {
   return (
-    <div className={styles.etapaContainer}>
-      <h1 className={styles.h1}>Nome do personagem</h1>
-     <TextField
-        label="Nome do personagem"
+    <LayoutFicha title="Qual o nome da lenda?">
+      <TextField
+        label="Nome do Personagem"
         variant="outlined"
         fullWidth
-        className={styles.input}
         value={nome}
         onChange={(e) => setNome(e.target.value)}
+        helperText="Esse será o nome pelo qual você será conhecido."
+        sx={{
+            // Pequeno ajuste local se precisar, mas o ideal é o theme cuidar disso
+            backgroundColor: '#fff' 
+        }}
       />
-    </div>
+    </LayoutFicha>
   );
 };
 

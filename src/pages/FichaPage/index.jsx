@@ -27,9 +27,12 @@ import Etapa8 from "components/FichaPage/Etapa8";
 import Etapa9 from "components/FichaPage/Etapa9";
 import Etapa10 from "components/FichaPage/Etapa10";
 import Etapa3 from "components/FichaPage/Etapa3";
-import { Button, Typography } from "@mui/material";
+import { Button, Typography, Stepper, Step, StepLabel, Paper, Grid, Box } from "@mui/material";
 import { Link } from "react-router-dom";
 import { backgrounds } from "pages/FichaDetalhes/backgounds/arrayLinksBackgrounds";
+
+/* ADDED: framer-motion imports */
+import { AnimatePresence, motion } from "framer-motion";
 
 const FichaCriar = () => {
   const [nome, setNome] = useState("");
@@ -320,182 +323,242 @@ const FichaCriar = () => {
     }
   };
 
+  /* Add these animation configs (local to component) */
+  const pageVariants = {
+    initial: { opacity: 0, x: 40 },
+    in: { opacity: 1, x: 0 },
+    out: { opacity: 0, x: -40 },
+  };
+
+  const pageTransition = {
+    type: "tween",
+    duration: 0.25,
+  };
+
+  const steps = [
+    "Nome",
+    "Raça",
+    "Sub-Raça",
+    "Classe",
+    "Tendência",
+    "Antecedente",
+    "Detalhes",
+    "Traços",
+    "Riqueza",
+    "Atributos",
+  ];
+
   return (
     <div className={getClasseBackground(classe)}>
+      
       <div className={styles.espacamento}>
         <div className={styles.pageContainer}>
-          {etapa === 1 && <Etapa1 nome={nome} setNome={setNome} />}
-          {etapa === 2 && (
-            <Etapa2
-              raca={raca}
-              setRaca={setRaca}
-              racasOptions={racasOptions}
-              itensDaRaca={itensDaRaca}
-              racaSelecionada={racaSelecionada}
-              idiomaRacaSelecionado={idiomaRacaSelecionado}
-              setIdiomaRacaSelecionado={setIdiomaRacaSelecionado}
-              idiomaRacaSelecionado2={idiomaRacaSelecionado2}
-              setIdiomaRacaSelecionado2={setIdiomaRacaSelecionado2}
-              idiomaOption={idiomaOption}
-            />
-          )}
-          {etapa === 3 && (
-            <Etapa3
-              raca={raca}
-              SubRaca={SubRaca}
-              setSubRaca={setSubRaca}
-              racaSelecionada={racaSelecionada}
-              SubRacasOptions={SubRacasOptions}
-              detalhesSubRaca={detalhesSubRaca}
-              setDetalhesSubRaca={setDetalhesSubRaca}
-              idiomaOption={idiomaOption}
-              setIdiomaAltoElfoSelecioando={setIdiomaAltoElfoSelecioando}
-              IdiomaAltoElfo={IdiomaAltoElfo}
-              handleSubRacaChange={handleSubRacaChange}
-              Engenhocas={Engenhocas}
-              setEngenhocas={setEngenhocas}
-            />
-          )}
+          {/* Stepper + painel */}
+          <Paper elevation={4} sx={{ p: 2, mb: 2, backgroundColor: "background.paper" }}>
+            <Typography variant="h6" align="center" gutterBottom>
+              Criar Ficha
+            </Typography>
+            <Stepper activeStep={Math.max(0, etapa - 1)} alternativeLabel>
+              {steps.map((label) => (
+                <Step key={label}>
+                  <StepLabel>{label}</StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+          </Paper>
 
-          {etapa === 4 && (
-            <Etapa4
-              classe={classe}
-              setClasse={setClasse}
-              classesOptions={classesOptions}
-              itensDaClasse={itensDaClasse}
-              equipamentosClasseSelecionada1={equipamentosClasseSelecionada1}
-              setEquipamentoClasseSelecionado1={
-                setEquipamentoClasseSelecionado1
-              }
-              equipamentosClasseSelecionada2={equipamentosClasseSelecionada2}
-              setEquipamentoClasseSelecionado2={
-                setEquipamentoClasseSelecionado2
-              }
-              equipamentosClasseSelecionada3={equipamentosClasseSelecionada3}
-              setEquipamentoClasseSelecionado3={
-                setEquipamentoClasseSelecionado3
-              }
-              equipamentosClasseSelecionada4={equipamentosClasseSelecionada4}
-              setEquipamentoClasseSelecionado4={
-                setEquipamentoClasseSelecionado4
-              }
-              classeSelecioanda={classeSelecioanda}
-              periciasClasseSelecionadas={periciasClasseSelecionadas}
-              setPericiasSelecionadas={setPericiasSelecionadas}
-              setExibirPainelHabilidades={setExibirPainelHabilidades}
-              exibirPainelHabilidades={exibirPainelHabilidades}
-            />
-          )}
-          {etapa === 5 && (
-            <Etapa5
-              tendencia={tendencia}
-              setTendencia={setTendencia}
-              TendenciasOptions={TendenciasOptions}
-              itensDaTendencia={itensDaTendencia}
-            />
-          )}
-          {etapa === 6 && (
-            <Etapa6
-              antecedente={antecedente}
-              setAntecedente={setAntecedente}
-              antecedentesOptions={antecedentes.map((a) => a.nome)}
-              itensDaAntecedencia={itensDaAntecedencia}
-              idiomaDoAntecedente={idiomaDoAntecedente}
-              idiomaDoAntecendente2={idiomaDoAntecendente2}
-              setIdiomaAntecedente={setIdiomaAntecedente}
-              setIdiomaAntecendente2={setIdiomaAntecendente2}
-              idiomaOption={idiomaOption}
-            />
-          )}
-          {etapa === 7 && antecedenteSelecionado && (
-            <Etapa7
-              antecedente={antecedente}
-              antecedenteSelecionado={antecedenteSelecionado}
-              CarcDosAntecedentes1={CarcDosAntecedentes1}
-              setCarcDosAntecedents1={setCarcDosAntecedents1}
-              CarcDosAntecedentes2={CarcDosAntecedentes2}
-              setCarcDosAntecedentes2={setCarcDosAntecedentes2}
-              CarcDosAntecedentes3={CarcDosAntecedentes3}
-              setCarcDosAntecedents3={setCarcDosAntecedents3}
-            />
-          )}
-          {etapa === 8 && (
-            // continuar
-            <Etapa8
-              tracoPersonalidade={antecedenteSelecionado.tracoPersonalidade}
-              ideal={antecedenteSelecionado.ideal}
-              defeito={antecedenteSelecionado.defeito}
-              vinculo={antecedenteSelecionado.vinculo}
-              tracoPersonalidadeSelecionado={tracoPersonalidadeSelecionado}
-              idealSelecionado={idealSelecionado}
-              defeitoSelecionado={defeitoSelecionado}
-              vinculoSelecionado={vinculoSelecionado}
-              onSelecionarTracoPersonalidade={(e) =>
-                setTracoPersonalidadeSelecionado(e.target.value)
-              }
-              setTracoPersonalidadeSelecionado={
-                setTracoPersonalidadeSelecionado
-              }
-              onSelecionarIdeal={(e) => setIdealSelecionado(e.target.value)}
-              onSelecionarDefeito={(e) => setDefeitoSelecionado(e.target.value)}
-              onSelecionarVinculo={(e) => setVinculoSelecionado(e.target.value)}
-            />
-          )}
-          {etapa === 9 && (
-            <Etapa9
-              riquezaInicial={riquezaInicial}
-              setRiquezaInicial={setRiquezaInicial}
-              classeSelecionada={classe}
-              onRiquezaInicialCalculada={handleRiquezaInicialCalculada}
-            />
-          )}
-          {etapa === 10 && (
-            <Etapa10
-              racaSelecionada={racaSelecionada}
-              valoresHabilidade={valoresHabilidade}
-              setValoresHabilidade={setValoresHabilidade}
-              SubRaca={SubRaca}
-              detalhesSubRaca={detalhesSubRaca}
-            />
-          )}
-          {etapa < 11 ? (
-            <Button
-              variant="contained"
-              color="primary"
-              className={styles.button}
-              onClick={handleNext}
-              disabled={!checkRequiredFields()}
+          {/* Animated steps */}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={etapa}
+              layout /* permite ao framer medir e ajustar o layout */
+              style={{ width: '100%' }} /* garante que o conteúdo ocupe toda a largura do Paper */
+              variants={pageVariants}
+              initial="initial"
+              animate="in"
+              exit="out"
+              transition={pageTransition}
             >
-              Próxima Etapa
-            </Button>
-          ) : (
-            <>
-              <Typography variant="h5" align="center">
-                Ficha Concluído
-              </Typography>
-              <Link to="/fichas" className={styles.link}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  className={styles.button}
-                  onClick={handleConcluir}
-                  disabled={!checkRequiredFields()}
-                >
-                  Concluir
-                </Button>
-              </Link>
-            </>
-          )}
-          {etapa > 1 && (
-            <Button
-              variant="contained"
-              color="secondary"
-              className={styles.button}
-              onClick={handlePrevious}
-            >
-              Etapa Anterior
-            </Button>
-          )}
+              {/* reutiliza exatamente os componentes de etapa que já estavam aqui */}
+              {etapa === 1 && <Etapa1 nome={nome} setNome={setNome} />}
+              {etapa === 2 && (
+                <Etapa2
+                  raca={raca}
+                  setRaca={setRaca}
+                  racasOptions={racasOptions}
+                  itensDaRaca={itensDaRaca}
+                  racaSelecionada={racaSelecionada}
+                  idiomaRacaSelecionado={idiomaRacaSelecionado}
+                  setIdiomaRacaSelecionado={setIdiomaRacaSelecionado}
+                  idiomaRacaSelecionado2={idiomaRacaSelecionado2}
+                  setIdiomaRacaSelecionado2={setIdiomaRacaSelecionado2}
+                  idiomaOption={idiomaOption}
+                />
+              )}
+              {etapa === 3 && (
+                <Etapa3
+                  raca={raca}
+                  SubRaca={SubRaca}
+                  setSubRaca={setSubRaca}
+                  racaSelecionada={racaSelecionada}
+                  SubRacasOptions={SubRacasOptions}
+                  detalhesSubRaca={detalhesSubRaca}
+                  setDetalhesSubRaca={setDetalhesSubRaca}
+                  idiomaOption={idiomaOption}
+                  setIdiomaAltoElfoSelecioando={setIdiomaAltoElfoSelecioando}
+                  IdiomaAltoElfo={IdiomaAltoElfo}
+                  handleSubRacaChange={handleSubRacaChange}
+                  Engenhocas={Engenhocas}
+                  setEngenhocas={setEngenhocas}
+                />
+              )}
+              {etapa === 4 && (
+                <Etapa4
+                  classe={classe}
+                  setClasse={setClasse}
+                  classesOptions={classesOptions}
+                  itensDaClasse={itensDaClasse}
+                  equipamentosClasseSelecionada1={equipamentosClasseSelecionada1}
+                  setEquipamentoClasseSelecionado1={
+                    setEquipamentoClasseSelecionado1
+                  }
+                  equipamentosClasseSelecionada2={equipamentosClasseSelecionada2}
+                  setEquipamentoClasseSelecionado2={
+                    setEquipamentoClasseSelecionado2
+                  }
+                  equipamentosClasseSelecionada3={equipamentosClasseSelecionada3}
+                  setEquipamentoClasseSelecionado3={
+                    setEquipamentoClasseSelecionado3
+                  }
+                  equipamentosClasseSelecionada4={equipamentosClasseSelecionada4}
+                  setEquipamentoClasseSelecionado4={
+                    setEquipamentoClasseSelecionado4
+                  }
+                  classeSelecioanda={classeSelecioanda}
+                  periciasClasseSelecionadas={periciasClasseSelecionadas}
+                  setPericiasSelecionadas={setPericiasSelecionadas}
+                  setExibirPainelHabilidades={setExibirPainelHabilidades}
+                  exibirPainelHabilidades={exibirPainelHabilidades}
+                />
+              )}
+              {etapa === 5 && (
+                <Etapa5
+                  tendencia={tendencia}
+                  setTendencia={setTendencia}
+                  TendenciasOptions={TendenciasOptions}
+                  itensDaTendencia={itensDaTendencia}
+                />
+              )}
+              {etapa === 6 && (
+                <Etapa6
+                  antecedente={antecedente}
+                  setAntecedente={setAntecedente}
+                  antecedentesOptions={antecedentes.map((a) => a.nome)}
+                  itensDaAntecedencia={itensDaAntecedencia}
+                  idiomaDoAntecedente={idiomaDoAntecedente}
+                  idiomaDoAntecendente2={idiomaDoAntecendente2}
+                  setIdiomaAntecedente={setIdiomaAntecedente}
+                  setIdiomaAntecendente2={setIdiomaAntecendente2}
+                  idiomaOption={idiomaOption}
+                />
+              )}
+              {etapa === 7 && antecedenteSelecionado && (
+                <Etapa7
+                  antecedente={antecedente}
+                  antecedenteSelecionado={antecedenteSelecionado}
+                  CarcDosAntecedentes1={CarcDosAntecedentes1}
+                  setCarcDosAntecedents1={setCarcDosAntecedents1}
+                  CarcDosAntecedentes2={CarcDosAntecedentes2}
+                  setCarcDosAntecedentes2={setCarcDosAntecedentes2}
+                  CarcDosAntecedentes3={CarcDosAntecedentes3}
+                  setCarcDosAntecedents3={setCarcDosAntecedents3}
+                />
+              )}
+              {etapa === 8 && (
+                <Etapa8
+                  tracoPersonalidade={antecedenteSelecionado.tracoPersonalidade}
+                  ideal={antecedenteSelecionado.ideal}
+                  defeito={antecedenteSelecionado.defeito}
+                  vinculo={antecedenteSelecionado.vinculo}
+                  tracoPersonalidadeSelecionado={tracoPersonalidadeSelecionado}
+                  idealSelecionado={idealSelecionado}
+                  defeitoSelecionado={defeitoSelecionado}
+                  vinculoSelecionado={vinculoSelecionado}
+                  onSelecionarTracoPersonalidade={(e) =>
+                    setTracoPersonalidadeSelecionado(e.target.value)
+                  }
+                  setTracoPersonalidadeSelecionado={
+                    setTracoPersonalidadeSelecionado
+                  }
+                  onSelecionarIdeal={(e) => setIdealSelecionado(e.target.value)}
+                  onSelecionarDefeito={(e) => setDefeitoSelecionado(e.target.value)}
+                  onSelecionarVinculo={(e) => setVinculoSelecionado(e.target.value)}
+                />
+              )}
+              {etapa === 9 && (
+                <Etapa9
+                  riquezaInicial={riquezaInicial}
+                  setRiquezaInicial={setRiquezaInicial}
+                  classeSelecionada={classe}
+                  onRiquezaInicialCalculada={handleRiquezaInicialCalculada}
+                />
+              )}
+              {etapa === 10 && (
+                <Etapa10
+                  racaSelecionada={racaSelecionada}
+                  valoresHabilidade={valoresHabilidade}
+                  setValoresHabilidade={setValoresHabilidade}
+                  SubRaca={SubRaca}
+                  detalhesSubRaca={detalhesSubRaca}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+
+          {/* botões (mantive sem alteração mas com Grid para alinhamento) */}
+          <Box sx={{ mt: 2 }}>
+            <Grid container spacing={2} justifyContent="center">
+              <Grid item>
+                {etapa > 1 && (
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={handlePrevious}
+                  >
+                    Etapa Anterior
+                  </Button>
+                )}
+              </Grid>
+              <Grid item>
+                {etapa < 11 ? (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleNext}
+                    disabled={!checkRequiredFields()}
+                  >
+                    Próxima Etapa
+                  </Button>
+                ) : (
+                  <>
+                    <Typography variant="h5" align="center">
+                      Ficha Concluído
+                    </Typography>
+                    <Link to="/fichas" className={styles.link}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleConcluir}
+                        disabled={!checkRequiredFields()}
+                      >
+                        Concluir
+                      </Button>
+                    </Link>
+                  </>
+                )}
+              </Grid>
+            </Grid>
+          </Box>
         </div>
       </div>
       <Typography className={styleFundo.support}>
