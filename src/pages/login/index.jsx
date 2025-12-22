@@ -1,49 +1,36 @@
-import React, { useState } from "react";
+import React from "react";
+import { Box, Container, Typography, Paper } from "@mui/material";
+import { motion } from "framer-motion";
+import Nav from "components/nav";
 import AuthComponent from "components/SingIn";
-import { auth } from "APIs/firebaseConfig"; // usar export compat centralizado
-import { useNavigate } from "react-router-dom";
+import { useTheme } from "@mui/material/styles";
 
-const emailIsValid = (email) => /\S+@\S+\.\S+/.test(email);
-
-const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate();
-
-  const handleSignIn = async (e) => {
-    e.preventDefault();
-    if (!emailIsValid(email)) return alert("Email inválido");
-    if (password.length < 6) return alert("Senha precisa ter ao menos 6 caracteres");
-    try {
-      // compat API
-      await auth.signInWithEmailAndPassword(email, password);
-      navigate("/");
-    } catch (err) {
-      console.error("Erro ao logar:", err);
-      alert(err.message || "Erro ao autenticar");
-    }
-  };
-
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    if (!emailIsValid(email)) return alert("Email inválido");
-    if (password.length < 6) return alert("Senha precisa ter ao menos 6 caracteres");
-    try {
-      await auth.createUserWithEmailAndPassword(email, password);
-      navigate("/");
-    } catch (err) {
-      console.error("Erro durante o registro:", err);
-      alert(err.message || "Erro ao registrar");
-    }
-  };
-
-  return (
-    <div>
-      <h1>Pagina de Login</h1>
-      <AuthComponent />
-      {/* se quiser usar form custom, ligar handleSignIn / handleRegister aos botões */}
-    </div>
-  );
+const pageVariants = {
+  hidden: { opacity: 0, y: 8 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.36 } },
 };
 
-export default Login;
+export default function Login() {
+  const theme = useTheme();
+
+  return (
+    <>
+      <Nav />
+
+      <Container maxWidth="md" sx={{ minHeight: "calc(100vh - 80px)", display: "flex", alignItems: "center", justifyContent: "center", py: 6 }}>
+        <motion.div initial="hidden" animate="show" variants={pageVariants} style={{ width: "100%" }}>
+          <Box sx={{ textAlign: "center", mb: 3 }}>
+            <Typography variant="h3" sx={{ fontWeight: 800, color: "primary.main" }}>
+              Bem-vindo de volta, aventureiro
+            </Typography>
+            <Typography sx={{ color: "text.secondary" }}>Entre para acessar suas campanhas e recursos</Typography>
+          </Box>
+
+          <Paper elevation={0} sx={{ display: "flex", justifyContent: "center", p: { xs: 1, md: 0 } }}>
+            <AuthComponent />
+          </Paper>
+        </motion.div>
+      </Container>
+    </>
+  );
+}
