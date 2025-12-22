@@ -4,23 +4,24 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
     palette: {
         primary: {
-            main: '#6b2f1f', // mais profundo e elegante (substitui marrom claro)
+            main: '#833c0b', // Aquele marrom avermelhado dos títulos/botões
             contrastText: '#fff',
         },
         secondary: {
-            main: '#d4a017', // dourado mais vivo
+            main: '#bf8f00', // O dourado dos sublinhados e detalhes
         },
         background: {
-            default: '#f3efe9', // pergaminho mais claro e quente
-            paper: '#fffaf5',   // painéis mais claros e com contraste suave
+            default: '#eceff1', // Fundo geral da página
+            paper: '#DFD6CD',   // Aquele bege estilo "papel/pergaminho" dos painéis
         },
         text: {
-            primary: '#212121',
-            secondary: '#6b2f1f',
+            primary: '#333333',
+            secondary: '#833c0b', // Usar o marrom para textos de destaque
         },
+        // Customização para as cores de "Couro" dos cards
         rpg: {
-            card: '#e7d7c7', // tom de couro mais neutro e menos "triste"
-            border: '#6b2f1f',
+            card: '#ba9173',
+            border: '#000000',
         },
     },
     typography: {
@@ -28,44 +29,40 @@ const theme = createTheme({
         h1: {
             fontSize: '28px',
             fontWeight: 'bold',
-            color: '#6b2f1f',
+            color: '#833c0b',
         },
         h2: {
             fontSize: '24px',
-            color: '#6b2f1f',
-            textDecoration: 'underline #d4a017',
+            color: '#833c0b',
+            textDecoration: 'underline #bf8f00', // Aquele sublinhado dourado
         },
     },
     components: {
+        // Estilizando todos os Cards automaticamente
         MuiCard: {
             styleOverrides: {
                 root: {
-                    backgroundColor: '#e7d7c7',
+                    backgroundColor: '#ba9173', // Cor padrão dos cards
                     borderRadius: '10px',
-                    boxShadow: '0px 6px 18px rgba(20,20,20,0.14)',
+                    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.25)', // Sua sombra
                 },
             },
         },
+        // Estilizando os Inputs para ficarem bonitos no fundo bege
         MuiTextField: {
             styleOverrides: {
                 root: {
                     backgroundColor: '#fff',
-                    borderRadius: '6px',
+                    borderRadius: '4px',
                 },
             },
         },
+        // Botões mais robustos
         MuiButton: {
             styleOverrides: {
                 root: {
-                    fontWeight: '700',
-                    textTransform: 'none',
-                },
-            },
-        },
-        MuiPaper: {
-            styleOverrides: {
-                root: {
-                    borderRadius: 10,
+                    fontWeight: 'bold',
+                    textTransform: 'none', // Tira o CAPS LOCK automático
                 },
             },
         },
