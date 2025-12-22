@@ -1,6 +1,6 @@
 import React, { useEffect, useState, Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { auth } from "APIs/firebaseConfig";
+import { useAuth } from "contexts/AuthContext";
 import { Box, CircularProgress } from "@mui/material";
 
 // lazy-loaded pages
@@ -17,22 +17,16 @@ const Register = lazy(() => import("pages/Regsiter"));
 const MapasPage = lazy(() => import("pages/MapasPage"));
 
 function Rout() {
-  const [usuarioAutenticado, setUsuarioAutenticado] = useState(null);
-
-  useEffect(() => {
-    // usar o auth (compat) exportado em src/APIs/firebaseConfig.js
-    const unsub = auth.onAuthStateChanged((user) => {
-      setUsuarioAutenticado(user || null);
-    });
-
-    return () => unsub();
-  }, []);
+  const { user: usuarioAutenticado, loading: authLoading } = useAuth();
 
   const Loader = (
     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", height: "60vh" }}>
       <CircularProgress />
     </Box>
   );
+
+  // espera resolver auth antes de renderizar rotas para evitar pop-in
+  if (authLoading) return <Router><Suspense fallback={Loader}>{Loader}</Suspense></Router>;
 
   return (
     <Router>

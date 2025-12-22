@@ -1,13 +1,18 @@
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-} from "firebase/auth";
-import { auth } from "../../firebaseConfig";
-import { Link } from "react-router-dom";
-import { Button, IconButton, TextField, Typography } from "@mui/material";
-import styles from "./AuthComponent.module.css";
+  Box,
+  Paper,
+  TextField,
+  Button,
+  IconButton,
+  Typography,
+  InputAdornment,
+} from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Link, useNavigate } from "react-router-dom";
+import { auth } from "APIs/firebaseConfig";
+import styles from "./AuthComponent.module.css";
 
 const emailIsValid = (email) => /\S+@\S+\.\S+/.test(email);
 
@@ -16,110 +21,154 @@ const AuthComponent = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+
+  const handleTogglePasswordVisibility = () => setShowPassword((s) => !s);
 
   const handleSignIn = async (e) => {
-    e.preventDefault();
+    e?.preventDefault();
+    setError("");
     const cleanedEmail = email.trim();
-    if (!emailIsValid(cleanedEmail)) {
-      setError("Email inválido");
-      return;
-    }
-    if (password.length < 6) {
-      setError("Senha precisa ter ao menos 6 caracteres");
-      return;
-    }
+    if (!emailIsValid(cleanedEmail))
+      return setError("Email inválido");
+    if (password.length < 6)
+      return setError("Senha precisa ter ao menos 6 caracteres");
     try {
-      console.log("signin payload:", { email: cleanedEmail, passwordLength: password.length });
-      await signInWithEmailAndPassword(auth, cleanedEmail, password);
+      await auth.signInWithEmailAndPassword(cleanedEmail, password);
+      navigate("/");
     } catch (err) {
       console.error("Erro ao logar:", err);
-      setError(err.message);
-      alert(err.message);
+      setError(err.message || "Erro ao autenticar");
     }
   };
 
   const handleRegister = async (e) => {
-    e.preventDefault();
+    e?.preventDefault();
+    setError("");
     const cleanedEmail = email.trim();
-    if (!emailIsValid(cleanedEmail)) {
-      setError("Email inválido");
-      return;
-    }
-    if (password.length < 6) {
-      setError("Senha precisa ter ao menos 6 caracteres");
-      return;
-    }
+    if (!emailIsValid(cleanedEmail))
+      return setError("Email inválido");
+    if (password.length < 6)
+      return setError("Senha precisa ter ao menos 6 caracteres");
     try {
-      console.log("register payload:", { email: cleanedEmail, passwordLength: password.length });
-      await createUserWithEmailAndPassword(auth, cleanedEmail, password);
+      await auth.createUserWithEmailAndPassword(cleanedEmail, password);
+      navigate("/");
     } catch (err) {
       console.error("Erro durante o registro:", err);
-      setError(err.message);
-      alert(err.message);
+      setError(err.message || "Erro durante o registro");
     }
   };
 
-  const handleTogglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+  const cardVariants = {
+    hidden: { opacity: 0, y: 8 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.32 } },
   };
 
   return (
-    <div className={styles.authForm}>
-      <h2>Login</h2>
-      <TextField
-        label="Email"
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        variant="outlined"
-        className={styles.inputField}
-        style={{ margin: "10px" }}
-      />
-      <TextField
-        label="Password"
-        type={showPassword ? "text" : "password"}
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        variant="outlined"
-        className={styles.inputField}
-        style={{ margin: "10px" }}
-        InputProps={{
-          endAdornment: (
-            <IconButton
-              aria-label="toggle password visibility"
-              onClick={handleTogglePasswordVisibility}
-              edge="end"
-            >
-              {showPassword ? <Visibility /> : <VisibilityOff />}
-            </IconButton>
-          ),
+    <motion.div initial="hidden" animate="show" variants={cardVariants}>
+      <Paper
+        elevation={6}
+        sx={{
+          maxWidth: 420,
+          mx: "auto",
+          p: 3,
+          borderRadius: 2,
         }}
-      />
-      {error && (
-        <Typography
-          style={{ marginTop: "0", marginBottom: "10px" }}
-          color="error"
-        >
-          {error}
-        </Typography>
-      )}
-      <Button type="button" variant="contained" onClick={handleSignIn} className={styles.signInButton} style={{ marginTop: "0", marginBottom: "10px" }}>
-        Entrar
-      </Button>
-      <Button type="button" variant="outlined" onClick={handleRegister} className={styles.registerButton} style={{ marginTop: "0", marginBottom: "10px" }}>
-        Registrar-se
-      </Button>
-      <Typography
-        variant="body1"
-        style={{ marginTop: "5px" }}
-        className={styles.registerLink}
       >
-        Já tem uma conta?{" "}
-        <Link to={"/Login"} className={styles.link}>
-          Login
-        </Link>
-      </Typography>
-    </div>
+        <Box
+          component="form"
+          onSubmit={handleSignIn}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
+          <Typography
+            variant="h5"
+            sx={{ textAlign: "center", color: "primary.main" }}
+          >
+            Entrar
+          </Typography>
+
+          <TextField
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            fullWidth
+            variant="outlined"
+            autoComplete="email"
+          />
+
+          <TextField
+            label="Senha"
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            fullWidth
+            variant="outlined"
+            autoComplete="current-password"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={handleTogglePasswordVisibility}
+                    edge="end"
+                    aria-label="toggle password"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          {error && (
+            <Typography
+              color="error"
+              variant="body2"
+              sx={{ textAlign: "center" }}
+            >
+              {error}
+            </Typography>
+          )}
+
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              justifyContent: "center",
+              mt: 1,
+            }}
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSignIn}
+              className={styles.signInButton}
+              style={{
+                marginTop: "0",
+                marginBottom: "10px",
+              }}
+            >
+              Entrar
+            </Button>
+          </Box>
+
+          <Typography
+            variant="body2"
+            sx={{ textAlign: "center", mt: 1 }}
+            className={styles.registerLink}
+          >
+            Ainda não tem conta?{" "}
+            <Link to="/Registrar-se" className={styles.link}>
+              Criar conta
+            </Link>
+          </Typography>
+        </Box>
+      </Paper>
+    </motion.div>
   );
 };
 

@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebaseConfig";
+// usar auth compat exportado pelo arquivo central
+import { auth } from "APIs/firebaseConfig";
 import { Button, TextField, Typography, IconButton } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import styles from "./RegisterComponent.module.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const emailIsValid = (email) => /\S+@\S+\.\S+/.test(email);
 
@@ -15,6 +15,7 @@ const RegisterComponent = () => {
   const [error, setError] = useState("");
   const [passwordValid, setPasswordValid] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
@@ -23,7 +24,6 @@ const RegisterComponent = () => {
   const handlePasswordChange = (event) => {
     const newPassword = event.target.value;
     setPassword(newPassword);
-    // Validate password
     setPasswordValid(newPassword.length >= 8 && /\d/.test(newPassword));
   };
 
@@ -43,9 +43,7 @@ const RegisterComponent = () => {
     }
 
     if (!passwordValid) {
-      setError(
-        "A senha deve ter pelo menos 8 caracteres e conter pelo menos um número."
-      );
+      setError("A senha deve ter pelo menos 8 caracteres e conter pelo menos um número.");
       return;
     }
 
@@ -55,12 +53,11 @@ const RegisterComponent = () => {
     }
 
     try {
-      console.log("register payload:", {
-        email: cleanedEmail,
-        passwordLength: password.length,
-      });
-      await createUserWithEmailAndPassword(auth, cleanedEmail, password);
       setError("");
+      // compat API: auth é firebase.auth() — usar método compat
+      await auth.createUserWithEmailAndPassword(cleanedEmail, password);
+      // redireciona para home após registro
+      navigate("/");
     } catch (err) {
       console.error("Error during registration:", err);
       setError(err.message || "Erro durante o registro.");
@@ -89,11 +86,7 @@ const RegisterComponent = () => {
         style={{ margin: "10px" }}
         InputProps={{
           endAdornment: (
-            <IconButton
-              aria-label="toggle password visibility"
-              onClick={handleTogglePasswordVisibility}
-              edge="end"
-            >
+            <IconButton aria-label="toggle password visibility" onClick={handleTogglePasswordVisibility} edge="end">
               {showPassword ? <Visibility /> : <VisibilityOff />}
             </IconButton>
           ),
@@ -109,11 +102,7 @@ const RegisterComponent = () => {
         style={{ margin: "10px" }}
         InputProps={{
           endAdornment: (
-            <IconButton
-              aria-label="toggle password visibility"
-              onClick={handleTogglePasswordVisibility}
-              edge="end"
-            >
+            <IconButton aria-label="toggle password visibility" onClick={handleTogglePasswordVisibility} edge="end">
               {showPassword ? <Visibility /> : <VisibilityOff />}
             </IconButton>
           ),
@@ -121,13 +110,12 @@ const RegisterComponent = () => {
       />
       {error && <Typography color="error">{error}</Typography>}
       {!passwordValid && (
-        <Typography
-          color="error"
-          style={{ marginTop: "0", marginBottom: "10px" }}
-          className={styles.error}
-        >
-          A senha deve ter pelo menos: <li>8 caracteres</li>{" "}
-          <li>conter pelo menos um número.</li>
+        <Typography color="error" style={{ marginTop: "0", marginBottom: "10px" }} className={styles.error}>
+          A senha deve ter pelo menos:
+          <ul>
+            <li>8 caracteres</li>
+            <li>conter pelo menos um número.</li>
+          </ul>
         </Typography>
       )}
       <Button
@@ -135,22 +123,13 @@ const RegisterComponent = () => {
         onClick={handleRegister}
         className={styles.registerButton}
         style={{ marginTop: "0", marginBottom: "10px" }}
-        disabled={
-          !passwordValid ||
-          password !== confirmPassword ||
-          error !== "" ||
-          !email
-        }
+        disabled={!passwordValid || password !== confirmPassword || error !== "" || !email}
       >
         Registrar-se
       </Button>
 
       <Link to={"/login"}>
-        <Button
-          variant="outlined"
-          style={{ marginTop: "5px" }}
-          className={styles.registerButton}
-        >
+        <Button variant="outlined" style={{ marginTop: "5px" }} className={styles.registerButton}>
           Já tenho uma conta
         </Button>
       </Link>

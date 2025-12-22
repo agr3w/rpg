@@ -9,6 +9,7 @@ import { MusicProvider } from "APIs/MusicContext";
 import { BookProvider } from "APIs/BookContext";
 import { NoteProvider } from "APIs/NoteContext";
 import { FolderProvider } from "APIs/FolderContext";
+import { AuthProvider } from "contexts/AuthContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -17,15 +18,17 @@ export const App = () => {
     <React.StrictMode>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <MusicProvider>
-          <BookProvider>
-            <FolderProvider>
-              <NoteProvider>
-                <Rout />
-              </NoteProvider>
-            </FolderProvider>
-          </BookProvider>
-        </MusicProvider>
+        <AuthProvider>
+          <MusicProvider>
+            <BookProvider>
+              <FolderProvider>
+                <NoteProvider>
+                  <Rout />
+                </NoteProvider>
+              </FolderProvider>
+            </BookProvider>
+          </MusicProvider>
+        </AuthProvider>
       </ThemeProvider>
     </React.StrictMode>
   );
