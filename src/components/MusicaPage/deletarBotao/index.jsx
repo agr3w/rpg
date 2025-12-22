@@ -1,30 +1,50 @@
-import { app } from "APIs/firebaseConfig"; // Importar a instância do aplicativo Firebase
-import { getAuth } from "firebase/auth";
-import "firebase/database"; // Importe os serviços do Firebase que você está usando, como 'database', 'storage', etc.
+import { database, storage, auth, firebase } from "APIs/firebaseConfig";
 
 export const deletarArray = async (musicaId) => {
-  const auth = getAuth();
   const user = auth.currentUser;
+  if (!user) throw new Error("Usuário não autenticado");
   const userID = user.uid;
-  const musicasRef = app.database().ref(`musicas/${userID}`); // Usar a instância do aplicativo Firebase
-
-  // Encontre a referência da música com base no ID
+  const musicasRef = database.ref(`musicas/${userID}`);
   const musicaParaExcluirRef = musicasRef.child(musicaId);
-
-  // Remova a música do Firebase Realtime Database
-  await musicaParaExcluirRef.remove();
+  try {
+    await musicaParaExcluirRef.remove();
+    return { success: true };
+  } catch (err) {
+    console.error("Erro ao remover música do database:", err);
+    throw err;
+  }
 };
 
-export function deletarMusica(nomeArquivoAudio, nomeArquivoImagem) {
-  const auth = getAuth();
+export async function deletarMusica(nomeArquivoAudio, nomeArquivoImagem, opts = {}) {
   const user = auth.currentUser;
+  if (!user) throw new Error("Usuário não autenticado");
   const userID = user.uid;
-  const storage = app.storage();
   const storageRef = storage.ref();
-  const arquivoAudioRef = storageRef.child(
-    `arquivos/musicas/${userID}/${nomeArquivoAudio}`
-  );
-  const imagemRef = storageRef.child(`imagens/${userID}/${nomeArquivoImagem}`);
-  arquivoAudioRef.delete();
-  imagemRef.delete();
+
+  // Deletar arquivo de áudio
+  if (nomeArquivoAudio) {
+    try {
+      // tenta tratar se for URL ou apenas nome
+      const audioRef = nomeArquivoAudio.startsWith("gs://") || nomeArquivoAudio.startsWith("https://")
+        ? storage.refFromURL(nomeArquivoAudio)
+        : storageRef.child(`arquivos/musicas/${userID}/${nomeArquivoAudio}`);
+      await audioRef.delete();
+    } catch (err) {
+      console.warn("Não foi possível deletar arquivo de áudio:", err);
+    }
+  }
+
+  // Deletar imagem
+  if (nomeArquivoImagem) {
+    try {
+      const imgRef = nomeArquivoImagem.startsWith("gs://") || nomeArquivoImagem.startsWith("https://")
+        ? storage.refFromURL(nomeArquivoImagem)
+        : storageRef.child(`imagens/${userID}/${nomeArquivoImagem}`);
+      await imgRef.delete();
+    } catch (err) {
+      console.warn("Não foi possível deletar imagem:", err);
+    }
+  }
+
+  return { success: true };
 }

@@ -1,95 +1,120 @@
 // DeleteNote.js
-import { getStorage, ref, deleteObject } from "firebase/storage";
-import { getFirestore, doc, deleteDoc } from "firebase/firestore";
-import { app } from "APIs/firebaseConfig"; // Importe a instância do aplicativo Firebase
-import { getAuth } from "firebase/auth";
+import { database, storage, auth, firebase } from "APIs/firebaseConfig";
 
+/**
+ * Remove nota do array de notas do usuário (Realtime Database)
+ */
 export const deleteArrayNote = async (noteId) => {
-  const auth = getAuth();
   const user = auth.currentUser;
-  const userID = user.uid;
-  const notesRef = app.database().ref(`notes/${userID}`);
+  if (!user) throw new Error("Usuário não autenticado");
+  const uid = user.uid;
+  const notesRef = database.ref(`notes/${uid}`);
 
   try {
     await notesRef.child(noteId).remove();
     console.log("Note removed successfully");
+    return { success: true };
   } catch (error) {
     console.error("Error removing note:", error);
+    throw error;
   }
 };
 
 export const deleteArrayNoteFromFolder = async (folderId, noteId) => {
-  const auth = getAuth();
   const user = auth.currentUser;
-  const userID = user.uid;
-  const folderRef = app.database().ref(`folders/${userID}/${folderId}/notes`);
+  if (!user) throw new Error("Usuário não autenticado");
+  const uid = user.uid;
+  const folderRef = database.ref(`folders/${uid}/${folderId}/notes`);
 
   try {
     await folderRef.child(noteId).remove();
     console.log("Note removed from folder successfully");
+    return { success: true };
   } catch (error) {
     console.error("Error removing note from folder:", error);
+    throw error;
   }
 };
 
-export function deleteNoteFolder(note) {
-  const auth = getAuth();
+export async function deleteNoteFolder(note) {
   const user = auth.currentUser;
-  const userID = user.uid;
-  const storage = getStorage(app);
-  const noteRef = ref(
-    storage,
-    `gs://test-b6bc2.appspot.com/arquivos/anotacoes/${userID}/pasta/${note.arquivoNomeCompleto}`
-  );
-  const db = getFirestore(app);
-  const noteDocRef = doc(db, "notes", note.id);
-  deleteObject(noteRef);
+  if (!user) throw new Error("Usuário não autenticado");
+  const uid = user.uid;
 
-  deleteObject(noteRef)
-    .then(() => {
-      // Deletar o documento do Firebase Firestore
-      return deleteDoc(noteDocRef);
-    })
-    .then(() => {
-      // Mostrar uma mensagem de sucesso
-      alert("Anotação deletada com sucesso!");
-    })
-    .catch((error) => {
-      // Tratar o erro
-      console.error(error);
-      // Mostrar uma mensagem de erro
-      alert("Ocorreu um erro ao deletar a anotação!");
-    });
+  // tenta obter referência pelo URL, se houver
+  let fileRef;
+  try {
+    if (note.url) {
+      fileRef = storage.refFromURL(note.url);
+    } else if (note.arquivoNomeCompleto) {
+      fileRef = storage.ref(`arquivos/anotacoes/${uid}/pasta/${note.arquivoNomeCompleto}`);
+    }
+  } catch (err) {
+    console.warn("Não foi possível criar referência de storage:", err);
+    fileRef = null;
+  }
+
+  const noteDocRef = note.id ? firebase.firestore().doc(`notes/${note.id}`) : null;
+
+  try {
+    if (fileRef) {
+      await fileRef.delete().catch((e) => {
+        console.warn("Falha ao deletar arquivo no Storage (talvez não exista):", e);
+      });
+    }
+
+    if (noteDocRef) {
+      await noteDocRef.delete().catch((e) => {
+        console.warn("Falha ao deletar documento Firestore (talvez não exista):", e);
+      });
+    }
+
+    alert("Anotação deletada com sucesso!");
+    return { success: true };
+  } catch (error) {
+    console.error("Erro ao deletar anotação:", error);
+    alert("Ocorreu um erro ao deletar a anotação!");
+    throw error;
+  }
 }
 
-export function deleteNote(note) {
-  const auth = getAuth();
+export async function deleteNote(note) {
   const user = auth.currentUser;
-  const userID = user.uid;
-  const storage = getStorage(app);
-  const noteRef = ref(
-    storage,
-    `gs://test-b6bc2.appspot.com/arquivos/anotacoes/${userID}/${note.arquivoNomeCompleto}` //necessita de file extension arrumar***
-  );
+  if (!user) throw new Error("Usuário não autenticado");
+  const uid = user.uid;
 
-  // Referência para o documento no Firebase Firestore
-  const db = getFirestore(app);
-  const noteDocRef = doc(db, "notes", note.id);
+  let fileRef;
+  try {
+    if (note.url) {
+      fileRef = storage.refFromURL(note.url);
+    } else if (note.arquivoNomeCompleto) {
+      fileRef = storage.ref(`arquivos/anotacoes/${uid}/${note.arquivoNomeCompleto}`);
+    }
+  } catch (err) {
+    console.warn("Não foi possível criar referência de storage:", err);
+    fileRef = null;
+  }
 
-  // Deletar o arquivo de anotação do Firebase Storage
-  deleteObject(noteRef)
-    .then(() => {
-      // Deletar o documento do Firebase Firestore
-      return deleteDoc(noteDocRef);
-    })
-    .then(() => {
-      // Mostrar uma mensagem de sucesso
-      alert("Anotação deletada com sucesso!");
-    })
-    .catch((error) => {
-      // Tratar o erro
-      console.error(error);
-      // Mostrar uma mensagem de erro
-      alert("Ocorreu um erro ao deletar a anotação!");
-    });
+  const noteDocRef = note.id ? firebase.firestore().doc(`notes/${note.id}`) : null;
+
+  try {
+    if (fileRef) {
+      await fileRef.delete().catch((e) => {
+        console.warn("Falha ao deletar arquivo no Storage (talvez não exista):", e);
+      });
+    }
+
+    if (noteDocRef) {
+      await noteDocRef.delete().catch((e) => {
+        console.warn("Falha ao deletar documento Firestore (talvez não exista):", e);
+      });
+    }
+
+    alert("Anotação deletada com sucesso!");
+    return { success: true };
+  } catch (error) {
+    console.error("Erro ao deletar anotação:", error);
+    alert("Ocorreu um erro ao deletar a anotação!");
+    throw error;
+  }
 }

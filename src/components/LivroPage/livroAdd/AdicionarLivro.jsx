@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
-import styles from "./BotaoAdicionarLivro.module.css"; // Certifique-se de ter o arquivo de estilos correspondente
-import { app } from "APIs/firebaseConfig"; // Importe a configuração do Firebase
+import styles from "./BotaoAdicionarLivro.module.css";
 import { useBookContext } from "APIs/BookContext";
 import { Button } from "@mui/material";
-import { getAuth } from "firebase/auth";
+import { app, storage, auth } from "APIs/firebaseConfig";
 
 const BotaoAdicionarLivro = () => {
   const { addBook } = useBookContext();
@@ -14,11 +13,8 @@ const BotaoAdicionarLivro = () => {
   const handleArquivoChange = (e) => {
     const arquivo = e.target.files[0];
     if (arquivo) {
-      // Verificar se o arquivo é PDF
       if (arquivo.type !== "application/pdf") {
-        // Mostrar alerta se não for um arquivo PDF
         alert("Por favor, selecione apenas arquivos PDF.");
-        // Limpar o campo de arquivo
         e.target.value = null;
         setBooks(null);
       } else {
@@ -30,37 +26,36 @@ const BotaoAdicionarLivro = () => {
   };
 
   const handleAdicionarLivro = async () => {
-    if (books) {
-      setIsLoading(true);
+    if (!books) return;
+    setIsLoading(true);
 
-      // Primeiro, faça o upload do arquivo PDF para o Firebase Storage
-      const auth = getAuth();
+    try {
       const user = auth.currentUser;
+      if (!user) {
+        alert("Usuário não autenticado.");
+        return;
+      }
       const userID = user.uid;
-      const storage = app.storage();
+
       const storageRef = storage.ref();
-      const arquivoRef = storageRef.child(
-        `arquivos/livros/${userID}/${books.name}`
-      ); // Defina o caminho desejado no Storage
+      const arquivoRef = storageRef.child(`arquivos/livros/${userID}/${books.name}`);
 
       await arquivoRef.put(books);
-
-      // Obtenha a URL do arquivo PDF recém-carregado
       const urlDoArquivo = await arquivoRef.getDownloadURL();
 
-      // Crie um ID único para o livro usando o método push()
       const novoLivro = {
-        id: app.database().ref().child(`livros/${userID}`).push().key, // Gere um ID único
-        titulo: books.name.replace(/\.[^/.]+$/, ""), // Nome do arquivo sem extensão
+        titulo: books.name.replace(/\.[^/.]+$/, ""),
         urlDoArquivo,
       };
-      setIsLoading(false);
 
-      // Adicione as informações do livro ao contexto de livros
-      addBook(novoLivro);
+      await addBook(novoLivro);
 
-      // Limpe o campo de arquivo
       setBooks(null);
+    } catch (err) {
+      console.error("Erro ao enviar livro:", err);
+      alert("Erro ao adicionar livro.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -70,12 +65,7 @@ const BotaoAdicionarLivro = () => {
         <span className={styles.customFileInputButton}>
           {books ? "Livro Selecionado" : "Selecionar Livro"}
         </span>
-        <input
-          type="file"
-          accept=".pdf"
-          onChange={handleArquivoChange}
-          className={styles.fileInput}
-        />
+        <input type="file" accept=".pdf" onChange={handleArquivoChange} className={styles.fileInput} />
       </label>
 
       <Button
@@ -84,9 +74,7 @@ const BotaoAdicionarLivro = () => {
         color="primary"
         startIcon={<AddIcon />}
         disabled={!books || isLoading}
-        style={{
-          backgroundColor: books && !isLoading ? "#007bff" : "#ccc",
-        }}
+        style={{ backgroundColor: books && !isLoading ? "#007bff" : "#ccc" }}
       >
         {isLoading ? "Carregando..." : "Adicionar Livro"}
       </Button>

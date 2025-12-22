@@ -3,7 +3,7 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/database';
 import 'firebase/compat/storage';
-import { getDatabase } from 'firebase/database';
+import 'firebase/compat/auth';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAvR0bpQQaKEkZXE2b3MBs_Kfq54ZugupA",
@@ -16,10 +16,14 @@ const firebaseConfig = {
   measurementId: "G-F2HZG6P3MF",
 };
 
-const app = firebase.initializeApp(firebaseConfig);
-const database = getDatabase(app);
+// evita duplicate-app: reutiliza app se já existir
+const app = !firebase.apps.length ? firebase.initializeApp(firebaseConfig) : firebase.app();
 
+// usar API compat para Database/Storage (consistente com o restante do código)
+const database = firebase.database();
+const storage = firebase.storage();
+const auth = firebase.auth();
 
-export { app, firebase, database };
+export { app, firebase, database, storage, auth };
 
 

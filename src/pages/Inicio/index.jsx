@@ -8,8 +8,7 @@ import MusicasCard from "components/Cards/musicas";
 import Nav from "components/nav";
 import FichaCard from "components/Cards/ficha";
 import { Button, Typography } from "@mui/material";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { app } from "APIs/firebaseConfig";
+import { auth } from "APIs/firebaseConfig";
 import { Link } from "react-router-dom";
 import Loading from "components/Loading";
 import MapsCard from "components/Cards/maps/indsx";
@@ -19,16 +18,11 @@ export default function Inicio() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    const auth = getAuth(app);
-
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUsuarioAutenticado(user);
-      } else {
-        setUsuarioAutenticado(null);
-      }
-      setIsLoaded(true); // Set isLoaded to true when finished loading
+    const unsub = auth.onAuthStateChanged((user) => {
+      setUsuarioAutenticado(user ?? null);
+      setIsLoaded(true);
     });
+    return () => unsub();
   }, []);
 
   return (

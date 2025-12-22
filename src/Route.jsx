@@ -1,6 +1,6 @@
 import React, { useEffect, useState, Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { auth } from "APIs/firebaseConfig";
 import { Box, CircularProgress } from "@mui/material";
 
 // lazy-loaded pages
@@ -20,10 +20,8 @@ function Rout() {
   const [usuarioAutenticado, setUsuarioAutenticado] = useState(null);
 
   useEffect(() => {
-    const auth = getAuth();
-
-    // Verificar o estado de autenticação do usuário
-    const unsub = onAuthStateChanged(auth, (user) => {
+    // usar o auth (compat) exportado em src/APIs/firebaseConfig.js
+    const unsub = auth.onAuthStateChanged((user) => {
       setUsuarioAutenticado(user || null);
     });
 

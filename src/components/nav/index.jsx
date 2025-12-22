@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { FiUser } from "react-icons/fi";
 import styles from "./nav.module.css";
-import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { Box, Button, Modal, Typography } from "@mui/material";
+import { auth } from "APIs/firebaseConfig";
 
 const Nav = () => {
   const handleSupportClick = () => {
@@ -14,27 +14,22 @@ const Nav = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
-    const auth = getAuth();
-
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUsuarioAutenticado(user);
-      } else {
-        setUsuarioAutenticado(null);
-      }
+    const unsub = auth.onAuthStateChanged((user) => {
+      setUsuarioAutenticado(user ?? null);
     });
+    return () => unsub();
   }, []);
 
   const handleLogout = () => {
-    // Fazer logout
-    const auth = getAuth();
-    signOut(auth)
+    auth
+      .signOut()
       .then(() => {
         console.log("Usuário desconectado");
       })
       .catch((error) => {
         console.error("Erro durante o logout:", error);
-      });
+      })
+      .finally(() => setShowLogoutModal(false));
   };
   return (
     <>
@@ -78,7 +73,7 @@ const Nav = () => {
               color={"white"}
               style={{
                 margin: "10px",
-                textAlign: "center"
+                textAlign: "center",
               }}
             >
               Deseja sair?

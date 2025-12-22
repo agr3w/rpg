@@ -1,9 +1,6 @@
 // MusicContext.js
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
-import { app } from "./firebaseConfig"; // Importar a instância do aplicativo Firebase
-import { getStorage, ref, getDownloadURL, uploadBytes } from "firebase/storage";
-import { getAuth } from "firebase/auth";
+import { app, firebase, database, storage, auth } from "./firebaseConfig"; // usa exports do arquivo compat
 
 const MusicContext = createContext();
 
@@ -23,42 +20,36 @@ export const MusicProvider = ({ children }) => {
   const [isLooping, setIsLooping] = useState(false);
 
   useEffect(() => {
-    const auth = getAuth();
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        setUserID(user.uid);
-      } else {
-        setUserID(null);
-      }
+    const unsub = auth.onAuthStateChanged((user) => {
+      setUserID(user ? user.uid : null);
     });
+    return () => unsub();
   }, []);
 
   useEffect(() => {
-    if (userID) {
-      const foldersRef = app.database().ref(`musicas/${userID}`);
-      foldersRef.on("value", (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          setMusicas(Object.values(data));
-        }
-      });
+    if (!userID) {
+      setMusicas([]);
+      return;
     }
+    const foldersRef = database.ref(`musicas/${userID}`);
+    const handle = (snapshot) => {
+      const data = snapshot.val();
+      setMusicas(data ? Object.values(data) : []);
+    };
+    foldersRef.on("value", handle);
+    return () => foldersRef.off("value", handle);
   }, [userID]);
 
   const adicionarMusica = async (novaMusica) => {
-    const auth = getAuth();
     const user = auth.currentUser;
-    const userID = user.uid;
-    const musicasRef = app.database().ref(`musicas/${userID}`); // Usar a instância do aplicativo Firebase
-
-    // Crie um ID único para a música usando o método push()
+    if (!user) throw new Error("Usuário não autenticado");
+    const uid = user.uid;
+    const musicasRef = database.ref(`musicas/${uid}`);
     const novaMusicaRef = musicasRef.push();
-    const novaMusicaId = novaMusicaRef.key; // Obtém o ID gerado
-
-    // Adicione as informações da música ao Firebase Realtime Database
+    const novaMusicaId = novaMusicaRef.key;
     await novaMusicaRef.set({
       ...novaMusica,
-      id: novaMusicaId, // Use o mesmo ID no nó interno da música
+      id: novaMusicaId,
     });
   };
 
@@ -68,46 +59,36 @@ export const MusicProvider = ({ children }) => {
 
   // Ler os dados da coleção de músicas usando o método once()
   const lerMusicas = () => {
-    const musicasRef = app.database().ref(`musicas/${userID}`); // Usar a instância do aplicativo Firebase
+    const musicasRef = database.ref(`musicas/${userID}`);
     musicasRef
       .once("value")
-      .then((snapshot) => {
-        // Obter os dados em forma de objeto usando o método val()
-        const data = snapshot.val();
-        // Fazer algo com os dados
-        console.log(data);
-      })
-      .catch((error) => {
-        // Tratar o erro
-        console.error(error);
-      });
+      .then((snapshot) => console.log(snapshot.val()))
+      .catch((error) => console.error(error));
   };
 
   // Função para adicionar uma nova música
   const adicionarMusicaArquivo = async (novaMusica) => {
-    const auth = getAuth();
     const user = auth.currentUser;
-    const userID = user.uid;
-    const db = getFirestore(app);
-    const musicasCollection = collection(db, `musicas/${userID}`);
+    if (!user) throw new Error("Usuário não autenticado");
+    const uid = user.uid;
+    const musicasRef = database.ref(`musicas/${uid}`);
+    const novaMusicaRef = musicasRef.push();
+    const id = novaMusicaRef.key;
 
-    // Primeiro, faça o upload do arquivo MP3 para o Firebase Storage
-    const storage = getStorage(app);
-    const arquivoRef = ref(
-      storage,
-      `https://firebasestorage.googleapis.com/v0/b/test-b6bc2.appspot.com/${userID}/${novaMusica.arquivo.name}`
-    );
-    await uploadBytes(arquivoRef, novaMusica.arquivo);
+    let urlDoArquivo = null;
+    if (novaMusica.arquivo) {
+      const file = novaMusica.arquivo;
+      const storageRef = storage.ref(`${uid}/${file.name}`);
+      await storageRef.put(file);
+      urlDoArquivo = await storageRef.getDownloadURL();
+    }
 
-    // Obtenha a URL do arquivo MP3 recém-carregado
-    const urlDoArquivo = await getDownloadURL(arquivoRef);
-
-    // Adicione as informações da música ao Firestore, incluindo a URL
-    await addDoc(musicasCollection, {
+    await novaMusicaRef.set({
       titulo: novaMusica.titulo,
       artista: novaMusica.artista,
-      urlDoArquivo: urlDoArquivo, // URL do arquivo MP3
-      // ...outras informações
+      urlDoArquivo,
+      id,
+      criadoEm: firebase.database.ServerValue.TIMESTAMP,
     });
   };
 

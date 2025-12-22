@@ -1,8 +1,6 @@
 // FichaDatabase.js
 
-import { app } from "APIs/firebaseConfig";
-import { getAuth } from "firebase/auth";
-import { getDatabase, ref, push, set, serverTimestamp } from "firebase/database";
+import { database, auth, firebase } from "APIs/firebaseConfig";
 
 /**
  * Envia ficha para Realtime Database sob /fichas/{userId}/{fichaId}
@@ -18,7 +16,6 @@ export const enviarFichaParaDatabase = async (
   RacasInfo,
   Classesinfo
 ) => {
-  const auth = getAuth();
   const user = auth.currentUser;
 
   if (!user) {
@@ -31,9 +28,8 @@ export const enviarFichaParaDatabase = async (
     throw new Error("Nome da ficha inválido.");
   }
 
-  const db = getDatabase();
-  const fichaListRef = ref(db, `fichas/${user.uid}`);
-  const novaFichaRef = push(fichaListRef); // gera id automático
+  const fichaListRef = database.ref(`fichas/${user.uid}`);
+  const novaFichaRef = fichaListRef.push(); // gera id automático (compat)
 
   const payload = {
     id: novaFichaRef.key,
@@ -45,11 +41,11 @@ export const enviarFichaParaDatabase = async (
     riquezaInicial: typeof riquezaInicial === "number" ? riquezaInicial : null,
     DetalhesDaRaça: RacasInfo || null,
     DetalhesDaClasse: Classesinfo || null,
-    createdAt: serverTimestamp(),
+    createdAt: firebase.database.ServerValue.TIMESTAMP,
   };
 
   try {
-    await set(novaFichaRef, payload);
+    await novaFichaRef.set(payload);
     return { success: true, id: novaFichaRef.key };
   } catch (error) {
     console.error("Erro ao criar a ficha:", error);

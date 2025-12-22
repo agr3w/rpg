@@ -1,78 +1,90 @@
 // FolderDelete.js
-import { app } from "APIs/firebaseConfig";
-import { getAuth } from "firebase/auth";
-import { getStorage, ref, deleteObject } from "firebase/storage";
+import { database, storage, auth, firebase } from "APIs/firebaseConfig";
 
-// Função para excluir uma nota específica de um folder
+/**
+ * Exclui uma nota específica dentro de uma pasta do usuário
+ */
 export const deleteNoteFromFolder = async (folderId, noteId) => {
-  const folderRef = app.database().ref(`folders/${folderId}/notes`);
+  const user = auth.currentUser;
+  if (!user) throw new Error("Usuário não autenticado");
+  const uid = user.uid;
 
+  const folderNotesRef = database.ref(`folders/${uid}/${folderId}/notes`);
   try {
-    await folderRef.child(noteId).remove();
+    await folderNotesRef.child(noteId).remove();
     console.log(`Note ${noteId} removed from folder ${folderId} successfully`);
+    return { success: true };
   } catch (error) {
-    console.error(
-      `Error removing note ${noteId} from folder ${folderId}:`,
-      error
-    );
+    console.error(`Error removing note ${noteId} from folder ${folderId}:`, error);
+    throw error;
   }
 };
 
-// Função para excluir um folder e todas as notas nele
+/**
+ * Exclui uma pasta e seus arquivos (se confirmar) do Storage e do Realtime Database
+ */
 export const deleteArrayFolder = async (folderId) => {
-  const auth = getAuth();
   const user = auth.currentUser;
-  const userID = user.uid;
-  const foldersRef = app.database().ref(`folders/${userID}`);
+  if (!user) throw new Error("Usuário não autenticado");
+  const uid = user.uid;
+  const foldersRef = database.ref(`folders/${uid}`);
 
   try {
-    // Verifique se a pasta possui notas
-    const folderSnapshot = await foldersRef
-      .child(folderId)
-      .child("notes")
-      .get();
-    const folderData = folderSnapshot.val();
+    const notesSnapshot = await foldersRef.child(folderId).child("notes").once("value");
+    const folderData = notesSnapshot.val();
 
-    // Crie uma referência ao Storage
-    const storage = getStorage(app);
-
-    // Se a pasta tiver notas, mostre o alerta de confirmação
     if (folderData) {
       const confirmDelete = window.confirm(
-        "Are you sure you want to delete this folder and its contents?"
+        "Tem certeza que deseja deletar esta pasta e todo o seu conteúdo?"
       );
 
-      if (confirmDelete) {
-        // Percorra a lista de notas no folder
-        for (const noteId in folderData) {
-          // Exclua o arquivo de anotação no Storage
-          const auth = getAuth();
-          const user = auth.currentUser;
-          const userID = user.uid;
-          const note = folderData[noteId];
-          const noteRef = ref(
-            storage,
-            `arquivos/anotacoes/${userID}/pasta/${note.arquivoNomeCompleto}`
-          );
-
-          foldersRef.child(folderId).remove();
-          console.log("Folder removed from array successfully");
-
-          await deleteObject(noteRef);
-
-          // Exclua a nota individualmente
-          await deleteNoteFromFolder(folderId, noteId);
-        }
-      } else {
+      if (!confirmDelete) {
         console.log("Folder deletion canceled.");
-        return;
+        return { canceled: true };
+      }
+
+      // folderData pode ser objeto ou array; normaliza para objeto
+      const notesObj = Array.isArray(folderData) ? Object.fromEntries(folderData.map((n, i) => [n.id ?? i, n])) : folderData;
+
+      for (const noteKey of Object.keys(notesObj)) {
+        const note = notesObj[noteKey];
+        // tenta remover arquivo associado no Storage (se existir)
+        const arquivoNome = note.arquivoNomeCompleto || note.nomeArquivo || note.fileName || null;
+        const arquivoUrl = note.urlDoArquivo || note.arquivoUrl || null;
+
+        if (arquivoUrl) {
+          try {
+            const fileRef = storage.refFromURL(arquivoUrl);
+            await fileRef.delete();
+            console.log(`Arquivo removido por URL: ${arquivoUrl}`);
+          } catch (err) {
+            console.warn("Falha ao deletar arquivo por URL (pode não existir):", err);
+          }
+        } else if (arquivoNome) {
+          try {
+            const fileRef = storage.ref(`arquivos/anotacoes/${uid}/pasta/${arquivoNome}`);
+            await fileRef.delete();
+            console.log(`Arquivo removido: ${arquivoNome}`);
+          } catch (err) {
+            console.warn("Falha ao deletar arquivo pelo path:", err);
+          }
+        }
+
+        // remove a nota individualmente do nó da pasta
+        try {
+          await foldersRef.child(`${folderId}/notes/${noteKey}`).remove();
+        } catch (err) {
+          console.warn("Falha ao remover nota individualmente:", err);
+        }
       }
     }
 
-    // Remova a pasta do array
+    // finalmente remove a pasta
     await foldersRef.child(folderId).remove();
     console.log("Folder removed from array successfully");
+    return { success: true };
   } catch (error) {
     console.error("Error removing folder from array:", error);
+    throw error;
   }
 };

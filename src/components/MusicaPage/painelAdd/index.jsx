@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { Button, Modal, TextField, MenuItem } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
-import styles from "./AddMusicButton.module.css"; // Substitua pelo estilo apropriado
+import styles from "./AddMusicButton.module.css";
 import { useMusicContext } from "APIs/MusicContext";
-import { app } from "APIs/firebaseConfig"; // Importe a configuração do Firebase
-import { getAuth } from "firebase/auth";
+import { storage, auth } from "APIs/firebaseConfig";
 
 const AddMusicButton = ({ onMusicAdded }) => {
   const { adicionarMusica, categorias } = useMusicContext();
@@ -15,31 +14,12 @@ const AddMusicButton = ({ onMusicAdded }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [open, setOpen] = useState(false);
 
-  //   const categorias = ["Rock", "Pop", "Eletrônica", "Hip Hop", "Clássica"]; // Adicione as categorias desejadas
-
-  const handleArquivoChange = (e) => {
-    setArquivo(e.target.files[0]);
-  };
-
-  const handleOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleTituloChange = (event) => {
-    setTitulo(event.target.value);
-  };
-
-  const handleCategoriaChange = (event) => {
-    setCategoria(event.target.value);
-  };
-
-  const handleImagemChange = (event) => {
-    setImagem(event.target.files[0]);
-  };
+  const handleArquivoChange = (e) => setArquivo(e.target.files[0] || null);
+  const handleImagemChange = (e) => setImagem(e.target.files[0] || null);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  const handleTituloChange = (event) => setTitulo(event.target.value);
+  const handleCategoriaChange = (event) => setCategoria(event.target.value);
 
   const handleCancelar = () => {
     setTitulo("");
@@ -50,17 +30,20 @@ const AddMusicButton = ({ onMusicAdded }) => {
   };
 
   const handleAdicionarMusica = async () => {
-    if (arquivo && titulo && imagem && categoria) {
-      setIsUploading(true);
-      const auth = getAuth();
+    if (!arquivo || !titulo || !imagem || !categoria) return;
+    setIsUploading(true);
+    try {
       const user = auth.currentUser;
+      if (!user) {
+        alert("Usuário não autenticado.");
+        return;
+      }
       const userID = user.uid;
-      
-
-      const storage = app.storage();
       const storageRef = storage.ref();
 
-      const arquivoRef = storageRef.child(`arquivos/musicas/${userID}/${arquivo.name}`);
+      const arquivoRef = storageRef.child(
+        `arquivos/musicas/${userID}/${arquivo.name}`
+      );
       await arquivoRef.put(arquivo);
       const urlDoArquivo = await arquivoRef.getDownloadURL();
 
@@ -69,23 +52,26 @@ const AddMusicButton = ({ onMusicAdded }) => {
       const imagemUrl = await imagemRef.getDownloadURL();
 
       const novaMusica = {
-        id: app.database().ref().child(`musicas/${userID}`).push().key,
         titulo: titulo,
         categoria: categoria,
-        nomeArquivoAudio: arquivo.name, // Adicione o nome real do arquivo de áudio
-        nomeArquivoImagem: imagem.name, // Adicione o nome real do arquivo de imagem
-        urlDoArquivo: urlDoArquivo,
-        imagemUrl: imagemUrl,
+        nomeArquivoAudio: arquivo.name,
+        nomeArquivoImagem: imagem.name,
+        urlDoArquivo,
+        imagemUrl,
       };
 
-      adicionarMusica(novaMusica);
-      setIsUploading(false);
-
+      await adicionarMusica(novaMusica);
+      if (typeof onMusicAdded === "function") onMusicAdded();
       setTitulo("");
       setCategoria("");
       setImagem(null);
       setArquivo(null);
       handleClose();
+    } catch (err) {
+      console.error("Erro ao adicionar música:", err);
+      alert("Erro ao adicionar música.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -124,10 +110,9 @@ const AddMusicButton = ({ onMusicAdded }) => {
               </MenuItem>
             ))}
           </TextField>
+
           <div className={styles.divLabel}>
-            <label
-              className={imagem ? styles.InputSelected : styles.InputButton}
-            >
+            <label className={imagem ? styles.InputSelected : styles.InputButton}>
               <span className={styles.customFileInputButton}>
                 {imagem ? "Imagem Selecionada" : "Selecionar Imagem"}
               </span>
@@ -138,6 +123,7 @@ const AddMusicButton = ({ onMusicAdded }) => {
                 className={styles.fileInput}
               />
             </label>
+
             <label className={arquivo ? styles.InputSelected : styles.InputButton}>
               <span className={styles.customFileInputButton}>
               {arquivo ? "Arquivo Selecionado" : "Selecionar Arquivo"}
@@ -150,6 +136,7 @@ const AddMusicButton = ({ onMusicAdded }) => {
               />
             </label>
           </div>
+
           <div className={styles.buttonGroup}>
             <Button
               variant="contained"

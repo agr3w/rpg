@@ -4,7 +4,7 @@ import Rout from "./Route";
 import "styles/reset.css";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import theme from "./theme";
-import "./firebaseConfig";
+import "./APIs/firebaseConfig";
 import { MusicProvider } from "APIs/MusicContext";
 import { BookProvider } from "APIs/BookContext";
 import { NoteProvider } from "APIs/NoteContext";

@@ -1,54 +1,56 @@
-import { getStorage, ref, deleteObject } from "firebase/storage";
-import { getFirestore, doc, deleteDoc } from "firebase/firestore";
-import { app } from "APIs/firebaseConfig"; // Importe a instância do aplicativo Firebase
-import { getAuth } from "firebase/auth";
+import React from "react";
+import { database, storage, auth, firebase } from "APIs/firebaseConfig";
 
+/**
+ * Remove entrada do livro no Realtime Database
+ */
 export const deleteArrayLivro = async (livroId) => {
-  const auth = getAuth();
   const user = auth.currentUser;
+  if (!user) throw new Error("Usuário não autenticado");
   const userID = user.uid;
-    const livrosRef = app.database().ref(`books/${userID}`);
-    console.log("livrosRef", livrosRef.toString());
 
-    const livrosExcluirRef = livrosRef.child(livroId);
-    console.log("livrosExcluirRef", livrosExcluirRef.toString());
+  try {
+    await database.ref(`books/${userID}/${livroId}`).remove();
+    return { success: true };
+  } catch (error) {
+    console.error("Error removing livro from database:", error);
+    throw error;
+  }
+};
 
-    try {
-        await livrosExcluirRef.remove();
-        console.log("Livro removed successfully");
-    } catch (error) {
-        console.error("Error removing livro:", error);
-    }
-}
-
-
-export function deletarLivro(livro) {
-  const auth = getAuth();
+/**
+ * Deleta arquivo do Storage (por URL se disponível) e remove entrada no Realtime Database
+ */
+export async function deletarLivro(livro) {
   const user = auth.currentUser;
-  const userID = user.uid;  const storage = getStorage(app);
-  const livroRef = ref(
-    storage,
-    `gs://test-b6bc2.appspot.com/arquivos/livros/${userID}/${livro.titulo}.pdf`
-  );
+  if (!user) throw new Error("Usuário não autenticado");
+  const userID = user.uid;
 
-  // Referência para o documento no Firebase Firestore
-  const db = getFirestore(app);
-  const livroDocRef = doc(db, "livros", livro.id);
+  try {
+    // tenta remover pelo url (mais confiável), senão monta path pelo título
+    let storageRef = null;
+    if (livro.urlDoArquivo) {
+      storageRef = storage.refFromURL(livro.urlDoArquivo);
+    } else {
+      // fallback (pode variar conforme como o arquivo foi salvo)
+      storageRef = storage.ref(`arquivos/livros/${userID}/${livro.titulo}.pdf`);
+    }
 
-  // Deletar o arquivo de livro do Firebase Storage
-  deleteObject(livroRef)
-    .then(() => {
-      // Deletar o documento do Firebase Firestore
-      return deleteDoc(livroDocRef);
-    })
-    .then(() => {
-      // Mostrar uma mensagem de sucesso
-      alert("Livro deletado com sucesso!");
-    })
-    .catch((error) => {
-      // Tratar o erro
-      console.error(error);
-      // Mostrar uma mensagem de erro
-      alert("Ocorreu um erro ao deletar o livro!");
-    });
+    // Deleta o arquivo no Storage (se existir)
+    try {
+      await storageRef.delete();
+      console.log("Arquivo do Storage deletado com sucesso");
+    } catch (err) {
+      console.warn("Não foi possível deletar arquivo do Storage (ou já não existe):", err);
+    }
+
+    // Remove entrada do Realtime Database
+    await database.ref(`books/${userID}/${livro.id}`).remove();
+    console.log("Entrada do livro removida do database com sucesso");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Erro ao deletar livro:", error);
+    throw error;
+  }
 }

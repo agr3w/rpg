@@ -23,7 +23,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import AddIcon from "@mui/icons-material/Add";
 import { AnimatePresence, motion } from "framer-motion";
 import Nav from "components/nav";
-import { getAuth } from "firebase/auth";
+import { auth } from "APIs/firebaseConfig";
 
 /**
  * Página de listagem de fichas com cards estilizados por classe/raça.
@@ -64,8 +64,12 @@ const FichasPage = () => {
   const [fichas, setFichas] = useState([]);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [toDeleteKey, setToDeleteKey] = useState(null);
-  const auth = getAuth();
-  const user = auth.currentUser;
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsub = auth.onAuthStateChanged((u) => setUser(u ?? null));
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     if (!user) return;

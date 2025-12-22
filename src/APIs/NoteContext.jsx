@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { app } from "../APIs/firebaseConfig"; // Import your Firebase app instance
-import { getAuth } from "firebase/auth";
+import { database, auth, firebase } from "./firebaseConfig"; // usa exports compat
 
 const NoteContext = createContext();
 
@@ -11,38 +10,38 @@ export const NoteProvider = ({ children }) => {
   const [userID, setUserID] = useState(null);
 
   useEffect(() => {
-    const auth = getAuth();
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        setUserID(user.uid);
-      } else {
-        setUserID(null);
-      }
+    const unsub = auth.onAuthStateChanged((user) => {
+      setUserID(user ? user.uid : null);
     });
+    return () => unsub();
   }, []);
 
   useEffect(() => {
-    if (userID) {
-      const notesRef = app.database().ref(`notes/${userID}`);
-      notesRef.on("value", (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          setNotes(Object.values(data));
-        }
-      });
+    if (!userID) {
+      setNotes([]);
+      return;
     }
+    const notesRef = database.ref(`notes/${userID}`);
+    const handle = (snapshot) => {
+      const data = snapshot.val();
+      setNotes(data ? Object.values(data) : []);
+    };
+    notesRef.on("value", handle);
+    return () => notesRef.off("value", handle);
   }, [userID]);
 
   const addNote = async (newNote) => {
-    if (userID) {
-      const notesRef = app.database().ref(`notes/${userID}`);
-      const newNoteRef = notesRef.push();
-      const newNoteId = newNoteRef.key;
-      await newNoteRef.set({
-        ...newNote,
-        id: newNoteId,
-      });
-    }
+    const user = auth.currentUser;
+    if (!user) throw new Error("Usuário não autenticado");
+    const uid = user.uid;
+    const notesRef = database.ref(`notes/${uid}`);
+    const newNoteRef = notesRef.push();
+    const newNoteId = newNoteRef.key;
+    await newNoteRef.set({
+      ...newNote,
+      id: newNoteId,
+      criadoEm: firebase.database.ServerValue.TIMESTAMP,
+    });
   };
 
   return (

@@ -1,7 +1,6 @@
 // BookContext.js
 import { createContext, useContext, useState, useEffect } from "react";
-import { app } from "./firebaseConfig"; // Import your Firebase app instance
-import { getAuth } from "firebase/auth";
+import { database, auth, firebase } from "./firebaseConfig"; // usa exports compat
 
 const BookContext = createContext();
 
@@ -11,48 +10,46 @@ export const BookProvider = ({ children }) => {
   const [books, setBooks] = useState([]);
   const [userID, setUserID] = useState(null);
 
-
   useEffect(() => {
-    const auth = getAuth();
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        setUserID(user.uid);
-      } else {
-        setUserID(null);
-      }
+    const unsub = auth.onAuthStateChanged((user) => {
+      setUserID(user ? user.uid : null);
     });
+    return () => unsub();
   }, []);
 
   useEffect(() => {
-    if (userID) {
-      const foldersRef = app.database().ref(`books/${userID}`);
-      foldersRef.on("value", (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          setBooks(Object.values(data));
-        }
-      });
+    if (!userID) {
+      setBooks([]);
+      return;
     }
+    const booksRef = database.ref(`books/${userID}`);
+    const handle = (snapshot) => {
+      const data = snapshot.val();
+      setBooks(data ? Object.values(data) : []);
+    };
+    booksRef.on("value", handle);
+    return () => booksRef.off("value", handle);
   }, [userID]);
 
   const addBook = async (newBook) => {
-    const auth = getAuth();
     const user = auth.currentUser;
-    const userID = user.uid;
-    const booksRef = app.database().ref(`books/${userID}`);
+    if (!user) throw new Error("Usuário não autenticado");
+    const uid = user.uid;
+    const booksRef = database.ref(`books/${uid}`);
     const newBookRef = booksRef.push();
     const newBookId = newBookRef.key;
     await newBookRef.set({
       ...newBook,
       id: newBookId,
+      criadoEm: firebase.database.ServerValue.TIMESTAMP,
     });
   };
 
   const deleteBook = async (bookId) => {
-    const auth = getAuth();
     const user = auth.currentUser;
-    const userID = user.uid;
-    const bookRef = app.database().ref(`arquivos/livros/${userID}/${bookId}`);
+    if (!user) throw new Error("Usuário não autenticado");
+    const uid = user.uid;
+    const bookRef = database.ref(`books/${uid}/${bookId}`);
     await bookRef.remove();
   };
 
