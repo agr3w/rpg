@@ -1,103 +1,90 @@
 import React from "react";
-import styles from "pages/FichaPage/fichaPage.module.css";
 import {
+  Box,
   FormControl,
   InputLabel,
   MenuItem,
   Select,
   Typography,
+  Stack,
+  Paper,
 } from "@mui/material";
+import LayoutFicha from "components/FichaLayout/LayoutFicha";
 
 const SingleTextSection = ({ antecedenteSelecionado }) => {
+  const label =
+    antecedenteSelecionado?.CaracteristicaDoAntecedente?.LabelCaracteristicaTexto1;
+  const texto =
+    antecedenteSelecionado?.CaracteristicaDoAntecedente?.CaracteristicaTexto1;
+
   return (
-    <>
-      <h1 className={styles.h2Habilidades}>
-        Características{" "}
-        {
-          antecedenteSelecionado?.CaracteristicaDoAntecedente
-            ?.LabelCaracteristicaTexto1
-        }
-      </h1>
-      <div className={styles.divTexto}>
-        <p>
-          {
-            antecedenteSelecionado?.CaracteristicaDoAntecedente
-              ?.CaracteristicaTexto1
-          }
-        </p>
-      </div>
-    </>
+    <Paper sx={{ p: 2, borderRadius: 2 }}>
+      <Typography variant="h6" sx={{ mb: 1 }}>
+        Características {label}
+      </Typography>
+      <Box sx={{ whiteSpace: "pre-wrap", wordBreak: "break-word", lineHeight: 1.6 }}>
+        <Typography variant="body2" color="text.secondary">
+          {texto || "—"}
+        </Typography>
+      </Box>
+    </Paper>
   );
 };
 
 const SelectsSection = ({
-  antecedente,
   antecedenteSelecionado,
   CarcDosAntecedentes1,
   setCarcDosAntecedents1,
   CarcDosAntecedentes2,
   setCarcDosAntecedentes2,
 }) => {
+  const select1Label =
+    antecedenteSelecionado?.CaracteristicaDoAntecedente?.LabelCaracteristicaSelect1;
+  const select2Label =
+    antecedenteSelecionado?.CaracteristicaDoAntecedente?.LabelCaracteristicaSelect2;
+  const options1 =
+    antecedenteSelecionado?.CaracteristicaDoAntecedente?.CaracteristicaSelect1 || [];
+  const options2 =
+    antecedenteSelecionado?.CaracteristicaDoAntecedente?.CaracteristicaSelect2 || [];
+
   return (
-    <div className={styles.espacamentoSelects}>
+    <Stack spacing={2}>
       <FormControl fullWidth>
-        <InputLabel>
-          {
-            antecedenteSelecionado?.CaracteristicaDoAntecedente
-              ?.LabelCaracteristicaSelect1
-          }
-        </InputLabel>
+        <InputLabel>{select1Label}</InputLabel>
         <Select
-          label={
-            antecedenteSelecionado?.CaracteristicaDoAntecedente
-              ?.LabelCaracteristicaSelect1
-          }
+          label={select1Label}
           value={CarcDosAntecedentes1}
           onChange={(e) => setCarcDosAntecedents1(e.target.value)}
         >
           <MenuItem value="">
-            <em>
-              {
-                antecedenteSelecionado.CaracteristicaDoAntecedente
-                  .LabelCaracteristicaSelect1
-              }
-            </em>
+            <em>{select1Label}</em>
           </MenuItem>
-          {antecedenteSelecionado.CaracteristicaDoAntecedente.CaracteristicaSelect1.map(
-            (opcao) => (
-              <MenuItem key={opcao} value={opcao}>
-                {opcao}
-              </MenuItem>
-            )
-          )}
+          {options1.map((opcao) => (
+            <MenuItem key={opcao} value={opcao}>
+              {opcao}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
 
       <FormControl fullWidth>
-        <InputLabel>
-          {
-            antecedenteSelecionado?.CaracteristicaDoAntecedente
-              ?.LabelCaracteristicaSelect2
-          }
-        </InputLabel>
+        <InputLabel>{select2Label}</InputLabel>
         <Select
-          label={
-            antecedenteSelecionado?.CaracteristicaDoAntecedente
-              ?.LabelCaracteristicaSelect2
-          }
+          label={select2Label}
           value={CarcDosAntecedentes2}
           onChange={(e) => setCarcDosAntecedentes2(e.target.value)}
         >
-          {antecedenteSelecionado.CaracteristicaDoAntecedente.CaracteristicaSelect2.map(
-            (opcao) => (
-              <MenuItem key={opcao} value={opcao}>
-                {opcao}
-              </MenuItem>
-            )
-          )}
+          <MenuItem value="">
+            <em>{select2Label}</em>
+          </MenuItem>
+          {options2.map((opcao) => (
+            <MenuItem key={opcao} value={opcao}>
+              {opcao}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
-    </div>
+    </Stack>
   );
 };
 
@@ -106,48 +93,42 @@ const TextAndSelectSection = ({
   CarcDosAntecedentes3,
   setCarcDosAntecedents3,
 }) => {
+  const selectLabel =
+    antecedenteSelecionado?.CaracteristicaDoAntecedente?.LabelCaracteristicaSelect1;
+  const options =
+    antecedenteSelecionado?.CaracteristicaDoAntecedente?.CaracteristicaSelect1 || [];
+  const texto =
+    antecedenteSelecionado?.CaracteristicaDoAntecedente?.CaracteristicaTexto1;
+
   return (
-    <>
-      <div className={styles.espacamentoSelects}>
-        <FormControl fullWidth>
-          <InputLabel>
-            {
-              antecedenteSelecionado?.CaracteristicaDoAntecedente
-                ?.LabelCaracteristicaSelect1
-            }
-          </InputLabel>
-          <Select
-            label={
-              antecedenteSelecionado?.CaracteristicaDoAntecedente
-                ?.LabelCaracteristicaSelect1
-            }
-            value={CarcDosAntecedentes3}
-            onChange={(e) => setCarcDosAntecedents3(e.target.value)}
-          >
-            {antecedenteSelecionado.CaracteristicaDoAntecedente.CaracteristicaSelect1.map(
-              (opcao) => (
-                <MenuItem key={opcao} value={opcao}>
-                  {opcao}
-                </MenuItem>
-              )
-            )}
-          </Select>
-        </FormControl>
-      </div>
-      <Typography variant="h6" className={styles.h2Habilidades}>
-        Características{" "}
-        {
-          antecedenteSelecionado?.CaracteristicaDoAntecedente
-            ?.LabelCaracteristicaTexto1
-        }
-      </Typography>
-      <p className={styles.divTexto}>
-        {
-          antecedenteSelecionado?.CaracteristicaDoAntecedente
-            ?.CaracteristicaTexto1
-        }
-      </p>
-    </>
+    <Stack spacing={2}>
+      <FormControl fullWidth>
+        <InputLabel>{selectLabel}</InputLabel>
+        <Select
+          label={selectLabel}
+          value={CarcDosAntecedentes3}
+          onChange={(e) => setCarcDosAntecedents3(e.target.value)}
+        >
+          <MenuItem value="">
+            <em>{selectLabel}</em>
+          </MenuItem>
+          {options.map((opcao) => (
+            <MenuItem key={opcao} value={opcao}>
+              {opcao}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <Paper sx={{ p: 2, borderRadius: 2 }}>
+        <Typography variant="h6" sx={{ mb: 1 }}>
+          Características {antecedenteSelecionado?.CaracteristicaDoAntecedente?.LabelCaracteristicaTexto1}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: "pre-wrap", lineHeight: 1.6 }}>
+          {texto || "—"}
+        </Typography>
+      </Paper>
+    </Stack>
   );
 };
 
@@ -161,54 +142,56 @@ const Etapa7 = ({
   CarcDosAntecedentes3,
   setCarcDosAntecedents3,
 }) => {
+  const showSingleText =
+    ["Acólito", "Marinheiro", "Nobre", "Órfão"].includes(antecedente);
+  const showSelects = antecedente === "Artesão de Guilda";
+  const showTextAndSelect = [
+    "Charlatão",
+    "Artista",
+    "Criminoso",
+    "Eremita",
+    "Forasteiro",
+    "Sábio",
+    "Soldado",
+    "Herói do Povo",
+  ].includes(antecedente);
+
+  const sugestoes =
+    antecedenteSelecionado?.CaracteristicaDoAntecedente?.caracteristicasSugeridas;
+
   return (
-    <div>
-      <h1 className={styles.h1}>Características do Antecedente</h1>
+    <LayoutFicha title="Características do Antecedente">
+      <Stack spacing={2}>
+        {showSingleText && <SingleTextSection antecedenteSelecionado={antecedenteSelecionado} />}
 
-      {antecedente === "Acólito" ||
-      antecedente === "Marinheiro" ||
-      antecedente === "Nobre" ||
-      antecedente === "Órfão" ? (
-        <SingleTextSection antecedenteSelecionado={antecedenteSelecionado} />
-      ) : null}
+        {showSelects && (
+          <SelectsSection
+            antecedenteSelecionado={antecedenteSelecionado}
+            CarcDosAntecedentes1={CarcDosAntecedentes1}
+            setCarcDosAntecedents1={setCarcDosAntecedents1}
+            CarcDosAntecedentes2={CarcDosAntecedentes2}
+            setCarcDosAntecedentes2={setCarcDosAntecedentes2}
+          />
+        )}
 
-      {antecedente === "Artesão de Guilda" ? (
-        <SelectsSection
-          antecedente={antecedente}
-          antecedenteSelecionado={antecedenteSelecionado}
-          CarcDosAntecedentes1={CarcDosAntecedentes1}
-          setCarcDosAntecedents1={setCarcDosAntecedents1}
-          CarcDosAntecedentes2={CarcDosAntecedentes2}
-          setCarcDosAntecedentes2={setCarcDosAntecedentes2}
-        />
-      ) : null}
+        {showTextAndSelect && (
+          <TextAndSelectSection
+            antecedenteSelecionado={antecedenteSelecionado}
+            CarcDosAntecedentes3={CarcDosAntecedentes3}
+            setCarcDosAntecedents3={setCarcDosAntecedents3}
+          />
+        )}
 
-      {antecedente === "Charlatão" ||
-      antecedente === "Artista" ||
-      antecedente === "Charlatão" ||
-      antecedente === "Criminoso" ||
-      antecedente === "Eremita" ||
-      antecedente === "Forasteiro" ||
-      antecedente === "Sábio" ||
-      antecedente === "Soldado" ||
-      antecedente === "Herói do Povo" ? (
-        <TextAndSelectSection
-          antecedenteSelecionado={antecedenteSelecionado}
-          CarcDosAntecedentes3={CarcDosAntecedentes3}
-          setCarcDosAntecedents3={setCarcDosAntecedents3}
-        />
-      ) : null}
-
-      <Typography variant="h6" className={styles.h2Habilidades}>
-        Características sugeridas
-      </Typography>
-      <p className={styles.divTexto}>
-        {
-          antecedenteSelecionado?.CaracteristicaDoAntecedente
-            ?.caracteristicasSugeridas
-        }
-      </p>
-    </div>
+        <Paper sx={{ p: 2, borderRadius: 2 }}>
+          <Typography variant="h6" sx={{ mb: 1 }}>
+            Características sugeridas
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: "pre-wrap", lineHeight: 1.6 }}>
+            {sugestoes || "Nenhuma sugestão disponível."}
+          </Typography>
+        </Paper>
+      </Stack>
+    </LayoutFicha>
   );
 };
 

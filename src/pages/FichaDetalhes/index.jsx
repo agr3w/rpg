@@ -2,10 +2,32 @@ import React, { useState, useEffect } from "react";
 import firebase from "firebase/compat/app";
 import "firebase/database";
 import { Link, useParams } from "react-router-dom";
-import { Card, CardContent, Typography } from "@mui/material";
-import styles from "./fichaDetalhe.module.css";
-import { classes, racas } from "Array/RacaEClasse";
+import {
+  Avatar,
+  Box,
+  Chip,
+  Grid,
+  Paper,
+  Typography,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Stack,
+  IconButton,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import InfoIcon from "@mui/icons-material/Info";
+import Inventory2Icon from "@mui/icons-material/Inventory2";
+import AccountTreeIcon from "@mui/icons-material/AccountTree";
+import DeleteIcon from "@mui/icons-material/Delete";
+import Nav from "components/nav";
 import BotaoPainelHabilidade from "components/FichaPage/BotãoPainelHabilidade";
+import { classes, racas } from "Array/RacaEClasse";
 import {
   GiHeavyFall,
   GiRunningNinja,
@@ -14,22 +36,29 @@ import {
 } from "react-icons/gi";
 import { ImBook } from "react-icons/im";
 import { SiStylelint } from "react-icons/si";
+import styles from "./fichaDetalhe.module.css";
 import { backgrounds } from "./backgounds/arrayLinksBackgrounds";
-import Nav from "components/nav";
+import { motion } from "framer-motion";
 import { getAuth } from "firebase/auth";
+
+const sectionMotion = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.28 },
+};
 
 const FichaDetalhes = () => {
   const { ID } = useParams();
   const [ficha, setFicha] = useState(null);
   const auth = getAuth();
   const user = auth.currentUser;
-  const userID = user.uid;
+  const userID = user?.uid;
 
   useEffect(() => {
+    if (!userID || !ID) return;
     const databaseRef = firebase.database().ref(`fichas/${userID}`);
-
     databaseRef
-      .orderByChild("ID")
+      .orderByChild("id")
       .equalTo(ID)
       .once("value")
       .then((snapshot) => {
@@ -40,353 +69,468 @@ const FichaDetalhes = () => {
         } else {
           setFicha(null);
         }
+      })
+      .catch((err) => {
+        console.error("Erro ao buscar ficha:", err);
+        setFicha(null);
       });
-  }, [ID]);
+  }, [ID, userID]);
 
   if (!ficha) {
     return (
-      <div className={styles.pageContainer}>
-        <Typography variant="h4" className={styles.pageTitle}>
-          Ficha não encontrada
-        </Typography>
-      </div>
+      <>
+        <Nav />
+        <Box className={styles.pageContainer} sx={{ p: 3 }}>
+          <Typography variant="h4" align="center">
+            Ficha não encontrada
+          </Typography>
+        </Box>
+      </>
     );
   }
-  const classeSelecioanda = classes.find((c) => c.nome === ficha.classe);
-  const racaSelecionada = racas.find((r) => r.nome === ficha.raca);
-  const subRacaSelecionada = ficha.DetalhesDaRaça.SubRacasInfo.SubRaca;
-  const subRacaDetalhes = racaSelecionada.SubRacas.find(
-    (subRaca) => subRaca.subRacaNome === subRacaSelecionada
-  );
 
-  // Verifique se a raça selecionada foi encontrada
-  if (racaSelecionada) {
-    const atributos = ficha.DetalhesDaRaça.Atributos;
-    const habilidadeBonus = racaSelecionada.proficienciaHabilidadeBonus;
+  const classeSelecioanda = classes.find((c) => c.nome === ficha.classe) || {};
+  const racaSelecionada = racas.find((r) => r.nome === ficha.raca) || {};
+  const subRacaSelecionada =
+    ficha.DetalhesDaRaça?.SubRacasInfo?.SubRaca || null;
+  const subRacaDetalhes =
+    racaSelecionada.SubRacas?.find(
+      (sr) => sr.subRacaNome === subRacaSelecionada
+    ) || {};
 
-    // Função para somar os atributos com os bônus
-    const somarAtributos = (atributos, bonusRaca, bonusSubRaca) => {
-      const atributosComBonus = {
-        Força:
-          parseInt(atributos.Força) +
-          parseInt(bonusRaca.Força) +
-          parseInt(bonusSubRaca.Força || 0),
-        Destreza:
-          parseInt(atributos.Destreza) +
-          parseInt(bonusRaca.Destreza) +
-          parseInt(bonusSubRaca.Destreza || 0),
-        Constituição:
-          parseInt(atributos.Constituição) +
-          parseInt(bonusRaca.Constituição) +
-          parseInt(bonusSubRaca.Constituição || 0),
-        Inteligência:
-          parseInt(atributos.Inteligência) +
-          parseInt(bonusRaca.Inteligência) +
-          parseInt(bonusSubRaca.Inteligência || 0),
-        Sabedoria:
-          parseInt(atributos.Sabedoria) +
-          parseInt(bonusRaca.Sabedoria) +
-          parseInt(bonusSubRaca.Sabedoria || 0),
-        Carisma:
-          parseInt(atributos.Carisma) +
-          parseInt(bonusRaca.Carisma) +
-          parseInt(bonusSubRaca.Carisma || 0),
-      };
+  const atributos = ficha.DetalhesDaRaça?.Atributos || {};
+  const bonusRaca = racaSelecionada.proficienciaHabilidadeBonus || {};
+  const bonusSub = subRacaDetalhes.habilidadeBonusSubRaca || {};
 
-      // Se uma sub-raça estiver selecionada, adicione seus bônus
-      return atributosComBonus;
-    };
+  const atributosComBonus = {
+    Força:
+      (Number(atributos.Força) || 0) +
+      (Number(bonusRaca.Força) || 0) +
+      (Number(bonusSub.Força) || 0),
+    Destreza:
+      (Number(atributos.Destreza) || 0) +
+      (Number(bonusRaca.Destreza) || 0) +
+      (Number(bonusSub.Destreza) || 0),
+    Constituição:
+      (Number(atributos.Constituição) || 0) +
+      (Number(bonusRaca.Constituição) || 0) +
+      (Number(bonusSub.Constituição) || 0),
+    Inteligência:
+      (Number(atributos.Inteligência) || 0) +
+      (Number(bonusRaca.Inteligência) || 0) +
+      (Number(bonusSub.Inteligência) || 0),
+    Sabedoria:
+      (Number(atributos.Sabedoria) || 0) +
+      (Number(bonusRaca.Sabedoria) || 0) +
+      (Number(bonusSub.Sabedoria) || 0),
+    Carisma:
+      (Number(atributos.Carisma) || 0) +
+      (Number(bonusRaca.Carisma) || 0) +
+      (Number(bonusSub.Carisma) || 0),
+  };
 
-    const atributosComBonus = somarAtributos(
-      atributos,
-      habilidadeBonus,
-      subRacaDetalhes ? subRacaDetalhes.habilidadeBonusSubRaca : {}
-    );
+  const calcularBonus = (v) => {
+    const bonus = Math.floor((v - 10) / 2);
+    return bonus >= 0 ? `+${bonus}` : `${bonus}`;
+  };
 
-    const calcularBonus = (valorAtributo) => {
-      const bonus = Math.floor((valorAtributo - 10) / 2);
-      return bonus >= 0 ? `(+${bonus})` : `(${bonus})`;
-    };
+  const classeBackgrounds = {
+    Bárbaro: styles.classeBárbaro,
+    Bardo: styles.classeBardo,
+    Bruxo: styles.classeBruxo,
+    Clérigo: styles.classeClérigo,
+    Druida: styles.classeDruida,
+    Feiticeiro: styles.classeFeiticeiro,
+    Guerreiro: styles.classeGuerreiro,
+    Ladino: styles.classeLadino,
+    Mago: styles.classeMago,
+    Monge: styles.classeMonge,
+    Paladino: styles.classePaladino,
+    Patrulheiro: styles.classePatrulheiro,
+  };
 
-    const classeBackgrounds = {
-      Bárbaro: styles.classeBárbaro,
-      Bardo: styles.classeBardo,
-      Bruxo: styles.classeBruxo,
-      Clérigo: styles.classeClérigo,
-      Druida: styles.classeDruida,
-      Feiticeiro: styles.classeFeiticeiro,
-      Guerreiro: styles.classeGuerreiro,
-      Ladino: styles.classeLadino,
-      Mago: styles.classeMago,
-      Monge: styles.classeMonge,
-      Paladino: styles.classePaladino,
-      Patrulheiro: styles.classePatrulheiro,
-    };
+  const getClasseBackground = (classe) => classeBackgrounds[classe] || "";
 
-    const getClasseBackground = (classe) => {
-      return classeBackgrounds[classe] || ""; // Use a classe padrão se não houver correspondência
-    };
-
-    return (
-      <div className={` ${getClasseBackground(ficha.classe)}`}>
-        <Nav />
-        <div className={styles.fundo}>
-          <div className={styles.pageContainer}>
-            <Typography variant="h4" className={styles.pageTitle}>
-              Detalhes da Ficha
-            </Typography>
-            <Card className={styles.card}>
-              <CardContent className={styles.cardContent}>
-                <div className={styles.header}>
-                  <Typography variant="h6">
-                    <span>Nome:</span> {ficha.nome}
-                  </Typography>
-                  <Typography variant="h6">
-                    <span>Classe:</span> {ficha.classe}
-                  </Typography>
-                  <Typography variant="h6">
-                    <span>Raça: </span>
-                    {ficha.raca}
-                  </Typography>
-                  <Typography variant="h6">
-                    <span>Tendencia: </span>
-                    {ficha.tendencia}
-                  </Typography>
-                  <Typography variant="h6">
-                    <span>Riqueza Inicial: </span> {ficha.riquezaInicial}
-                  </Typography>
-                </div>
-
-                {/* Detalhes da Classe */}
-                <div className={styles.espacamentoTextoItem}>
-                  <Typography variant="h6" className={styles.sectionTitle}>
-                    Detalhes da Classe
-                  </Typography>
-                  <li className={styles.listItem}>
-                    P.V: {classeSelecioanda.dadosDeVida}
-                  </li>
-                </div>
-                <Typography>
-                  Equipamento Obrigatório:{" "}
-                  {ficha.DetalhesDaClasse.Equipamentos.equipamentoObgt}
+  return (
+    <div className={`${getClasseBackground(ficha.classe)}`}>
+      <Nav />
+      <Box className={styles.fundo}>
+        <Box className={styles.pageContainer} sx={{ py: 3 }}>
+          <motion.div {...sectionMotion}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 2,
+                mb: 2,
+              }}
+            >
+              <Avatar
+                sx={{
+                  width: 72,
+                  height: 72,
+                  bgcolor: "rgba(255,255,255,0.08)",
+                }}
+              >
+                {ficha.nome?.charAt(0)?.toUpperCase() || "?"}
+              </Avatar>
+              <Box>
+                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                  {ficha.nome}
                 </Typography>
-                <Typography>Equipamentos Selecionados:</Typography>
-
-                <li className={styles.listItem}>
-                  {
-                    ficha.DetalhesDaClasse.Equipamentos
-                      .equipamentosClasseSelecionada1
-                  }
-                </li>
-                <li className={styles.listItem}>
-                  {
-                    ficha.DetalhesDaClasse.Equipamentos
-                      .equipamentosClasseSelecionada2
-                  }
-                </li>
-                <li className={styles.listItem}>
-                  {
-                    ficha.DetalhesDaClasse.Equipamentos
-                      .equipamentosClasseSelecionada3
-                  }
-                </li>
-
-                <div className={styles.espacamentoTextoItem}>
-                  <BotaoPainelHabilidade
-                    imagens={ficha.DetalhesDaClasse.imagens}
+                <Stack direction="row" spacing={1} sx={{ mt: 0.5 }}>
+                  <Chip
+                    label={ficha.classe || "—"}
+                    icon={<AccountTreeIcon />}
+                    size="small"
                   />
-                </div>
+                  <Chip
+                    label={ficha.raca || "—"}
+                    icon={<InfoIcon />}
+                    size="small"
+                  />
+                  <Chip
+                    label={`${ficha.riquezaInicial ?? "—"} PO`}
+                    icon={<Inventory2Icon />}
+                    size="small"
+                  />
+                </Stack>
+              </Box>
+            </Box>
+          </motion.div>
 
-                {ficha.classe === "Mago" && (
-                  <>
-                    <Typography>Perícias da Classe:</Typography>
-                    <>
-                      {ficha.DetalhesDaClasse.periciasClasseSelecionadas.map(
-                        (pericia) => (
-                          <li className={styles.listItem} key={pericia}>
-                            {pericia}
-                          </li>
-                        )
+          <Grid container spacing={3}>
+            {/* LEFT: Attributes + Skills */}
+            <Grid item xs={12} md={7}>
+              <motion.div {...sectionMotion}>
+                <Paper elevation={3} sx={{ p: 2, mb: 2 }}>
+                  <Typography variant="h6" sx={{ mb: 1 }}>
+                    Atributos
+                  </Typography>
+
+                  <List dense>
+                    <ListItem>
+                      <ListItemIcon>
+                        <GiHeavyFall />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={`Força: ${atributosComBonus.Força} (${calcularBonus(
+                          atributosComBonus.Força
+                        )})`}
+                      />
+                    </ListItem>
+
+                    <ListItem>
+                      <ListItemIcon>
+                        <GiRunningNinja />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={`Destreza: ${atributosComBonus.Destreza} (${calcularBonus(
+                          atributosComBonus.Destreza
+                        )})`}
+                      />
+                    </ListItem>
+
+                    <ListItem>
+                      <ListItemIcon>
+                        <GiHealthNormal />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={`Constituição: ${atributosComBonus.Constituição} (${calcularBonus(
+                          atributosComBonus.Constituição
+                        )})`}
+                      />
+                    </ListItem>
+
+                    <ListItem>
+                      <ListItemIcon>
+                        <GiBrain />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={`Inteligência: ${atributosComBonus.Inteligência} (${calcularBonus(
+                          atributosComBonus.Inteligência
+                        )})`}
+                      />
+                    </ListItem>
+
+                    <ListItem>
+                      <ListItemIcon>
+                        <ImBook />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={`Sabedoria: ${atributosComBonus.Sabedoria} (${calcularBonus(
+                          atributosComBonus.Sabedoria
+                        )})`}
+                      />
+                    </ListItem>
+
+                    <ListItem>
+                      <ListItemIcon>
+                        <SiStylelint />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={`Carisma: ${atributosComBonus.Carisma} (${calcularBonus(
+                          atributosComBonus.Carisma
+                        )})`}
+                      />
+                    </ListItem>
+                  </List>
+
+                  <Divider sx={{ my: 1 }} />
+
+                  <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                    Bônus de Raça / Sub-Raça
+                  </Typography>
+                  <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                    {Object.entries(bonusRaca).map(([k, v]) =>
+                      v ? (
+                        <Chip
+                          key={k}
+                          label={`${k}: ${v >= 0 ? `+${v}` : v}`}
+                          size="small"
+                        />
+                      ) : null
+                    )}
+                    {subRacaSelecionada && (
+                      <Chip
+                        label={`Sub-raça: ${subRacaSelecionada}`}
+                        size="small"
+                      />
+                    )}
+                  </Box>
+                </Paper>
+              </motion.div>
+
+              <motion.div {...sectionMotion}>
+                <Accordion defaultExpanded>
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography variant="h6">Equipamentos & Perícias</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Typography variant="subtitle2">Equipamentos</Typography>
+                    <List dense>
+                      <ListItem>
+                        <ListItemText
+                          primary={`Obrigatório: ${
+                            ficha.DetalhesDaClasse?.Equipamentos?.equipamentoObgt ||
+                            "—"
+                          }`}
+                        />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText
+                          primary={`${
+                            ficha.DetalhesDaClasse?.Equipamentos
+                              ?.equipamentosClasseSelecionada1 || "—"
+                          }`}
+                        />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText
+                          primary={`${
+                            ficha.DetalhesDaClasse?.Equipamentos
+                              ?.equipamentosClasseSelecionada2 || "—"
+                          }`}
+                        />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText
+                          primary={`${
+                            ficha.DetalhesDaClasse?.Equipamentos
+                              ?.equipamentosClasseSelecionada3 || "—"
+                          }`}
+                        />
+                      </ListItem>
+                    </List>
+
+                    <Divider sx={{ my: 1 }} />
+                    <Typography variant="subtitle2">
+                      Perícias selecionadas
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        gap: 1,
+                        flexWrap: "wrap",
+                        mt: 1,
+                      }}
+                    >
+                      {(ficha.DetalhesDaClasse?.periciasClasseSelecionadas ||
+                        []).length ? (
+                        (ficha.DetalhesDaClasse?.periciasClasseSelecionadas ||
+                          []).map((p) => (
+                          <Chip key={p} label={p} size="small" />
+                        ))
+                      ) : (
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{ p: 0.5 }}
+                        >
+                          Nenhuma
+                        </Typography>
                       )}
-                    </>
-                  </>
-                )}
+                    </Box>
+                  </AccordionDetails>
+                </Accordion>
+              </motion.div>
 
-                {/* Detalhes da Raça */}
+              <motion.div {...sectionMotion}>
+                <Accordion>
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography variant="h6">Antecedente & Traços</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Typography variant="subtitle2">Antecedente</Typography>
+                    <Typography sx={{ mb: 1 }}>
+                      {ficha.antecedenteDetalhes?.antecedente || "—"}
+                    </Typography>
 
-                <div className={styles.atributos}>
-                  <Typography variant="h4" className={styles.titleAtributos}>
-                    Atributos:
+                    <Typography variant="subtitle2">Características</Typography>
+                    <Typography sx={{ mb: 1 }}>
+                      {
+                        ficha.antecedenteDetalhes?.caracteristicas
+                          ?.CaracteristicasSugeridas || "—"
+                      }
+                    </Typography>
+
+                    <Divider sx={{ my: 1 }} />
+                    <Typography variant="subtitle2">Traços</Typography>
+                    <List dense>
+                      <ListItem>
+                        <ListItemText
+                          primary={`Traço: ${
+                            ficha.antecedenteDetalhes?.tracoPersonalidade || "—"
+                          }`}
+                        />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText
+                          primary={`Ideal: ${
+                            ficha.antecedenteDetalhes?.ideal ||
+                            ficha.antecedenteDetalhes?.ideal ||
+                            "—"
+                          }`}
+                        />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText
+                          primary={`Defeito: ${ficha.antecedenteDetalhes?.defeito}`}
+                        />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText
+                          primary={`Vínculo: ${ficha.antecedenteDetalhes?.vinculo}`}
+                        />
+                      </ListItem>
+                    </List>
+                  </AccordionDetails>
+                </Accordion>
+              </motion.div>
+            </Grid>
+
+            {/* RIGHT: Race, Languages, Sub-race, Visuals */}
+            <Grid item xs={12} md={5}>
+              <motion.div {...sectionMotion}>
+                <Paper elevation={3} sx={{ p: 2, mb: 2 }}>
+                  <Typography variant="h6">Raça & Sub-raça</Typography>
+                  <Typography sx={{ mt: 1 }}>{ficha.raca || "—"}</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Deslocamento: {racaSelecionada.deslocamento || "—"}
                   </Typography>
-                  <ul>
-                    <li className={styles.listItemAtributos}>
-                      <GiHeavyFall className={styles.iconAtributo} /> Força:{" "}
-                      {atributosComBonus.Força}{" "}
-                      {calcularBonus(atributosComBonus.Força)}
-                    </li>
-                    <li className={styles.listItemAtributos}>
-                      <GiRunningNinja className={styles.iconAtributo} />{" "}
-                      Destreza: {atributosComBonus.Destreza}{" "}
-                      {calcularBonus(atributosComBonus.Destreza)}
-                    </li>
-                    <li className={styles.listItemAtributos}>
-                      <GiHealthNormal className={styles.iconAtributo} />
-                      Constituição: {atributosComBonus.Constituição}{" "}
-                      {calcularBonus(atributosComBonus.Constituição)}
-                    </li>
-                    <li className={styles.listItemAtributos}>
-                      <GiBrain className={styles.iconAtributo} />
-                      Inteligência: {atributosComBonus.Inteligência}{" "}
-                      {calcularBonus(atributosComBonus.Inteligência)}
-                    </li>
-                    <li className={styles.listItemAtributos}>
-                      <ImBook className={styles.iconAtributo} /> Sabedoria:{" "}
-                      {atributosComBonus.Sabedoria}{" "}
-                      {calcularBonus(atributosComBonus.Sabedoria)}
-                    </li>
-                    <li className={styles.listItemAtributos}>
-                      <SiStylelint className={styles.iconAtributo} /> Carisma:{" "}
-                      {atributosComBonus.Carisma}{" "}
-                      {calcularBonus(atributosComBonus.Carisma)}
-                    </li>
-                  </ul>
-                </div>
-                <div className={styles.espacamentoTextoItem}>
-                  <Typography variant="h6" className={styles.sectionTitle}>
-                    Habilidades da Raça
-                  </Typography>
-                </div>
-                <li className={styles.listItem}>
-                  Deslocamento: {racaSelecionada.deslocamento}
-                </li>
-                {racaSelecionada.habilidades.map((habilidadesRaca) => (
-                  <li className={styles.listItem}>{habilidadesRaca}</li>
-                ))}
 
-                <Typography className={styles.sectionTitle}>
-                  Idiomas da Raça:
-                </Typography>
-                <ul>
-                  <li className={styles.listItem}>
-                    {ficha.DetalhesDaRaça.Idiomas.idiomaRacaSelecionado}
-                  </li>
-                  <li className={styles.listItem}>
-                    {ficha.DetalhesDaRaça.Idiomas.idiomaRacaSelecionado2}
-                  </li>
-                </ul>
+                  <Divider sx={{ my: 1 }} />
 
-                {/* Sub-Raça */}
+                  <Typography variant="subtitle2">Habilidades raciais</Typography>
+                  <List dense>
+                    {(racaSelecionada.habilidades || []).map((h, i) => (
+                      <ListItem key={i}>
+                        <ListItemText primary={h} />
+                      </ListItem>
+                    ))}
+                  </List>
 
-                <Typography variant="h6" className={styles.sectionTitle}>
-                  Detalhes da Sub-Raça
-                </Typography>
-                <div className={styles.espacamentoTextoItem}>
-                  <Typography>
-                    <span className={styles.spanBold}>Sub-Raça: </span>{" "}
-                    {subRacaSelecionada}
-                  </Typography>
-                </div>
+                  <Divider sx={{ my: 1 }} />
+                  <Typography variant="subtitle2">Idiomas</Typography>
+                  <Box
+                    sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 1 }}
+                  >
+                    <Chip
+                      label={ficha.DetalhesDaRaça?.Idiomas?.idiomaRacaSelecionado}
+                      size="small"
+                    />
+                    <Chip
+                      label={ficha.DetalhesDaRaça?.Idiomas?.idiomaRacaSelecionado2}
+                      size="small"
+                    />
+                  </Box>
+                </Paper>
+              </motion.div>
 
-                {subRacaDetalhes.habilidadesSubRaca.map((habilidades) => (
-                  <li className={styles.listItem}>{habilidades}</li>
-                ))}
-
-                {subRacaSelecionada === "Gnomo das Rochas" && (
-                  <>
-                    <li variant="h6" className={styles.espacamentoTextoItem}>
+              <motion.div {...sectionMotion}>
+                <Paper elevation={3} sx={{ p: 2, mb: 2 }}>
+                  <Typography variant="h6">Sub-raça</Typography>
+                  <Typography sx={{ mt: 1 }}>{subRacaSelecionada || "—"}</Typography>
+                  <List dense>
+                    {(subRacaDetalhes.habilidadesSubRaca || []).map((s, i) => (
+                      <ListItem key={i}>
+                        <ListItemText primary={s} />
+                      </ListItem>
+                    ))}
+                  </List>
+                  {subRacaSelecionada === "Gnomo das Rochas" && (
+                    <Typography variant="caption">
                       Engenhoca:{" "}
                       {
-                        ficha.DetalhesDaRaça.SubRacasInfo.SubRacaGnomoField
-                          .Engenhoca
-                      }
-                    </li>
-                  </>
-                )}
-
-                {/* Detalhes do Antecedente */}
-
-                <div className={styles.espacamentoTextoItem}>
-                  <Typography variant="h6" className={styles.sectionTitle}>
-                    Detalhes do Antecedente
-                  </Typography>
-                  <div className={styles.espacamentoTextoItem}>
-                    <Typography>
-                      Antecedente: {ficha.antecedenteDetalhes.antecedente}
-                    </Typography>
-                  </div>
-                  <Typography>
-                    Características Sugeridas:{" "}
-                    {
-                      ficha.antecedenteDetalhes.caracteristicas
-                        .CaracteristicasSugeridas
-                    }
-                  </Typography>
-                </div>
-
-                {ficha.antecedenteDetalhes.antecedente ===
-                  "Artesão de Guilda" && (
-                  <>
-                    <div className={styles.espacamentoTextoItem}>
-                      <Typography>
-                        Características Da Guilda:{" "}
-                        {
-                          ficha.antecedenteDetalhes.caracteristicas
-                            .CaracterísticasDaGuilda
-                        }
-                      </Typography>
-                    </div>
-                    <Typography>
-                      Negocios Da Guilda:{" "}
-                      {
-                        ficha.antecedenteDetalhes.caracteristicas
-                          .NegocioDaGuilda
+                        ficha.DetalhesDaRaça?.SubRacasInfo?.SubRacaGnomoField
+                          ?.Engenhoca || "—"
                       }
                     </Typography>
-                    <div className={styles.espacamentoTextoItem}>
-                      <Typography>
-                        Idioma adicional:{" "}
-                        {ficha.antecedenteDetalhes.caracteristicas.idioma}
-                      </Typography>
-                    </div>
-                  </>
-                )}
-                <div className={styles.tendencias}>
-                  <Typography variant="h6" className={styles.sectionTitle}>
-                    Tendências
-                  </Typography>
-                  <div className={styles.espacamentoTextoItem}>
-                    <Typography>
-                      Traco De Personalidade:{" "}
-                      {ficha.antecedenteDetalhes.tracoPersonalidade}
-                    </Typography>
-                  </div>
-                  <Typography>
-                    Defeito: {ficha.antecedenteDetalhes.defeito}
-                  </Typography>
-                  <div className={styles.espacamentoTextoItem}>
-                    <Typography>
-                      Ideial: {ficha.antecedenteDetalhes.tracoPersonalidade}
-                    </Typography>
-                  </div>
-                  <Typography>
-                    Vinculo: {ficha.antecedenteDetalhes.vinculo}
-                  </Typography>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-        <Typography className={styles.support}>
-          BackGround Art By:{" "}
-          <Link to={backgrounds[ficha.classe]} className={styles.supportLink}>
-            {backgrounds[ficha.classe]}
-          </Link>
-        </Typography>
-      </div>
-    );
-  } else {
-    return <Typography variant="h4">Ficha não encontrada</Typography>;
-  }
+                  )}
+                </Paper>
+              </motion.div>
+
+              <motion.div {...sectionMotion}>
+                <Paper elevation={3} sx={{ p: 2 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      mb: 1,
+                    }}
+                  >
+                    <Typography variant="h6">Galeria / Referência</Typography>
+                    <IconButton
+                      size="small"
+                      component={Link}
+                      to={backgrounds[ficha.classe]}
+                      target="_blank"
+                      aria-label="Background Link"
+                    >
+                      <InfoIcon />
+                    </IconButton>
+                  </Box>
+                  <BotaoPainelHabilidade
+                    imagens={ficha.DetalhesDaClasse?.imagens || []}
+                  />
+                </Paper>
+              </motion.div>
+            </Grid>
+          </Grid>
+
+          <Box sx={{ mt: 3, textAlign: "center" }}>
+            <Typography className={styles.support}>
+              BackGround Art By:{" "}
+              <Link to={backgrounds[ficha.classe]} className={styles.supportLink}>
+                {backgrounds[ficha.classe]}
+              </Link>
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+    </div>
+  );
 };
 
 export default FichaDetalhes;

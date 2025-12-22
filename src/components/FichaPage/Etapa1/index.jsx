@@ -1,22 +1,31 @@
 import React from "react";
-import { TextField } from "@mui/material";
-import LayoutFicha from "components/FichaLayout/LayoutFicha"; // Ajuste o import conforme sua pasta
+import { TextField, Box } from "@mui/material";
+import LayoutFicha from "components/FichaLayout/LayoutFicha";
 
 const Etapa1 = ({ nome, setNome }) => {
   return (
     <LayoutFicha title="Qual o nome da lenda?">
-      <TextField
-        label="Nome do Personagem"
-        variant="outlined"
-        fullWidth
-        value={nome}
-        onChange={(e) => setNome(e.target.value)}
-        helperText="Esse será o nome pelo qual você será conhecido."
-        sx={{
-            // Pequeno ajuste local se precisar, mas o ideal é o theme cuidar disso
-            backgroundColor: '#fff' 
-        }}
-      />
+      <Box sx={{ width: '100%' }}>
+        <TextField
+          label="Nome do Personagem"
+          variant="outlined"
+          fullWidth
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
+          helperText={`${nome.length}/30 — Esse será o nome pelo qual você será conhecido.`}
+          inputProps={{ maxLength: 30 }}
+          autoFocus
+          sx={{
+            mt: 1,
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 2,
+              backgroundColor: '#fff',
+              boxShadow: '0 4px 12px rgba(16,24,40,0.06)'
+            },
+            '& .MuiFormHelperText-root': { color: 'text.secondary', fontSize: 13 }
+          }}
+        />
+      </Box>
     </LayoutFicha>
   );
 };

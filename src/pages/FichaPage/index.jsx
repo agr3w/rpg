@@ -27,8 +27,24 @@ import Etapa8 from "components/FichaPage/Etapa8";
 import Etapa9 from "components/FichaPage/Etapa9";
 import Etapa10 from "components/FichaPage/Etapa10";
 import Etapa3 from "components/FichaPage/Etapa3";
-import { Button, Typography, Stepper, Step, StepLabel, Paper, Grid, Box } from "@mui/material";
-import { Link } from "react-router-dom";
+import {
+  Button,
+  Typography,
+  Stepper,
+  Step,
+  StepLabel,
+  Paper,
+  Grid,
+  Box,
+  Avatar,
+  Chip,
+  Divider,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemText,
+} from "@mui/material";
+import { Link, useNavigate } from "react-router-dom";
 import { backgrounds } from "pages/FichaDetalhes/backgounds/arrayLinksBackgrounds";
 
 /* ADDED: framer-motion imports */
@@ -93,14 +109,17 @@ const FichaCriar = () => {
 
   const [Engenhocas, setEngenhocas] = useState("");
 
+  const [submitting, setSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
+  const navigate = useNavigate();
+
   const racasOptions = racas.map((r) => r.nome);
   const classesOptions = classes.map((c) => c.nome);
   const TendenciasOptions = tendencias.map((t) => t.nome);
   const idiomaOption = idiomasArray.map((i) => i);
   const racaSelecionada = racas.find((r) => r.nome === raca);
-  // const detalhes = racaSelecionada.SubRacas.find(
-  //   (subRaca) => subRaca.subRacaNome === racas
-  // );
   const classeSelecioanda = classes.find((c) => c.nome === classe);
   const SubRacasOptions =
     racaSelecionada && racaSelecionada.SubRacas
@@ -170,104 +189,122 @@ const FichaCriar = () => {
     }
   };
 
-  const handleConcluir = () => {
-    // SubRacas
-
-    const SubRacasField = getSubRacasField(
-      SubRaca,
-      IdiomaAltoElfo,
-      detalhesSubRaca
-    );
-
-    const SubRacaGnomoField = getSubRacasGnomoField(SubRaca, Engenhocas);
-
-    // Antecedentes
-    const ArtesaoField = getArtesaoCaracteristicasFields(
-      antecedente,
-      CarcDosAntecedentes1,
-      CarcDosAntecedentes2,
-      idiomaDoAntecedente
-    );
-    const AcolitoField = getAcolitoCaracteristicasFields(
-      antecedente,
-      antecedenteSelecionado,
-      idiomaDoAntecedente,
-      idiomaDoAntecendente2
-    );
-    const ArtistaField = getArtistaCaracteristicasFields(
-      antecedente,
-      CarcDosAntecedentes3,
-      antecedenteSelecionado
-    );
-
-    const IdiomasAntecedente = getIdiomasAntecendete(
-      antecedente,
-      idiomaDoAntecedente
-    );
-    const IdiomasAntecedente1 = getIdiomasAntecendete1(
-      antecedente,
-      idiomaDoAntecedente,
-      idiomaDoAntecendente2
-    );
-
-    // RacasParaMandar
-
-    const RacasInfo = {
-      Idiomas: { idiomaRacaSelecionado, idiomaRacaSelecionado2 },
-      Atributos: valoresHabilidade,
-      SubRacasInfo: { ...SubRacasField, SubRacaGnomoField },
-    };
-
-    // ClassesParaMandar
-
-    const Classesinfo = {
-      imagens: classeSelecioanda.imagens,
-      Equipamentos: {
-        equipamentosClasseSelecionada1,
-        equipamentosClasseSelecionada2,
-        equipamentosClasseSelecionada3,
-        equipamentosClasseSelecionada4,
-        equipamentoObgt: classeSelecioanda.equipamentos.equipamentoObgt,
-      },
-      periciasClasseSelecionadas,
-    };
-
-    const itensSelecionados = {
-      tracoPersonalidade: tracoPersonalidadeSelecionado,
-      ideal: idealSelecionado,
-      defeito: defeitoSelecionado,
-      vinculo: vinculoSelecionado,
-      antecedente: antecedente,
-      caracteristicas: {
-        ...ArtesaoField,
-        ...AcolitoField,
-        ...ArtistaField,
-        ...IdiomasAntecedente1,
-        ...IdiomasAntecedente,
-        CaracteristicasSugeridas:
-          antecedenteSelecionado.CaracteristicaDoAntecedente
-            .caracteristicasSugeridas,
-      },
-    };
-
-    // Envio
-
-    enviarFichaParaDatabase(
-      nome,
-      raca,
-      classe,
-      tendencia,
-      itensSelecionados,
-      riquezaInicial,
-      RacasInfo,
-      Classesinfo
-    );
-
-    // Em seguida, você pode redirecionar o usuário para outra página ou realizar outra ação
-  };
-
   const handleRiquezaInicialCalculada = (riqueza) => {
     setRiquezaInicial(riqueza);
+  };
+
+  const classKeyFromProp = (c) => {
+    if (!c) return "";
+    if (typeof c === "string") return c;
+    if (typeof c === "object" && c.nome) return c.nome;
+    return String(c);
+  };
+
+  const handleConcluir = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      // SubRacas
+      const SubRacasField = getSubRacasField(
+        SubRaca,
+        IdiomaAltoElfo,
+        detalhesSubRaca
+      );
+      const SubRacaGnomoField = getSubRacasGnomoField(SubRaca, Engenhocas);
+
+      // Antecedentes
+      const ArtesaoField = getArtesaoCaracteristicasFields(
+        antecedente,
+        CarcDosAntecedentes1,
+        CarcDosAntecedentes2,
+        idiomaDoAntecedente
+      );
+      const AcolitoField = getAcolitoCaracteristicasFields(
+        antecedente,
+        antecedenteSelecionado,
+        idiomaDoAntecedente,
+        idiomaDoAntecendente2
+      );
+      const ArtistaField = getArtistaCaracteristicasFields(
+        antecedente,
+        CarcDosAntecedentes3,
+        antecedenteSelecionado
+      );
+
+      const IdiomasAntecedente = getIdiomasAntecendete(
+        antecedente,
+        idiomaDoAntecedente
+      );
+      const IdiomasAntecedente1 = getIdiomasAntecendete1(
+        antecedente,
+        idiomaDoAntecedente,
+        idiomaDoAntecendente2
+      );
+
+      // RacasParaMandar
+      const RacasInfo = {
+        Idiomas: { idiomaRacaSelecionado, idiomaRacaSelecionado2 },
+        Atributos: valoresHabilidade,
+        SubRacasInfo: { ...SubRacasField, SubRacaGnomoField },
+      };
+
+      // ClassesParaMandar
+      const Classesinfo = {
+        imagens: classeSelecioanda?.imagens || [],
+        Equipamentos: {
+          equipamentosClasseSelecionada1,
+          equipamentosClasseSelecionada2,
+          equipamentosClasseSelecionada3,
+          equipamentosClasseSelecionada4,
+          equipamentoObgt: classeSelecioanda?.equipamentos?.equipamentoObgt,
+        },
+        periciasClasseSelecionadas,
+      };
+
+      const itensSelecionados = {
+        tracoPersonalidade: tracoPersonalidadeSelecionado,
+        ideal: idealSelecionado,
+        defeito: defeitoSelecionado,
+        vinculo: vinculoSelecionado,
+        antecedente: antecedente,
+        caracteristicas: {
+          ...ArtesaoField,
+          ...AcolitoField,
+          ...ArtistaField,
+          ...IdiomasAntecedente1,
+          ...IdiomasAntecedente,
+          CaracteristicasSugeridas:
+            antecedenteSelecionado?.CaracteristicaDoAntecedente
+              ?.caracteristicasSugeridas,
+        },
+      };
+
+      // Envio para DB
+      const res = await enviarFichaParaDatabase(
+        nome,
+        raca,
+        classe,
+        tendencia,
+        itensSelecionados,
+        riquezaInicial,
+        RacasInfo,
+        Classesinfo
+      );
+
+      if (res && res.success) {
+        setSubmitSuccess(true);
+        // pequena espera visual antes de redirecionar
+        setTimeout(() => navigate("/fichas"), 900);
+      } else {
+        throw new Error("Resposta inválida do servidor.");
+      }
+    } catch (err) {
+      console.error("Erro ao enviar ficha:", err);
+      setSubmitError(err.message || "Erro ao enviar ficha.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const classeBackgrounds = {
@@ -283,11 +320,10 @@ const FichaCriar = () => {
     Monge: styleFundo.classeMonge,
     Paladino: styleFundo.classePaladino,
     Patrulheiro: styleFundo.classePatrulheiro,
-    // Adicione mais classes e estilos aqui
   };
 
   const getClasseBackground = (classe) => {
-    return classeBackgrounds[classe] || ""; // Use a classe padrão se não houver correspondência
+    return classeBackgrounds[classe] || "";
   };
 
   const checkRequiredFields = () => {
@@ -303,7 +339,7 @@ const FichaCriar = () => {
           // Verifique se todas as checkboxes estão selecionadas
           const todasSelecionadas =
             periciasClasseSelecionadas.length ==
-            classeSelecioanda.proficiencias.perficiasMinimo;
+            classeSelecioanda?.proficiencias?.perficiasMinimo;
 
           return todasSelecionadas;
         }
@@ -348,12 +384,91 @@ const FichaCriar = () => {
     "Atributos",
   ];
 
+  /* --- Summary small component --- */
+  const SummaryCard = () => (
+    <Paper elevation={6} sx={{ p: 3, borderRadius: 2, maxWidth: 880, mx: "auto" }}>
+      <Box sx={{ display: "flex", gap: 2, alignItems: "center", mb: 2 }}>
+        <Avatar sx={{ bgcolor: "primary.main", width: 56, height: 56 }}>
+          {nome ? nome.charAt(0).toUpperCase() : "?"}
+        </Avatar>
+        <Box>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            {nome || "Sem nome"}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            Resumo rápido do personagem
+          </Typography>
+        </Box>
+      </Box>
+
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={6}>
+          <List dense>
+            <ListItem>
+              <ListItemText primary="Raça" secondary={raca || "—"} />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Sub-Raça" secondary={SubRaca || "—"} />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Classe" secondary={classe || "—"} />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Tendência" secondary={tendencia || "—"} />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Antecedente" secondary={antecedente || "—"} />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Riqueza Inicial" secondary={`${riquezaInicial} PO`} />
+            </ListItem>
+          </List>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>
+            Atributos (base escolhidos)
+          </Typography>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }}>
+            {Object.entries(valoresHabilidade).map(([k, v]) => (
+              <Chip
+                key={k}
+                label={`${k}: ${v || "—"}`}
+                color="default"
+                size="small"
+              />
+            ))}
+          </Box>
+
+          <Divider sx={{ my: 1 }} />
+          <Typography variant="subtitle2" sx={{ mt: 1 }}>
+            Equipamentos & Perícias
+          </Typography>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 1 }}>
+            <Chip label={equipamentosClasseSelecionada1 || "—"} size="small" />
+            <Chip label={equipamentosClasseSelecionada2 || "—"} size="small" />
+            <Chip label={equipamentosClasseSelecionada3 || "—"} size="small" />
+            <Chip label={equipamentosClasseSelecionada4 || "—"} size="small" />
+          </Box>
+
+          <Box sx={{ mt: 1 }}>
+            {periciasClasseSelecionadas.length ? (
+              periciasClasseSelecionadas.map((p) => (
+                <Chip key={p} label={p} size="small" sx={{ mr: 0.5, mt: 0.5 }} />
+              ))
+            ) : (
+              <Typography variant="caption" color="text.secondary">Nenhuma perícia selecionada</Typography>
+            )}
+          </Box>
+        </Grid>
+      </Grid>
+    </Paper>
+  );
+
   return (
     <div className={getClasseBackground(classe)}>
-      
       <div className={styles.espacamento}>
         <div className={styles.pageContainer}>
-          {/* Stepper + painel */}
           <Paper elevation={4} sx={{ p: 2, mb: 2, backgroundColor: "background.paper" }}>
             <Typography variant="h6" align="center" gutterBottom>
               Criar Ficha
@@ -367,19 +482,17 @@ const FichaCriar = () => {
             </Stepper>
           </Paper>
 
-          {/* Animated steps */}
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={etapa}
-              layout /* permite ao framer medir e ajustar o layout */
-              style={{ width: '100%' }} /* garante que o conteúdo ocupe toda a largura do Paper */
+              layout
+              style={{ width: "100%" }}
               variants={pageVariants}
               initial="initial"
               animate="in"
               exit="out"
               transition={pageTransition}
             >
-              {/* reutiliza exatamente os componentes de etapa que já estavam aqui */}
               {etapa === 1 && <Etapa1 nome={nome} setNome={setNome} />}
               {etapa === 2 && (
                 <Etapa2
@@ -476,10 +589,10 @@ const FichaCriar = () => {
               )}
               {etapa === 8 && (
                 <Etapa8
-                  tracoPersonalidade={antecedenteSelecionado.tracoPersonalidade}
-                  ideal={antecedenteSelecionado.ideal}
-                  defeito={antecedenteSelecionado.defeito}
-                  vinculo={antecedenteSelecionado.vinculo}
+                  tracoPersonalidade={antecedenteSelecionado?.tracoPersonalidade || []}
+                  ideal={antecedenteSelecionado?.ideal || []}
+                  defeito={antecedenteSelecionado?.defeito || []}
+                  vinculo={antecedenteSelecionado?.vinculo || []}
                   tracoPersonalidadeSelecionado={tracoPersonalidadeSelecionado}
                   idealSelecionado={idealSelecionado}
                   defeitoSelecionado={defeitoSelecionado}
@@ -512,6 +625,37 @@ const FichaCriar = () => {
                   detalhesSubRaca={detalhesSubRaca}
                 />
               )}
+              {etapa === 11 && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}>
+                  <SummaryCard />
+                  <Box sx={{ mt: 2, display: "flex", gap: 2, justifyContent: "center" }}>
+                    <Button variant="outlined" color="secondary" onClick={() => setEtapa(10)}>
+                      Voltar e editar
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleConcluir}
+                      disabled={submitting || submitSuccess}
+                      startIcon={submitting ? <CircularProgress size={18} /> : null}
+                    >
+                      {submitSuccess ? "Concluído" : submitting ? "Enviando..." : "Concluir e Salvar"}
+                    </Button>
+                  </Box>
+
+                  {submitError && (
+                    <Typography color="error" sx={{ mt: 2 }} align="center">
+                      {submitError}
+                    </Typography>
+                  )}
+
+                  {submitSuccess && (
+                    <Typography color="success.main" sx={{ mt: 2 }} align="center">
+                      Ficha criada com sucesso — redirecionando...
+                    </Typography>
+                  )}
+                </motion.div>
+              )}
             </motion.div>
           </AnimatePresence>
 
@@ -519,7 +663,7 @@ const FichaCriar = () => {
           <Box sx={{ mt: 2 }}>
             <Grid container spacing={2} justifyContent="center">
               <Grid item>
-                {etapa > 1 && (
+                {etapa > 1 && etapa <= 10 ? (
                   <Button
                     variant="contained"
                     color="secondary"
@@ -527,7 +671,7 @@ const FichaCriar = () => {
                   >
                     Etapa Anterior
                   </Button>
-                )}
+                ) : null}
               </Grid>
               <Grid item>
                 {etapa < 11 ? (
@@ -539,23 +683,7 @@ const FichaCriar = () => {
                   >
                     Próxima Etapa
                   </Button>
-                ) : (
-                  <>
-                    <Typography variant="h5" align="center">
-                      Ficha Concluído
-                    </Typography>
-                    <Link to="/fichas" className={styles.link}>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleConcluir}
-                        disabled={!checkRequiredFields()}
-                      >
-                        Concluir
-                      </Button>
-                    </Link>
-                  </>
-                )}
+                ) : null}
               </Grid>
             </Grid>
           </Box>

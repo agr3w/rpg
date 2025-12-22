@@ -2,10 +2,13 @@
 
 import { app } from "APIs/firebaseConfig";
 import { getAuth } from "firebase/auth";
-import { getDatabase, ref, push, set } from "firebase/database";
+import { getDatabase, ref, push, set, serverTimestamp } from "firebase/database";
 
-// Função para enviar informações para o Realtime Database
-export const enviarFichaParaDatabase = (
+/**
+ * Envia ficha para Realtime Database sob /fichas/{userId}/{fichaId}
+ * Retorna Promise que resolve { success: true, id } ou rejeita com Error.
+ */
+export const enviarFichaParaDatabase = async (
   nome,
   raca,
   classe,
@@ -14,52 +17,44 @@ export const enviarFichaParaDatabase = (
   riquezaInicial,
   RacasInfo,
   Classesinfo
-  /* outros campos */
 ) => {
-  // Crie uma referência para o nó onde você deseja armazenar as informações, por exemplo, "fichas"
   const auth = getAuth();
   const user = auth.currentUser;
 
-  if (user) {
-    const userID = user.uid;
-    const database = getDatabase();
-    const ID = app.database().ref().child("fichas").push().key;
-    const fichaRef = ref(database, `fichas/${userID}`);
+  if (!user) {
+    throw new Error("Usuário não autenticado.");
+  }
 
-  
+  // validações básicas
+  const nomeLimpo = typeof nome === "string" ? nome.trim() : "";
+  if (!nomeLimpo) {
+    throw new Error("Nome da ficha inválido.");
+  }
 
-  // Crie um objeto com as informações que você deseja armazenar
-  const novaFicha = {
-    nome: nome,
-    raca: raca,
-    classe: classe,
-    tendencia: tendencia,
-    antecedenteDetalhes: antecedente,
-    riquezaInicial: riquezaInicial,
-    DetalhesDaRaça: RacasInfo,
-    DetalhesDaClasse: Classesinfo,
-    ID,
-    // Adicione mais campos conforme necessário
+  const db = getDatabase();
+  const fichaListRef = ref(db, `fichas/${user.uid}`);
+  const novaFichaRef = push(fichaListRef); // gera id automático
+
+  const payload = {
+    id: novaFichaRef.key,
+    nome: nomeLimpo,
+    raca: raca || null,
+    classe: classe || null,
+    tendencia: tendencia || null,
+    antecedenteDetalhes: antecedente || null,
+    riquezaInicial: typeof riquezaInicial === "number" ? riquezaInicial : null,
+    DetalhesDaRaça: RacasInfo || null,
+    DetalhesDaClasse: Classesinfo || null,
+    createdAt: serverTimestamp(),
   };
-  // Usamos push para gerar um novo ID único para a ficha
-  const novaFichaRef = push(fichaRef);
-  
-    
-  // Definimos os dados da nova ficha no caminho único associado ao ID do usuário
-  set(novaFichaRef, novaFicha)
-    .then(() => {
-      console.log('Ficha criada com sucesso!');
-    })
-    .catch((error) => {
-      console.error('Erro ao criar a ficha:', error);
-    });
-} else {
-  console.log('Usuário não autenticado.');
-}
 
-  // Use a função push para adicionar uma nova entrada com um ID único
-
-
-  // A novaFichaRef agora contém uma referência à entrada recém-criada no banco de dados
-  // Você pode usar esta referência para atualizar ou recuperar os dados, se necessário
+  try {
+    await set(novaFichaRef, payload);
+    return { success: true, id: novaFichaRef.key };
+  } catch (error) {
+    console.error("Erro ao criar a ficha:", error);
+    throw new Error("Erro ao enviar ficha para o database.");
+  }
 };
+
+export default enviarFichaParaDatabase;
