@@ -16,6 +16,7 @@ export default defineConfig({
             'contexts': path.resolve(__dirname, './src/contexts'),
             'src': path.resolve(__dirname, './src'),
             'layouts': path.resolve(__dirname, './src/layouts'),
+            'theme': path.resolve(__dirname, './src/theme'),
         },
     },
     server: {

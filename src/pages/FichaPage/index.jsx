@@ -1,6 +1,6 @@
 // FichaPage.js
 import React, { useState, useEffect } from "react";
-import styles from "./fichaPage.module.css";
+// import styles from "./fichaPage.module.css";
 import styleFundo from "pages/FichaDetalhes/fichaDetalhe.module.css";
 import { enviarFichaParaDatabase } from "components/FichaPage/FichaDatabase";
 import { racas, classes } from "Array/RacaEClasse";

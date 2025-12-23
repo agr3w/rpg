@@ -182,17 +182,124 @@ const FichasPage = () => {
                         overflow: "hidden",
                         boxShadow: 6,
                         transition: "transform .18s ease, box-shadow .18s ease",
-                        "&:hover": { transform: "translateY(-8px) scale(1.02)", boxShadow: 14 },
+                        "&:hover": {
+                          transform: "translateY(-8px) scale(1.02)",
+                          boxShadow:
+                            "0 22px 70px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,204,0,0.16), 0 0 22px rgba(255,120,0,0.18)",
+                        },
+
+                        // ✅ aumenta um pouco o “glow” das brasas no hover
+                        "&:hover::after": { opacity: 0.40 },
+
+                        // ✅ Base “carvão”
+                        backgroundImage: `
+                          radial-gradient(120% 90% at 20% 0%, rgba(255,204,0,0.10) 0%, rgba(0,0,0,0.00) 60%),
+                          radial-gradient(120% 90% at 80% 120%, rgba(255,70,0,0.08) 0%, rgba(0,0,0,0.00) 65%),
+                          linear-gradient(180deg, rgba(28,22,20,0.95), rgba(14,12,12,0.95))
+                        `,
+                        backgroundColor: "var(--rpg-surface)",
+                        border: "1px solid var(--rpg-stroke)",
+                        color: "var(--rpg-cardText)",
+                        position: "relative",
+
+                        // ✅ IMPORTANTÍSSIMO: garante que os overlays fiquem atrás do conteúdo
+                        "& > *": { position: "relative", zIndex: 1 },
+
+                        "&::before": {
+                          content: '""',
+                          position: "absolute",
+                          inset: 0,
+                          pointerEvents: "none",
+                          zIndex: 0, // ✅ atrás
+                          opacity: 0.42,
+                          backgroundImage: `
+                            repeating-linear-gradient(
+                              90deg,
+                              rgba(0,0,0,0.00) 0px,
+                              rgba(0,0,0,0.00) 12px,
+                              rgba(0,0,0,0.18) 13px,
+                              rgba(0,0,0,0.00) 20px
+                            ),
+                            radial-gradient(120% 80% at 50% -10%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.00) 70%),
+                            radial-gradient(120% 90% at 50% 120%, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.00) 70%)
+                          `,
+                          mixBlendMode: "multiply",
+                        },
+
+                        "&::after": {
+                          content: '""',
+                          position: "absolute",
+                          inset: 0,
+                          pointerEvents: "none",
+                          zIndex: 0, // ✅ atrás
+                          opacity: 0.28,
+                          backgroundImage: `
+                            radial-gradient(1px 1px at 16% 22%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 60%),
+                            radial-gradient(2px 2px at 72% 28%, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0) 60%),
+                            radial-gradient(1px 1px at 46% 66%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 60%),
+
+                            radial-gradient(6px 6px at 18% 62%, rgba(255,204,0,0.35) 0%, rgba(255,204,0,0) 60%),
+                            radial-gradient(4px 4px at 60% 42%, rgba(255,120,0,0.32) 0%, rgba(255,120,0,0) 60%),
+                            radial-gradient(5px 5px at 82% 30%, rgba(255,70,0,0.25) 0%, rgba(255,70,0,0) 60%)
+                          `,
+                          mixBlendMode: "screen",
+                        },
                       }}
                     >
-                      <Box sx={{ p: 2, background: style.bg, color: style.color }}>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                      <Box
+                        sx={{
+                          p: 2,
+                          background: style.bg,
+                          color: style.color,
+                          position: "relative",
+
+                          // ✅ “fumacinha” no topo (estática, leve)
+                          "&::before": {
+                            content: '""',
+                            position: "absolute",
+                            left: 0,
+                            right: 0,
+                            top: 0,
+                            height: 54,
+                            pointerEvents: "none",
+                            opacity: 0.28,
+                            backgroundImage: `
+                              radial-gradient(60% 90% at 20% 80%, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 70%),
+                              radial-gradient(55% 85% at 55% 70%, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0) 72%),
+                              radial-gradient(50% 80% at 85% 85%, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0) 70%)
+                            `,
+                            mixBlendMode: "multiply",
+                          },
+
+                          // ✅ fuligem + “lambe” de fogo bem discreta no rodapé do header
+                          "&::after": {
+                            content: '""',
+                            position: "absolute",
+                            inset: 0,
+                            pointerEvents: "none",
+                            background: `
+                              radial-gradient(120% 90% at 50% -10%, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0.00) 70%),
+                              linear-gradient(180deg, rgba(0,0,0,0.00), rgba(0,0,0,0.18) 70%, rgba(0,0,0,0.28))
+                            `,
+                            mixBlendMode: "multiply",
+                          },
+
+                          // separa bem o header do corpo (mais leitura)
+                          boxShadow: "inset 0 -1px 0 rgba(255,255,255,0.14)",
+                        }}
+                      >
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 2, position: "relative" }}>
                           <Avatar sx={{ bgcolor: "rgba(255,255,255,0.12)" }}>
                             {ficha.nome ? ficha.nome.charAt(0).toUpperCase() : "?"}
                           </Avatar>
                           <Box sx={{ flex: 1 }}>
-                            <Typography sx={{ fontWeight: 700 }}>{ficha.nome || "Sem nome"}</Typography>
-                            <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                            <Typography sx={{ fontWeight: 800, textShadow: "0 2px 10px rgba(0,0,0,0.45)" }}>
+                              {ficha.nome || "Sem nome"}
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              sx={{ opacity: 0.92, textShadow: "0 2px 10px rgba(0,0,0,0.45)" }}
+                            >
                               {classeName} • {racaName}
                             </Typography>
                           </Box>
@@ -205,46 +312,83 @@ const FichasPage = () => {
                         </Box>
                       </Box>
 
-                      <CardContent>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                      <CardContent
+                        sx={{
+                          bgcolor: "var(--rpg-cardPanelBg)",
+                          borderTop: "1px solid rgba(255,255,255,0.08)",
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{ mb: 1, color: "var(--rpg-cardTextMuted)" }}
+                        >
                           {ficha.DetalhesDaClasse?.Equipamentos?.equipamentoObgt
                             ? `Equipamento inicial: ${ficha.DetalhesDaClasse.Equipamentos.equipamentoObgt}`
                             : "Equipamento inicial: —"}
                         </Typography>
 
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography variant="body2" sx={{ color: "var(--rpg-cardTextMuted)" }}>
                           Riqueza: {ficha.riquezaInicial ?? (ficha.Valor ? ficha.Valor : "—")} PO
                         </Typography>
 
                         <Box sx={{ mt: 1, display: "flex", gap: 1, flexWrap: "wrap" }}>
-                          {(ficha.DetalhesDaClasse?.periciasClasseSelecionadas || ficha.periciasClasseSelecionadas || []).slice(0, 4).map((p) => (
-                            <Chip key={p} label={p} size="small" />
-                          ))}
+                          {(ficha.DetalhesDaClasse?.periciasClasseSelecionadas ||
+                            ficha.periciasClasseSelecionadas ||
+                            [])
+                            .slice(0, 4)
+                            .map((p) => (
+                              <Chip
+                                key={p}
+                                label={p}
+                                size="small"
+                                sx={{
+                                  bgcolor: "rgba(255,255,255,0.10)",
+                                  color: "var(--rpg-cardText)",
+                                  border: "1px solid rgba(255,255,255,0.10)",
+                                }}
+                              />
+                            ))}
                         </Box>
                       </CardContent>
 
-                      <CardActions sx={{ justifyContent: "space-between", px: 2, pb: 2 }}>
+                      <CardActions
+                        sx={{
+                          justifyContent: "space-between",
+                          px: 2,
+                          pb: 2,
+                          bgcolor: "var(--rpg-cardPanelBg)",
+                        }}
+                      >
                         <Button
                           size="small"
                           variant="outlined"
-                          color="inherit"
                           component={Link}
                           to={`/ficha-completa/${id}`}
                           startIcon={<VisibilityIcon />}
+                          sx={{
+                            color: "var(--rpg-cardText)",
+                            borderColor: "rgba(255,255,255,0.22)",
+                            "&:hover": {
+                              borderColor: "var(--rpg-accent2)",
+                              backgroundColor: "rgba(255,255,255,0.06)",
+                            },
+                          }}
                         >
                           Ver
                         </Button>
 
-                        <Box>
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => openConfirmDelete(ficha.key)}
-                            aria-label="Excluir ficha"
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </Box>
+                        <IconButton
+                          size="small"
+                          onClick={() => openConfirmDelete(ficha.key)}
+                          aria-label="Excluir ficha"
+                          sx={{
+                            color: "rgba(255,80,80,0.95)",
+                            backgroundColor: "rgba(0,0,0,0.15)",
+                            "&:hover": { backgroundColor: "rgba(0,0,0,0.25)" },
+                          }}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
                       </CardActions>
                     </Card>
                   </motion.div>

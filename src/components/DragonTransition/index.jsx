@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useLocation } from "react-router-dom";
+import { getElementFromPath } from "theme/elementTokens";
 
 // --- CONFIGURAÇÃO DOS ELEMENTOS ---
 const ELEMENTS = {
@@ -48,12 +49,7 @@ const ROUTE_TO_ELEMENT = {
 };
 
 function pickElementKey(pathname) {
-  const currentPath =
-    Object.keys(ROUTE_TO_ELEMENT).find((path) =>
-      path !== "/" ? pathname.startsWith(path) : pathname === "/"
-    ) || "/musicas";
-
-  return ROUTE_TO_ELEMENT[currentPath] || "void";
+  return getElementFromPath(pathname);
 }
 
 const DragonTransition = ({ children, location: locationProp }) => {
