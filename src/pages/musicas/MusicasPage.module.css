@@ -1,6 +1,14 @@
 /* MusicasPage.module.css */
 
-body {
+/* ❌ Remover regras globais do body (isso vaza para o app inteiro) */
+/* body {
+  background-image: url(./forest.jpg);
+  background-repeat: repeat;
+  background-attachment: fixed;
+} */
+
+/* ✅ Colocar o background no wrapper da página */
+.fundo {
   background-image: url(./forest.jpg);
   background-repeat: repeat;
   background-attachment: fixed;

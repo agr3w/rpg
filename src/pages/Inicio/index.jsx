@@ -1,110 +1,129 @@
 // Inicio.js
-import React, { useEffect, useState } from "react";
-import styles from "./inicio.module.css";
-import styleFundo from "pages/FichaDetalhes/fichaDetalhe.module.css";
-import LivrosCard from "components/Cards/livors";
-import AnotacoesCard from "components/Cards/anotacoes";
-import MusicasCard from "components/Cards/musicas";
-import Nav from "components/nav";
-import FichaCard from "components/Cards/ficha";
-import { Button, Typography } from "@mui/material";
-import { Link } from "react-router-dom";
-import MapsCard from "components/Cards/maps/indsx";
-import { useAuth } from "contexts/AuthContext";
-import { motion } from "framer-motion";
+import React, { Suspense, lazy } from "react";
+import { motion, MotionConfig } from "framer-motion";
+import { Box, Container, Paper, Stack, Typography, Skeleton } from "@mui/material";
+
+import bg from "./tumblr_okx6d5BR4K1rnbw6mo1_540.webp";
+
+// Lazy-load dos cards (reduz custo do primeiro paint do HUB)
+const LivrosCard = lazy(() => import("components/Cards/livors"));
+const AnotacoesCard = lazy(() => import("components/Cards/anotacoes"));
+const MusicasCard = lazy(() => import("components/Cards/musicas"));
+const FichaCard = lazy(() => import("components/Cards/ficha"));
+const MapsCard = lazy(() => import("components/Cards/maps/indsx"));
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.08, when: "beforeChildren" } },
+};
+const cardItemVariants = {
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.42, ease: [0.22, 1, 0.36, 1] } },
+};
+
+function GridFallback() {
+  return (
+    <Box
+      sx={{
+        display: "grid",
+        gap: 1.5,
+        gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", lg: "1fr 1fr 1fr" },
+      }}
+    >
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Paper key={i} elevation={0} sx={{ borderRadius: 2.5, p: 2, bgcolor: "rgba(223,214,205,0.85)" }}>
+          <Skeleton variant="text" width="60%" />
+          <Skeleton variant="text" width="40%" />
+          <Skeleton variant="rounded" height={170} sx={{ mt: 1 }} />
+        </Paper>
+      ))}
+    </Box>
+  );
+}
 
 export default function Inicio() {
-  const { user: usuarioAutenticado } = useAuth();
-
-  const container = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.08, when: "beforeChildren" } },
-  };
-  const cardItem = { hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.36 } } };
-  const panel = { hidden: { opacity: 0, scale: 0.98, y: 8 }, show: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.36 } } };
-
   return (
-    <>
-      <Nav />
+    <MotionConfig reducedMotion="user">
+      <Box
+        component={motion.div}
+        initial="hidden"
+        animate="show"
+        variants={containerVariants}
+        sx={{
+          minHeight: "100vh",
+          position: "relative",
+          "&::before": {
+            content: '""',
+            position: "fixed",
+            inset: 0,
+            zIndex: -2,
+            backgroundImage: `linear-gradient(rgba(16, 18, 16, 0.55), rgba(16, 18, 16, 0.55)), url(${bg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundAttachment: "scroll", // teste: elimina custo do fixed
+          },
+          "&::after": {
+            content: '""',
+            position: "fixed",
+            inset: 0,
+            zIndex: -1,
+            background: "radial-gradient(80% 60% at 50% 30%, rgba(255,255,255,0.08), rgba(0,0,0,0.35))",
+            pointerEvents: "none",
+          },
+          py: { xs: 2, md: 6 },
+        }}
+      >
+        <Container maxWidth="lg">
+          <Paper
+            elevation={0}
+            sx={{
+              mb: 2,
+              p: { xs: 2, md: 2.5 },
+              borderRadius: 2.5,
+              bgcolor: "rgba(223, 214, 205, 0.92)",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.18)",
+            }}
+          >
+            <Stack spacing={0.75}>
+              <Typography variant="h4" sx={{ fontWeight: 900, color: "#2c1a10" }}>
+                RPG Organizer
+              </Typography>
+              <Typography sx={{ color: "rgba(44,26,16,0.85)" }}>
+                Seu acervo de campanha — escolha uma seção e continue sua jornada.
+              </Typography>
+            </Stack>
+          </Paper>
 
-      {usuarioAutenticado ? (
-        <motion.div className={styles.fundo} initial="hidden" animate="show" variants={container}>
-          <div className={styles.homePage}>
-            <div className={styles.leftColumn}>
-              <motion.div className={`card ${styles.card}`} variants={cardItem}>
-                <AnotacoesCard />
-              </motion.div>
-              <motion.div className={`card ${styles.card}`} variants={cardItem}>
-                <MusicasCard />
-              </motion.div>
-            </div>
+          <Suspense fallback={<GridFallback />}>
+            <Box
+              sx={{
+                display: "grid",
+                gap: 1.5,
+                gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", lg: "1fr 1fr 1fr" },
+              }}
+            >
+              <Box component={motion.div} variants={cardItemVariants}><AnotacoesCard /></Box>
+              <Box component={motion.div} variants={cardItemVariants}><MusicasCard /></Box>
+              <Box component={motion.div} variants={cardItemVariants}><MapsCard /></Box>
+              <Box component={motion.div} variants={cardItemVariants}><LivrosCard /></Box>
+              <Box component={motion.div} variants={cardItemVariants}><FichaCard /></Box>
+            </Box>
+          </Suspense>
 
-            <motion.div className={`card ${styles.card} ${styles.rightColumn}`} variants={cardItem}>
-              <MapsCard />
-            </motion.div>
-
-            <div className={styles.grid}>
-              <motion.div className={`card ${styles.card} ${styles.rightColumn}`} variants={cardItem}>
-                <LivrosCard />
-              </motion.div>
-              <motion.div className={`card ${styles.card} ${styles.rightColumn}`} variants={cardItem}>
-                <FichaCard />
-              </motion.div>
-            </div>
-
-            <div className={styles.blurred_bg}></div>
-          </div>
-
-          <Typography className={styleFundo.support}>
+          <Typography sx={{ mt: 2, fontSize: 12, opacity: 0.85, color: "rgba(255,255,255,0.8)" }}>
             BackGround Art By:{" "}
-            <Link
-              to="https://waneella.tumblr.com/post/156858332747/preparing-pixel-art-video-backgrounds-for"
-              className={styleFundo.supportLink}
+            <Box
+              component="a"
+              href="https://waneella.tumblr.com/post/156858332747/preparing-pixel-art-video-backgrounds-for"
+              target="_blank"
+              rel="noreferrer"
+              sx={{ color: "inherit", textDecoration: "underline" }}
             >
               Waneella Pixel Art
-            </Link>
+            </Box>
           </Typography>
-        </motion.div>
-      ) : (
-        <motion.div initial="hidden" animate="show" variants={panel} className={styles.responsiveContainer}>
-          <div>
-            <div className={styles.fundoEscuro}></div>
-
-            <div className={styles.painel}>
-              <Typography variant="h4" style={{ textAlign: "center", paddingBottom: "20px" }}>
-                Seja bem-Vindo
-              </Typography>
-              <div className={styles.iframeStyle}>
-                <iframe
-                  src="https://www.youtube.com/embed/lRb5rnWd_Xc?si=7f-b6SULaUMct2yp"
-                  title="YouTube video player"
-                  allowFullScreen
-                ></iframe>
-              </div>
-              <div className={styles.textoExplicativo}>
-                <p>
-                  Bem-vindo ao RPG Organizer! Esta plataforma foi criada para tornar sua vida como mestre de RPG mais fácil.
-                </p>
-                <p>
-                  Assista ao vídeo acima para uma introdução rápida e comece a explorar o RPG Organizer para uma experiência de RPG mais organizada e envolvente!
-                </p>
-              </div>
-              <div className={styles.botaoLink}>
-                <Link to={"/login"} style={{ marginBottom: "20px" }}>
-                  <Button variant="contained" color="primary">
-                    Fazer o Login
-                  </Button>
-                </Link>
-                <Link to={"/Registrar-se"} style={{ margin: "0 20px" }}>
-                  <Button variant="contained" color="primary">
-                    Fazer o Registro
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      )}
-    </>
+        </Container>
+      </Box>
+    </MotionConfig>
   );
 }

@@ -5,7 +5,6 @@ import BotaoAdicionarMusica from "components/MusicaPage/botaoAddMusica";
 import MusicaCard from "components/MusicaPage/musicaCard";
 import { useMusicContext } from "APIs/MusicContext";
 import FiltroCategoria from "components/MusicaPage/filtroCategorias";
-import Nav from "components/nav";
 import { Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 
@@ -28,7 +27,6 @@ const MusicasPage = () => {
 
   return (
     <>
-      <Nav />
       <div className={styles.fundo}>
         <div className={styles.musicasPage}>
           <BotaoAdicionarMusica onMusicaAdded={adicionarMusica} />

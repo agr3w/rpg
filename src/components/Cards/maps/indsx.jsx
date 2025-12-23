@@ -1,21 +1,17 @@
 import React from "react";
-import styles from "../cards.module.css"; // Estilos do card
-import img from "./MapsIcon.png"
-import { FaMapSigns } from "react-icons/fa"
-import { Link } from "react-router-dom";
+import { FaMapSigns } from "react-icons/fa";
+import HubTile from "components/HubTile";
+import img from "./MapsIcon.png";
 
-const MapsCard = () => {
+export default function MapsCard() {
   return (
-    <div className={styles.cardMusic}>
-      <div className={styles.card_header}>
-        <FaMapSigns size={24} />
-        <h2>Mapas</h2>
-      </div>
-      <Link to="/mapas">
-        <img src={img} alt="Mapas" />
-      </Link>
-    </div>
+    <HubTile
+      title="Cartografia"
+      subtitle="Mapas e mundos"
+      to="/mapas"
+      icon={<FaMapSigns size={22} />}
+      imageSrc={img}
+      imageAlt="Mapas"
+    />
   );
-};
-
-export default MapsCard;
+}

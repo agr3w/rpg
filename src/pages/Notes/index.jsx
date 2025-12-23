@@ -8,7 +8,6 @@ import { FolderAdd } from "components/NotesPage/folderAdd";
 import { useFolderContext } from "APIs/FolderContext";
 import FoldersCard from "components/NotesPage/folderCard";
 import NoteAddGlobal from "components/NotesPage/NoteAddGlobal";
-import Nav from "components/nav";
 import { Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 
@@ -19,7 +18,6 @@ const NotePage = () => {
   return (
     <>
       <div className={styles.notePage}>
-        <Nav />
         <NoteAddGlobal onNoteAdded={addNote} />
         <FolderAdd />
         <div className={styles.folderCard}>

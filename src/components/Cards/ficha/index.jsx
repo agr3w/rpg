@@ -1,21 +1,17 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { TfiMarkerAlt } from "react-icons/tfi"; // Ícone de livros
-import styles from "../cards.module.css"; // Estilos do card
+import { TfiMarkerAlt } from "react-icons/tfi";
+import HubTile from "components/HubTile";
 import img from "./fichanova.png";
 
-const FichaCard = () => {
+export default function FichaCard() {
   return (
-    <div className={styles.card}>
-      <div className={styles.card_header}>
-        <TfiMarkerAlt size={24} />
-        <h2>Ficha</h2>
-      </div>
-      <Link to="/fichas">
-        <img src={img} alt="Ficha" />
-      </Link>
-    </div>
+    <HubTile
+      title="Fichas"
+      subtitle="Personagens e campanhas"
+      to="/fichas"
+      icon={<TfiMarkerAlt size={22} />}
+      imageSrc={img}
+      imageAlt="Fichas"
+    />
   );
-};
-
-export default FichaCard;
+}

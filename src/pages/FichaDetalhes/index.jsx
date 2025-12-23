@@ -31,7 +31,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import InfoIcon from "@mui/icons-material/Info";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
-import Nav from "components/nav";
 import BotaoPainelHabilidade from "components/FichaPage/BotãoPainelHabilidade";
 import { classes, racas } from "Array/RacaEClasse";
 import { GiHeavyFall, GiRunningNinja, GiHealthNormal, GiBrain } from "react-icons/gi";
@@ -149,7 +148,6 @@ const FichaDetalhes = () => {
   if (loading) {
     return (
       <>
-        <Nav />
         <Box sx={{ p: 3, display: "flex", justifyContent: "center" }}>
           <Paper sx={{ width: "100%", maxWidth: 1100, p: 3 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
@@ -186,7 +184,6 @@ const FichaDetalhes = () => {
   if (!ficha) {
     return (
       <>
-        <Nav />
         <Box className={styles.pageContainer} sx={{ p: 3 }}>
           <Typography variant="h4" align="center">
             Ficha não encontrada
@@ -288,7 +285,6 @@ const FichaDetalhes = () => {
 
   return (
     <div className={`${getClasseBackground(ficha.classe)}`}>
-      <Nav />
       <Box sx={{ py: 4, background: "transparent" }}>
         <Box sx={{ maxWidth: 1100, mx: "auto", px: { xs: 2, md: 3 }, py: 3, bgcolor: "background.paper", borderRadius: 2, boxShadow: 3 }}>
           {/* TOP: Classe / Habilidades / Quick info */}

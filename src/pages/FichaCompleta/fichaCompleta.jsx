@@ -22,7 +22,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import AddIcon from "@mui/icons-material/Add";
 import { AnimatePresence, motion } from "framer-motion";
-import Nav from "components/nav";
 import { auth } from "APIs/firebaseConfig";
 
 /**
@@ -123,7 +122,6 @@ const FichasPage = () => {
 
   return (
     <>
-      <Nav />
       <Box sx={{ p: 3 }}>
         <Typography variant="h4" sx={{ mb: 2, textAlign: "center", color: "primary.main", fontWeight: 700 }}>
           Fichas de Personagem

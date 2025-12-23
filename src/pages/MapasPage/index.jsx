@@ -5,13 +5,11 @@ import React from "react";
 import styles from "./mapaPage.module.css";
 import styleFundo from "pages/FichaDetalhes/fichaDetalhe.module.css"
 import { Typography } from "@mui/material";
-import Nav from "components/nav";
 import { Link } from "react-router-dom";
 
 const MapasPage = () => {
   return (
     <div className={styles.mapasPage}>
-      <Nav />
       <Typography
         variant="h2"
         color={"white"}

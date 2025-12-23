@@ -1,7 +1,6 @@
 import React from "react";
 import { Box, Container, Typography, Paper } from "@mui/material";
 import { motion } from "framer-motion";
-import Nav from "components/nav";
 import AuthComponent from "components/SingIn";
 import { useTheme } from "@mui/material/styles";
 
@@ -15,8 +14,6 @@ export default function Login() {
 
   return (
     <>
-      <Nav />
-
       <Container maxWidth="md" sx={{ minHeight: "calc(100vh - 80px)", display: "flex", alignItems: "center", justifyContent: "center", py: 6 }}>
         <motion.div initial="hidden" animate="show" variants={pageVariants} style={{ width: "100%" }}>
           <Box sx={{ textAlign: "center", mb: 3 }}>

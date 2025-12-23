@@ -4,7 +4,6 @@ import styleFundo from "pages/FichaDetalhes/fichaDetalhe.module.css";
 import { useBookContext } from "APIs/BookContext";
 import BotaoAdicionarLivro from "components/LivroPage/livroAdd/AdicionarLivro";
 import LivroCard from "components/LivroPage/livrosCard/BookCard";
-import Nav from "components/nav";
 import { Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 
@@ -14,7 +13,6 @@ const LivrosPage = () => {
   return (
     <>
       <div className={styles.livrosPage}>
-        <Nav />
         <BotaoAdicionarLivro onLivroAdded={addBook} />
         <div className={styles.livrosList}>
           {books.map((books) => (
