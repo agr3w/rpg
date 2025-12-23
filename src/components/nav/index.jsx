@@ -57,6 +57,37 @@ function getTitleFromPath(pathname) {
   return "RPG Organizer";
 }
 
+// ✅ Marca D20 inline (sem assets)
+function D20Mark({ size = 22 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden focusable="false">
+      <path
+        d="M32 3 6 18v28l26 15 26-15V18L32 3Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M32 3 20 22l12 39 12-39L32 3Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinejoin="round"
+        opacity="0.9"
+      />
+      <path
+        d="M6 18h52M20 22 6 46m38-24 14 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinejoin="round"
+        opacity="0.6"
+      />
+    </svg>
+  );
+}
+
 const Nav = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -91,17 +122,40 @@ const Nav = () => {
       await signOut(auth);
       navigate("/login");
     } catch {
-      // opcional: mostrar toast/snackbar
+      // opcional: toast/snackbar
     }
   }, [navigate]);
 
-  // Scroll progress (desliga se reduced motion)
   const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 110,
-    damping: 26,
-    restDelta: 0.001,
-  });
+  const scaleX = useSpring(scrollYProgress, { stiffness: 110, damping: 26, restDelta: 0.001 });
+
+  // ✅ Indicador “marcador de página” para rota ativa (usa .active do NavLink)
+  const bookmarkSx = useMemo(
+    () => ({
+      position: "relative",
+      "&.active": {
+        color: theme.palette.primary.main,
+        backgroundColor: alpha(theme.palette.primary.main, 0.10),
+      },
+      "&.active::after": {
+        content: '""',
+        position: "absolute",
+        right: 10,
+        top: "50%",
+        width: 10,
+        height: 18,
+        transform: "translateY(-50%)",
+        background: `linear-gradient(180deg, ${alpha(theme.palette.secondary.main, 0.95)}, ${alpha(
+          theme.palette.primary.main,
+          0.85
+        )})`,
+        clipPath: "polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%)",
+        borderRadius: 2,
+        opacity: 0.9,
+      },
+    }),
+    [theme]
+  );
 
   return (
     <>
@@ -112,31 +166,85 @@ const Nav = () => {
           top: 0,
           zIndex: 1100,
 
-          // ✅ sem backdropFilter (custa caro e dá “stutter” em muitos PCs)
-          // A textura/gradiente agora vem do theme (MuiAppBar)
+          // ✅ Textura leve de pergaminho (barata)
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            inset: 0,
+            pointerEvents: "none",
+            opacity: 0.33,
+            backgroundImage: `
+              repeating-linear-gradient(
+                90deg,
+                rgba(0,0,0,0.00) 0px,
+                rgba(0,0,0,0.00) 18px,
+                rgba(0,0,0,0.045) 19px,
+                rgba(0,0,0,0.00) 26px
+              )
+            `,
+          },
         }}
       >
-        <Toolbar sx={{ gap: 1.5 }}>
+        <Toolbar sx={{ gap: 1.5, position: "relative" }}>
           {isMobile && (
             <IconButton edge="start" color="inherit" aria-label="menu" onClick={handleOpenDrawer}>
               <MenuIcon />
             </IconButton>
           )}
 
-          <Typography
-            variant="h6"
-            component="div"
-            sx={{
-              flexGrow: 1,
-              fontWeight: 900,
-              letterSpacing: 1.1,
-              textTransform: "uppercase",
-              color: theme.palette.primary.main,
-              textShadow: "0 1px 0 rgba(255,255,255,0.35)",
-            }}
-          >
-            {title}
-          </Typography>
+          {/* ✅ Hierarquia do título + Brasão/D20 */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: 2,
+                display: "grid",
+                placeItems: "center",
+                color: theme.palette.primary.main,
+                background: alpha(theme.palette.primary.main, 0.08),
+                border: `1px solid ${alpha("#000", 0.10)}`,
+                flex: "0 0 auto",
+              }}
+            >
+              <D20Mark size={22} />
+            </Box>
+
+            <Box sx={{ lineHeight: 1, minWidth: 0 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  display: "block",
+                  letterSpacing: 2.2,
+                  textTransform: "uppercase",
+                  opacity: 0.75,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                RPG Organizer
+              </Typography>
+
+              <Typography
+                variant="h6"
+                component="div"
+                sx={{
+                  fontWeight: 900,
+                  letterSpacing: 0.8,
+                  textTransform: "uppercase",
+                  color: theme.palette.primary.main,
+                  textShadow: "0 1px 0 rgba(255,255,255,0.35)",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  maxWidth: { xs: 180, sm: 360, md: 520 },
+                }}
+              >
+                {title}
+              </Typography>
+            </Box>
+          </Box>
+
+          <Box sx={{ flexGrow: 1 }} />
 
           {!isMobile && (
             <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
@@ -146,19 +254,13 @@ const Nav = () => {
                   color="inherit"
                   component={NavLink}
                   to={item.path}
-                  // ✅ evita "/" ficar active em tudo
                   end={item.path === "/"}
                   startIcon={item.icon}
                   sx={{
                     borderRadius: 2,
                     px: 1.25,
-                    "&.active": {
-                      color: theme.palette.primary.main,
-                      backgroundColor: alpha(theme.palette.primary.main, 0.10),
-                    },
-                    "&:hover": {
-                      backgroundColor: alpha("#000", 0.04),
-                    },
+                    "&:hover": { backgroundColor: alpha("#000", 0.04) },
+                    ...bookmarkSx,
                   }}
                 >
                   {item.text}
@@ -168,7 +270,7 @@ const Nav = () => {
           )}
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, ml: 1 }}>
-            <IconButton color="inherit">
+            <IconButton color="inherit" aria-label="notificações">
               <Badge badgeContent={0} color="error">
                 <NotificationsIcon />
               </Badge>
@@ -228,11 +330,51 @@ const Nav = () => {
         )}
       </AppBar>
 
-      <Drawer anchor="left" open={drawerOpen} onClose={handleCloseDrawer} PaperProps={{ sx: { width: 280 } }}>
-        <Box sx={{ p: 2, display: "flex", alignItems: "center", gap: 1.5 }}>
-          <Avatar src={auth.currentUser?.photoURL || undefined} sx={{ bgcolor: theme.palette.secondary.main }}>
-            {auth.currentUser?.displayName?.[0] || "U"}
-          </Avatar>
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={handleCloseDrawer}
+        PaperProps={{
+          sx: {
+            width: 290,
+            // ✅ textura leve no Drawer também
+            position: "relative",
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+              opacity: 0.25,
+              backgroundImage: `
+                repeating-linear-gradient(
+                  90deg,
+                  rgba(0,0,0,0.00) 0px,
+                  rgba(0,0,0,0.00) 18px,
+                  rgba(0,0,0,0.045) 19px,
+                  rgba(0,0,0,0.00) 26px
+                )
+              `,
+            },
+          },
+        }}
+      >
+        <Box sx={{ p: 2, display: "flex", alignItems: "center", gap: 1.5, position: "relative" }}>
+          <Box
+            sx={{
+              width: 44,
+              height: 44,
+              borderRadius: 2,
+              display: "grid",
+              placeItems: "center",
+              color: theme.palette.primary.main,
+              background: alpha(theme.palette.primary.main, 0.08),
+              border: `1px solid ${alpha("#000", 0.10)}`,
+              flex: "0 0 auto",
+            }}
+          >
+            <D20Mark size={24} />
+          </Box>
+
           <Box sx={{ minWidth: 0 }}>
             <Typography variant="subtitle1" fontWeight={900} noWrap>
               {auth.currentUser?.displayName || "Aventureiro"}
@@ -241,11 +383,33 @@ const Nav = () => {
               {auth.currentUser?.email || "—"}
             </Typography>
           </Box>
+
+          <Box sx={{ ml: "auto" }}>
+            <Avatar src={auth.currentUser?.photoURL || undefined} sx={{ bgcolor: theme.palette.secondary.main }}>
+              {auth.currentUser?.displayName?.[0] || "U"}
+            </Avatar>
+          </Box>
         </Box>
 
-        <Divider />
+        {/* ✅ Divisor com “runa” */}
+        <Divider
+          sx={{
+            borderColor: alpha("#000", 0.10),
+            position: "relative",
+            "&::after": {
+              content: '"✦"',
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              color: alpha(theme.palette.primary.main, 0.55),
+              background: "transparent",
+              paddingInline: 1,
+            },
+          }}
+        />
 
-        <List sx={{ py: 1 }}>
+        <List sx={{ py: 1, position: "relative" }}>
           {menuItems.map((item) => (
             <ListItem key={item.text} disablePadding>
               <ListItemButton
@@ -254,9 +418,8 @@ const Nav = () => {
                 end={item.path === "/"}
                 onClick={handleCloseDrawer}
                 sx={{
-                  "&.active": {
-                    color: theme.palette.primary.main,
-                  },
+                  "&.active": { color: theme.palette.primary.main },
+                  ...bookmarkSx,
                 }}
               >
                 <ListItemIcon sx={{ minWidth: 40, color: theme.palette.primary.main }}>
