@@ -52,6 +52,7 @@ const PAGE_TITLES = {
   "/anotacoes": "Anotações",
   "/mapas": "Cartografia",
   "/criar-ficha": "Nova Lenda",
+  "/perfil": "Perfil",
 };
 
 function getTitleFromPath(pathname) {
@@ -403,7 +404,12 @@ const Nav = () => {
               onClose={handleMenuClose}
               PaperProps={{ sx: { mt: 1.5, minWidth: 200 } }}
             >
-              <MenuItem onClick={handleMenuClose}>
+              <MenuItem
+                onClick={() => {
+                  handleMenuClose();
+                  navigate("/perfil");
+                }}
+              >
                 <ListItemIcon>
                   <SettingsIcon fontSize="small" />
                 </ListItemIcon>

@@ -17,6 +17,7 @@ export default defineConfig({
             'src': path.resolve(__dirname, './src'),
             'layouts': path.resolve(__dirname, './src/layouts'),
             'theme': path.resolve(__dirname, './src/theme'),
+            'service': path.resolve(__dirname, './src/service'),
         },
     },
     server: {

@@ -18,6 +18,7 @@ const FichaDetalhes = lazy(() => import("pages/FichaDetalhes"));
 const Login = lazy(() => import("pages/login"));
 const Register = lazy(() => import("pages/Regsiter"));
 const MapasPage = lazy(() => import("pages/MapasPage"));
+const Perfil = lazy(() => import("pages/ProfilePage"));
 
 const AppRoutes = () => {
   const { user: usuarioAutenticado } = useAuth();
@@ -44,6 +45,7 @@ const AppRoutes = () => {
             <Route path="/criar-ficha" element={<FichaCriar />} />
             <Route path="/ficha-completa/:ID" element={<FichaDetalhes />} />
             <Route path="/mapas" element={<MapasPage />} />
+            <Route path="/perfil" element={<Perfil />} />
           </>
         )}
       </Route>

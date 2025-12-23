@@ -40,13 +40,14 @@ const ELEMENTS = {
 
 // Mapeamento de Rotas para Elementos
 const ROUTE_TO_ELEMENT = {
-  "/": "parchment", // ✅ exclusivo do Início
+  "/": "parchment",
   "/fichas": "fire",
   "/criar-ficha": "fire",
   "/livros": "lightning",
   "/mapas": "poison",
   "/anotacoes": "ice",
   "/musicas": "void",
+  "/perfil": "parchment",
 };
 
 function pickElementKey(pathname) {
