@@ -49,6 +49,12 @@ import { backgrounds } from "pages/FichaDetalhes/backgounds/arrayLinksBackground
 
 /* ADDED: framer-motion imports */
 import { AnimatePresence, motion } from "framer-motion";
+import { T_IN } from "src/config/transitions";
+
+const pageVariants = {
+  hidden: { opacity: 0, y: 8 },
+  show: { opacity: 1, y: 0, transition: { duration: T_IN * 0.38 } },
+};
 
 const FichaCriar = () => {
   const [nome, setNome] = useState("");
@@ -382,17 +388,6 @@ const FichaCriar = () => {
   );
 
   /* Add these animation configs (local to component) */
-  const pageVariants = {
-    initial: { opacity: 0, x: 40 },
-    in: { opacity: 1, x: 0 },
-    out: { opacity: 0, x: -40 },
-  };
-
-  const pageTransition = {
-    type: "tween",
-    duration: 0.25,
-  };
-
   const steps = [
     "Nome",
     "Raça",

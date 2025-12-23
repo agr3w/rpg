@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import { getElementFromPath } from "theme/elementTokens";
+import { T_IN, T_OUT } from "../../config/transitions";
 
 // --- CONFIGURAÇÃO DOS ELEMENTOS ---
 const ELEMENTS = {
@@ -64,46 +65,46 @@ const DragonTransition = ({ children, location: locationProp }) => {
   );
   const config = ELEMENTS[elementKey];
 
-  // Tempo curto p/ transição rápida (ajuste aqui se quiser mais/menos rápido)
-  const T_IN = 0.95; // tempo para "revelar" a nova página
-  const T_OUT = 0.75; // tempo para "cobrir" na saída
-
   // Variants: entra COBRINDO e anima para FORA (revela). Ao sair volta para COBRIR.
   const overlayVariants = {
     parchment: {
-      // “pergaminho abrindo” (revela encolhendo para cima)
       initial: { y: "0%", rotate: 0, scaleY: 1, transformOrigin: "top" },
       animate: {
         y: "-115%",
         rotate: -0.4,
-        transition: { duration: T_IN + 0.15, ease: [0.20, 0.90, 0.20, 1.00] },
+        transition: { duration: T_IN * 1.15, ease: [0.2, 0.9, 0.2, 1] },
       },
       exit: {
         y: "0%",
         rotate: 0.2,
-        transition: { duration: T_OUT + 0.1, ease: [0.20, 0.95, 0.20, 1.00] },
+        transition: { duration: T_OUT * 1.1, ease: [0.2, 0.95, 0.2, 1] },
       },
     },
+
     fire: {
       initial: { y: "0%" },
-      animate: { y: "-115%", transition: { duration: T_IN, ease: [0.20, 0.90, 0.20, 1.00] } },
-      exit: { y: "0%", transition: { duration: T_OUT, ease: [0.20, 0.95, 0.20, 1.00] } },
+      animate: { y: "-115%", transition: { duration: T_IN, ease: [0.2, 0.9, 0.2, 1] } },
+      exit: { y: "0%", transition: { duration: T_OUT, ease: [0.2, 0.95, 0.2, 1] } },
     },
+
     poison: {
       initial: { y: "0%" },
-      animate: { y: "115%", transition: { duration: T_IN, ease: [0.20, 0.90, 0.20, 1.00] } },
-      exit: { y: "0%", transition: { duration: T_OUT, ease: [0.20, 0.95, 0.20, 1.00] } },
+      animate: { y: "115%", transition: { duration: T_IN, ease: [0.2, 0.9, 0.2, 1] } },
+      exit: { y: "0%", transition: { duration: T_OUT, ease: [0.2, 0.95, 0.2, 1] } },
     },
+
     lightning: {
       initial: { x: "0%", skewX: -7 },
-      animate: { x: "130%", skewX: 7, transition: { duration: 0.65, ease: "easeOut" } },
-      exit: { x: "0%", skewX: -7, transition: { duration: 0.5, ease: "easeInOut" } },
+      animate: { x: "130%", skewX: 7, transition: { duration: T_IN * 0.7, ease: "easeOut" } },
+      exit: { x: "0%", skewX: -7, transition: { duration: T_OUT * 0.65, ease: "easeInOut" } },
     },
+
     ice: {
       initial: { clipPath: "circle(160% at 50% 50%)" },
-      animate: { clipPath: "circle(0% at 50% 50%)", transition: { duration: 1.05, ease: "easeInOut" } },
-      exit: { clipPath: "circle(160% at 50% 50%)", transition: { duration: 0.85, ease: "easeInOut" } },
+      animate: { clipPath: "circle(0% at 50% 50%)", transition: { duration: T_IN * 1.1, ease: "easeInOut" } },
+      exit: { clipPath: "circle(160% at 50% 50%)", transition: { duration: T_OUT * 1.1, ease: "easeInOut" } },
     },
+
     void: {
       initial: { x: "0%" },
       animate: { x: "115%", transition: { duration: T_IN, ease: "easeInOut" } },
@@ -118,25 +119,27 @@ const DragonTransition = ({ children, location: locationProp }) => {
     initial: prefersReducedMotion
       ? { opacity: 0 }
       : { opacity: 0, y: 10, filter: "blur(6px)" },
+
     animate: prefersReducedMotion
-      ? { opacity: 1, transition: { duration: 0.15 } }
+      ? { opacity: 1, transition: { duration: T_IN * 0.18 } }
       : {
           opacity: 1,
           y: 0,
           filter: "blur(0px)",
           transition: {
-            duration: 0.42,
-            ease: [0.22, 1, 0.36, 1], // easeOut “premium”
-            delay: 0.10, // pequeno delay para casar com o overlay revelando
+            duration: T_IN * 0.44,
+            ease: [0.22, 1, 0.36, 1],
+            delay: T_OUT * 0.13,
           },
         },
+
     exit: prefersReducedMotion
-      ? { opacity: 0, transition: { duration: 0.12 } }
+      ? { opacity: 0, transition: { duration: T_OUT * 0.14 } }
       : {
           opacity: 0,
           y: -6,
           filter: "blur(4px)",
-          transition: { duration: 0.22, ease: "easeInOut" },
+          transition: { duration: T_OUT * 0.3, ease: "easeInOut" },
         },
   };
 
@@ -325,7 +328,12 @@ const DragonTransition = ({ children, location: locationProp }) => {
             }}
             transition={{
               backgroundPosition: {
-                duration: config.type === "lightning" ? 1.2 : config.type === "parchment" ? 8.0 : 3.0,
+                duration:
+                  config.type === "lightning"
+                    ? T_IN * 1.25
+                    : config.type === "parchment"
+                      ? T_IN * 8.4
+                      : T_IN * 3.2,
                 repeat: Infinity,
                 ease: "easeInOut",
               },
@@ -345,8 +353,13 @@ const DragonTransition = ({ children, location: locationProp }) => {
           {config.type === "parchment" && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 0.28, scale: 1, y: 0, transition: { duration: 0.45, ease: "easeOut", delay: 0.05 } }}
-              exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.2 } }}
+              animate={{
+                opacity: 0.28,
+                scale: 1,
+                y: 0,
+                transition: { duration: T_IN * 0.5, ease: "easeOut", delay: T_OUT * 0.07 },
+              }}
+              exit={{ opacity: 0, scale: 0.98, transition: { duration: T_OUT * 0.25 } }}
               style={{
                 position: "absolute",
                 right: 36,
@@ -366,8 +379,8 @@ const DragonTransition = ({ children, location: locationProp }) => {
           {config.type === "lightning" && (
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 0.55, 0, 0.25, 0], transition: { duration: 0.55 } }}
-              exit={{ opacity: [0, 0.35, 0], transition: { duration: 0.4 } }}
+              animate={{ opacity: [0, 0.55, 0, 0.25, 0], transition: { duration: T_IN * 0.58 } }}
+              exit={{ opacity: [0, 0.35, 0], transition: { duration: T_OUT * 0.55 } }}
               style={{
                 position: "absolute",
                 inset: 0,
