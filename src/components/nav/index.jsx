@@ -23,6 +23,7 @@ import {
   useMediaQuery,
   useTheme,
   alpha,
+  Collapse,
 } from "@mui/material";
 
 import {
@@ -35,6 +36,9 @@ import {
   Map as MapIcon,
   ExitToApp as LogoutIcon,
   Settings as SettingsIcon,
+  Folder as FolderIcon,
+  ExpandLess,
+  ExpandMore,
 } from "@mui/icons-material";
 
 import { auth } from "APIs/firebaseConfig";
@@ -98,13 +102,26 @@ const Nav = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const menuItems = useMemo(
+  // ✅ Desktop: menu “Ferramentas”
+  const [toolsAnchorEl, setToolsAnchorEl] = useState(null);
+  const toolsMenuOpen = Boolean(toolsAnchorEl);
+
+  // ✅ Drawer: collapse “Ferramentas”
+  const [toolsOpen, setToolsOpen] = useState(true);
+
+  const mainItems = useMemo(
     () => [
       { text: "Início", icon: <HomeIcon />, path: "/" },
       { text: "Fichas", icon: <LibraryBooksIcon />, path: "/fichas" },
-      { text: "Livros", icon: <LibraryBooksIcon />, path: "/livros" },
-      { text: "Músicas", icon: <MusicNoteIcon />, path: "/musicas" },
       { text: "Mapas", icon: <MapIcon />, path: "/mapas" },
+    ],
+    []
+  );
+
+  const toolsItems = useMemo(
+    () => [
+      { text: "Biblioteca", icon: <LibraryBooksIcon />, path: "/livros" },
+      { text: "Bardo", icon: <MusicNoteIcon />, path: "/musicas" },
       { text: "Anotações", icon: <SaveIcon />, path: "/anotacoes" },
     ],
     []
@@ -114,8 +131,13 @@ const Nav = () => {
 
   const handleMenuOpen = useCallback((event) => setAnchorEl(event.currentTarget), []);
   const handleMenuClose = useCallback(() => setAnchorEl(null), []);
+
   const handleOpenDrawer = useCallback(() => setDrawerOpen(true), []);
   const handleCloseDrawer = useCallback(() => setDrawerOpen(false), []);
+
+  const handleToolsMenuOpen = useCallback((event) => setToolsAnchorEl(event.currentTarget), []);
+  const handleToolsMenuClose = useCallback(() => setToolsAnchorEl(null), []);
+  const toggleToolsOpen = useCallback(() => setToolsOpen((v) => !v), []);
 
   const handleLogout = useCallback(async () => {
     try {
@@ -303,7 +325,7 @@ const Nav = () => {
 
           {!isMobile && (
             <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-              {menuItems.map((item) => (
+              {mainItems.map((item) => (
                 <Button
                   key={item.text}
                   color="inherit"
@@ -321,6 +343,38 @@ const Nav = () => {
                   {item.text}
                 </Button>
               ))}
+
+              {/* ✅ Agrupador: Ferramentas (Livros/Músicas/Anotações) */}
+              <Button
+                color="inherit"
+                startIcon={<FolderIcon />}
+                onClick={handleToolsMenuOpen}
+                sx={{ borderRadius: 2, px: 1.25, "&:hover": { backgroundColor: alpha("#000", 0.04) } }}
+              >
+                Ferramentas
+              </Button>
+
+              <Menu
+                anchorEl={toolsAnchorEl}
+                open={toolsMenuOpen}
+                onClose={handleToolsMenuClose}
+                PaperProps={{ sx: { mt: 1.5, minWidth: 220 } }}
+              >
+                {toolsItems.map((item) => (
+                  <MenuItem
+                    key={item.text}
+                    component={NavLink}
+                    to={item.path}
+                    onClick={handleToolsMenuClose}
+                    sx={{
+                      "&.active": { color: "var(--rpg-accent)" },
+                    }}
+                  >
+                    <ListItemIcon>{item.icon}</ListItemIcon>
+                    {item.text}
+                  </MenuItem>
+                ))}
+              </Menu>
             </Box>
           )}
 
@@ -483,7 +537,7 @@ const Nav = () => {
         />
 
         <List sx={{ py: 1, position: "relative" }}>
-          {menuItems.map((item) => (
+          {mainItems.map((item) => (
             <ListItem key={item.text} disablePadding>
               <ListItemButton
                 component={NavLink}
@@ -502,6 +556,41 @@ const Nav = () => {
               </ListItemButton>
             </ListItem>
           ))}
+
+          {/* ✅ Grupo Ferramentas (Collapse) */}
+          <ListItem disablePadding>
+            <ListItemButton onClick={toggleToolsOpen}>
+              <ListItemIcon sx={{ minWidth: 40, color: theme.palette.primary.main }}>
+                <FolderIcon />
+              </ListItemIcon>
+              <ListItemText primary="Ferramentas" />
+              {toolsOpen ? <ExpandLess /> : <ExpandMore />}
+            </ListItemButton>
+          </ListItem>
+
+          <Collapse in={toolsOpen} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding sx={{ pl: 1 }}>
+              {toolsItems.map((item) => (
+                <ListItem key={item.text} disablePadding>
+                  <ListItemButton
+                    component={NavLink}
+                    to={item.path}
+                    onClick={handleCloseDrawer}
+                    sx={{
+                      pl: 4,
+                      "&.active": { color: theme.palette.primary.main },
+                      ...bookmarkSx,
+                    }}
+                  >
+                    <ListItemIcon sx={{ minWidth: 40, color: theme.palette.primary.main }}>
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText primary={item.text} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Collapse>
         </List>
       </Drawer>
     </>

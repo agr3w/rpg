@@ -1,7 +1,6 @@
 // FichaPage.js
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useMemo, useState, useEffect } from "react";
 // import styles from "./fichaPage.module.css";
-import styleFundo from "pages/FichaDetalhes/fichaDetalhe.module.css";
 import { enviarFichaParaDatabase } from "components/FichaPage/FichaDatabase";
 import { racas, classes } from "Array/RacaEClasse";
 import {
@@ -45,7 +44,8 @@ import {
   ListItemText,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import { backgrounds } from "pages/FichaDetalhes/backgounds/arrayLinksBackgrounds";
+import { getClassBackgroundUrl } from "pages/FichaDetalhes/backgounds/classBackgrounds";
+import { backgrounds } from "pages/FichaDetalhes/backgounds/arrayLinksBackgrounds"; // ✅ ADICIONAR
 
 /* ADDED: framer-motion imports */
 import { AnimatePresence, motion } from "framer-motion";
@@ -117,71 +117,64 @@ const FichaCriar = () => {
 
   const racasOptions = racas.map((r) => r.nome);
   const classesOptions = classes.map((c) => c.nome);
-  const TendenciasOptions = tendencias.map((t) => t.nome);
-  const idiomaOption = idiomasArray.map((i) => i);
-  const racaSelecionada = racas.find((r) => r.nome === raca);
-  const classeSelecioanda = classes.find((c) => c.nome === classe);
-  const SubRacasOptions =
-    racaSelecionada && racaSelecionada.SubRacas
-      ? racaSelecionada.SubRacas.map((subRaca) => subRaca.subRacaNome)
-      : [];
+  const TendenciasOptions = tendencias.map((t) => t.nome); // ✅ faltava
+  const idiomaOption = idiomasArray; // ✅ faltava (ou idiomasArray.map(i => i))
 
-  useEffect(() => {
-    // Quando a raça selecionada mudar, encontre os itens correspondentes
-    const racaSelecionada = racas.find((r) => r.nome === raca);
-    if (racaSelecionada) {
-      setItensDaRaca(racaSelecionada.habilidades);
-    } else {
-      setItensDaRaca([]); // Se a raça não for encontrada, limpe a lista de itens
+  // ✅ racaSelecionada (usada em SubRacasOptions e effects)
+  const racaSelecionada = useMemo(
+    () => racas.find((r) => r.nome === raca) || null,
+    [raca]
+  );
+
+  // ✅  ainda precisa disso p/ Etapa4 e para montar Classesinfo no salvar
+  const classeSelecioanda = useMemo(
+    () => classes.find((c) => c.nome === classe) || null,
+    [classe]
+  );
+
+  // ✅ background agora vem da pasta local backgounds
+  const bgUrl = useMemo(() => getClassBackgroundUrl(classe), [classe]);
+
+  const SubRacasOptions = useMemo(() => {
+    if (!racaSelecionada?.SubRacas?.length) return [];
+    return racaSelecionada.SubRacas.map((sr) => sr.subRacaNome);
+  }, [racaSelecionada]);
+
+  // ✅ validação mínima por etapa (não vem do MUI!)
+  const checkRequiredFields = useCallback(() => {
+    const has = (v) => String(v || "").trim().length > 0;
+
+    switch (etapa) {
+      case 1:
+        return has(nome);
+      case 2:
+        return has(raca);
+      case 3:
+        // só exige SubRaca se houver opções
+        return SubRacasOptions.length ? has(SubRaca) : true;
+      case 4:
+        return has(classe);
+      case 5:
+        return has(tendencia);
+      case 6:
+        return has(antecedente);
+      default:
+        return true;
     }
-  }, [raca]);
+  }, [etapa, nome, raca, SubRacasOptions.length, SubRaca, classe, tendencia, antecedente]);
 
-  useEffect(() => {
-    setItensAntecedencia(encontrarItensPorNome(antecedente, antecedentes));
-  }, [antecedente]);
+  // const handleNext = () => {
+  //   if (etapa === 6 && antecedente !== "") {
+  //     const antecedenteEncontrado = antecedentes.find((a) => a.nome === antecedente);
+  //     if (antecedenteEncontrado) setAntecedenteSelecionado(antecedenteEncontrado);
+  //   }
 
-  useEffect(() => {
-    // Quando a raça selecionada mudar, encontre os itens correspondentes
-    setItensDaTendencia(encontrarItensPorNome(tendencia, tendencias));
-  }, [tendencia]);
-
-  useEffect(() => {
-    const itensDaClasse = encontrarItensPorNome(classe, classes);
-    setItensDaClasse(itensDaClasse);
-  }, [classe]);
-
-  const handleSubRacaChange = (e) => {
-    const subRacaSelecionada = e.target.value;
-    setSubRaca(subRacaSelecionada);
-
-    // Encontre os detalhes da sub-raça selecionada com base no nome da sub-raça
-    const detalhes = racaSelecionada.SubRacas.find(
-      (subRaca) => subRaca.subRacaNome === subRacaSelecionada
-    );
-
-    setDetalhesSubRaca(detalhes);
-  };
-
-  const handleNext = () => {
-    if (etapa === 6 && antecedente !== "") {
-      // Certifique-se de que o jogador tenha selecionado um antecedente
-      const antecedenteEncontrado = antecedentes.find(
-        (a) => a.nome === antecedente
-      );
-      if (antecedenteEncontrado) {
-        setAntecedenteSelecionado(antecedenteEncontrado);
-      }
-    }
-    if (checkRequiredFields()) {
-      if (etapa < 11) {
-        setEtapa(etapa + 1);
-      }
-    } else {
-      alert(
-        "Por favor, preencha todos os campos obrigatórios antes de prosseguir."
-      );
-    }
-  };
+  //   if (checkRequiredFields()) {
+  //     if (etapa < 11) setEtapa(etapa + 1);
+  //   } else {
+  //     alert("Por favor, preencha todos os campos obrigatórios antes de prosseguir.");
+  //   }
+  // };
 
   const handlePrevious = () => {
     if (etapa > 1) {
@@ -307,83 +300,6 @@ const FichaCriar = () => {
     }
   };
 
-  const classeBackgrounds = {
-    Bárbaro: styleFundo.classeBárbaro,
-    Bardo: styleFundo.classeBardo,
-    Bruxo: styleFundo.classeBruxo,
-    Clérigo: styleFundo.classeClérigo,
-    Druida: styleFundo.classeDruida,
-    Feiticeiro: styleFundo.classeFeiticeiro,
-    Guerreiro: styleFundo.classeGuerreiro,
-    Ladino: styleFundo.classeLadino,
-    Mago: styleFundo.classeMago,
-    Monge: styleFundo.classeMonge,
-    Paladino: styleFundo.classePaladino,
-    Patrulheiro: styleFundo.classePatrulheiro,
-  };
-
-  const getClasseBackground = (classe) => {
-    return classeBackgrounds[classe] || "";
-  };
-
-  const checkRequiredFields = () => {
-    switch (etapa) {
-      case 1:
-        return nome !== "";
-      case 2:
-        return raca !== "" && idiomaRacaSelecionado !== "";
-      case 3:
-        return SubRaca !== "" && SubRaca !== "";
-      case 4:
-        if (classe !== "") {
-          // Verifique se todas as checkboxes estão selecionadas
-          const todasSelecionadas =
-            periciasClasseSelecionadas.length ==
-            classeSelecioanda?.proficiencias?.perficiasMinimo;
-
-          return todasSelecionadas;
-        }
-        return false;
-      case 5:
-        return tendencia !== "";
-      case 6:
-        return antecedente !== "";
-      case 7:
-        return antecedente !== "" && !!antecedenteSelecionado;
-      case 9:
-        return riquezaInicial !== 0;
-      case 10:
-        return Object.values(valoresHabilidade).every((value) => value !== "");
-      default:
-        return true; // Não há verificações extras para outras etapas
-    }
-  };
-
-  /* Add these animation configs (local to component) */
-  const pageVariants = {
-    initial: { opacity: 0, x: 40 },
-    in: { opacity: 1, x: 0 },
-    out: { opacity: 0, x: -40 },
-  };
-
-  const pageTransition = {
-    type: "tween",
-    duration: 0.25,
-  };
-
-  const steps = [
-    "Nome",
-    "Raça",
-    "Sub-Raça",
-    "Classe",
-    "Tendência",
-    "Antecedente",
-    "Detalhes",
-    "Traços",
-    "Riqueza",
-    "Atributos",
-  ];
-
   /* --- Summary small component --- */
   const SummaryCard = () => (
     <Paper elevation={6} sx={{ p: 3, borderRadius: 2, maxWidth: 880, mx: "auto" }}>
@@ -465,237 +381,418 @@ const FichaCriar = () => {
     </Paper>
   );
 
+  /* Add these animation configs (local to component) */
+  const pageVariants = {
+    initial: { opacity: 0, x: 40 },
+    in: { opacity: 1, x: 0 },
+    out: { opacity: 0, x: -40 },
+  };
+
+  const pageTransition = {
+    type: "tween",
+    duration: 0.25,
+  };
+
+  const steps = [
+    "Nome",
+    "Raça",
+    "Sub-Raça",
+    "Classe",
+    "Tendência",
+    "Antecedente",
+    "Detalhes",
+    "Traços",
+    "Riqueza",
+    "Atributos",
+  ];
+
+  // ✅ Atualiza detalhes/traits ao trocar raça + reseta dependências
+  useEffect(() => {
+    if (!raca) {
+      setItensDaRaca([]);
+      setIdiomaRacaSelecionado("");
+      setIdiomaRacaSelecionado2("");
+      setSubRaca("");
+      setDetalhesSubRaca(null);
+      setIdiomaAltoElfoSelecioando("");
+      setEngenhocas("");
+      return;
+    }
+
+    // ✅ pega direto do modelo real da raça (campo "habilidades")
+    const habilidades = racaSelecionada?.habilidades || [];
+    setItensDaRaca(Array.isArray(habilidades) ? habilidades : []);
+
+    // reset para evitar warning do MUI “out-of-range value”
+    setIdiomaRacaSelecionado("");
+    setIdiomaRacaSelecionado2("");
+    setSubRaca("");
+    setDetalhesSubRaca(null);
+    setIdiomaAltoElfoSelecioando("");
+    setEngenhocas("");
+  }, [raca, racaSelecionada]);
+
+  // ✅ Evita “out-of-range value” quando a raça muda e o Select fica com valor antigo
+  useEffect(() => {
+    const opts = racaSelecionada?.idiomaRaca || [];
+    if (idiomaRacaSelecionado && !opts.includes(idiomaRacaSelecionado)) {
+      setIdiomaRacaSelecionado("");
+    }
+  }, [racaSelecionada, idiomaRacaSelecionado]);
+
+  useEffect(() => {
+    if (idiomaRacaSelecionado2 && !idiomaOption.includes(idiomaRacaSelecionado2)) {
+      setIdiomaRacaSelecionado2("");
+    }
+  }, [idiomaOption, idiomaRacaSelecionado2]);
+
+  // ✅ handler: agora também atualiza detalhesSubRaca (antes só resetava)
+  const handleSubRacaChange = useCallback(
+    (eOrValue) => {
+      const value =
+        typeof eOrValue === "string" ? eOrValue : eOrValue?.target?.value;
+
+      setSubRaca(value || "");
+
+      const found =
+        racaSelecionada?.SubRacas?.find((sr) => sr.subRacaNome === value) || null;
+      setDetalhesSubRaca(found);
+
+      setIdiomaAltoElfoSelecioando("");
+      setEngenhocas("");
+    },
+    [racaSelecionada]
+  );
+
+  // ✅ tendência selecionada (para ler descrição/campos)
+  const tendenciaSelecionada = useMemo(
+    () => tendencias.find((t) => t.nome === tendencia) || null,
+    [tendencia]
+  );
+
+  // ✅ Ao trocar a tendência, atualiza descrição/itens exibidos na Etapa5
+  useEffect(() => {
+    if (!tendencia) {
+      setItensDaTendencia([]);
+      return;
+    }
+
+    // Preferência: descrição textual (quando existir)
+    const desc =
+      tendenciaSelecionada?.descricao ??
+      tendenciaSelecionada?.Descricao ??
+      tendenciaSelecionada?.descricaoTendencia ??
+      tendenciaSelecionada?.descricaoDaTendencia ??
+      "";
+
+    if (typeof desc === "string" && desc.trim()) {
+      setItensDaTendencia([desc.trim()]);
+      return;
+    }
+
+    // Fallback: tenta pegar um array de itens
+    const itens =
+      tendenciaSelecionada?.itens ??
+      tendenciaSelecionada?.Itens ??
+      tendenciaSelecionada?.habilidades ??
+      [];
+
+    setItensDaTendencia(Array.isArray(itens) ? itens : []);
+  }, [tendencia, tendenciaSelecionada]);
+
+  // ✅ antecedente selecionado (derivado)
+  const antecedenteEncontrado = useMemo(
+    () => antecedentes.find((a) => a.nome === antecedente) || null,
+    [antecedente]
+  );
+
+  // ✅ Ao trocar o antecedente, atualiza detalhes exibidos na Etapa6
+  useEffect(() => {
+    setAntecedenteSelecionado(antecedenteEncontrado);
+
+    if (!antecedenteEncontrado) {
+      setItensAntecedencia([]);
+      setIdiomaAntecedente("");
+      setIdiomaAntecendente2("");
+      return;
+    }
+
+    // monta um “resumo” para o card da Etapa6 (flexível com chaves diferentes)
+    const parts = [];
+
+    const pushIf = (label, value) => {
+      if (!value) return;
+      if (Array.isArray(value)) {
+        const clean = value.filter(Boolean).map(String);
+        if (clean.length) parts.push(`${label}: ${clean.join(", ")}`);
+        return;
+      }
+      if (typeof value === "string" && value.trim()) parts.push(`${label}: ${value.trim()}`);
+    };
+
+    // comuns em backgrounds
+    pushIf("Proficiências", antecedenteEncontrado.proficiencias ?? antecedenteEncontrado.Proficiencias);
+    pushIf("Equipamentos", antecedenteEncontrado.equipamentos ?? antecedenteEncontrado.Equipamentos);
+    pushIf("Idiomas", antecedenteEncontrado.idiomas ?? antecedenteEncontrado.Idiomas);
+
+    // seu modelo atual usa esse bloco (você já referencia em outras funções)
+    const car = antecedenteEncontrado.CaracteristicaDoAntecedente;
+    pushIf("Característica", car?.CaracteristicaTexto1);
+    pushIf("Sugestões", car?.caracteristicasSugeridas);
+
+    // fallback: descrição geral
+    pushIf(
+      "Descrição",
+      antecedenteEncontrado.descricao ??
+        antecedenteEncontrado.Descricao ??
+        antecedenteEncontrado.texto ??
+        antecedenteEncontrado.Texto
+    );
+
+    setItensAntecedencia(parts.length ? parts : ["Nenhuma informação disponível."]);
+  }, [antecedenteEncontrado]);
+
   return (
-    <div className={getClasseBackground(classe)}>
-      <div className={styles.espacamento}>
-        <div className={styles.pageContainer}>
-          <Paper elevation={4} sx={{ p: 2, mb: 2, backgroundColor: "background.paper" }}>
-            <Typography variant="h6" align="center" gutterBottom>
-              Criar Ficha
-            </Typography>
-            <Stepper activeStep={Math.max(0, etapa - 1)} alternativeLabel>
-              {steps.map((label) => (
-                <Step key={label}>
-                  <StepLabel>{label}</StepLabel>
-                </Step>
-              ))}
-            </Stepper>
-          </Paper>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        px: { xs: 1.5, sm: 2.5 },
+        py: { xs: 2, md: 3 },
 
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={etapa}
-              layout
-              style={{ width: "100%" }}
-              variants={pageVariants}
-              initial="initial"
-              animate="in"
-              exit="out"
-              transition={pageTransition}
-            >
-              {etapa === 1 && <Etapa1 nome={nome} setNome={setNome} />}
-              {etapa === 2 && (
-                <Etapa2
-                  raca={raca}
-                  setRaca={setRaca}
-                  racasOptions={racasOptions}
-                  itensDaRaca={itensDaRaca}
-                  racaSelecionada={racaSelecionada}
-                  idiomaRacaSelecionado={idiomaRacaSelecionado}
-                  setIdiomaRacaSelecionado={setIdiomaRacaSelecionado}
-                  idiomaRacaSelecionado2={idiomaRacaSelecionado2}
-                  setIdiomaRacaSelecionado2={setIdiomaRacaSelecionado2}
-                  idiomaOption={idiomaOption}
-                />
-              )}
-              {etapa === 3 && (
-                <Etapa3
-                  raca={raca}
-                  SubRaca={SubRaca}
-                  setSubRaca={setSubRaca}
-                  racaSelecionada={racaSelecionada}
-                  SubRacasOptions={SubRacasOptions}
-                  detalhesSubRaca={detalhesSubRaca}
-                  setDetalhesSubRaca={setDetalhesSubRaca}
-                  idiomaOption={idiomaOption}
-                  setIdiomaAltoElfoSelecioando={setIdiomaAltoElfoSelecioando}
-                  IdiomaAltoElfo={IdiomaAltoElfo}
-                  handleSubRacaChange={handleSubRacaChange}
-                  Engenhocas={Engenhocas}
-                  setEngenhocas={setEngenhocas}
-                />
-              )}
-              {etapa === 4 && (
-                <Etapa4
-                  classe={classe}
-                  setClasse={setClasse}
-                  classesOptions={classesOptions}
-                  itensDaClasse={itensDaClasse}
-                  equipamentosClasseSelecionada1={equipamentosClasseSelecionada1}
-                  setEquipamentoClasseSelecionado1={
-                    setEquipamentoClasseSelecionado1
-                  }
-                  equipamentosClasseSelecionada2={equipamentosClasseSelecionada2}
-                  setEquipamentoClasseSelecionado2={
-                    setEquipamentoClasseSelecionado2
-                  }
-                  equipamentosClasseSelecionada3={equipamentosClasseSelecionada3}
-                  setEquipamentoClasseSelecionado3={
-                    setEquipamentoClasseSelecionado3
-                  }
-                  equipamentosClasseSelecionada4={equipamentosClasseSelecionada4}
-                  setEquipamentoClasseSelecionado4={
-                    setEquipamentoClasseSelecionado4
-                  }
-                  classeSelecioanda={classeSelecioanda}
-                  periciasClasseSelecionadas={periciasClasseSelecionadas}
-                  setPericiasSelecionadas={setPericiasSelecionadas}
-                  setExibirPainelHabilidades={setExibirPainelHabilidades}
-                  exibirPainelHabilidades={exibirPainelHabilidades}
-                />
-              )}
-              {etapa === 5 && (
-                <Etapa5
-                  tendencia={tendencia}
-                  setTendencia={setTendencia}
-                  TendenciasOptions={TendenciasOptions}
-                  itensDaTendencia={itensDaTendencia}
-                />
-              )}
-              {etapa === 6 && (
-                <Etapa6
-                  antecedente={antecedente}
-                  setAntecedente={setAntecedente}
-                  antecedentesOptions={antecedentes.map((a) => a.nome)}
-                  itensDaAntecedencia={itensDaAntecedencia}
-                  idiomaDoAntecedente={idiomaDoAntecedente}
-                  idiomaDoAntecendente2={idiomaDoAntecendente2}
-                  setIdiomaAntecedente={setIdiomaAntecedente}
-                  setIdiomaAntecendente2={setIdiomaAntecendente2}
-                  idiomaOption={idiomaOption}
-                />
-              )}
-              {etapa === 7 && antecedenteSelecionado && (
-                <Etapa7
-                  antecedente={antecedente}
-                  antecedenteSelecionado={antecedenteSelecionado}
-                  CarcDosAntecedentes1={CarcDosAntecedentes1}
-                  setCarcDosAntecedents1={setCarcDosAntecedents1}
-                  CarcDosAntecedentes2={CarcDosAntecedentes2}
-                  setCarcDosAntecedentes2={setCarcDosAntecedentes2}
-                  CarcDosAntecedentes3={CarcDosAntecedentes3}
-                  setCarcDosAntecedents3={setCarcDosAntecedents3}
-                />
-              )}
-              {etapa === 8 && (
-                <Etapa8
-                  tracoPersonalidade={antecedenteSelecionado?.tracoPersonalidade || []}
-                  ideal={antecedenteSelecionado?.ideal || []}
-                  defeito={antecedenteSelecionado?.defeito || []}
-                  vinculo={antecedenteSelecionado?.vinculo || []}
-                  tracoPersonalidadeSelecionado={tracoPersonalidadeSelecionado}
-                  idealSelecionado={idealSelecionado}
-                  defeitoSelecionado={defeitoSelecionado}
-                  vinculoSelecionado={vinculoSelecionado}
-                  onSelecionarTracoPersonalidade={(e) =>
-                    setTracoPersonalidadeSelecionado(e.target.value)
-                  }
-                  setTracoPersonalidadeSelecionado={
-                    setTracoPersonalidadeSelecionado
-                  }
-                  onSelecionarIdeal={(e) => setIdealSelecionado(e.target.value)}
-                  onSelecionarDefeito={(e) => setDefeitoSelecionado(e.target.value)}
-                  onSelecionarVinculo={(e) => setVinculoSelecionado(e.target.value)}
-                />
-              )}
-              {etapa === 9 && (
-                <Etapa9
-                  riquezaInicial={riquezaInicial}
-                  setRiquezaInicial={setRiquezaInicial}
-                  classeSelecionada={classe}
-                  onRiquezaInicialCalculada={handleRiquezaInicialCalculada}
-                />
-              )}
-              {etapa === 10 && (
-                <Etapa10
-                  racaSelecionada={racaSelecionada}
-                  valoresHabilidade={valoresHabilidade}
-                  setValoresHabilidade={setValoresHabilidade}
-                  SubRaca={SubRaca}
-                  detalhesSubRaca={detalhesSubRaca}
-                />
-              )}
-              {etapa === 11 && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}>
-                  <SummaryCard />
-                  <Box sx={{ mt: 2, display: "flex", gap: 2, justifyContent: "center" }}>
-                    <Button variant="outlined" color="secondary" onClick={() => setEtapa(10)}>
-                      Voltar e editar
-                    </Button>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={handleConcluir}
-                      disabled={submitting || submitSuccess}
-                      startIcon={submitting ? <CircularProgress size={18} /> : null}
-                    >
-                      {submitSuccess ? "Concluído" : submitting ? "Enviando..." : "Concluir e Salvar"}
-                    </Button>
-                  </Box>
+        // ✅ overlay + (opcional) imagem da classe
+        backgroundImage: bgUrl
+          ? `
+            radial-gradient(120% 90% at 15% 0%, rgba(255,204,0,0.08) 0%, rgba(0,0,0,0.00) 55%),
+            radial-gradient(120% 90% at 85% 110%, rgba(255,70,0,0.07) 0%, rgba(0,0,0,0.00) 58%),
+            linear-gradient(180deg, rgba(8,6,6,0.72), rgba(8,6,6,0.35) 35%, rgba(8,6,6,0.55)),
+            url("${bgUrl}")
+          `
+          : `
+            radial-gradient(120% 90% at 15% 0%, rgba(255,204,0,0.08) 0%, rgba(0,0,0,0.00) 55%),
+            radial-gradient(120% 90% at 85% 110%, rgba(255,70,0,0.07) 0%, rgba(0,0,0,0.00) 58%),
+            linear-gradient(180deg, rgba(12,10,10,0.35), rgba(0,0,0,0.00) 40%),
+            linear-gradient(180deg, rgba(24,18,16,0.20), rgba(0,0,0,0.00))
+          `,
+        backgroundSize: bgUrl ? "auto, auto, auto, cover" : "auto",
+        backgroundPosition: bgUrl ? "center, center, center, center" : "center",
+        backgroundRepeat: bgUrl ? "no-repeat, no-repeat, no-repeat, no-repeat" : "no-repeat",
+      }}
+    >
+      <Box sx={{ maxWidth: 1100, mx: "auto" }}>
+        <Paper elevation={4} sx={{ p: 2, mb: 2, backgroundColor: "background.paper" }}>
+          <Typography variant="h6" align="center" gutterBottom>
+            Criar Ficha
+          </Typography>
+          <Stepper activeStep={Math.max(0, etapa - 1)} alternativeLabel>
+            {steps.map((label) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+        </Paper>
 
-                  {submitError && (
-                    <Typography color="error" sx={{ mt: 2 }} align="center">
-                      {submitError}
-                    </Typography>
-                  )}
-
-                  {submitSuccess && (
-                    <Typography color="success.main" sx={{ mt: 2 }} align="center">
-                      Ficha criada com sucesso — redirecionando...
-                    </Typography>
-                  )}
-                </motion.div>
-              )}
-            </motion.div>
-          </AnimatePresence>
-
-          {/* botões (mantive sem alteração mas com Grid para alinhamento) */}
-          <Box sx={{ mt: 2 }}>
-            <Grid container spacing={2} justifyContent="center">
-              <Grid item>
-                {etapa > 1 && etapa <= 10 ? (
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={handlePrevious}
-                  >
-                    Etapa Anterior
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={etapa}
+            layout
+            style={{ width: "100%" }}
+            variants={pageVariants}
+            initial="initial"
+            animate="in"
+            exit="out"
+            transition={pageTransition}
+          >
+            {etapa === 1 && <Etapa1 nome={nome} setNome={setNome} />}
+            {etapa === 2 && (
+              <Etapa2
+                raca={raca}
+                setRaca={setRaca}
+                racasOptions={racasOptions}
+                itensDaRaca={itensDaRaca}
+                racaSelecionada={racaSelecionada}
+                idiomaRacaSelecionado={idiomaRacaSelecionado}
+                setIdiomaRacaSelecionado={setIdiomaRacaSelecionado}
+                idiomaRacaSelecionado2={idiomaRacaSelecionado2}
+                setIdiomaRacaSelecionado2={setIdiomaRacaSelecionado2}
+                idiomaOption={idiomaOption}
+              />
+            )}
+            {etapa === 3 && (
+              <Etapa3
+                raca={raca}
+                racaSelecionada={racaSelecionada}
+                SubRacasOptions={SubRacasOptions}
+                SubRaca={SubRaca}
+                detalhesSubRaca={detalhesSubRaca}
+                idiomaOption={idiomaOption}
+                setIdiomaAltoElfoSelecioando={setIdiomaAltoElfoSelecioando}
+                IdiomaAltoElfo={IdiomaAltoElfo}
+                handleSubRacaChange={handleSubRacaChange}
+                Engenhocas={Engenhocas}
+                setEngenhocas={setEngenhocas}
+              />
+            )}
+            {etapa === 4 && (
+              <Etapa4
+                classe={classe}
+                setClasse={setClasse}
+                classesOptions={classesOptions}
+                itensDaClasse={itensDaClasse}
+                equipamentosClasseSelecionada1={equipamentosClasseSelecionada1}
+                setEquipamentoClasseSelecionado1={setEquipamentoClasseSelecionado1}
+                equipamentosClasseSelecionada2={equipamentosClasseSelecionada2}
+                setEquipamentoClasseSelecionado2={setEquipamentoClasseSelecionado2}
+                equipamentosClasseSelecionada3={equipamentosClasseSelecionada3}
+                setEquipamentoClasseSelecionado3={setEquipamentoClasseSelecionado3}
+                equipamentosClasseSelecionada4={equipamentosClasseSelecionada4}
+                setEquipamentoClasseSelecionado4={setEquipamentoClasseSelecionado4}
+                classeSelecioanda={classeSelecioanda}
+                periciasClasseSelecionadas={periciasClasseSelecionadas}
+                setPericiasSelecionadas={setPericiasSelecionadas}
+                setExibirPainelHabilidades={setExibirPainelHabilidades}
+                exibirPainelHabilidades={exibirPainelHabilidades}
+              />
+            )}
+            {etapa === 5 && (
+              <Etapa5
+                tendencia={tendencia}
+                setTendencia={setTendencia}
+                TendenciasOptions={TendenciasOptions}
+                itensDaTendencia={itensDaTendencia}
+              />
+            )}
+            {etapa === 6 && (
+              <Etapa6
+                antecedente={antecedente}
+                setAntecedente={setAntecedente}
+                antecedentesOptions={antecedentes.map((a) => a.nome)}
+                itensDaAntecedencia={itensDaAntecedencia}
+                idiomaDoAntecedente={idiomaDoAntecedente}
+                idiomaDoAntecendente2={idiomaDoAntecendente2}
+                setIdiomaAntecedente={setIdiomaAntecedente}
+                setIdiomaAntecendente2={setIdiomaAntecendente2}
+                idiomaOption={idiomaOption}
+              />
+            )}
+            {etapa === 7 && antecedenteSelecionado && (
+              <Etapa7
+                antecedente={antecedente}
+                antecedenteSelecionado={antecedenteSelecionado}
+                CarcDosAntecedentes1={CarcDosAntecedentes1}
+                setCarcDosAntecedents1={setCarcDosAntecedents1}
+                CarcDosAntecedentes2={CarcDosAntecedentes2}
+                setCarcDosAntecedentes2={setCarcDosAntecedentes2}
+                CarcDosAntecedentes3={CarcDosAntecedentes3}
+                setCarcDosAntecedents3={setCarcDosAntecedents3}
+              />
+            )}
+            {etapa === 8 && (
+              <Etapa8
+                tracoPersonalidade={antecedenteSelecionado?.tracoPersonalidade || []}
+                ideal={antecedenteSelecionado?.ideal || []}
+                defeito={antecedenteSelecionado?.defeito || []}
+                vinculo={antecedenteSelecionado?.vinculo || []}
+                tracoPersonalidadeSelecionado={tracoPersonalidadeSelecionado}
+                idealSelecionado={idealSelecionado}
+                defeitoSelecionado={defeitoSelecionado}
+                vinculoSelecionado={vinculoSelecionado}
+                onSelecionarTracoPersonalidade={(e) => setTracoPersonalidadeSelecionado(e.target.value)}
+                setTracoPersonalidadeSelecionado={setTracoPersonalidadeSelecionado}
+                onSelecionarIdeal={(e) => setIdealSelecionado(e.target.value)}
+                onSelecionarDefeito={(e) => setDefeitoSelecionado(e.target.value)}
+                onSelecionarVinculo={(e) => setVinculoSelecionado(e.target.value)}
+              />
+            )}
+            {etapa === 9 && (
+              <Etapa9
+                riquezaInicial={riquezaInicial}
+                setRiquezaInicial={setRiquezaInicial}
+                classeSelecionada={classe}
+                onRiquezaInicialCalculada={handleRiquezaInicialCalculada}
+              />
+            )}
+            {etapa === 10 && (
+              <Etapa10
+                racaSelecionada={racaSelecionada}
+                valoresHabilidade={valoresHabilidade}
+                setValoresHabilidade={setValoresHabilidade}
+                SubRaca={SubRaca}
+                detalhesSubRaca={detalhesSubRaca}
+              />
+            )}
+            {etapa === 11 && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}>
+                <SummaryCard />
+                <Box sx={{ mt: 2, display: "flex", gap: 2, justifyContent: "center" }}>
+                  <Button variant="outlined" color="secondary" onClick={() => setEtapa(10)}>
+                    Voltar e editar
                   </Button>
-                ) : null}
-              </Grid>
-              <Grid item>
-                {etapa < 11 ? (
                   <Button
                     variant="contained"
                     color="primary"
-                    onClick={handleNext}
-                    disabled={!checkRequiredFields()}
+                    onClick={handleConcluir}
+                    disabled={submitting || submitSuccess}
+                    startIcon={submitting ? <CircularProgress size={18} /> : null}
                   >
-                    Próxima Etapa
+                    {submitSuccess ? "Concluído" : submitting ? "Enviando..." : "Concluir e Salvar"}
                   </Button>
-                ) : null}
-              </Grid>
+                </Box>
+
+                {submitError && (
+                  <Typography color="error" sx={{ mt: 2 }} align="center">
+                    {submitError}
+                  </Typography>
+                )}
+
+                {submitSuccess && (
+                  <Typography color="success.main" sx={{ mt: 2 }} align="center">
+                    Ficha criada com sucesso — redirecionando...
+                  </Typography>
+                )}
+              </motion.div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* botões */}
+        <Box sx={{ mt: 2 }}>
+          <Grid container spacing={2} justifyContent="center">
+            <Grid item>
+              {etapa > 1 && etapa <= 10 ? (
+                <Button variant="contained" color="secondary" onClick={handlePrevious}>
+                  Etapa Anterior
+                </Button>
+              ) : null}
             </Grid>
-          </Box>
-        </div>
-      </div>
-      <Typography className={styleFundo.support}>
-        BackGround Art By:{" "}
-        <Link to={backgrounds[classe]} className={styleFundo.supportLink}>
-          {backgrounds[classe]}
-        </Link>
-      </Typography>
-    </div>
+            <Grid item>
+              {etapa < 11 ? (
+                <Button variant="contained" color="primary" onClick={handleNext} disabled={!checkRequiredFields()}>
+                  Próxima Etapa
+                </Button>
+              ) : null}
+            </Grid>
+          </Grid>
+        </Box>
+
+        {/* crédito do background (sem CSS) */}
+        <Typography sx={{ mt: 3, textAlign: "center", opacity: 0.75 }}>
+          BackGround Art By:{" "}
+          {backgrounds?.[classe] ? (
+            <a
+              href={backgrounds[classe]}
+              target="_blank"
+              rel="noreferrer"
+              style={{ color: "inherit", textDecoration: "underline" }}
+            >
+              {backgrounds[classe]}
+            </a>
+          ) : (
+            "—"
+          )}
+        </Typography>
+      </Box>
+    </Box>
   );
 };
 

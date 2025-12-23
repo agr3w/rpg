@@ -1,26 +1,38 @@
-export function encontrarItensPorNome(nomeItem, array) {
-  const itensEncontrados = array.reduce((itens, item) => {
-    const habilidades = item.habilidades || [];
-    const dadosDeVida = item.dadosDeVida || [];
-    const descricao = item.descricao || [];
-    const proficienciaPericia = item.proficienciaPericia || [];
-    const proficienciaFerramentasAntecedente =
-      item.proficienciaFerramentasAntecedente || [];
-    const todosItens = habilidades.concat(
-      dadosDeVida,
-      descricao,
-      proficienciaPericia,
-      proficienciaFerramentasAntecedente
-    );
+export function encontrarItensPorNome(a, b) {
+  const arr = Array.isArray(a) ? a : b;
+  const nome = Array.isArray(a) ? b : a;
 
-    if (item.nome === nomeItem) {
-      itens.push(...todosItens);
-    }
+  if (!Array.isArray(arr) || !nome) return [];
 
-    return itens;
-  }, []);
+  const found = arr.find((x) => x?.nome === nome || x?.name === nome) || null;
+  if (!found) return [];
 
-  return itensEncontrados;
+  const candidate =
+    found.descricaoTendencia ??        // ✅ tendências (possíveis chaves)
+    found.descricaoDaTendencia ??
+    found.descricao ??
+    found.Descricao ??
+    found.habilidades ??               // ✅ raças
+    found.habilidadesSubRaca ??        // ✅ sub-raças
+    found.itens ??
+    found.Itens ??
+    found.traits ??
+    found.Traits ??
+    found.descricoes ??
+    found.descricaoRaca ??
+    found.tracos ??
+    null;
+
+  if (Array.isArray(candidate)) return candidate.filter(Boolean).map(String);
+  if (typeof candidate === "string") return [candidate];
+
+  if (candidate && typeof candidate === "object") {
+    return Object.values(candidate)
+      .flat()
+      .filter((v) => typeof v === "string" && v.trim().length > 0);
+  }
+
+  return [];
 }
 
 // fichaUtils.js
