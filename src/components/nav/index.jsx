@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { FiUser } from "react-icons/fi";
-import { motion } from "framer-motion";
+import { motion, useScroll, useSpring } from "framer-motion"; // Adicionei useScroll e useSpring
 import {
   AppBar,
   Toolbar,
@@ -13,235 +12,250 @@ import {
   MenuItem,
   Avatar,
   Tooltip,
-  Divider,
   Drawer,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
   Badge,
-  Switch,
-  LinearProgress,
   useMediaQuery,
+  useTheme
 } from "@mui/material";
+
+// Ícones
 import {
   Menu as MenuIcon,
-  Brightness4 as Brightness4Icon,
   Notifications as NotificationsIcon,
-  History as HistoryIcon,
   Home as HomeIcon,
   LibraryBooks as LibraryBooksIcon,
   MusicNote as MusicNoteIcon,
   Save as SaveIcon,
+  Map as MapIcon, // Ícone para mapas
+  ExitToApp as LogoutIcon,
+  Settings as SettingsIcon
 } from "@mui/icons-material";
 
-import { useAuth } from "contexts/AuthContext";
-import { auth, database } from "APIs/firebaseConfig";
+// Seus contextos e configs
+import { auth } from "APIs/firebaseConfig"; 
+import { signOut } from "firebase/auth";
 
-const PATH_LABELS = {
-  "": "Início",
-  ficheiro: "Fichas",
-  fichas: "Fichas",
-  livros: "Livros",
-  musicas: "Músicas",
-  anotacoes: "Anotações",
-  mapas: "Mapas",
-  login: "Login",
-  "Registrar-se": "Registrar",
+// Mapeamento de rotas para título (simples e direto)
+const PAGE_TITLES = {
+  "/": "Início",
+  "/fichas": "Fichas",
+  "/livros": "Biblioteca",
+  "/musicas": "Bardo",
+  "/anotacoes": "Anotações",
+  "/mapas": "Cartografia",
+  "/criar-ficha": "Nova Lenda"
 };
 
 const Nav = () => {
-  const { user } = useAuth();
-  const location = useLocation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("md"));
+  const location = useLocation();
 
-  // menu / drawer
+  // Estados locais para UI apenas (Menu e Drawer)
   const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
   const [drawerOpen, setDrawerOpen] = useState(false);
-
-  // notifications
-  const [notifCount, setNotifCount] = useState(0);
-
-  // theme toggle (persists to localStorage and sets data-theme attr)
-  const [dark, setDark] = useState(() => {
-    const v = localStorage.getItem("rpg-theme");
-    return v === "dark";
+  
+  // --- OTIMIZAÇÃO DE PERFORMANCE (Scroll) ---
+  // O Framer Motion gerencia isso fora do ciclo de render do React
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
   });
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
-    localStorage.setItem("rpg-theme", dark ? "dark" : "light");
-  }, [dark]);
 
-  // breadcrumbs
-  const breadcrumbs = location.pathname
-    .split("/")
-    .filter(Boolean)
-    .map((seg, idx, arr) => ({ label: PATH_LABELS[seg] ?? seg, path: `/${arr.slice(0, idx + 1).join("/")}` }));
-
-  // auth menu handlers
-  const handleMenuOpen = (e) => setAnchorEl(e.currentTarget);
-  const handleClose = () => setAnchorEl(null);
-
-  const handleSupportClick = () => {
-    window.location.href = "mailto:suzanakampa12@gmail.com";
-    handleClose();
-  };
-
+  // Funções de controle
+  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
+  
   const handleLogout = async () => {
-    try {
-      await auth.signOut();
-      navigate("/");
-    } catch (err) {
-      console.error("Erro durante o logout:", err);
-    } finally {
-      handleClose();
-    }
+    await signOut(auth);
+    navigate("/login");
   };
 
-  // subscribe notifications
-  useEffect(() => {
-    if (!user) {
-      setNotifCount(0);
-      return;
-    }
-    const uid = user.uid;
-    const notifRef = database.ref(`notifications/${uid}`);
-    const handle = (snap) => {
-      const val = snap.val();
-      const unread = val ? Object.values(val).filter((n) => !n.read).length : 0;
-      setNotifCount(unread);
-    };
-    notifRef.on("value", handle);
-    return () => notifRef.off("value", handle);
-  }, [user]);
+  const getTitle = () => {
+    // Tenta achar o título exato, se não achar, procura se a rota contém (ex: /folders/123)
+    const path = location.pathname;
+    if (PAGE_TITLES[path]) return PAGE_TITLES[path];
+    if (path.includes("folders")) return "Pastas";
+    if (path.includes("ficha-completa")) return "Ficha Detalhada";
+    return "RPG Organizer";
+  };
 
-  // small helper to mark active link style
-  const linkSx = (isActive) => ({
-    textDecoration: "none",
-    color: isActive ? "primary.main" : "text.primary",
-    fontWeight: isActive ? 700 : 500,
-  });
+  // Itens do Menu (para não repetir código no Drawer e na Toolbar)
+  const menuItems = [
+    { text: "Início", icon: <HomeIcon />, path: "/" },
+    { text: "Fichas", icon: <LibraryBooksIcon />, path: "/fichas" },
+    { text: "Livros", icon: <LibraryBooksIcon />, path: "/livros" },
+    { text: "Músicas", icon: <MusicNoteIcon />, path: "/musicas" },
+    { text: "Mapas", icon: <MapIcon />, path: "/mapas" },
+    { text: "Anotações", icon: <SaveIcon />, path: "/anotacoes" },
+  ];
 
   return (
-    <motion.div initial={{ y: -8, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.32 }}>
-      <AppBar position="sticky" color="transparent" elevation={0} sx={{ backdropFilter: "blur(6px)" }} role="navigation" aria-label="Main navigation">
-        <Toolbar sx={{ gap: 2 }}>
-          {/* Mobile Hamburger */}
+    <>
+      <AppBar
+        position="sticky" // Sticky é melhor que fixed para não cobrir conteúdo
+        elevation={0} // Removemos a sombra padrão para usar a nossa customizada
+        sx={{
+          // --- EFEITO GLASSMORPHISM ---
+          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Branco translúcido
+          backdropFilter: 'blur(12px)', // O efeito de vidro fosco
+          borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
+          color: theme.palette.text.primary,
+          top: 0,
+          zIndex: 1100,
+        }}
+      >
+        <Toolbar>
+          {/* Menu Mobile Icon */}
           {isMobile && (
-            <IconButton aria-label="Abrir menu" onClick={() => setDrawerOpen(true)} edge="start" size="large">
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              onClick={() => setDrawerOpen(true)}
+              sx={{ mr: 2 }}
+            >
               <MenuIcon />
             </IconButton>
           )}
 
+          {/* Título da Página Dinâmico */}
           <Typography
             variant="h6"
-            component={NavLink}
-            to="/"
-            sx={{ textDecoration: "none", color: "text.primary", fontWeight: 700, mr: 2 }}
+            component="div"
+            sx={{
+              flexGrow: 1,
+              fontWeight: "bold",
+              color: theme.palette.primary.main,
+              textTransform: "uppercase",
+              letterSpacing: "1px"
+            }}
           >
-            RPG Organizer
+            {getTitle()}
           </Typography>
 
-          <Box sx={{ flexGrow: 1 }} />
+          {/* Menu Desktop */}
+          {!isMobile && (
+            <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+              {menuItems.map((item) => (
+                <Button
+                  key={item.text}
+                  color="inherit"
+                  component={NavLink}
+                  to={item.path}
+                  startIcon={item.icon}
+                  sx={{
+                    "&.active": {
+                      color: theme.palette.primary.main,
+                      fontWeight: "bold",
+                      backgroundColor: "rgba(131, 60, 11, 0.08)"
+                    },
+                    "&:hover": {
+                      backgroundColor: "rgba(0, 0, 0, 0.04)"
+                    }
+                  }}
+                >
+                  {item.text}
+                </Button>
+              ))}
+            </Box>
+          )}
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-    
-            <Button component={NavLink} to="/" color="inherit" sx={{ display: { xs: "none", md: "inline-flex" } }}>
-              Início
-            </Button>
-            <Button component={NavLink} to="/ajuda" color="inherit" sx={{ display: { xs: "none", md: "inline-flex" } }}>
-              Suporte
-            </Button>
+          {/* Área do Usuário (Notificações e Avatar) */}
+          <Box sx={{ display: "flex", alignItems: "center", ml: 2 }}>
+            <IconButton color="inherit">
+              <Badge badgeContent={0} color="error"> {/* Conecte seu notifCount aqui */}
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
 
-            {/* profile / avatar */}
-            {user ? (
-              <>
-                <Tooltip title={user.email || "Conta"}>
-                  <IconButton onClick={handleMenuOpen} size="large" sx={{ ml: 1 }}>
-                    <Avatar sx={{ bgcolor: "primary.main", width: 36, height: 36, fontWeight: 700 }}>
-                      {user.email ? user.email.charAt(0).toUpperCase() : <FiUser />}
-                    </Avatar>
-                  </IconButton>
-                </Tooltip>
-
-                <Menu anchorEl={anchorEl} open={open} onClose={handleClose} PaperProps={{ sx: { minWidth: 220 } }}>
-                  <MenuItem disabled sx={{ whiteSpace: "normal", py: 1 }}>
-                    <Box>
-                      <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                        {user.displayName || user.email}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {user.email}
-                      </Typography>
-                    </Box>
-                  </MenuItem>
-                  <Divider />
-                  <MenuItem onClick={() => { navigate("/perfil"); handleClose(); }}>Perfil</MenuItem>
-                  <MenuItem onClick={() => { navigate("/minhas-campanhas"); handleClose(); }}>Minhas Campanhas</MenuItem>
-                  <MenuItem onClick={() => { navigate("/configuracoes"); handleClose(); }}>Configurações</MenuItem>
-                  <MenuItem onClick={() => { navigate("/faturamento"); handleClose(); }}>Faturamento</MenuItem>
-                  <MenuItem onClick={() => { handleClose(); navigate("/recentes"); }}>Recentes</MenuItem>
-                  <Divider />
-                  <MenuItem onClick={handleSupportClick}>Suporte / FAQ</MenuItem>
-                  <MenuItem onClick={handleLogout}>Sair</MenuItem>
-                </Menu>
-              </>
-            ) : (
-              <Box sx={{ display: "flex", gap: 1 }}>
-                <Button component={NavLink} to="/login">Entrar</Button>
-                <Button component={NavLink} to="/Registrar-se" variant="contained" color="primary">Registrar</Button>
-              </Box>
-            )}
+            <Tooltip title="Configurações da Conta">
+              <IconButton onClick={handleMenuOpen} sx={{ p: 0, ml: 1 }}>
+                <Avatar 
+                  alt="Avatar" 
+                  src={auth.currentUser?.photoURL} 
+                  sx={{ bgcolor: theme.palette.secondary.main }}
+                >
+                  {auth.currentUser?.displayName?.[0] || "U"}
+                </Avatar>
+              </IconButton>
+            </Tooltip>
+            
+            {/* Menu Dropdown do Usuário */}
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              PaperProps={{
+                sx: { mt: 1.5, minWidth: 180 }
+              }}
+            >
+              <MenuItem onClick={handleMenuClose}>
+                <ListItemIcon><SettingsIcon fontSize="small" /></ListItemIcon>
+                Perfil
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>
+                <ListItemIcon><LogoutIcon fontSize="small" /></ListItemIcon>
+                Sair
+              </MenuItem>
+            </Menu>
           </Box>
         </Toolbar>
 
-        {/* optional global progress bar for navigation / requests (hook into app-level state if available) */}
-        {/* <LinearProgress /> */}
+        {/* --- BARRA DE PROGRESSO OTIMIZADA --- */}
+        {/* Substituímos o LinearProgress do MUI por uma div do Framer Motion */}
+        <motion.div
+          style={{
+            scaleX, // A mágica acontece aqui: ligado direto ao scroll
+            height: "4px",
+            background: theme.palette.secondary.main, // Dourado do seu tema
+            transformOrigin: "0%",
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0
+          }}
+        />
       </AppBar>
 
-      {/* Mobile Drawer */}
-      <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)} aria-label="Menu principal">
-        <Box sx={{ width: 280 }} role="presentation" onKeyDown={(e) => e.key === "Escape" && setDrawerOpen(false)}>
-          <List>
-            <ListItem button component={NavLink} to="/" onClick={() => setDrawerOpen(false)}>
-              <ListItemIcon><HomeIcon /></ListItemIcon>
-              <ListItemText primary="Início" />
-            </ListItem>
-            <ListItem button component={NavLink} to="/fichas" onClick={() => setDrawerOpen(false)}>
-              <ListItemIcon><LibraryBooksIcon /></ListItemIcon>
-              <ListItemText primary="Fichas" />
-            </ListItem>
-            <ListItem button component={NavLink} to="/livros" onClick={() => setDrawerOpen(false)}>
-              <ListItemIcon><LibraryBooksIcon /></ListItemIcon>
-              <ListItemText primary="Livros" />
-            </ListItem>
-            <ListItem button component={NavLink} to="/musicas" onClick={() => setDrawerOpen(false)}>
-              <ListItemIcon><MusicNoteIcon /></ListItemIcon>
-              <ListItemText primary="Músicas" />
-            </ListItem>
-            <ListItem button component={NavLink} to="/anotacoes" onClick={() => setDrawerOpen(false)}>
-              <ListItemIcon><SaveIcon /></ListItemIcon>
-              <ListItemText primary="Anotações" />
-            </ListItem>
-            <Divider />
-            <ListItem>
-              <ListItemIcon><NotificationsIcon /></ListItemIcon>
-              <ListItemText primary={`Notificações (${notifCount})`} />
-            </ListItem>
-            <ListItem>
-              <ListItemIcon><HistoryIcon /></ListItemIcon>
-              <ListItemText primary="Recentes" />
-            </ListItem>
-            <Divider />
-            <ListItem button onClick={handleSupportClick}>
-              <ListItemText primary="Suporte / FAQ" />
-            </ListItem>
-          </List>
+      {/* Drawer Mobile */}
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        PaperProps={{
+            sx: { width: 250, backgroundColor: theme.palette.background.default }
+        }}
+      >
+        <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2, borderBottom: '1px solid #ccc' }}>
+            <Avatar src={auth.currentUser?.photoURL} />
+            <Typography variant="subtitle1" noWrap>
+                {auth.currentUser?.displayName || "Aventureiro"}
+            </Typography>
         </Box>
+        <List>
+          {menuItems.map((item) => (
+            <ListItem 
+                button 
+                key={item.text} 
+                component={NavLink} 
+                to={item.path}
+                onClick={() => setDrawerOpen(false)}
+            >
+              <ListItemIcon sx={{ color: theme.palette.primary.main }}>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItem>
+          ))}
+        </List>
       </Drawer>
-    </motion.div>
+    </>
   );
 };
 
