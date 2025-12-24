@@ -1,70 +1,70 @@
-# Getting Started with Create React App
+Ferramentas para Jogador
+------------------------
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+1.  **Diário de Campanha (Session Log)** 🟨 Em progresso
+    -   Entrada por sessão: resumo, NPCs vistos, quests, decisões, loot, XP.
+    -   Linkar com notas/itens/NPCs (referências rápidas). 
+2.  **Inventário inteligente**
+    -   Itens com peso, quantidade, valor, raridade.
+    -   "Kits" (ex.: kit de exploração) e cálculo automático de carga.
+3.  **Spellbook / Lista de magias**
+    -   Filtros por nível, escola, components, concentração, ritual.
+    -   "Preparadas hoje" + contadores rápidos (slots, pact magic).
+4.  **Tracker de recursos**
+    -   HP/Temp HP, dados de vida, cargas, usos por descanso curto/longo.
+    -   Botão "Descanso Curto/Longo" que reseta o que estiver marcado.
+5.  **Anotações por personagem**
+    -   Notas privadas do jogador separadas do "diário de mesa".
 
-## Available Scripts
+Ferramentas para DM
+-------------------
 
-In the project directory, you can run:
+1.  **Gerenciador de Encontros**
+    -   Builder de encontro: monstros, quantidade, ambiente, notas.
+    -   Calculadora de XP/CR ajustada por número de players (5e).
+2.  **Iniciativa + Combate**
+    -   Ordem de iniciativa, condições (cego, envenenado...), concentração.
+    -   Rodadas/turnos, timers e "marcadores" (ex.: efeitos até rodada X).
+3.  **Banco de NPCs**
+    -   NPC: nome, traços, voz, motivação, segredos, relações, tags.
+    -   "Apareceu na sessão X" e link com locais/quests.
+4.  **Mapa/Localizações (Lore Manager)**
+    -   Locais com descrição, facções, pontos de interesse, handouts.
+    -   Links para notas e NPCs.
+5.  **Loot & Recompensas**
+    -   Tabelas simples e um "gerador" por categoria (mundano/mágico).
+    -   Registro de loot entregue (evita inconsistência).
+6.  **Timeline / Rumores / Hooks**
+    -   Lista de ganchos com status (ativo/pendente/concluído), prioridade e sessão sugerida.
 
-### `npm start`
+Ferramentas "neutras" (servem pros dois)
+----------------------------------------
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1.  **Rolador de dados (Dice Roller)**
+    -   Expressões tipo `2d20kh1+5`, vantagem/desvantagem, histórico.
+    -   "Macros" por personagem/campanha.
+2.  **Biblioteca de Handouts**
+    -   Upload/organização de imagens/PDFs por campanha (mapas, cartas).
+3.  **Campanhas e Permissões**
+    -   Campanha com membros (DM + jogadores), e compartilhamento seletivo:
+        -   "Visível para todos" vs "Só DM".
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+* * * * *
 
-### `npm test`
+Sugestão de roadmap (pra entregar rápido)
+-----------------------------------------
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1.  **Campanhas + Session Log + NPCs** (muito valor e pouco atrito)
+2.  **Iniciativa/Combate** (diferencial forte para DM)
+3.  **Dice Roller + Macros** (engaja jogadores e reduz alt-tab)
 
-### `npm run build`
+* * * * *
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Perguntas rápidas pra eu desenhar a estrutura certa
+---------------------------------------------------
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+1.  Você quer **multi-campanha** com usuários compartilhando dados, ou tudo ainda fica **privado por usuário**?
+2.  Você prefere salvar no Realtime DB como:
+    -   `campaigns/{campaignId}` + `campaignMembers/{campaignId}/{uid}`\
+        ou
+    -   `users/{uid}/campaigns/{campaignId}` (mais simples, menos compartilhamento)?
