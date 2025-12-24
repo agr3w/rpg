@@ -19,6 +19,10 @@ const Login = lazy(() => import("pages/login"));
 const Register = lazy(() => import("pages/Regsiter"));
 const MapasPage = lazy(() => import("pages/MapasPage"));
 const Perfil = lazy(() => import("pages/ProfilePage"));
+const SessionLog = lazy(() => import("pages/SessionLog"));
+const SessionLogDetail = lazy(() => import("pages/SessionLog/SessionDetail")); // ✅ add
+const NpcsPage = lazy(() => import("pages/Npcs"));
+const NpcDetail = lazy(() => import("pages/Npcs/NpcDetail"));
 
 const AppRoutes = () => {
   const { user: usuarioAutenticado } = useAuth();
@@ -46,6 +50,10 @@ const AppRoutes = () => {
             <Route path="/ficha-completa/:ID" element={<FichaDetalhes />} />
             <Route path="/mapas" element={<MapasPage />} />
             <Route path="/perfil" element={<Perfil />} />
+            <Route path="/diario" element={<SessionLog />} />
+            <Route path="/diario/:sessionId" element={<SessionLogDetail />} /> // ✅ add
+            <Route path="/npcs" element={<NpcsPage />} />
+            <Route path="/npcs/:npcId" element={<NpcDetail />} />
           </>
         )}
       </Route>

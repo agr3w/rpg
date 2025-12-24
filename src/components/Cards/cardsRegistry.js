@@ -9,6 +9,7 @@ import MapRoundedIcon from "@mui/icons-material/MapRounded";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import MusicNoteRoundedIcon from "@mui/icons-material/MusicNoteRounded";
 import EditNoteRoundedIcon from "@mui/icons-material/EditNoteRounded";
+import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 
 export const CARDS = {
   ficha: {
@@ -61,6 +62,26 @@ export const CARDS = {
     badge: "Ferramenta",
     icon: MenuBookRoundedIcon, // ✅
   },
+  diario: {
+    id: "diario",
+    title: "Diário de Campanha",
+    description: "Registre sessões, decisões, NPCs, loot e XP.",
+    to: "/diario",
+    image: anotacoesImg,
+    accent: "primary",
+    badge: "Principal",
+    icon: EditNoteRoundedIcon,
+  },
+  npcs: {
+    id: "npcs",
+    title: "NPCs",
+    description: "Veja e edite NPCs por campanha.",
+    to: "/npcs",
+    image: anotacoesImg,
+    accent: "primary",
+    badge: "Campanha",
+    icon: PeopleAltRoundedIcon,
+  },
 };
 
 // Seções prontas pra Home (fácil adicionar novos)
@@ -69,10 +90,10 @@ export const HOME_SECTIONS = [
     key: "campanha",
     title: "Comece pela Campanha",
     subtitle:
-      "Fluxo principal: crie fichas, organize mapas e toque a campanha com o que importa primeiro.",
+      "O núcleo da plataforma: diário de sessão + fichas + mapas. Tudo conectado.",
     chipLabel: "Principal",
     accent: "primary",
-    items: [CARDS.ficha, CARDS.mapas],
+    items: [CARDS.diario, CARDS.npcs, CARDS.ficha, CARDS.mapas], // ✅ add CARDS.npcs
   },
   {
     key: "ferramentas",
