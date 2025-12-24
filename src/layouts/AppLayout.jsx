@@ -1,20 +1,25 @@
 import React, { useMemo } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Box } from "@mui/material";
 
 import { useAuth } from "contexts/AuthContext";
+import { usePreferences } from "contexts/PreferencesContext";
 import Nav from "components/nav";
 import DragonTransition from "components/DragonTransition";
 
 import { ELEMENT_VARS, getElementFromPath } from "theme/elementTokens";
+import { T_IN, T_OUT } from "../config/transitions";
 
 export default function AppLayout() {
   const { user: usuarioAutenticado } = useAuth();
+  const { prefs } = usePreferences();
   const location = useLocation();
 
   const element = useMemo(() => getElementFromPath(location.pathname), [location.pathname]);
   const vars = ELEMENT_VARS[element] || ELEMENT_VARS.void;
+
+  const useSimpleTransition = prefs.reduceMotion || prefs.pageTransition === "simple";
 
   return (
     <Box sx={{ minHeight: "100vh", ...vars }}>
@@ -22,9 +27,22 @@ export default function AppLayout() {
 
       <Box sx={{ position: "relative", overflowX: "hidden" }}>
         <AnimatePresence mode="wait" initial={false}>
-          <DragonTransition key={location.pathname} location={location}>
-            <Outlet />
-          </DragonTransition>
+          {useSimpleTransition ? (
+            <Box
+              key={location.pathname}
+              component={motion.div}
+              initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: T_IN * 0.18, ease: "easeOut" } }}
+              exit={{ opacity: 0, y: -6, filter: "blur(2px)", transition: { duration: T_OUT * 0.14, ease: "easeInOut" } }}
+              sx={{ position: "relative" }}
+            >
+              <Outlet />
+            </Box>
+          ) : (
+            <DragonTransition key={location.pathname} location={location}>
+              <Outlet />
+            </DragonTransition>
+          )}
         </AnimatePresence>
       </Box>
     </Box>

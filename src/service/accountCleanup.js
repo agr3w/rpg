@@ -90,42 +90,23 @@ export async function deleteUserData(uid) {
 }
 
 /**
- * Reautentica (senha atual) -> apaga dados -> apaga a conta do Auth.
- */
-export async function deleteAccountAndData({ currentPassword }) {
-  const user = auth.currentUser;
-  if (!user) throw new Error("Usuário não autenticado.");
-
-  const email = user.email;
-  if (!email) throw new Error("Seu usuário não possui e-mail.");
-
-  if (!currentPassword) throw new Error("Informe sua senha atual para confirmar.");
-
-  const credential = firebase.auth.EmailAuthProvider.credential(email, currentPassword);
-
-  await user.reauthenticateWithCredential(credential);
-
-  await deleteUserData(user.uid);
-
-  await user.delete();
-}
-
-/**
  * Troca e-mail (exige reauth)
  */
 export async function changeEmail({ newEmail, currentPassword }) {
   const user = auth.currentUser;
   if (!user) throw new Error("Usuário não autenticado.");
+
   const email = user.email;
   if (!email) throw new Error("Seu usuário não possui e-mail.");
 
-  if (!newEmail) throw new Error("Informe o novo e-mail.");
+  const next = String(newEmail || "").trim();
+  if (!next) throw new Error("Informe o novo e-mail.");
   if (!currentPassword) throw new Error("Informe sua senha atual.");
 
   const credential = firebase.auth.EmailAuthProvider.credential(email, currentPassword);
   await user.reauthenticateWithCredential(credential);
 
-  await user.updateEmail(newEmail.trim());
+  await user.updateEmail(next);
 }
 
 /**
@@ -134,6 +115,7 @@ export async function changeEmail({ newEmail, currentPassword }) {
 export async function changePassword({ newPassword, currentPassword }) {
   const user = auth.currentUser;
   if (!user) throw new Error("Usuário não autenticado.");
+
   const email = user.email;
   if (!email) throw new Error("Seu usuário não possui e-mail.");
 
@@ -144,4 +126,23 @@ export async function changePassword({ newPassword, currentPassword }) {
   await user.reauthenticateWithCredential(credential);
 
   await user.updatePassword(newPassword);
+}
+
+/**
+ * Reautentica (senha atual) -> apaga dados -> apaga a conta do Auth.
+ */
+export async function deleteAccountAndData({ currentPassword }) {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Usuário não autenticado.");
+
+  const email = user.email;
+  if (!email) throw new Error("Seu usuário não possui e-mail.");
+  if (!currentPassword) throw new Error("Informe sua senha atual para confirmar.");
+
+  const credential = firebase.auth.EmailAuthProvider.credential(email, currentPassword);
+  await user.reauthenticateWithCredential(credential);
+
+  await deleteUserData(user.uid);
+
+  await user.delete();
 }
