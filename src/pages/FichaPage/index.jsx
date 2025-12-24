@@ -56,6 +56,13 @@ const pageVariants = {
   show: { opacity: 1, y: 0, transition: { duration: T_IN * 0.38 } },
 };
 
+// Adicionado: configuração de transição para o framer-motion
+const pageTransition = {
+  type: "spring",
+  stiffness: 260,
+  damping: 25,
+};
+
 const FichaCriar = () => {
   const [nome, setNome] = useState("");
   const [raca, setRaca] = useState("");
@@ -169,22 +176,23 @@ const FichaCriar = () => {
     }
   }, [etapa, nome, raca, SubRacasOptions.length, SubRaca, classe, tendencia, antecedente]);
 
-  // const handleNext = () => {
-  //   if (etapa === 6 && antecedente !== "") {
-  //     const antecedenteEncontrado = antecedentes.find((a) => a.nome === antecedente);
-  //     if (antecedenteEncontrado) setAntecedenteSelecionado(antecedenteEncontrado);
-  //   }
-
-  //   if (checkRequiredFields()) {
-  //     if (etapa < 11) setEtapa(etapa + 1);
-  //   } else {
-  //     alert("Por favor, preencha todos os campos obrigatórios antes de prosseguir.");
-  //   }
-  // };
-
   const handlePrevious = () => {
     if (etapa > 1) {
       setEtapa(etapa - 1);
+    }
+  };
+
+  const handleNext = () => {
+    // se estiver na etapa 6 mantém comportamento anterior para popular antecedenteSelecionado
+    if (etapa === 6 && antecedente !== "") {
+      const antecedenteEncontrado = antecedentes.find((a) => a.nome === antecedente);
+      if (antecedenteEncontrado) setAntecedenteSelecionado(antecedenteEncontrado);
+    }
+
+    if (checkRequiredFields()) {
+      if (etapa < 11) setEtapa(etapa + 1);
+    } else {
+      alert("Por favor, preencha todos os campos obrigatórios antes de prosseguir.");
     }
   };
 
