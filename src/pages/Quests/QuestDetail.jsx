@@ -20,9 +20,11 @@ import {
   TextField,
   Tooltip,
   Typography,
+  Autocomplete,
 } from "@mui/material";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
+import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { auth, database, firebase } from "APIs/firebaseConfig";
 import { T_IN } from "config/transitions";
@@ -93,22 +95,36 @@ export default function QuestDetail() {
   const [description, setDescription] = useState("");
   const [tagsRaw, setTagsRaw] = useState("");
 
-  const [appearedIn, setAppearedIn] = useState([]); // { sessionId, title, note, createdAt }
-  const [followUps, setFollowUps] = useState([]); // { hookId, title, status }
+  const [appearedIn, setAppearedIn] = useState([]);
   const [timeline, setTimeline] = useState([]);
 
   // ✅ Plano/Flow da quest: marcos + todos
   const [milestoneOpen, setMilestoneOpen] = useState(false);
   const [milestoneTitle, setMilestoneTitle] = useState("");
   const [milestoneNote, setMilestoneNote] = useState("");
-
-  const [todoDraft, setTodoDraft] = useState({}); // { [milestoneId]: "texto" }
+  const [todoDraft, setTodoDraft] = useState({});
 
   // ✅ Timeline manual
   const [eventOpen, setEventOpen] = useState(false);
   const [eventType, setEventType] = useState("manual");
   const [eventStatus, setEventStatus] = useState("pendente");
   const [eventNote, setEventNote] = useState("");
+
+  // ✅ Subquests
+  const [questOptions, setQuestOptions] = useState([]);
+  const [subquestTarget, setSubquestTarget] = useState(null);
+
+  // ✅ Timeline manual (melhorada)
+  const [eventTitle, setEventTitle] = useState("");
+  const [eventMilestoneId, setEventMilestoneId] = useState("");
+
+  // ✅ MIGRAÇÃO hooks -> objetivos + eventos
+  const [migratingHooks, setMigratingHooks] = useState(false);
+
+  const legacyHookIds = useMemo(() => {
+    const obj = quest?.followUps || null;
+    return obj ? Object.keys(obj) : [];
+  }, [quest?.followUps]);
 
   useEffect(() => {
     if (!questRef) {
@@ -132,7 +148,7 @@ export default function QuestDetail() {
     return () => questRef.off("value", onQuest);
   }, [questRef]);
 
-  // Mantém (por enquanto) — pode virar opcional depois, pq timeline já resolve grande parte do valor
+  // Mantém (por enquanto) — pode virar opcional depois
   useEffect(() => {
     if (!uid || !campaignId || !questId) return;
 
@@ -166,26 +182,6 @@ export default function QuestDetail() {
   }, [uid, campaignId, questId]);
 
   useEffect(() => {
-    if (!uid || !campaignId || !questId) return;
-
-    const hooksRef = database.ref(`users/${uid}/campaigns/${campaignId}/hooks`);
-    const onHooks = (snap) => {
-      const all = snap.val() || {};
-      const ids = quest?.followUps ? Object.keys(quest.followUps) : [];
-      const arr = ids
-        .map((id) => all?.[id])
-        .filter(Boolean)
-        .map((h) => ({ hookId: h.id, title: h.title, status: h.status || "pendente" }));
-
-      arr.sort((a, b) => String(a.title || "").localeCompare(String(b.title || ""), "pt-BR"));
-      setFollowUps(arr);
-    };
-
-    hooksRef.on("value", onHooks);
-    return () => hooksRef.off("value", onHooks);
-  }, [uid, campaignId, questId, quest?.followUps]);
-
-  useEffect(() => {
     if (!questRef) return;
 
     const tlRef = questRef.child("timeline");
@@ -206,6 +202,30 @@ export default function QuestDetail() {
     arr.sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
     return arr;
   }, [quest?.flow?.milestones]);
+
+  useEffect(() => {
+    if (!uid || !campaignId) return;
+
+    const idxRef = database.ref(`users/${uid}/campaigns/${campaignId}/questIndex`);
+    const onIdx = (snap) => {
+      const data = snap.val() || {};
+      const arr = Object.values(data)
+        .map((x) => ({ questId: x?.questId, title: x?.title }))
+        .filter((x) => x.questId && x.title)
+        .sort((a, b) => String(a.title).localeCompare(String(b.title), "pt-BR"));
+      setQuestOptions(arr);
+    };
+
+    idxRef.on("value", onIdx);
+    return () => idxRef.off("value", onIdx);
+  }, [uid, campaignId]);
+
+  const subquests = useMemo(() => {
+    const obj = quest?.links?.subquests || {};
+    const arr = Object.values(obj).filter((x) => x?.questId && x?.title);
+    arr.sort((a, b) => String(a.title).localeCompare(String(b.title), "pt-BR"));
+    return arr;
+  }, [quest?.links?.subquests]);
 
   const save = async () => {
     setStatus({ type: "info", msg: "" });
@@ -350,12 +370,51 @@ export default function QuestDetail() {
     }
   };
 
-  // ✅ adicionar evento manual na timeline
+  // ✅ adicionar subquest
+  const addSubquest = async () => {
+    setStatus({ type: "info", msg: "" });
+    if (!questRef || !subquestTarget?.questId) return;
+    if (subquestTarget.questId === questId) {
+      setStatus({ type: "warning", msg: "Você não pode linkar a quest nela mesma." });
+      return;
+    }
+
+    try {
+      await questRef.child(`links/subquests/${subquestTarget.questId}`).set({
+        questId: subquestTarget.questId,
+        title: subquestTarget.title || "Quest",
+        createdAt: firebase.database.ServerValue.TIMESTAMP,
+      });
+      setSubquestTarget(null);
+      setStatus({ type: "success", msg: "Subquest adicionada." });
+    } catch (e) {
+      setStatus({ type: "error", msg: e?.message || "Erro ao adicionar subquest." });
+    }
+  };
+
+  const removeSubquest = async (qid) => {
+    setStatus({ type: "info", msg: "" });
+    if (!questRef || !qid) return;
+    try {
+      await questRef.child(`links/subquests/${qid}`).remove();
+      setStatus({ type: "success", msg: "Subquest removida." });
+    } catch (e) {
+      setStatus({ type: "error", msg: e?.message || "Erro ao remover subquest." });
+    }
+  };
+
+  // ✅ adicionar evento manual na timeline (com title + milestoneId)
   const addManualEvent = async () => {
     setStatus({ type: "info", msg: "" });
     if (!questRef) return;
 
+    const t = String(eventTitle || "").trim();
     const note = String(eventNote || "").trim();
+
+    if (!t) {
+      setStatus({ type: "warning", msg: "Informe um título para o evento." });
+      return;
+    }
     if (!note) {
       setStatus({ type: "warning", msg: "Escreva uma nota para o evento." });
       return;
@@ -366,8 +425,10 @@ export default function QuestDetail() {
       await ref.set({
         id: ref.key,
         type: String(eventType || "manual"),
+        title: t,
+        milestoneId: String(eventMilestoneId || ""),
         questId,
-        sessionId: "", // manual não precisa de sessão
+        sessionId: "",
         sessionTitle: "",
         status: String(eventStatus || currentStatus || ""),
         note,
@@ -378,10 +439,122 @@ export default function QuestDetail() {
       setEventOpen(false);
       setEventType("manual");
       setEventStatus(currentStatus || "pendente");
+      setEventTitle("");
+      setEventMilestoneId("");
       setEventNote("");
       setStatus({ type: "success", msg: "Evento adicionado na timeline." });
     } catch (e) {
       setStatus({ type: "error", msg: e?.message || "Erro ao adicionar evento." });
+    }
+  };
+
+  const ensureMilestoneByTitle = async (wantedTitle, note = "") => {
+    if (!questRef) return "";
+    const snap = await questRef.child("flow/milestones").once("value");
+    const obj = snap.val() || {};
+    const arr = Object.values(obj).filter(Boolean);
+
+    const found = arr.find((m) => String(m?.title || "").trim().toLowerCase() === String(wantedTitle).trim().toLowerCase());
+    if (found?.id) return found.id;
+
+    const ref = questRef.child("flow/milestones").push();
+    await ref.set({
+      id: ref.key,
+      title: wantedTitle,
+      note: note || "",
+      order: Date.now(),
+      createdAt: firebase.database.ServerValue.TIMESTAMP,
+      updatedAt: firebase.database.ServerValue.TIMESTAMP,
+    });
+    return ref.key;
+  };
+
+  const pushTimeline = async ({ type, title, note, milestoneId, status: st }) => {
+    if (!questRef) return;
+    const ref = questRef.child("timeline").push();
+    await ref.set({
+      id: ref.key,
+      type: type || "update",
+      title: title || "",
+      milestoneId: milestoneId || "",
+      questId,
+      sessionId: "",
+      sessionTitle: "",
+      status: st || "",
+      note: note || "",
+      occurredAt: firebase.database.ServerValue.TIMESTAMP,
+      createdAt: firebase.database.ServerValue.TIMESTAMP,
+    });
+  };
+
+  const migrateLegacyHooksToObjectives = async () => {
+    setStatus({ type: "info", msg: "" });
+    if (!uid || !campaignId || !questRef || !legacyHookIds.length) return;
+    if (migratingHooks) return;
+
+    setMigratingHooks(true);
+    try {
+      const milestoneId = await ensureMilestoneByTitle(
+        "Follow-ups (migrado)",
+        "Hooks antigos migrados para objetivos do plano. Você pode mover/editar estes objetivos depois."
+      );
+
+      let migratedCount = 0;
+
+      for (const hookId of legacyHookIds) {
+        const hookRef = database.ref(`users/${uid}/campaigns/${campaignId}/hooks/${hookId}`);
+        const hookSnap = await hookRef.once("value");
+        const hook = hookSnap.val();
+        if (!hook) continue;
+
+        const hookTitle = String(hook?.title || "Hook").trim();
+        const hookNote = String(hook?.note || "").trim();
+
+        const mergedText = hookNote ? `${hookTitle} — ${hookNote}` : hookTitle;
+
+        const isDone =
+          String(hook?.status || "").toLowerCase() === "concluido" ||
+          String(hook?.status || "").toLowerCase() === "concluida" ||
+          String(hook?.status || "").toLowerCase() === "concluída";
+
+        const todoRef = questRef.child(`flow/milestones/${milestoneId}/todos`).push();
+        await todoRef.set({
+          id: todoRef.key,
+          text: mergedText,
+          done: Boolean(isDone),
+          doneAt: isDone ? firebase.database.ServerValue.TIMESTAMP : 0,
+          createdAt: firebase.database.ServerValue.TIMESTAMP,
+          updatedAt: firebase.database.ServerValue.TIMESTAMP,
+          legacy: { hookId },
+        });
+
+        // marca hook como depreciado (não deleta por segurança)
+        await hookRef.update({
+          deprecated: true,
+          migratedToQuestId: questId,
+          migratedAt: firebase.database.ServerValue.TIMESTAMP,
+          updatedAt: firebase.database.ServerValue.TIMESTAMP,
+        });
+
+        migratedCount += 1;
+      }
+
+      // remove o mapa antigo da quest
+      await questRef.child("followUps").remove();
+
+      await pushTimeline({
+        type: "migration",
+        title: "Hooks migrados para objetivos",
+        note: `${migratedCount} hook(s) migrado(s) para o marco “Follow-ups (migrado)”.`,
+        milestoneId,
+        status: currentStatus || "",
+      });
+
+      setStatus({ type: "success", msg: "Migração concluída: hooks viraram objetivos + evento na timeline." });
+    } catch (e) {
+      setStatus({ type: "error", msg: e?.message || "Erro ao migrar hooks." });
+    } finally {
+      setMigratingHooks(false);
     }
   };
 
@@ -443,6 +616,93 @@ export default function QuestDetail() {
           </Paper>
 
           {status.msg ? <Alert severity={status.type}>{status.msg}</Alert> : null}
+
+          {/* ✅ Painel de migração (aparece apenas se existir legado) */}
+          {legacyHookIds.length ? (
+            <Paper elevation={0} sx={{ p: 2.25, borderRadius: 3, border: "1px solid rgba(0,0,0,0.10)" }}>
+              <Stack spacing={1}>
+                <Typography sx={{ fontWeight: 950 }}>Migração de Follow-ups (hooks)</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.85 }}>
+                  Esta quest possui <strong>{legacyHookIds.length}</strong> hook(s) antigo(s). Agora follow-up ={" "}
+                  <strong>objetivo do plano</strong> + <strong>evento na timeline</strong>.
+                </Typography>
+                <Button variant="contained" onClick={migrateLegacyHooksToObjectives} disabled={migratingHooks} sx={{ width: "fit-content", fontWeight: 900 }}>
+                  {migratingHooks ? "Migrando..." : "Migrar hooks agora"}
+                </Button>
+              </Stack>
+            </Paper>
+          ) : null}
+
+          {/* ✅ Subquests (visual e navegável) */}
+          <Paper elevation={0} sx={{ p: 2.25, borderRadius: 3, border: "1px solid rgba(0,0,0,0.10)" }}>
+            <Stack spacing={1.25}>
+              <Typography variant="h6" sx={{ fontWeight: 950 }}>
+                Subquests (Quest Journal)
+              </Typography>
+              <Divider />
+
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems={{ sm: "center" }}>
+                <Autocomplete
+                  options={questOptions.filter((o) => o.questId !== questId)}
+                  getOptionLabel={(o) => o?.title || ""}
+                  value={subquestTarget}
+                  onChange={(_, v) => setSubquestTarget(v)}
+                  renderInput={(params) => <TextField {...params} label="Linkar subquest" placeholder="Selecione uma quest existente" />}
+                  sx={{ flex: 1 }}
+                />
+                <Button variant="outlined" onClick={addSubquest} disabled={!subquestTarget}>
+                  Adicionar
+                </Button>
+              </Stack>
+
+              {subquests.length === 0 ? (
+                <Typography sx={{ opacity: 0.8 }}>
+                  Nenhuma subquest linkada. (Use isso pra criar uma árvore tipo “Main quest → objetivos → subquests”.)
+                </Typography>
+              ) : (
+                <Stack spacing={1}>
+                  {subquests.map((sq) => (
+                    <Paper
+                      key={sq.questId}
+                      elevation={0}
+                      sx={{
+                        p: 1.25,
+                        borderRadius: 2,
+                        border: "1px solid rgba(0,0,0,0.10)",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        gap: 1,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <Typography sx={{ fontWeight: 900, color: "#2c1a10" }} noWrap title={sq.title}>
+                        {sq.title}
+                      </Typography>
+
+                      <Stack direction="row" spacing={0.5} alignItems="center">
+                        <Tooltip title="Abrir subquest">
+                          <IconButton
+                            size="small"
+                            component={Link}
+                            to={`/quests/${encodeURIComponent(sq.questId)}?c=${encodeURIComponent(campaignId)}`}
+                          >
+                            <OpenInNewRoundedIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Remover link">
+                          <IconButton size="small" onClick={() => removeSubquest(sq.questId)}>
+                            <DeleteRoundedIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </Stack>
+                    </Paper>
+                  ))}
+                </Stack>
+              )}
+            </Stack>
+          </Paper>
 
           {/* ✅ Plano / Flow (marcos + checklist) */}
           <Paper elevation={0} sx={{ p: 2.25, borderRadius: 3, border: "1px solid rgba(0,0,0,0.10)" }}>
@@ -622,25 +882,11 @@ export default function QuestDetail() {
               <Divider />
 
               <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
-                Follow-ups (hooks)
+                Follow-ups
               </Typography>
-
-              {followUps.length === 0 ? (
-                <Typography sx={{ opacity: 0.8 }}>Nenhum follow-up criado ainda.</Typography>
-              ) : (
-                <Stack spacing={0.75}>
-                  {followUps.map((h) => (
-                    <Paper key={h.hookId} elevation={0} sx={{ p: 1.1, borderRadius: 2, border: "1px solid rgba(0,0,0,0.10)" }}>
-                      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ gap: 1 }}>
-                        <Typography sx={{ fontWeight: 900, color: "#2c1a10" }} noWrap>
-                          {h.title}
-                        </Typography>
-                        <Chip size="small" label={h.status} variant="outlined" />
-                      </Stack>
-                    </Paper>
-                  ))}
-                </Stack>
-              )}
+              <Typography variant="body2" sx={{ opacity: 0.85 }}>
+                Agora follow-up é um <strong>objetivo</strong> no Plano da Quest (use “Próximos passos”).
+              </Typography>
             </Stack>
           </Paper>
 
@@ -692,7 +938,7 @@ export default function QuestDetail() {
             </Stack>
           </Paper>
 
-          {/* Timeline */}
+          {/* Timeline (render melhorado com title + milestone chip) */}
           <Paper elevation={0} sx={{ p: 2.25, borderRadius: 3, border: "1px solid rgba(0,0,0,0.10)" }}>
             <Stack spacing={1.25}>
               <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ gap: 1, flexWrap: "wrap" }}>
@@ -717,6 +963,10 @@ export default function QuestDetail() {
                 <Stack spacing={1}>
                   {timeline.map((ev) => {
                     const st = statusChip(ev.status);
+                    const milestoneTitle = ev.milestoneId
+                      ? milestones.find((m) => m.id === ev.milestoneId)?.title || "Marco"
+                      : "";
+
                     return (
                       <Paper
                         key={ev.id}
@@ -739,7 +989,14 @@ export default function QuestDetail() {
                               {fmtDateTime(ev.occurredAt)}
                             </Typography>
                             {ev.type ? <Chip size="small" label={String(ev.type)} variant="outlined" /> : null}
+                            {milestoneTitle ? <Chip size="small" label={`Marco: ${milestoneTitle}`} variant="outlined" /> : null}
                           </Stack>
+
+                          {ev.title ? (
+                            <Typography sx={{ fontWeight: 950, color: "#2c1a10", mt: 0.6 }} noWrap title={ev.title}>
+                              {ev.title}
+                            </Typography>
+                          ) : null}
 
                           {ev.note ? (
                             <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5, whiteSpace: "pre-wrap" }}>
@@ -792,11 +1049,19 @@ export default function QuestDetail() {
             </DialogActions>
           </Dialog>
 
-          {/* Dialog: adicionar evento manual */}
+          {/* Dialog: adicionar evento manual (com title + milestone) */}
           <Dialog open={eventOpen} onClose={() => setEventOpen(false)} maxWidth="sm" fullWidth>
             <DialogTitle>Adicionar evento na timeline</DialogTitle>
             <DialogContent dividers>
               <Stack spacing={1.25} sx={{ mt: 1 }}>
+                <TextField
+                  label="Título do evento"
+                  value={eventTitle}
+                  onChange={(e) => setEventTitle(e.target.value)}
+                  fullWidth
+                  placeholder='Ex.: "Descoberta importante"'
+                />
+
                 <TextField
                   label="Tipo"
                   value={eventType}
@@ -804,6 +1069,23 @@ export default function QuestDetail() {
                   placeholder='Ex.: "manual", "descoberta", "plot", "combate"'
                   fullWidth
                 />
+
+                <Select
+                  value={eventMilestoneId}
+                  onChange={(e) => setEventMilestoneId(e.target.value)}
+                  size="small"
+                  sx={{ width: "fit-content" }}
+                  displayEmpty
+                >
+                  <MenuItem value="">
+                    <em>Sem marco</em>
+                  </MenuItem>
+                  {milestones.map((m) => (
+                    <MenuItem key={m.id} value={m.id}>
+                      {m.title}
+                    </MenuItem>
+                  ))}
+                </Select>
 
                 <Select value={eventStatus} onChange={(e) => setEventStatus(e.target.value)} size="small" sx={{ width: "fit-content" }}>
                   {STATUS.map((s) => (
