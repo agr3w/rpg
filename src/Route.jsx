@@ -23,6 +23,8 @@ const SessionLog = lazy(() => import("pages/SessionLog"));
 const SessionLogDetail = lazy(() => import("pages/SessionLog/SessionDetail")); // ✅ add
 const NpcsPage = lazy(() => import("pages/Npcs"));
 const NpcDetail = lazy(() => import("pages/Npcs/NpcDetail"));
+const QuestsPage = lazy(() => import("pages/Quests"));
+const QuestDetail = lazy(() => import("pages/Quests/QuestDetail"));
 
 const AppRoutes = () => {
   const { user: usuarioAutenticado } = useAuth();
@@ -54,6 +56,8 @@ const AppRoutes = () => {
             <Route path="/diario/:sessionId" element={<SessionLogDetail />} /> // ✅ add
             <Route path="/npcs" element={<NpcsPage />} />
             <Route path="/npcs/:npcId" element={<NpcDetail />} />
+            <Route path="/quests" element={<QuestsPage />} />
+            <Route path="/quests/:questId" element={<QuestDetail />} />
           </>
         )}
       </Route>

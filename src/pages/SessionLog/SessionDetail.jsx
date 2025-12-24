@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import SessionHeader from "./components/SessionHeader";
 import XpPanel from "./components/XpPanel";
 import NpcsSeenPanel from "./components/NpcsSeenPanel";
+import QuestsPanel from "./components/QuestsPanel";
 
 const DEFAULT_CAMPAIGN_ID = "default";
 
@@ -142,6 +143,14 @@ export default function SessionLogDetail() {
           />
 
           <NpcsSeenPanel
+            uid={uid}
+            campaignId={campaignId}
+            sessionRef={sessionRef}
+            session={session}
+            setStatus={setStatus}
+          />
+
+          <QuestsPanel
             uid={uid}
             campaignId={campaignId}
             sessionRef={sessionRef}

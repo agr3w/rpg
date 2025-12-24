@@ -45,11 +45,13 @@ import { auth } from "APIs/firebaseConfig";
 import { signOut } from "firebase/auth";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
+import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
 
 const PAGE_TITLES = {
   "/": "Início",
   "/diario": "Diário de Campanha",
-    "/npcs": "NPCs", // ✅ add
+  "/npcs": "NPCs",
+  "/quests": "Quests", // ✅ add
   "/fichas": "Fichas",
   "/livros": "Biblioteca",
   "/musicas": "Bardo",
@@ -63,7 +65,8 @@ function getTitleFromPath(pathname) {
   if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
   if (pathname.includes("folders")) return "Pastas";
   if (pathname.includes("ficha-completa")) return "Ficha Detalhada";
-    if (pathname.startsWith("/npcs/")) return "NPC"; // ✅ add
+  if (pathname.startsWith("/npcs/")) return "NPC"; // ✅ add
+  if (pathname.startsWith("/quests/")) return "Quest"; // ✅ add
   return "RPG Organizer";
 }
 
@@ -130,6 +133,7 @@ const Nav = () => {
       { text: "Bardo", icon: <MusicNoteIcon />, path: "/musicas" },
       { text: "Anotações", icon: <EditNoteIcon />, path: "/anotacoes" },
       { text: "NPCs", icon: <PeopleAltRoundedIcon />, path: "/npcs" }, // ✅ add
+      { text: "Quests", icon: <FactCheckRoundedIcon />, path: "/quests" }, // ✅ add
     ],
     []
   );

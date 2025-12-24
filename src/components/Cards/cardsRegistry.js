@@ -10,6 +10,7 @@ import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import MusicNoteRoundedIcon from "@mui/icons-material/MusicNoteRounded";
 import EditNoteRoundedIcon from "@mui/icons-material/EditNoteRounded";
 import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
+import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
 
 export const CARDS = {
   ficha: {
@@ -82,6 +83,16 @@ export const CARDS = {
     badge: "Campanha",
     icon: PeopleAltRoundedIcon,
   },
+  quests: {
+    id: "quests",
+    title: "Quests",
+    description: "Gerencie quests por campanha com status, tags e timeline.",
+    to: "/quests",
+    image: anotacoesImg, // reaproveitando por enquanto
+    accent: "primary",
+    badge: "Campanha",
+    icon: FactCheckRoundedIcon,
+  },
 };
 
 // Seções prontas pra Home (fácil adicionar novos)
@@ -93,7 +104,7 @@ export const HOME_SECTIONS = [
       "O núcleo da plataforma: diário de sessão + fichas + mapas. Tudo conectado.",
     chipLabel: "Principal",
     accent: "primary",
-    items: [CARDS.diario, CARDS.npcs, CARDS.ficha, CARDS.mapas], // ✅ add CARDS.npcs
+    items: [CARDS.diario, CARDS.npcs, CARDS.quests, CARDS.ficha, CARDS.mapas], // ✅ add quests
   },
   {
     key: "ferramentas",
