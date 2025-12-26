@@ -1,23 +1,33 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
+  Avatar,
+  Box,
+  Chip,
   Grid,
+  Paper,
   Typography,
   List,
   ListItem,
+  ListItemIcon,
   ListItemText,
-  Box,
-  Button,
-  Paper,
-  TextField,
-  FormControlLabel,
-  Checkbox,
-  MenuItem,
+  Divider,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Stack,
   IconButton,
+  CircularProgress,
+  Skeleton,
+  Button,
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
-  FormGroup,
+  DialogActions,    
+  TextField,        
+  MenuItem,         
+  FormGroup,        
+  FormControlLabel, 
+  Checkbox,         
 } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import EditIcon from "@mui/icons-material/Edit";
@@ -112,7 +122,9 @@ const FichaInventory = ({
   };
 
   const computeSpellDc = (item) => {
-    const stat = item.attackStat || "Inteligência";
+    const fallback =
+      item.kind === "spell" ? spellAttr || "Inteligência" : "Inteligência";
+    const stat = item.attackStat || fallback;
     const mod = Number(abilityMods[stat] || 0);
     return 8 + profBonus + mod;
   };

@@ -415,9 +415,15 @@ const FichaDetalhes = () => {
           <Box sx={{ mb: 3 }}>
             <motion.div {...sectionMotion}>
               <Paper elevation={3} sx={{ p: 2 }}>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                  <Inventory2Icon fontSize="small" style={{ marginRight: 8 }} />
-                  <Typography variant="h6">Inventário</Typography>
+                <Box sx={{ display: "flex", alignItems: "center", mb: 1, justifyContent: "space-between" }}>
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <Inventory2Icon fontSize="small" style={{ marginRight: 8 }} />
+                    <Typography variant="h6">Inventário</Typography>
+                  </Box>
+
+                  <Button size="small" onClick={() => setInventoryOpen(true)}>
+                    Tela cheia
+                  </Button>
                 </Box>
 
                 <FichaInventory
