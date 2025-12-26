@@ -250,14 +250,66 @@ const FichaDetalhes = () => {
 
   const getClasseBackground = (classe) => classeBackgrounds[classe] || "";
 
-/* --- Inventário (dados preparados para o layout em bloco) --- */
-  const equipped = ficha.inventory?.equipped || {};
-  const equippedEntries = Object.entries(equipped);
+  // Atributo de conjuração por classe (para preencher magias automaticamente)
+  const getSpellAttributeForClass = (classe) => {
+    if (!classe) return "Inteligência";
+    const c = String(classe).toLowerCase();
+    if (["bardo", "bruxo", "feiticeiro"].includes(c)) return "Carisma";
+    if (["clerigo", "clérigo", "druida"].includes(c)) return "Sabedoria";
+    if (["mago"].includes(c)) return "Inteligência";
+    return "Inteligência";
+  };
+  const spellAttr = getSpellAttributeForClass(ficha?.classe);
 
-  const backpack = ficha.inventory?.backpack || {};
-  const backpackArr = Object.values(backpack)
-    .filter(Boolean)
-    .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+  // ✅ helpers para salvar inventário no Realtime DB
+  const persistInventoryPartial = async (partial) => {
+    // atualiza estado local
+    setFicha((prev) => {
+      const invAtual = prev?.inventory || {};
+      const novoInv = { ...invAtual, ...partial };
+      return { ...(prev || {}), inventory: novoInv };
+    });
+
+    // grava no RTDB
+    if (!userID || !fichaKey) return;
+    try {
+      await firebase
+        .database()
+        .ref(`fichas/${userID}/${fichaKey}/inventory`)
+        .update(partial);
+    } catch (e) {
+      console.error("Erro ao salvar inventário:", e);
+    }
+  };
+
+  const handleEquippedChange = (nextEquipped) =>
+    persistInventoryPartial({ equipped: nextEquipped || {} });
+
+  const handleBackpackChange = (nextBackpack) =>
+    persistInventoryPartial({ backpack: nextBackpack || {} });
+
+  const loadingEquipped = saving;
+  const loadingBackpack = saving;
+
+  const handleXpSave = () => {
+    if (!userID || !fichaKey) return;
+    setSaving(true);
+    firebase
+      .database()
+      .ref(`fichas/${userID}/${fichaKey}`)
+      .update({ xp: Number(xpInput) })
+      .then(() => {
+        setSnack({ open: true, severity: "success", message: "Experiência salva com sucesso!" });
+        setCongratsOpen(computeLevelFromXp(Number(xpInput)) > computeLevelFromXp(ficha.xp));
+      })
+      .catch((err) => {
+        console.error("Erro ao salvar experiência:", err);
+        setSnack({ open: true, severity: "error", message: "Erro ao salvar experiência." });
+      })
+      .finally(() => {
+        setSaving(false);
+      });
+  };
 
   return (
     <div className={`${getClasseBackground(ficha.classe)}`}>
@@ -371,7 +423,10 @@ const FichaDetalhes = () => {
                 <FichaInventory
                   inventory={ficha.inventory || {}}
                   abilityMods={abilityMods}
-                  level={Number(ficha.level ?? ficha.Level ?? 1)}
+                  level={ficha.level || 1}
+                  spellAttr={spellAttr}
+                  onChangeEquipped={handleEquippedChange}
+                  onChangeBackpack={handleBackpackChange}
                 />
               </Paper>
             </motion.div>
@@ -545,7 +600,10 @@ const FichaDetalhes = () => {
           <FichaInventory
             inventory={ficha.inventory || {}}
             abilityMods={abilityMods}
-            level={Number(ficha.level ?? ficha.Level ?? 1)}
+                level={ficha.level || 1}
+                spellAttr={spellAttr}
+                onChangeEquipped={handleEquippedChange}
+                onChangeBackpack={handleBackpackChange}
           />
         </DialogContent>
       </Dialog>
