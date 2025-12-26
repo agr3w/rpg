@@ -28,3 +28,9 @@ export function computeLevelFromXp(xp = 0) {
   }
   return 1;
 }
+
+export function nextLevelXp(level = 1) {
+  const lvl = Number(level || 1);
+  if (lvl >= 20) return XP_TABLE[20];
+  return XP_TABLE[lvl + 1] ?? XP_TABLE[20];
+}

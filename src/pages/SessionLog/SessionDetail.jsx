@@ -9,6 +9,7 @@ import SessionHeader from "./components/SessionHeader";
 import XpPanel from "./components/XpPanel";
 import NpcsSeenPanel from "./components/NpcsSeenPanel";
 import QuestsPanel from "./components/QuestsPanel";
+import LootPanel from "./components/LootPanel";
 
 const DEFAULT_CAMPAIGN_ID = "default";
 
@@ -132,7 +133,9 @@ export default function SessionLogDetail() {
             onUpdateSession={updateSession}
           />
 
-          {status.msg ? <Alert severity={status.type}>{status.msg}</Alert> : null}
+          {status.msg ? (
+            <Alert severity={status.type}>{status.msg}</Alert>
+          ) : null}
 
           <XpPanel
             uid={uid}
@@ -158,12 +161,29 @@ export default function SessionLogDetail() {
             setStatus={setStatus}
           />
 
-          <Paper elevation={0} sx={{ p: 2.25, borderRadius: 3, border: "1px solid rgba(0,0,0,0.10)" }}>
+          <LootPanel
+            uid={uid}
+            campaignId={campaignId}
+            sessionRef={sessionRef}
+            session={session}
+            fichas={fichas}
+            linkedFichaId={linkedFichaId}
+            setStatus={setStatus}
+          />
+
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2.25,
+              borderRadius: 3,
+              border: "1px solid rgba(0,0,0,0.10)",
+            }}
+          >
             <Typography variant="h6" sx={{ fontWeight: 950, mb: 1 }}>
               Estrutura da sessão (em construção)
             </Typography>
             <Typography sx={{ opacity: 0.8 }}>
-              Próximo: Quests, Loot, tags/filtro/busca e links para anotações/ficha.
+              Próximo: tags/filtro/busca e links para anotações/ficha.
             </Typography>
           </Paper>
         </Stack>

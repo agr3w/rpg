@@ -22,6 +22,9 @@ import {
   CircularProgress,
   Skeleton,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
   TextField,
   LinearProgress,
   Snackbar,
@@ -40,6 +43,8 @@ import styles from "./fichaDetalhe.module.css";
 import { backgrounds } from "./backgounds/arrayLinksBackgrounds";
 import { motion } from "framer-motion";
 import { auth } from "APIs/firebaseConfig";
+import FichaInventory from "components/FichaDetalhes/FichaInventory";
+import FichaXpPanel from "components/FichaDetalhes/FichaXpPanel";
 
 const sectionMotion = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.28 } };
 
@@ -89,6 +94,8 @@ const FichaDetalhes = () => {
   const [saving, setSaving] = useState(false);
   const [snack, setSnack] = useState({ open: false, severity: "success", message: "" });
   const [congratsOpen, setCongratsOpen] = useState(false);
+  const [inventoryOpen, setInventoryOpen] = useState(false);
+
 
   const user = auth.currentUser;
   const userID = user?.uid;
@@ -216,6 +223,16 @@ const FichaDetalhes = () => {
     return bonus >= 0 ? `+${bonus}` : `${bonus}`;
   };
 
+  // mods numéricos para usar no ataque
+  const abilityMods = {
+    Força: Math.floor(((atributosComBonus.Força || 0) - 10) / 2),
+    Destreza: Math.floor(((atributosComBonus.Destreza || 0) - 10) / 2),
+    Constituição: Math.floor(((atributosComBonus.Constituição || 0) - 10) / 2),
+    Inteligência: Math.floor(((atributosComBonus.Inteligência || 0) - 10) / 2),
+    Sabedoria: Math.floor(((atributosComBonus.Sabedoria || 0) - 10) / 2),
+    Carisma: Math.floor(((atributosComBonus.Carisma || 0) - 10) / 2),
+  };
+
   const classeBackgrounds = {
     Bárbaro: styles.classeBárbaro,
     Bardo: styles.classeBardo,
@@ -233,60 +250,29 @@ const FichaDetalhes = () => {
 
   const getClasseBackground = (classe) => classeBackgrounds[classe] || "";
 
-  /* --- XP / Level UI handlers --- */
-  const currentXp = Number(ficha.xp ?? ficha.XP ?? 0);
-  const currentLevel = Number(ficha.level ?? ficha.Level ?? computeLevelFromXp(currentXp));
-  const displayedLevel = computeLevelFromXp(Number(xpInput ?? currentXp));
+/* --- Inventário (dados preparados para o layout em bloco) --- */
+  const equipped = ficha.inventory?.equipped || {};
+  const equippedEntries = Object.entries(equipped);
 
-  const xpToNext = Math.max(0, nextLevelXp(displayedLevel) - Number(xpInput || currentXp));
-  const progressFromLevel = (() => {
-    const lvl = displayedLevel;
-    const base = XP_TABLE[lvl] ?? 0;
-    const next = nextLevelXp(lvl);
-    const denom = next - base || 1;
-    const value = (Number(xpInput || currentXp) - base) / denom;
-    return Math.max(0, Math.min(1, value));
-  })();
-
-  const handleSaveXp = async () => {
-    if (!userID || !fichaKey) {
-      setSnack({ open: true, severity: "error", message: "Usuário não autenticado." });
-      return;
-    }
-    const parsed = parseInt(xpInput || "0", 10);
-    if (isNaN(parsed) || parsed < 0) {
-      setSnack({ open: true, severity: "error", message: "XP inválido." });
-      return;
-    }
-
-    const newLevel = computeLevelFromXp(parsed);
-    const prevLevel = Number(ficha.level ?? ficha.Level ?? computeLevelFromXp(currentXp));
-
-    setSaving(true);
-    try {
-      await firebase.database().ref(`fichas/${userID}/${fichaKey}`).update({
-        xp: parsed,
-        level: newLevel,
-        updatedAt: firebase.database.ServerValue.TIMESTAMP,
-      });
-      // update local state
-      setFicha((f) => ({ ...f, xp: parsed, level: newLevel }));
-      setSnack({ open: true, severity: "success", message: "XP salvo com sucesso." });
-      if (newLevel > prevLevel) {
-        setCongratsOpen(true);
-      }
-    } catch (err) {
-      console.error("Erro ao salvar XP:", err);
-      setSnack({ open: true, severity: "error", message: "Erro ao salvar XP." });
-    } finally {
-      setSaving(false);
-    }
-  };
+  const backpack = ficha.inventory?.backpack || {};
+  const backpackArr = Object.values(backpack)
+    .filter(Boolean)
+    .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
 
   return (
     <div className={`${getClasseBackground(ficha.classe)}`}>
       <Box sx={{ py: 4, background: "transparent" }}>
-        <Box sx={{ maxWidth: 1100, mx: "auto", px: { xs: 2, md: 3 }, py: 3, bgcolor: "background.paper", borderRadius: 2, boxShadow: 3 }}>
+        <Box
+          sx={{
+            maxWidth: 1100,
+            mx: "auto",
+            px: { xs: 2, md: 3 },
+            py: 3,
+            bgcolor: "background.paper",
+            borderRadius: 2,
+            boxShadow: 3,
+          }}
+        >
           {/* TOP: Classe / Habilidades / Quick info */}
           <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.32 }}>
             <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
@@ -348,54 +334,47 @@ const FichaDetalhes = () => {
                   <Box sx={{ mt: 1 }}>
                     <BotaoPainelHabilidade imagens={ficha.DetalhesDaClasse?.imagens || []} />
                   </Box>
-                  <Button component={Link} to={backgrounds[ficha.classe]} target="_blank" sx={{ mt: 1 }} size="small" startIcon={<InfoIcon />}>
-                    Ver referência
-                  </Button>
+
+                  <Stack spacing={1} sx={{ mt: 1 }}>
+                    <Button
+                      component={Link}
+                      to={backgrounds[ficha.classe]}
+                      target="_blank"
+                      size="small"
+                      startIcon={<InfoIcon />}
+                    >
+                      Ver referência
+                    </Button>
+                  </Stack>
                 </Paper>
               </Grid>
             </Grid>
           </motion.div>
 
-          {/* XP / Level panel (new) */}
-          <Box sx={{ mb: 2 }}>
-            <Paper elevation={2} sx={{ p: 2 }}>
-              <Grid container spacing={2} alignItems="center">
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2">Nível atual</Typography>
-                  <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                    {ficha.level ?? ficha.Level ?? computeLevelFromXp(currentXp)}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">XP total: {Number(ficha.xp ?? ficha.XP ?? currentXp)}</Typography>
-                </Grid>
+          {/* XP / Level panel (componentizado) */}
+          <FichaXpPanel
+            userID={userID}
+            fichaKey={fichaKey}
+            ficha={ficha}
+            onFichaChange={setFicha}
+          />
 
-                <Grid item xs={12} md={5}>
-                  <Typography variant="subtitle2">XP (editar)</Typography>
-                  <TextField
-                    value={xpInput}
-                    onChange={(e) => setXpInput(e.target.value.replace(/[^\d]/g, ""))}
-                    fullWidth
-                    size="small"
-                    inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
-                  />
-                  <Box sx={{ mt: 1 }}>
-                    <LinearProgress variant="determinate" value={progressFromLevel * 100} sx={{ height: 10, borderRadius: 2 }} />
-                    <Box sx={{ display: "flex", justifyContent: "space-between", mt: 0.5 }}>
-                      <Typography variant="caption">Nível {displayedLevel}</Typography>
-                      <Typography variant="caption">Próx: {nextLevelXp(displayedLevel)} XP</Typography>
-                    </Box>
-                  </Box>
-                </Grid>
+          {/* INVENTÁRIO: bloco fixo como na ficha de RPG */}
+          <Box sx={{ mb: 3 }}>
+            <motion.div {...sectionMotion}>
+              <Paper elevation={3} sx={{ p: 2 }}>
+                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                  <Inventory2Icon fontSize="small" style={{ marginRight: 8 }} />
+                  <Typography variant="h6">Inventário</Typography>
+                </Box>
 
-                <Grid item xs={12} md={3} sx={{ textAlign: { xs: "left", md: "right" } }}>
-                  <Button variant="contained" onClick={handleSaveXp} disabled={saving} size="medium">
-                    {saving ? "Salvando..." : "Salvar XP"}
-                  </Button>
-                  <Typography variant="caption" display="block" sx={{ mt: 1 }}>
-                    {xpToNext > 0 ? `${xpToNext} XP para o próximo nível` : "Nível máximo"}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </Paper>
+                <FichaInventory
+                  inventory={ficha.inventory || {}}
+                  abilityMods={abilityMods}
+                  level={Number(ficha.level ?? ficha.Level ?? 1)}
+                />
+              </Paper>
+            </motion.div>
           </Box>
 
           {/* MIDDLE: Atributos */}
@@ -555,18 +534,21 @@ const FichaDetalhes = () => {
         </Box>
       </Box>
 
-      {/* Snackbars */}
-      <Snackbar open={snack.open} autoHideDuration={3500} onClose={() => setSnack((s) => ({ ...s, open: false }))}>
-        <Alert severity={snack.severity} onClose={() => setSnack((s) => ({ ...s, open: false }))}>
-          {snack.message}
-        </Alert>
-      </Snackbar>
-
-      <Snackbar open={congratsOpen} autoHideDuration={6000} onClose={() => setCongratsOpen(false)}>
-        <Alert severity="success" onClose={() => setCongratsOpen(false)}>
-          Parabéns — seu personagem subiu de nível!
-        </Alert>
-      </Snackbar>
+      <Dialog
+        open={inventoryOpen}
+        onClose={() => setInventoryOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>Inventário</DialogTitle>
+        <DialogContent dividers>
+          <FichaInventory
+            inventory={ficha.inventory || {}}
+            abilityMods={abilityMods}
+            level={Number(ficha.level ?? ficha.Level ?? 1)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
