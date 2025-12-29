@@ -50,6 +50,15 @@ const sectionMotion = {
 // fundo da página baseado na classe (por enquanto, usa o container padrão)
 const getClasseBackground = () => styles.pageContainer;
 
+const DEFAULT_TRAINING = {
+  armaduraLeve: false,
+  armaduraMedia: false,
+  armaduraPesada: false,
+  escudos: false,
+  armas: "",
+  ferramentas: "",
+};
+
 const FichaDetalhes = () => {
   const { ID } = useParams();
   const [ficha, setFicha] = useState(null);
@@ -467,6 +476,21 @@ const FichaDetalhes = () => {
         .set(text);
     } catch (e) {
       console.error("Erro ao salvar história da ficha:", e);
+    }
+  };
+
+  const handleTrainingsChange = async (next) => {
+    const safe = { ...DEFAULT_TRAINING, ...(next || {}) };
+    setFicha((prev) => ({ ...(prev || {}), treinamentos: safe }));
+
+    if (!userID || !fichaKey) return;
+    try {
+      await firebase
+        .database()
+        .ref(`fichas/${userID}/${fichaKey}/treinamentos`)
+        .set(safe);
+    } catch (e) {
+      console.error("Erro ao salvar treinamentos:", e);
     }
   };
 
@@ -969,6 +993,8 @@ const FichaDetalhes = () => {
               ficha={ficha}
               story={ficha.historia || ""}
               onStoryChange={handleStoryChange}
+              trainings={ficha.treinamentos || DEFAULT_TRAINING}
+              onTrainingsChange={handleTrainingsChange}
               sectionMotion={sectionMotion}
             />
           )}

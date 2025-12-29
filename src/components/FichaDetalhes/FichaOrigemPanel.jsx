@@ -8,23 +8,49 @@ import {
   ListItem,
   ListItemText,
   TextField,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { motion } from "framer-motion";
+
+const DEFAULT_TRAINING = {
+  armaduraLeve: false,
+  armaduraMedia: false,
+  armaduraPesada: false,
+  escudos: false,
+  armas: "",
+  ferramentas: "",
+};
 
 export default function FichaOrigemPanel({
   ficha,
   story,
   onStoryChange,
   sectionMotion,
+  trainings,
+  onTrainingsChange,
 }) {
   const [localStory, setLocalStory] = useState(story || "");
+  const [localTraining, setLocalTraining] = useState(
+    trainings || DEFAULT_TRAINING
+  );
 
   useEffect(() => {
     setLocalStory(story || "");
   }, [story]);
 
+  useEffect(() => {
+    setLocalTraining(trainings || DEFAULT_TRAINING);
+  }, [trainings]);
+
   const handleBlur = () => {
     if (onStoryChange) onStoryChange(localStory);
+  };
+
+  const updateTraining = (partial) => {
+    const next = { ...localTraining, ...partial };
+    setLocalTraining(next);
+    onTrainingsChange && onTrainingsChange(next);
   };
 
   return (
@@ -103,6 +129,123 @@ export default function FichaOrigemPanel({
                     />
                   </ListItem>
                 </List>
+              </Grid>
+            </Grid>
+          </Paper>
+        </motion.div>
+      </Box>
+
+      <Box sx={{ mt: 3 }}>
+        <motion.div {...sectionMotion}>
+          <Paper elevation={2} sx={{ p: 2 }}>
+            <Typography variant="h6" sx={{ mb: 1 }}>
+              Treinamentos em equipamentos e proficiências
+            </Typography>
+
+            <Box sx={{ mb: 2 }}>
+              <Typography
+                variant="subtitle2"
+                sx={{ mb: 0.5, fontSize: 13 }}
+              >
+                Treinamento em armaduras
+              </Typography>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 1,
+                  alignItems: "center",
+                }}
+              >
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      size="small"
+                      checked={!!localTraining.armaduraLeve}
+                      onChange={(e) =>
+                        updateTraining({
+                          armaduraLeve: e.target.checked,
+                        })
+                      }
+                    />
+                  }
+                  label="Leve"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      size="small"
+                      checked={!!localTraining.armaduraMedia}
+                      onChange={(e) =>
+                        updateTraining({
+                          armaduraMedia: e.target.checked,
+                        })
+                      }
+                    />
+                  }
+                  label="Média"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      size="small"
+                      checked={!!localTraining.armaduraPesada}
+                      onChange={(e) =>
+                        updateTraining({
+                          armaduraPesada: e.target.checked,
+                        })
+                      }
+                    />
+                  }
+                  label="Pesada"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      size="small"
+                      checked={!!localTraining.escudos}
+                      onChange={(e) =>
+                        updateTraining({ escudos: e.target.checked })
+                      }
+                    />
+                  }
+                  label="Escudos"
+                />
+              </Box>
+            </Box>
+
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                  Armas
+                </Typography>
+                <TextField
+                  value={localTraining.armas}
+                  onChange={(e) =>
+                    updateTraining({ armas: e.target.value })
+                  }
+                  placeholder="Ex.: Armas simples, marciais, espadas longas..."
+                  fullWidth
+                  multiline
+                  minRows={2}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                  Ferramentas
+                </Typography>
+                <TextField
+                  value={localTraining.ferramentas}
+                  onChange={(e) =>
+                    updateTraining({ ferramentas: e.target.value })
+                  }
+                  placeholder="Ex.: Kit de ladrão, ferramentas de artesão, instrumento musical..."
+                  fullWidth
+                  multiline
+                  minRows={2}
+                />
               </Grid>
             </Grid>
           </Paper>
