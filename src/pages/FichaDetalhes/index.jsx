@@ -40,6 +40,7 @@ import FichaCoinsPanel from "components/FichaDetalhes/FichaCoinsPanel";
 import FichaArmorPanel from "components/FichaDetalhes/FichaArmorPanel";
 import FichaHpPanel from "components/FichaDetalhes/FichaHpPanel"; 
 import FichaStatusPanel from "components/FichaDetalhes/FichaStatusPanel";
+import FichaMagiasPanel from "components/FichaDetalhes/FichaMagiasPanel"; // ✅ novo
 
 const sectionMotion = {
   initial: { opacity: 0, y: 8 },
@@ -390,6 +391,8 @@ const FichaDetalhes = () => {
     hp: hpEstado,
   };
 
+  const spellcasting = ficha.spellcasting || {}; // ✅ novo
+
   const deathSaves =
     ficha.deathSaves || { successes: 0, failures: 0 };
 
@@ -626,6 +629,22 @@ const FichaDetalhes = () => {
         .set(safe);
     } catch (e) {
       console.error("Erro ao salvar salvaguardas contra morte:", e);
+    }
+  };
+
+  // 🔹 grimório / magias
+  const handleSpellcastingChange = async (next) => {
+    const safe = next || {};
+    setFicha((prev) => ({ ...(prev || {}), spellcasting: safe }));
+
+    if (!userID || !fichaKey) return;
+    try {
+      await firebase
+        .database()
+        .ref(`fichas/${userID}/${fichaKey}/spellcasting`)
+        .set(safe);
+    } catch (e) {
+      console.error("Erro ao salvar spellcasting:", e);
     }
   };
 
@@ -956,6 +975,9 @@ const FichaDetalhes = () => {
               <ToggleButton value="origem">
                 Verso — História & Antecedente
               </ToggleButton>
+              <ToggleButton value="magias">
+                Grimório / Magias
+              </ToggleButton>
             </ToggleButtonGroup>
           </Box>
 
@@ -988,7 +1010,7 @@ const FichaDetalhes = () => {
               loadingEquipped={loadingEquipped}
               loadingBackpack={loadingBackpack}
             />
-          ) : (
+          ) : activeSide === "origem" ? (
             <FichaOrigemPanel
               ficha={ficha}
               story={ficha.historia || ""}
@@ -996,6 +1018,16 @@ const FichaDetalhes = () => {
               trainings={ficha.treinamentos || DEFAULT_TRAINING}
               onTrainingsChange={handleTrainingsChange}
               sectionMotion={sectionMotion}
+            />
+          ) : (
+            <FichaMagiasPanel
+              spellcasting={spellcasting}
+              abilityMods={abilityMods}
+              spellAttr={spellAttr}
+              profBonus={getProfBonus(fichaEstado.level || 1)}
+              classe={fichaBase.classe}
+              level={fichaEstado.level}
+              onChange={handleSpellcastingChange}
             />
           )}
 
