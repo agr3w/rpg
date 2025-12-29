@@ -21,6 +21,7 @@ import {
   Button,
   ToggleButtonGroup,
   ToggleButton,
+   TextField,
 } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
@@ -49,7 +50,10 @@ const FichaDetalhes = () => {
   const [bgLoaded, setBgLoaded] = useState(false);
 
   // frente/verso da ficha
-  const [activeSide, setActiveSide] = useState("estado"); // "origem" | "estado"
+  const [activeSide, setActiveSide] = useState("estado");
+
+  // 🔹 rascunho da riqueza (editar antes de salvar)
+  const [coinsDraft, setCoinsDraft] = useState(null);
 
   const user = auth.currentUser;
   const userID = user?.uid;
@@ -164,10 +168,26 @@ const FichaDetalhes = () => {
   };
 
   // 🔹 dados de estado de jogo (mudam ao longo da campanha)
+  const parseInitialPo = () => {
+    const raw = ficha.riquezaInicial;
+    if (!raw) return 0;
+    const num = parseInt(String(raw).replace(/\D/g, ""), 10);
+    return Number.isNaN(num) ? 0 : num;
+  };
+
+  const riquezaMoedas =
+    ficha.riquezaMoedas || {
+      pc: 0,
+      pp: 0,
+      pe: 0,
+      po: parseInitialPo(), // assume riqueza inicial em PO
+      pl: 0,
+    };
+
   const fichaEstado = {
     level: ficha.level || 1,
     xp: ficha.xp ?? ficha.XP ?? 0,
-    riqueza: ficha.riquezaInicial ?? "—",
+    riquezaMoedas,               // ✅ agora é objeto
     inventory: ficha.inventory || {},
   };
 
@@ -185,6 +205,15 @@ const FichaDetalhes = () => {
   const atributos = ficha.DetalhesDaRaça?.Atributos || {};
   const bonusRaca = racaSelecionada.proficienciaHabilidadeBonus || {};
   const bonusSub = subRacaDetalhes.habilidadeBonusSubRaca || {};
+
+  // 🔹 habilidades de raça / sub-raça / classe
+  const habilidadesRaca = racaSelecionada.habilidades || [];
+  const habilidadesSubRaca = subRacaDetalhes.habilidadesSubRaca || [];
+
+  const habilidadesClasse =
+    ficha.DetalhesDaClasse?.habilidades ||
+    classeSelecioanda?.habilidades ||
+    [];
 
   const atributosComBonus = {
     Força:
@@ -305,6 +334,78 @@ const FichaDetalhes = () => {
   const handleBackpackChange = (nextBackpack) =>
     persistInventoryPartial({ backpack: nextBackpack || {} });
 
+  // 🔹 riqueza em moedas
+  const handleMoedasChange = async (nextCoins) => {
+    const safe = {
+      pc: Number(nextCoins.pc || 0),
+      pp: Number(nextCoins.pp || 0),
+      pe: Number(nextCoins.pe || 0),
+      po: Number(nextCoins.po || 0),
+      pl: Number(nextCoins.pl || 0),
+    };
+
+    setFicha((prev) => ({ ...(prev || {}), riquezaMoedas: safe }));
+
+    if (!userID || !fichaKey) return;
+    try {
+      await firebase
+        .database()
+        .ref(`fichas/${userID}/${fichaKey}/riquezaMoedas`)
+        .set(safe);
+    } catch (e) {
+      console.error("Erro ao salvar riqueza:", e);
+    }
+  };
+
+  // 🔹 riqueza em moedas (editar localmente + salvar no clique)
+  const handleMoedasFieldChange = (partial) => {
+    const base =
+      coinsDraft ||
+      fichaEstado.riquezaMoedas || {
+        pc: 0,
+        pp: 0,
+        pe: 0,
+        po: 0,
+        pl: 0,
+      };
+
+    const merged = { ...base, ...partial };
+    setCoinsDraft(merged);
+  };
+
+  const handleMoedasSave = async () => {
+    const source =
+      coinsDraft ||
+      fichaEstado.riquezaMoedas || {
+        pc: 0,
+        pp: 0,
+        pe: 0,
+        po: 0,
+        pl: 0,
+      };
+
+    const safe = {
+      pc: Number(source.pc || 0),
+      pp: Number(source.pp || 0),
+      pe: Number(source.pe || 0),
+      po: Number(source.po || 0),
+      pl: Number(source.pl || 0),
+    };
+
+    setFicha((prev) => ({ ...(prev || {}), riquezaMoedas: safe }));
+    setCoinsDraft(safe);
+
+    if (!userID || !fichaKey) return;
+    try {
+      await firebase
+        .database()
+        .ref(`fichas/${userID}/${fichaKey}/riquezaMoedas`)
+        .set(safe);
+    } catch (e) {
+      console.error("Erro ao salvar riqueza:", e);
+    }
+  };
+
   // 🔹 perícias ativas (classe + antecedente, com override pelo jogador)
   const basePericiasClasse =
     ficha.DetalhesDaClasse?.periciasClasseSelecionadas || [];
@@ -329,6 +430,34 @@ const FichaDetalhes = () => {
         .set(arr);
     } catch (e) {
       console.error("Erro ao salvar perícias ativas:", e);
+    }
+  };
+
+  // 🔹 salvaguardas (testes de resistência) ativas
+  const rawSavingThrows =
+    classeSelecioanda?.proficiencias?.testesDeResistecia || [];
+
+  const savingThrowsBase = Array.isArray(rawSavingThrows)
+    ? rawSavingThrows.map((s) => s.trim()).filter(Boolean)
+    : String(rawSavingThrows || "")
+        .split(/[;,]/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+  const savingThrowsAtivos = ficha.savingThrowsAtivos || savingThrowsBase;
+
+  const handleSavingThrowsAtivosChange = async (nextList) => {
+    const arr = nextList || [];
+    setFicha((prev) => ({ ...(prev || {}), savingThrowsAtivos: arr }));
+
+    if (!userID || !fichaKey) return;
+    try {
+      await firebase
+        .database()
+        .ref(`fichas/${userID}/${fichaKey}/savingThrowsAtivos`)
+        .set(arr);
+    } catch (e) {
+      console.error("Erro ao salvar salvaguardas ativas:", e);
     }
   };
 
@@ -438,39 +567,128 @@ const FichaDetalhes = () => {
               <Grid item xs={12} md={4}>
                 <Paper elevation={3} sx={{ p: 2 }}>
                   <Typography variant="subtitle2">Riqueza</Typography>
-                  <Typography
-                    variant="h6"
-                    sx={{ mb: 1 }}
-                  >
-                    {fichaEstado.riqueza} PO
-                  </Typography>
 
-                  <Divider sx={{ my: 1 }} />
+                  {(() => {
+                    const original =
+                      fichaEstado.riquezaMoedas || {
+                        pc: 0,
+                        pp: 0,
+                        pe: 0,
+                        po: 0,
+                        pl: 0,
+                      };
 
-                  <Typography variant="subtitle2">Idiomas</Typography>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      gap: 1,
-                      mt: 1,
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <Chip
-                      label={
-                        ficha.DetalhesDaRaça?.Idiomas
-                          ?.idiomaRacaSelecionado || "—"
-                      }
-                      size="small"
-                    />
-                    <Chip
-                      label={
-                        ficha.DetalhesDaRaça?.Idiomas
-                          ?.idiomaRacaSelecionado2 || "—"
-                      }
-                      size="small"
-                    />
-                  </Box>
+                    const coins = coinsDraft || original;
+
+                    // câmbio padrão em peças de ouro (PO)
+                    const totalEmPO =
+                      coins.pc / 100 +
+                      coins.pp / 10 +
+                      coins.pe / 2 +
+                      coins.po +
+                      coins.pl * 10;
+
+                    const handleField = (key) => (e) => {
+                      const value = e.target.value.replace(/[^\d]/g, "");
+                      handleMoedasFieldChange({
+                        [key]: value === "" ? 0 : Number(value),
+                      });
+                    };
+
+                    const changed = ["pc", "pp", "pe", "po", "pl"].some(
+                      (k) => Number(coins[k] || 0) !== Number(original[k] || 0)
+                    );
+
+                    return (
+                      <>
+                        <Grid container spacing={1} sx={{ mt: 1 }}>
+                          <Grid item xs={4}>
+                            <TextField
+                              label="PC"
+                              size="small"
+                              type="number"
+                              value={coins.pc}
+                              onChange={handleField("pc")}
+                              fullWidth
+                              inputProps={{ min: 0 }}
+                            />
+                          </Grid>
+                          <Grid item xs={4}>
+                            <TextField
+                              label="PP"
+                              size="small"
+                              type="number"
+                              value={coins.pp}
+                              onChange={handleField("pp")}
+                              fullWidth
+                              inputProps={{ min: 0 }}
+                            />
+                          </Grid>
+                          <Grid item xs={4}>
+                            <TextField
+                              label="PE"
+                              size="small"
+                              type="number"
+                              value={coins.pe}
+                              onChange={handleField("pe")}
+                              fullWidth
+                              inputProps={{ min: 0 }}
+                            />
+                          </Grid>
+                          <Grid item xs={6}>
+                            <TextField
+                              label="PO"
+                              size="small"
+                              type="number"
+                              value={coins.po}
+                              onChange={handleField("po")}
+                              fullWidth
+                              inputProps={{ min: 0 }}
+                            />
+                          </Grid>
+                          <Grid item xs={6}>
+                            <TextField
+                              label="PL"
+                              size="small"
+                              type="number"
+                              value={coins.pl}
+                              onChange={handleField("pl")}
+                              fullWidth
+                              inputProps={{ min: 0 }}
+                            />
+                          </Grid>
+                        </Grid>
+
+                        <Divider sx={{ my: 1 }} />
+
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: 1,
+                          }}
+                        >
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                          >
+                            Total aproximado:{" "}
+                            <strong>{totalEmPO.toFixed(2)} PO</strong>
+                          </Typography>
+
+                          <Button
+                            size="small"
+                            variant="contained"
+                            onClick={handleMoedasSave}
+                            disabled={!changed}
+                          >
+                            Salvar
+                          </Button>
+                        </Box>
+                      </>
+                    );
+                  })()}
                 </Paper>
               </Grid>
 
@@ -536,13 +754,17 @@ const FichaDetalhes = () => {
               ficha={ficha}
               fichaEstado={fichaEstado}
               abilityMods={abilityMods}
-              atributosComBonus={atributosComBonus}     // ✅
+              atributosComBonus={atributosComBonus}
               spellAttr={spellAttr}
               onFichaChange={setFicha}
               onChangeEquipped={handleEquippedChange}
               onChangeBackpack={handleBackpackChange}
-              periciasAtivas={periciasAtivas}           // ✅
-              onChangePericiasAtivas={handlePericiasAtivasChange} // ✅
+              periciasAtivas={periciasAtivas}
+              onChangePericiasAtivas={handlePericiasAtivasChange}
+              savingThrowsAtivos={savingThrowsAtivos}
+              onChangeSavingThrowsAtivos={handleSavingThrowsAtivosChange}
+              habilidadesRaca={[...habilidadesRaca, ...habilidadesSubRaca]} // ✅ novo
+              habilidadesClasse={habilidadesClasse}                         // ✅ novo
               sectionMotion={sectionMotion}
               loadingEquipped={loadingEquipped}
               loadingBackpack={loadingBackpack}
@@ -550,7 +772,6 @@ const FichaDetalhes = () => {
           ) : (
             <FichaOrigemPanel
               ficha={ficha}
-              // agora o verso é só narrativa / antecedente
               story={ficha.historia || ""}
               onStoryChange={handleStoryChange}
               sectionMotion={sectionMotion}
