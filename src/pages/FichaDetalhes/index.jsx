@@ -21,10 +21,12 @@ import {
   Button,
   ToggleButtonGroup,
   ToggleButton,
+  TextField,
 } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
-import BotaoPainelHabilidade from "components/FichaPage/BotãoPainelHabilidade";
+import "firebase/compat/storage";
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import { classes, racas } from "Array/RacaEClasse";
 import styles from "./fichaDetalhe.module.css";
 import { backgrounds } from "./backgounds/arrayLinksBackgrounds";
@@ -37,6 +39,7 @@ import FichaEstadoPanel from "components/FichaDetalhes/FichaEstadoPanel";
 import FichaCoinsPanel from "components/FichaDetalhes/FichaCoinsPanel";
 import FichaArmorPanel from "components/FichaDetalhes/FichaArmorPanel";
 import FichaHpPanel from "components/FichaDetalhes/FichaHpPanel"; 
+import FichaStatusPanel from "components/FichaDetalhes/FichaStatusPanel";
 
 const sectionMotion = {
   initial: { opacity: 0, y: 8 },
@@ -57,7 +60,9 @@ const FichaDetalhes = () => {
   // frente/verso da ficha
   const [activeSide, setActiveSide] = useState("estado");
   const [pendingHpLevels, setPendingHpLevels] = useState(0);
-
+  const [editedName, setEditedName] = useState("");
+  const [savingName, setSavingName] = useState(false);
+  const [uploadingPortrait, setUploadingPortrait] = useState(false);
   const lastLevelRef = useRef(null); // ✅ começa sem nível anterior
 
   const user = auth.currentUser;
@@ -152,6 +157,12 @@ const FichaDetalhes = () => {
     lastLevelRef.current = current;
   }, [ficha, fichaKey, userID, pendingHpLevels]);
 
+  // mantém o campo de nome sincronizado com a ficha carregada
+  useEffect(() => {
+    if (!ficha) return;
+    setEditedName(ficha.nome || "");
+  }, [ficha]);
+
   const loading = loadingFicha || !bgLoaded;
 
   if (loading) {
@@ -213,17 +224,48 @@ const FichaDetalhes = () => {
     antecedente: ficha.antecedenteDetalhes,
   };
 
+  const hasNameChange =
+    (editedName || "") !== (fichaBase.nome || "");
+
   // classe / raça / sub‑raça
   const classeSelecioanda =
     classes.find((c) => c.nome === fichaBase.classe) || {};
   const racaSelecionada =
     racas.find((r) => r.nome === fichaBase.raca) || {};
   const subRacaSelecionada =
-    ficha.DetalhesDaRaça?.SubRacasInfo?.SubRaca || null;
+    ficha.DetalhesDaRaça?.SubRaca || null;
   const subRacaDetalhes =
     racaSelecionada.SubRacas?.find(
       (sr) => sr.subRacaNome === subRacaSelecionada
     ) || {};
+
+  const subClasseSelecionada =
+    ficha.DetalhesDaClasse?.SubClasseInfo?.SubClasse ||
+    ficha.subclasse ||
+    null;
+
+  // deslocamento e tamanho (com padrão por raça)
+  const deslocamentoBase =
+    ficha.deslocamento ||
+    racaSelecionada.deslocamento ||
+    "9 metros";
+
+  const DEFAULT_SIZES = {
+    Anão: "Médio",
+    Elfo: "Médio",
+    Halfling: "Pequeno",
+    Humano: "Médio",
+    Draconato: "Médio",
+    Gnomo: "Pequeno",
+    "Meio-Elfo": "Médio",
+    "Meio-Orc": "Médio",
+    Tiefling: "Médio",
+  };
+
+  const tamanhoBase =
+    ficha.tamanho ||
+    DEFAULT_SIZES[fichaBase.raca] ||
+    "Médio";
 
   const atributos = ficha.DetalhesDaRaça?.Atributos || {};
   const bonusRaca = racaSelecionada.proficienciaHabilidadeBonus || {};
@@ -272,6 +314,9 @@ const FichaDetalhes = () => {
       ((atributosComBonus.Carisma || 0) - 10) / 2
     ),
   };
+
+  const getProfBonus = (level = 1) =>
+    2 + Math.floor((Math.max(1, Number(level) || 1) - 1) / 4);
 
   // 🔹 riqueza + HP vindos da classe
   const parseInitialPo = () => {
@@ -336,6 +381,9 @@ const FichaDetalhes = () => {
     hp: hpEstado,
   };
 
+  const deathSaves =
+    ficha.deathSaves || { successes: 0, failures: 0 };
+
   // 🔹 habilidades de raça / sub-raça / classe
   const habilidadesRaca = racaSelecionada.habilidades || [];
   const habilidadesSubRaca = subRacaDetalhes.habilidadesSubRaca || [];
@@ -353,6 +401,57 @@ const FichaDetalhes = () => {
     return "Inteligência";
   };
   const spellAttr = getSpellAttributeForClass(ficha?.classe);
+
+  // 🔹 salvar nome do personagem
+  const handleNameSave = async () => {
+    const name = (editedName || "").trim();
+    if (!name || name === fichaBase.nome) return;
+
+    setFicha((prev) => ({ ...(prev || {}), nome: name }));
+
+    if (!userID || !fichaKey) return;
+    try {
+      setSavingName(true);
+      await firebase
+        .database()
+        .ref(`fichas/${userID}/${fichaKey}/nome`)
+        .set(name);
+    } catch (e) {
+      console.error("Erro ao salvar nome da ficha:", e);
+    } finally {
+      setSavingName(false);
+    }
+  };
+
+  // 🔹 upload de retrato do personagem
+  const handlePortraitUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file || !userID || !fichaKey) return;
+
+    try {
+      setUploadingPortrait(true);
+      const storageRef = firebase.storage().ref();
+      const portraitRef = storageRef.child(
+        `portraits/${userID}/${fichaKey}`
+      );
+
+      await portraitRef.put(file);
+      const url = await portraitRef.getDownloadURL();
+
+      setFicha((prev) => ({ ...(prev || {}), portraitUrl: url }));
+
+      await firebase
+        .database()
+        .ref(`fichas/${userID}/${fichaKey}/portraitUrl`)
+        .set(url);
+    } catch (e) {
+      console.error("Erro ao enviar retrato:", e);
+    } finally {
+      setUploadingPortrait(false);
+      // limpa o input para permitir reenviar o mesmo arquivo se quiser
+      event.target.value = "";
+    }
+  };
 
   // 🔹 salvar história do personagem (verso)
   const handleStoryChange = async (newStory) => {
@@ -480,6 +579,32 @@ const FichaDetalhes = () => {
     }
   };
 
+  // 🔹 salvaguardas contra morte
+  const handleDeathSavesChange = async (next) => {
+    const safe = {
+      successes: Math.min(
+        3,
+        Math.max(0, Number(next.successes || 0))
+      ),
+      failures: Math.min(
+        3,
+        Math.max(0, Number(next.failures || 0))
+      ),
+    };
+
+    setFicha((prev) => ({ ...(prev || {}), deathSaves: safe }));
+
+    if (!userID || !fichaKey) return;
+    try {
+      await firebase
+        .database()
+        .ref(`fichas/${userID}/${fichaKey}/deathSaves`)
+        .set(safe);
+    } catch (e) {
+      console.error("Erro ao salvar salvaguardas contra morte:", e);
+    }
+  };
+
   // 🔹 perícias ativas (classe + antecedente, com override pelo jogador)
   const basePericiasClasse =
     ficha.DetalhesDaClasse?.periciasClasseSelecionadas || [];
@@ -535,6 +660,14 @@ const FichaDetalhes = () => {
     }
   };
 
+  // percepção passiva (10 + Sab + prof se treinado em Percepção)
+  const profBonus = getProfBonus(fichaEstado.level || 1);
+  const isPerceptionProf = (periciasAtivas || []).includes("Percepção");
+  const passivePerception =
+    10 +
+    (abilityMods.Sabedoria || 0) +
+    (isPerceptionProf ? profBonus : 0);
+
   const loadingEquipped = false;
   const loadingBackpack = false;
 
@@ -569,7 +702,7 @@ const FichaDetalhes = () => {
                   <Box
                     sx={{
                       display: "flex",
-                      alignItems: "center",
+                      alignItems: "flex-start",
                       gap: 2,
                     }}
                   >
@@ -582,17 +715,20 @@ const FichaDetalhes = () => {
                     >
                       {fichaBase.nome?.charAt(0)?.toUpperCase() || "?"}
                     </Avatar>
-                    <Box>
-                      <Typography
-                        variant="h5"
-                        sx={{ fontWeight: 700 }}
-                      >
-                        {fichaBase.nome}
-                      </Typography>
+
+                    <Box sx={{ flex: 1 }}>
+                      <TextField
+                        label="Nome do personagem"
+                        variant="standard"
+                        fullWidth
+                        value={editedName}
+                        onChange={(e) => setEditedName(e.target.value)}
+                      />
+
                       <Stack
                         direction="row"
                         spacing={1}
-                        sx={{ mt: 0.5 }}
+                        sx={{ mt: 1, flexWrap: "wrap" }}
                       >
                         <Chip
                           label={fichaBase.classe || "—"}
@@ -604,37 +740,47 @@ const FichaDetalhes = () => {
                           icon={<InfoIcon />}
                           size="small"
                         />
+                        {subRacaSelecionada && (
+                          <Chip
+                            label={subRacaSelecionada}
+                            size="small"
+                          />
+                        )}
+                        {subClasseSelecionada && (
+                          <Chip
+                            label={subClasseSelecionada}
+                            size="small"
+                          />
+                        )}
+                      </Stack>
+
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{ mt: 1, flexWrap: "wrap" }}
+                      >
+                        <Chip
+                          label={`Nível ${fichaEstado.level}`}
+                          size="small"
+                        />
+                        <Chip
+                          label={`XP ${fichaEstado.xp}`}
+                          size="small"
+                        />
                       </Stack>
                     </Box>
+
+                    <Box>
+                      <Button
+                        size="small"
+                        variant="contained"
+                        onClick={handleNameSave}
+                        disabled={!hasNameChange || savingName}
+                      >
+                        Salvar
+                      </Button>
+                    </Box>
                   </Box>
-
-                  <Divider sx={{ my: 1 }} />
-
-                  <Typography
-                    variant="subtitle2"
-                    sx={{ mb: 0.5 }}
-                  >
-                    Características da Classe
-                  </Typography>
-                  <List dense>
-                    <ListItem>
-                      <ListItemText
-                        primary={
-                          classeSelecioanda?.descricaoCurta ||
-                          ficha.DetalhesDaClasse?.descricao ||
-                          "—"
-                        }
-                      />
-                    </ListItem>
-                    <ListItem>
-                      <ListItemText
-                        primary={`Equipamento obrigatório: ${
-                          ficha.DetalhesDaClasse?.Equipamentos
-                            ?.equipamentoObgt || "—"
-                        }`}
-                      />
-                    </ListItem>
-                  </List>
                 </Paper>
               </Grid>
 
@@ -648,31 +794,84 @@ const FichaDetalhes = () => {
               <Grid item xs={12} md={3}>
                 <Paper
                   elevation={3}
-                  sx={{ p: 2, textAlign: "center" }}
+                  sx={{
+                    p: 2,
+                    textAlign: "center",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    minHeight: 220,
+                  }}
                 >
-                  <Typography variant="subtitle2">
-                    Habilidades de Classe
-                  </Typography>
-                  <Box sx={{ mt: 1 }}>
-                    <BotaoPainelHabilidade
-                      imagens={ficha.DetalhesDaClasse?.imagens || []}
-                    />
-                  </Box>
+                  {/* input escondido para upload */}
+                  <input
+                    id="portrait-upload-input"
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={handlePortraitUpload}
+                  />
 
-                  <Stack spacing={1} sx={{ mt: 1 }}>
-                    <Button
-                      component={Link}
-                      to={backgrounds[ficha.classe]}
-                      target="_blank"
-                      size="small"
-                      startIcon={<InfoIcon />}
+                  <label
+                    htmlFor="portrait-upload-input"
+                    style={{ cursor: "pointer", width: "100%" }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 1.5,
+                      }}
                     >
-                      Ver referência
-                    </Button>
-                  </Stack>
+                      <Avatar
+                        src={ficha.portraitUrl || ""}
+                        alt={fichaBase.nome || "Personagem"}
+                        sx={{
+                          width: 160,
+                          height: 160,
+                          bgcolor: "rgba(0,0,0,0.10)",
+                          fontSize: 48,
+                        }}
+                      >
+                        {!ficha.portraitUrl &&
+                          (fichaBase.nome?.charAt(0)?.toUpperCase() || "?")}
+                      </Avatar>
+
+                      <Button
+                        component="span"
+                        size="small"
+                        variant="contained"
+                        startIcon={<PhotoCameraIcon />}
+                        disabled={uploadingPortrait}
+                      >
+                        {uploadingPortrait ? "Enviando..." : "Escolher imagem"}
+                      </Button>
+                    </Box>
+                  </label>
                 </Paper>
               </Grid>
             </Grid>
+          </motion.div>
+
+          {/* Status principais + salvaguarda contra morte */}
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.32, delay: 0.02 }}
+          >
+            <Box sx={{ mb: 2 }}>
+              <FichaStatusPanel
+                dexMod={abilityMods.Destreza || 0}
+                deslocamento={deslocamentoBase}
+                tamanho={tamanhoBase}
+                passivePerception={passivePerception}
+                deathSaves={deathSaves}
+                onChangeDeathSaves={handleDeathSavesChange}
+              />
+            </Box>
           </motion.div>
 
           {/* TOP 2: CA e Pontos de Vida */}
@@ -753,8 +952,14 @@ const FichaDetalhes = () => {
               onChangePericiasAtivas={handlePericiasAtivasChange}
               savingThrowsAtivos={savingThrowsAtivos}
               onChangeSavingThrowsAtivos={handleSavingThrowsAtivosChange}
-              habilidadesRaca={[...habilidadesRaca, ...habilidadesSubRaca]} // ✅ novo
-              habilidadesClasse={habilidadesClasse}                         // ✅ novo
+              habilidadesRaca={[...habilidadesRaca, ...habilidadesSubRaca]}
+              habilidadesClasse={habilidadesClasse}
+              classeImagens={ficha.DetalhesDaClasse?.imagens || []}
+              backgroundUrl={backgrounds[ficha.classe]}
+              deslocamento={deslocamentoBase}
+              tamanho={tamanhoBase}
+              deathSaves={deathSaves}
+              onChangeDeathSaves={handleDeathSavesChange}
               sectionMotion={sectionMotion}
               loadingEquipped={loadingEquipped}
               loadingBackpack={loadingBackpack}

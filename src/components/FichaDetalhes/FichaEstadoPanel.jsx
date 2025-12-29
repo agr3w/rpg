@@ -16,9 +16,11 @@ import {
   DialogContent,
 } from "@mui/material";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
+import InfoIcon from "@mui/icons-material/Info";
 import { motion } from "framer-motion";
 import FichaXpPanel from "./FichaXpPanel";
 import FichaInventory from "./FichaInventory";
+import BotaoPainelHabilidade from "components/FichaPage/BotãoPainelHabilidade";
 
 // grupos exatamente como na ficha: 1 card por atributo
 const SKILL_GROUPS = [
@@ -88,16 +90,17 @@ export default function FichaEstadoPanel({
   onChangeSavingThrowsAtivos,
   habilidadesRaca = [],
   habilidadesClasse = [],
+  classeImagens = [],
+  backgroundUrl,
   sectionMotion,
   loadingEquipped,
   loadingBackpack,
 }) {
   const [inventoryOpen, setInventoryOpen] = useState(false);
 
-  const profBonus = useMemo(
-    () => getProfBonus(fichaEstado.level),
-    [fichaEstado.level]
-  );
+const profBonus =
++    2 + Math.floor(Math.max((fichaEstado.level || 1) - 1, 0) / 4);
+
   const periciasSet = new Set(periciasAtivas || []);
   const savesSet = new Set(savingThrowsAtivos || []);
 
@@ -118,8 +121,8 @@ export default function FichaEstadoPanel({
   };
 
   return (
-    <>
-     {/* 1) XP / Nível */}
+    <Box>
+      {/* 1) XP / Nível */}
       <motion.div {...sectionMotion}>
         <Box sx={{ mb: 3 }}>
           <FichaXpPanel
@@ -380,6 +383,33 @@ export default function FichaEstadoPanel({
               <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
                 Habilidades de Classe
               </Typography>
+
+              {/* 🔽 bloco movido pra cá */}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  flexWrap: "wrap",
+                  mb: 1,
+                }}
+              >
+                <BotaoPainelHabilidade imagens={classeImagens || []} />
+
+                {backgroundUrl && (
+                  <Button
+                    size="small"
+                    variant="text"
+                    href={backgroundUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    startIcon={<InfoIcon fontSize="small" />}
+                  >
+                    Ver referência
+                  </Button>
+                )}
+              </Box>
+
               {habilidadesClasse.length === 0 ? (
                 <Typography variant="caption" sx={{ opacity: 0.7 }}>
                   Nenhuma habilidade de classe cadastrada.
@@ -397,6 +427,6 @@ export default function FichaEstadoPanel({
           </Grid>
         </Paper>
       </motion.div>
-    </>
+    </Box>
   );
 }
