@@ -21,7 +21,6 @@ import {
   Button,
   ToggleButtonGroup,
   ToggleButton,
-   TextField,
 } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
@@ -35,6 +34,7 @@ import FichaInventory from "components/FichaDetalhes/FichaInventory";
 import FichaXpPanel from "components/FichaDetalhes/FichaXpPanel";
 import FichaOrigemPanel from "components/FichaDetalhes/FichaOrigemPanel";
 import FichaEstadoPanel from "components/FichaDetalhes/FichaEstadoPanel";
+import FichaCoinsPanel from "components/FichaDetalhes/FichaCoinsPanel";
 
 const sectionMotion = {
   initial: { opacity: 0, y: 8 },
@@ -52,8 +52,7 @@ const FichaDetalhes = () => {
   // frente/verso da ficha
   const [activeSide, setActiveSide] = useState("estado");
 
-  // 🔹 rascunho da riqueza (editar antes de salvar)
-  const [coinsDraft, setCoinsDraft] = useState(null);
+  // cunhagem agora é controlada por FichaCoinsPanel
 
   const user = auth.currentUser;
   const userID = user?.uid;
@@ -334,7 +333,7 @@ const FichaDetalhes = () => {
   const handleBackpackChange = (nextBackpack) =>
     persistInventoryPartial({ backpack: nextBackpack || {} });
 
-  // 🔹 riqueza em moedas
+  // 🔹 riqueza em moedas (salva no banco)
   const handleMoedasChange = async (nextCoins) => {
     const safe = {
       pc: Number(nextCoins.pc || 0),
@@ -345,55 +344,6 @@ const FichaDetalhes = () => {
     };
 
     setFicha((prev) => ({ ...(prev || {}), riquezaMoedas: safe }));
-
-    if (!userID || !fichaKey) return;
-    try {
-      await firebase
-        .database()
-        .ref(`fichas/${userID}/${fichaKey}/riquezaMoedas`)
-        .set(safe);
-    } catch (e) {
-      console.error("Erro ao salvar riqueza:", e);
-    }
-  };
-
-  // 🔹 riqueza em moedas (editar localmente + salvar no clique)
-  const handleMoedasFieldChange = (partial) => {
-    const base =
-      coinsDraft ||
-      fichaEstado.riquezaMoedas || {
-        pc: 0,
-        pp: 0,
-        pe: 0,
-        po: 0,
-        pl: 0,
-      };
-
-    const merged = { ...base, ...partial };
-    setCoinsDraft(merged);
-  };
-
-  const handleMoedasSave = async () => {
-    const source =
-      coinsDraft ||
-      fichaEstado.riquezaMoedas || {
-        pc: 0,
-        pp: 0,
-        pe: 0,
-        po: 0,
-        pl: 0,
-      };
-
-    const safe = {
-      pc: Number(source.pc || 0),
-      pp: Number(source.pp || 0),
-      pe: Number(source.pe || 0),
-      po: Number(source.po || 0),
-      pl: Number(source.pl || 0),
-    };
-
-    setFicha((prev) => ({ ...(prev || {}), riquezaMoedas: safe }));
-    setCoinsDraft(safe);
 
     if (!userID || !fichaKey) return;
     try {
@@ -565,131 +515,10 @@ const FichaDetalhes = () => {
               </Grid>
 
               <Grid item xs={12} md={4}>
-                <Paper elevation={3} sx={{ p: 2 }}>
-                  <Typography variant="subtitle2">Riqueza</Typography>
-
-                  {(() => {
-                    const original =
-                      fichaEstado.riquezaMoedas || {
-                        pc: 0,
-                        pp: 0,
-                        pe: 0,
-                        po: 0,
-                        pl: 0,
-                      };
-
-                    const coins = coinsDraft || original;
-
-                    // câmbio padrão em peças de ouro (PO)
-                    const totalEmPO =
-                      coins.pc / 100 +
-                      coins.pp / 10 +
-                      coins.pe / 2 +
-                      coins.po +
-                      coins.pl * 10;
-
-                    const handleField = (key) => (e) => {
-                      const value = e.target.value.replace(/[^\d]/g, "");
-                      handleMoedasFieldChange({
-                        [key]: value === "" ? 0 : Number(value),
-                      });
-                    };
-
-                    const changed = ["pc", "pp", "pe", "po", "pl"].some(
-                      (k) => Number(coins[k] || 0) !== Number(original[k] || 0)
-                    );
-
-                    return (
-                      <>
-                        <Grid container spacing={1} sx={{ mt: 1 }}>
-                          <Grid item xs={4}>
-                            <TextField
-                              label="PC"
-                              size="small"
-                              type="number"
-                              value={coins.pc}
-                              onChange={handleField("pc")}
-                              fullWidth
-                              inputProps={{ min: 0 }}
-                            />
-                          </Grid>
-                          <Grid item xs={4}>
-                            <TextField
-                              label="PP"
-                              size="small"
-                              type="number"
-                              value={coins.pp}
-                              onChange={handleField("pp")}
-                              fullWidth
-                              inputProps={{ min: 0 }}
-                            />
-                          </Grid>
-                          <Grid item xs={4}>
-                            <TextField
-                              label="PE"
-                              size="small"
-                              type="number"
-                              value={coins.pe}
-                              onChange={handleField("pe")}
-                              fullWidth
-                              inputProps={{ min: 0 }}
-                            />
-                          </Grid>
-                          <Grid item xs={6}>
-                            <TextField
-                              label="PO"
-                              size="small"
-                              type="number"
-                              value={coins.po}
-                              onChange={handleField("po")}
-                              fullWidth
-                              inputProps={{ min: 0 }}
-                            />
-                          </Grid>
-                          <Grid item xs={6}>
-                            <TextField
-                              label="PL"
-                              size="small"
-                              type="number"
-                              value={coins.pl}
-                              onChange={handleField("pl")}
-                              fullWidth
-                              inputProps={{ min: 0 }}
-                            />
-                          </Grid>
-                        </Grid>
-
-                        <Divider sx={{ my: 1 }} />
-
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            gap: 1,
-                          }}
-                        >
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                          >
-                            Total aproximado:{" "}
-                            <strong>{totalEmPO.toFixed(2)} PO</strong>
-                          </Typography>
-
-                          <Button
-                            size="small"
-                            variant="contained"
-                            onClick={handleMoedasSave}
-                            disabled={!changed}
-                          >
-                            Salvar
-                          </Button>
-                        </Box>
-                      </>
-                    );
-                  })()}
-                </Paper>
+                <FichaCoinsPanel
+                  value={fichaEstado.riquezaMoedas}
+                  onSave={handleMoedasChange}
+                />
               </Grid>
 
               <Grid item xs={12} md={3}>
