@@ -320,12 +320,19 @@ const FichaDetalhes = () => {
     };
   }
 
+  const caDetalhes = ficha.caDetalhes || null;
+  const caTotal =
+    typeof ficha.ca === "number"
+      ? ficha.ca
+      : caDetalhes?.total ?? 10;
+
   const fichaEstado = {
     level: levelAtual,
     xp: ficha.xp ?? ficha.XP ?? 0,
     riquezaMoedas,
     inventory: ficha.inventory || {},
-    ca: ficha.ca ?? 10,
+    ca: caTotal,
+    caDetalhes,
     hp: hpEstado,
   };
 
@@ -413,17 +420,33 @@ const FichaDetalhes = () => {
   };
 
   // 🔹 CA (Classe de Armadura)
-  const handleArmorChange = async (caValue) => {
-    const safe = Number(caValue || 0);
+  const handleArmorChange = async (armorInfo) => {
+    const base = Number(armorInfo?.base || 0);
+    const usaEscudo = !!armorInfo?.usaEscudo;
+    const totalFromInfo = Number(armorInfo?.total || 0);
+    const total = totalFromInfo || base + (usaEscudo ? 2 : 0);
 
-    setFicha((prev) => ({ ...(prev || {}), ca: safe }));
+    const detalhes = {
+      base,
+      usaEscudo,
+      bonusTexto: armorInfo?.bonusTexto || "",
+      armorId: armorInfo?.armorId || null,
+      armorNome: armorInfo?.armorNome || "",
+      total,
+      propriedades: armorInfo?.propriedades || [], // ✅ novo
+    };
+
+    setFicha((prev) => ({
+      ...(prev || {}),
+      ca: total,
+      caDetalhes: detalhes,
+    }));
 
     if (!userID || !fichaKey) return;
     try {
-      await firebase
-        .database()
-        .ref(`fichas/${userID}/${fichaKey}/ca`)
-        .set(safe);
+      const ref = firebase.database().ref(`fichas/${userID}/${fichaKey}`);
+      await ref.child("ca").set(total);
+      await ref.child("caDetalhes").set(detalhes);
     } catch (e) {
       console.error("Erro ao salvar CA:", e);
     }
@@ -661,8 +684,19 @@ const FichaDetalhes = () => {
             <Grid container spacing={2} sx={{ mb: 2 }}>
               <Grid item xs={12} md={4}>
                 <FichaArmorPanel
-                  value={fichaEstado.ca}
+                  value={
+                    fichaEstado.caDetalhes || {
+                      base: fichaEstado.ca,
+                      usaEscudo: false,
+                      bonusTexto: "",
+                      armorId: null,
+                      armorNome: "",
+                      total: fichaEstado.ca,
+                      propriedades: [],
+                    }
+                  }
                   onSave={handleArmorChange}
+                  dexMod={abilityMods.Destreza || 0}
                 />
               </Grid>
               <Grid item xs={12} md={8}>
@@ -672,7 +706,7 @@ const FichaDetalhes = () => {
                   hitDie={classeSelecioanda?.dadoDeVidaFaces || 8}
                   conMod={abilityMods.Constituição || 0}
                   pendingLevels={pendingHpLevels}
-                  canRollLevelHp={fichaEstado.level >= 2} // ✅ só libera a partir do nível 2
+                  canRollLevelHp={fichaEstado.level >= 2}
                 />
               </Grid>
             </Grid>
