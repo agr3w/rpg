@@ -132,7 +132,7 @@ const FichaDetalhes = () => {
   useEffect(() => {
     if (!ficha) return;
     setPendingHpLevels(ficha.hpLevelsPendentes || 0);
-  }, [ficha, fichaKey]);
+  }, [ficha?.hpLevelsPendentes]);
 
   // detecta aumento de nível para marcar rolagem de HP pendente
   useEffect(() => {
@@ -150,14 +150,22 @@ const FichaDetalhes = () => {
     const diff = current - prev;
 
     if (diff > 0) {
-      const novoPendentes = (pendingHpLevels || 0) + diff;
-      setPendingHpLevels(novoPendentes);
+      // Atualiza estado local de forma segura (não depende de valor "stale")
+      setPendingHpLevels((prevPend) => Math.max(0, Number(prevPend || 0) + diff));
 
+      // Mantém a ficha em memória consistente (pra UI refletir na hora)
+      setFicha((prevFicha) => {
+        const base = prevFicha || {};
+        const before = Number(base.hpLevelsPendentes || 0);
+        return { ...base, hpLevelsPendentes: Math.max(0, before + diff) };
+      });
+
+      // Persiste de forma atômica no Firebase (evita duplicar/concorrer)
       if (userID && fichaKey) {
         firebase
           .database()
           .ref(`fichas/${userID}/${fichaKey}/hpLevelsPendentes`)
-          .set(novoPendentes)
+          .transaction((curr) => Math.max(0, Number(curr || 0) + diff))
           .catch((e) =>
             console.error("Erro ao salvar níveis de HP pendentes:", e)
           );
@@ -165,7 +173,7 @@ const FichaDetalhes = () => {
     }
 
     lastLevelRef.current = current;
-  }, [ficha, fichaKey, userID, pendingHpLevels]);
+  }, [ficha?.level, fichaKey, userID]);
 
   // mantém o campo de nome sincronizado com a ficha carregada
   useEffect(() => {
@@ -586,20 +594,38 @@ const FichaDetalhes = () => {
       temp: Number(nextHp.temp || 0),
     };
 
-    setFicha((prev) => ({ ...(prev || {}), hp: safe }));
-
-    let novoPendentes = pendingHpLevels;
+    // atualiza estado local (HP + pendentes) de forma consistente
     if (consumedLevels > 0) {
-      novoPendentes = Math.max(0, (pendingHpLevels || 0) - consumedLevels);
-      setPendingHpLevels(novoPendentes);
+      setPendingHpLevels((prevPend) =>
+        Math.max(0, Number(prevPend || 0) - consumedLevels)
+      );
     }
+
+    setFicha((prev) => {
+      const base = prev || {};
+      const beforePend = Number(base.hpLevelsPendentes || 0);
+      const nextPend =
+        consumedLevels > 0 ? Math.max(0, beforePend - consumedLevels) : beforePend;
+
+      return {
+        ...base,
+        hp: safe,
+        hpLevelsPendentes: nextPend, // ✅ importantíssimo (evita “voltar” no useEffect)
+      };
+    });
 
     if (!userID || !fichaKey) return;
     try {
       const ref = firebase.database().ref(`fichas/${userID}/${fichaKey}`);
       await ref.child("hp").set(safe);
+
       if (consumedLevels > 0) {
-        await ref.child("hpLevelsPendentes").set(novoPendentes);
+        // decremento atômico com clamp (não deixa ficar negativo)
+        await ref
+          .child("hpLevelsPendentes")
+          .transaction((curr) =>
+            Math.max(0, Number(curr || 0) - consumedLevels)
+          );
       }
     } catch (e) {
       console.error("Erro ao salvar HP:", e);

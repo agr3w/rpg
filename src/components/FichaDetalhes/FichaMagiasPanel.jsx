@@ -168,12 +168,15 @@ export default function FichaMagiasPanel({
 
   // busca/filtros
   const [q, setQ] = useState("");
-  const [levelFilter, setLevelFilter] = useState("all"); // "all" | "0".."9"
-  const [timeFilter, setTimeFilter] = useState("all"); // "all" | preset strings
+  const [levelFilter, setLevelFilter] = useState("all");
+  const [timeFilter, setTimeFilter] = useState("all");
   const [preparedOnly, setPreparedOnly] = useState(false);
 
   // evita persistir quando estamos só “hidratando” do props
   const isHydratingRef = useRef(false);
+
+  // controle de “pendência” apenas para ESPAÇOS (slots)
+  const [slotsDirty, setSlotsDirty] = useState(false);
 
   const persist = (nextState) => {
     if (!onChange) return;
@@ -210,6 +213,7 @@ export default function FichaMagiasPanel({
 
     isHydratingRef.current = true;
     setLocal({ slots, spells });
+    setSlotsDirty(false);
     // libera persist no próximo tick (evita salvar durante hidratação)
     queueMicrotask(() => {
       isHydratingRef.current = false;
@@ -297,9 +301,27 @@ export default function FichaMagiasPanel({
           [levelCircle]: nextRow,
         },
       };
-      persist(next);
+      setSlotsDirty(true);
       return next;
     });
+  };
+
+  const handleLongRest = () => {
+    setLocal((prev) => {
+      const nextSlots = { ...(prev.slots || {}) };
+      LEVELS.forEach((lvlCircle) => {
+        const row = nextSlots[lvlCircle] || { total: 0, used: 0 };
+        nextSlots[lvlCircle] = { ...row, used: 0 };
+      });
+      const next = { ...prev, slots: nextSlots };
+      setSlotsDirty(true);
+      return next;
+    });
+  };
+
+  const handleSaveSlots = () => {
+    persist(local);
+    setSlotsDirty(false);
   };
 
   const handleDeleteSpell = (id) => {
@@ -423,9 +445,38 @@ export default function FichaMagiasPanel({
         {/* Espaços de magias por círculo */}
         <Grid item xs={12} md={8}>
           <Paper elevation={3} sx={{ p: 2, height: "100%" }}>
-            <Typography variant="h6" sx={{ mb: 1 }}>
-              Espaços de Magia
-            </Typography>
+            <Box
+              sx={{
+                mb: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 1,
+              }}
+            >
+              <Box>
+                <Typography variant="h6">Espaços de Magia</Typography>
+                {slotsDirty && (
+                  <Typography variant="caption" sx={{ opacity: 0.7 }}>
+                    Alterações pendentes (clique em “Salvar espaços”)
+                  </Typography>
+                )}
+              </Box>
+
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Button size="small" variant="outlined" onClick={handleLongRest}>
+                  Descanso longo
+                </Button>
+                <Button
+                  size="small"
+                  variant="contained"
+                  onClick={handleSaveSlots}
+                  disabled={!slotsDirty}
+                >
+                  Salvar espaços
+                </Button>
+              </Box>
+            </Box>
 
             <Grid container spacing={1}>
               {LEVELS.map((lvlCircle) => {

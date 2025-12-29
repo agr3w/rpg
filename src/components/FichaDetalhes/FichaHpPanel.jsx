@@ -140,6 +140,7 @@ export default function FichaHpPanel({
           <Button
             size="small"
             variant="outlined"
+            type="button"
             onClick={handleRollLevelHp}
           >
             Rolar 1d{hitDie} + CON
