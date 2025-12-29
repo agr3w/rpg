@@ -13,6 +13,7 @@ import Inventory2Icon from "@mui/icons-material/Inventory2";
 import { motion } from "framer-motion";
 import FichaXpPanel from "components/FichaDetalhes/FichaXpPanel";
 import FichaInventory from "components/FichaDetalhes/FichaInventory";
+import FichaAtributosPericiasPanel from "components/FichaDetalhes/FichaAtributosPericiasPanel";
 
 export default function FichaEstadoPanel({
   userID,
@@ -20,16 +21,28 @@ export default function FichaEstadoPanel({
   ficha,
   fichaEstado,
   abilityMods,
+  atributosComBonus,          // ✅ novo
   spellAttr,
   onFichaChange,
   onChangeEquipped,
   onChangeBackpack,
+  periciasAtivas,             // ✅ novo
+  onChangePericiasAtivas,     // ✅ novo
   sectionMotion,
 }) {
   const [inventoryOpen, setInventoryOpen] = useState(false);
 
   return (
     <>
+      {/* 🔹 Atributos + Perícias (estilo ficha oficial) */}
+      <FichaAtributosPericiasPanel
+        level={fichaEstado.level}
+        atributosComBonus={atributosComBonus}
+        abilityMods={abilityMods}
+        periciasAtivas={periciasAtivas}
+        onChangePericiasAtivas={onChangePericiasAtivas}
+      />
+
       {/* XP / Nível */}
       <FichaXpPanel
         userID={userID}

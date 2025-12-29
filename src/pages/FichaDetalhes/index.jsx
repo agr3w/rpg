@@ -263,6 +263,23 @@ const FichaDetalhes = () => {
   };
   const spellAttr = getSpellAttributeForClass(ficha?.classe);
 
+  // 🔹 salvar história do personagem (verso)
+  const handleStoryChange = async (newStory) => {
+    const text = String(newStory || "");
+
+    setFicha((prev) => ({ ...(prev || {}), historia: text }));
+
+    if (!userID || !fichaKey) return;
+    try {
+      await firebase
+        .database()
+        .ref(`fichas/${userID}/${fichaKey}/historia`)
+        .set(text);
+    } catch (e) {
+      console.error("Erro ao salvar história da ficha:", e);
+    }
+  };
+
   // helpers de inventário (mantém no container)
   const persistInventoryPartial = async (partial) => {
     setFicha((prev) => {
@@ -287,6 +304,33 @@ const FichaDetalhes = () => {
 
   const handleBackpackChange = (nextBackpack) =>
     persistInventoryPartial({ backpack: nextBackpack || {} });
+
+  // 🔹 perícias ativas (classe + antecedente, com override pelo jogador)
+  const basePericiasClasse =
+    ficha.DetalhesDaClasse?.periciasClasseSelecionadas || [];
+  const basePericiasAntecedente =
+    ficha.antecedenteDetalhes?.periciasAntecedenteSelecionadas || [];
+  const periciasBase = Array.from(
+    new Set([...basePericiasClasse, ...basePericiasAntecedente])
+  );
+
+  // se já existir no banco, usa; senão usa as de base
+  const periciasAtivas = ficha.periciasAtivas || periciasBase;
+
+  const handlePericiasAtivasChange = async (nextList) => {
+    const arr = nextList || [];
+    setFicha((prev) => ({ ...(prev || {}), periciasAtivas: arr }));
+
+    if (!userID || !fichaKey) return;
+    try {
+      await firebase
+        .database()
+        .ref(`fichas/${userID}/${fichaKey}/periciasAtivas`)
+        .set(arr);
+    } catch (e) {
+      console.error("Erro ao salvar perícias ativas:", e);
+    }
+  };
 
   const loadingEquipped = false;
   const loadingBackpack = false;
@@ -475,11 +519,11 @@ const FichaDetalhes = () => {
               value={activeSide}
               onChange={(_, v) => v && setActiveSide(v)}
             >
-              <ToggleButton value="origem">
-                Frente — Origem
-              </ToggleButton>
               <ToggleButton value="estado">
-                Verso — Estado de jogo
+                Frente — Estado de jogo
+              </ToggleButton>
+              <ToggleButton value="origem">
+                Verso — História & Antecedente
               </ToggleButton>
             </ToggleButtonGroup>
           </Box>
@@ -492,10 +536,13 @@ const FichaDetalhes = () => {
               ficha={ficha}
               fichaEstado={fichaEstado}
               abilityMods={abilityMods}
+              atributosComBonus={atributosComBonus}     // ✅
               spellAttr={spellAttr}
               onFichaChange={setFicha}
               onChangeEquipped={handleEquippedChange}
               onChangeBackpack={handleBackpackChange}
+              periciasAtivas={periciasAtivas}           // ✅
+              onChangePericiasAtivas={handlePericiasAtivasChange} // ✅
               sectionMotion={sectionMotion}
               loadingEquipped={loadingEquipped}
               loadingBackpack={loadingBackpack}
@@ -503,12 +550,9 @@ const FichaDetalhes = () => {
           ) : (
             <FichaOrigemPanel
               ficha={ficha}
-              atributosComBonus={atributosComBonus}
-              bonusRaca={bonusRaca}
-              subRacaSelecionada={subRacaSelecionada}
-              subRacaDetalhes={subRacaDetalhes}
-              racaSelecionada={racaSelecionada}
-              calcularBonus={calcularBonus}
+              // agora o verso é só narrativa / antecedente
+              story={ficha.historia || ""}
+              onStoryChange={handleStoryChange}
               sectionMotion={sectionMotion}
             />
           )}
