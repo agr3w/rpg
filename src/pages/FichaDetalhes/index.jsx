@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import firebase from "firebase/compat/app";
 import "firebase/database";
 import { Link, useParams } from "react-router-dom";
@@ -35,12 +35,17 @@ import FichaXpPanel from "components/FichaDetalhes/FichaXpPanel";
 import FichaOrigemPanel from "components/FichaDetalhes/FichaOrigemPanel";
 import FichaEstadoPanel from "components/FichaDetalhes/FichaEstadoPanel";
 import FichaCoinsPanel from "components/FichaDetalhes/FichaCoinsPanel";
+import FichaArmorPanel from "components/FichaDetalhes/FichaArmorPanel";
+import FichaHpPanel from "components/FichaDetalhes/FichaHpPanel"; 
 
 const sectionMotion = {
   initial: { opacity: 0, y: 8 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.28 },
 };
+
+// fundo da página baseado na classe (por enquanto, usa o container padrão)
+const getClasseBackground = () => styles.pageContainer;
 
 const FichaDetalhes = () => {
   const { ID } = useParams();
@@ -51,12 +56,14 @@ const FichaDetalhes = () => {
 
   // frente/verso da ficha
   const [activeSide, setActiveSide] = useState("estado");
+  const [pendingHpLevels, setPendingHpLevels] = useState(0);
 
-  // cunhagem agora é controlada por FichaCoinsPanel
+  const lastLevelRef = useRef(null); // ✅ começa sem nível anterior
 
   const user = auth.currentUser;
   const userID = user?.uid;
 
+  // carrega ficha
   useEffect(() => {
     if (!userID || !ID) return;
     setLoadingFicha(true);
@@ -87,6 +94,7 @@ const FichaDetalhes = () => {
       });
   }, [ID, userID]);
 
+  // carrega background
   useEffect(() => {
     setBgLoaded(false);
     if (!ficha) return;
@@ -104,6 +112,45 @@ const FichaDetalhes = () => {
       img.onerror = null;
     };
   }, [ficha]);
+
+  // sincroniza níveis de HP pendentes vindos do banco
+  useEffect(() => {
+    if (!ficha) return;
+    setPendingHpLevels(ficha.hpLevelsPendentes || 0);
+  }, [ficha, fichaKey]);
+
+  // detecta aumento de nível para marcar rolagem de HP pendente
+  useEffect(() => {
+    if (!ficha) return;
+
+    const current = ficha.level || 1;
+
+    // primeira vez: só registra o nível atual, não cria rolagem pendente
+    if (lastLevelRef.current == null) {
+      lastLevelRef.current = current;
+      return;
+    }
+
+    const prev = lastLevelRef.current;
+    const diff = current - prev;
+
+    if (diff > 0) {
+      const novoPendentes = (pendingHpLevels || 0) + diff;
+      setPendingHpLevels(novoPendentes);
+
+      if (userID && fichaKey) {
+        firebase
+          .database()
+          .ref(`fichas/${userID}/${fichaKey}/hpLevelsPendentes`)
+          .set(novoPendentes)
+          .catch((e) =>
+            console.error("Erro ao salvar níveis de HP pendentes:", e)
+          );
+      }
+    }
+
+    lastLevelRef.current = current;
+  }, [ficha, fichaKey, userID, pendingHpLevels]);
 
   const loading = loadingFicha || !bgLoaded;
 
@@ -166,30 +213,7 @@ const FichaDetalhes = () => {
     antecedente: ficha.antecedenteDetalhes,
   };
 
-  // 🔹 dados de estado de jogo (mudam ao longo da campanha)
-  const parseInitialPo = () => {
-    const raw = ficha.riquezaInicial;
-    if (!raw) return 0;
-    const num = parseInt(String(raw).replace(/\D/g, ""), 10);
-    return Number.isNaN(num) ? 0 : num;
-  };
-
-  const riquezaMoedas =
-    ficha.riquezaMoedas || {
-      pc: 0,
-      pp: 0,
-      pe: 0,
-      po: parseInitialPo(), // assume riqueza inicial em PO
-      pl: 0,
-    };
-
-  const fichaEstado = {
-    level: ficha.level || 1,
-    xp: ficha.xp ?? ficha.XP ?? 0,
-    riquezaMoedas,               // ✅ agora é objeto
-    inventory: ficha.inventory || {},
-  };
-
+  // classe / raça / sub‑raça
   const classeSelecioanda =
     classes.find((c) => c.nome === fichaBase.classe) || {};
   const racaSelecionada =
@@ -204,15 +228,6 @@ const FichaDetalhes = () => {
   const atributos = ficha.DetalhesDaRaça?.Atributos || {};
   const bonusRaca = racaSelecionada.proficienciaHabilidadeBonus || {};
   const bonusSub = subRacaDetalhes.habilidadeBonusSubRaca || {};
-
-  // 🔹 habilidades de raça / sub-raça / classe
-  const habilidadesRaca = racaSelecionada.habilidades || [];
-  const habilidadesSubRaca = subRacaDetalhes.habilidadesSubRaca || [];
-
-  const habilidadesClasse =
-    ficha.DetalhesDaClasse?.habilidades ||
-    classeSelecioanda?.habilidades ||
-    [];
 
   const atributosComBonus = {
     Força:
@@ -241,11 +256,6 @@ const FichaDetalhes = () => {
       (Number(bonusSub.Carisma) || 0),
   };
 
-  const calcularBonus = (v) => {
-    const bonus = Math.floor((v - 10) / 2);
-    return bonus >= 0 ? `+${bonus}` : `${bonus}`;
-  };
-
   const abilityMods = {
     Força: Math.floor(((atributosComBonus.Força || 0) - 10) / 2),
     Destreza: Math.floor(((atributosComBonus.Destreza || 0) - 10) / 2),
@@ -263,23 +273,69 @@ const FichaDetalhes = () => {
     ),
   };
 
-  const classeBackgrounds = {
-    Bárbaro: styles.classeBárbaro,
-    Bardo: styles.classeBardo,
-    Bruxo: styles.classeBruxo,
-    Clérigo: styles.classeClérigo,
-    Druida: styles.classeDruida,
-    Feiticeiro: styles.classeFeiticeiro,
-    Guerreiro: styles.classeGuerreiro,
-    Ladino: styles.classeLadino,
-    Mago: styles.classeMago,
-    Monge: styles.classeMonge,
-    Paladino: styles.classePaladino,
-    Patrulheiro: styles.classePatrulheiro,
+  // 🔹 riqueza + HP vindos da classe
+  const parseInitialPo = () => {
+    const raw = ficha.riquezaInicial;
+    if (!raw) return 0;
+    const num = parseInt(String(raw).replace(/\D/g, ""), 10);
+    return Number.isNaN(num) ? 0 : num;
   };
 
-  const getClasseBackground = (classe) =>
-    classeBackgrounds[classe] || "";
+  const riquezaMoedas =
+    ficha.riquezaMoedas || {
+      pc: 0,
+      pp: 0,
+      pe: 0,
+      po: parseInitialPo(),
+      pl: 0,
+    };
+
+  const hitDie =
+    Number(classeSelecioanda?.dadoDeVidaFaces || 0) > 0
+      ? Number(classeSelecioanda.dadoDeVidaFaces)
+      : 8;
+
+  const levelAtual = ficha.level || 1;
+  const conMod = abilityMods.Constituição || 0;
+
+  const hpSalvo = ficha.hp;
+  let hpEstado;
+  if (hpSalvo) {
+    hpEstado = {
+      max: Number(hpSalvo.max || 0),
+      atual: Number(hpSalvo.atual || 0),
+      temp: Number(hpSalvo.temp || 0),
+    };
+  } else {
+    const medioPorNivel = Math.floor(hitDie / 2) + 1;
+    const primeiroNivel = hitDie + conMod;
+    const niveisExtras = Math.max(levelAtual - 1, 0);
+    const extraTotal = niveisExtras * (medioPorNivel + conMod);
+    const hpMaxCalc = Math.max(primeiroNivel + extraTotal, 1);
+
+    hpEstado = {
+      max: hpMaxCalc,
+      atual: hpMaxCalc,
+      temp: 0,
+    };
+  }
+
+  const fichaEstado = {
+    level: levelAtual,
+    xp: ficha.xp ?? ficha.XP ?? 0,
+    riquezaMoedas,
+    inventory: ficha.inventory || {},
+    ca: ficha.ca ?? 10,
+    hp: hpEstado,
+  };
+
+  // 🔹 habilidades de raça / sub-raça / classe
+  const habilidadesRaca = racaSelecionada.habilidades || [];
+  const habilidadesSubRaca = subRacaDetalhes.habilidadesSubRaca || [];
+  const habilidadesClasse =
+    ficha.DetalhesDaClasse?.habilidades ||
+    classeSelecioanda?.habilidades ||
+    [];
 
   const getSpellAttributeForClass = (classe) => {
     if (!classe) return "Inteligência";
@@ -353,6 +409,51 @@ const FichaDetalhes = () => {
         .set(safe);
     } catch (e) {
       console.error("Erro ao salvar riqueza:", e);
+    }
+  };
+
+  // 🔹 CA (Classe de Armadura)
+  const handleArmorChange = async (caValue) => {
+    const safe = Number(caValue || 0);
+
+    setFicha((prev) => ({ ...(prev || {}), ca: safe }));
+
+    if (!userID || !fichaKey) return;
+    try {
+      await firebase
+        .database()
+        .ref(`fichas/${userID}/${fichaKey}/ca`)
+        .set(safe);
+    } catch (e) {
+      console.error("Erro ao salvar CA:", e);
+    }
+  };
+
+  // 🔹 Pontos de Vida
+  const handleHpChange = async (nextHp, consumedLevels = 0) => {
+    const safe = {
+      max: Number(nextHp.max || 0),
+      atual: Number(nextHp.atual || 0),
+      temp: Number(nextHp.temp || 0),
+    };
+
+    setFicha((prev) => ({ ...(prev || {}), hp: safe }));
+
+    let novoPendentes = pendingHpLevels;
+    if (consumedLevels > 0) {
+      novoPendentes = Math.max(0, (pendingHpLevels || 0) - consumedLevels);
+      setPendingHpLevels(novoPendentes);
+    }
+
+    if (!userID || !fichaKey) return;
+    try {
+      const ref = firebase.database().ref(`fichas/${userID}/${fichaKey}`);
+      await ref.child("hp").set(safe);
+      if (consumedLevels > 0) {
+        await ref.child("hpLevelsPendentes").set(novoPendentes);
+      }
+    } catch (e) {
+      console.error("Erro ao salvar HP:", e);
     }
   };
 
@@ -547,6 +648,32 @@ const FichaDetalhes = () => {
                     </Button>
                   </Stack>
                 </Paper>
+              </Grid>
+            </Grid>
+          </motion.div>
+
+          {/* TOP 2: CA e Pontos de Vida */}
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.32, delay: 0.05 }}
+          >
+            <Grid container spacing={2} sx={{ mb: 2 }}>
+              <Grid item xs={12} md={4}>
+                <FichaArmorPanel
+                  value={fichaEstado.ca}
+                  onSave={handleArmorChange}
+                />
+              </Grid>
+              <Grid item xs={12} md={8}>
+                <FichaHpPanel
+                  value={fichaEstado.hp}
+                  onSave={handleHpChange}
+                  hitDie={classeSelecioanda?.dadoDeVidaFaces || 8}
+                  conMod={abilityMods.Constituição || 0}
+                  pendingLevels={pendingHpLevels}
+                  canRollLevelHp={fichaEstado.level >= 2} // ✅ só libera a partir do nível 2
+                />
               </Grid>
             </Grid>
           </motion.div>

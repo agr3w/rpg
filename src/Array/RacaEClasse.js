@@ -659,8 +659,8 @@ export const classes = [
     },
 
     dadosDeVida: "1d12 pontos de vida por nível",
-    riqueza: "2d4*10", // 20 a 80 PO
-    // Outras informações específicas da classe
+    dadoDeVidaFaces: 12,              // ✅ novo
+    riqueza: "2d4*10",
   },
 
   // ---------------------------------------------------------------------------------------------------------------  //
@@ -721,6 +721,7 @@ export const classes = [
     },
 
     dadosDeVida: "1d8 pontos de vida por nível",
+    dadoDeVidaFaces: 8,               // ✅ novo
     riqueza: "5d4*10", // 50 a 200 PO
     // Outras informações específicas da classe
   },
@@ -771,6 +772,7 @@ export const classes = [
       ],
     },
     dadosDeVida: "1d8 pontos de vida por nível",
+    dadoDeVidaFaces: 8,               // ✅ novo
     riqueza: "4d4*10", // 40 a 160 PO
     // Outras informações específicas da classe
   },
@@ -825,6 +827,7 @@ export const classes = [
       equipamentoObgt: ["Um escudo e Um símbolo sagrado"],
     },
     dadosDeVida: "1d8 pontos de vida por nível",
+    dadoDeVidaFaces: 8,               // ✅ novo
     riqueza: "5d4*10", // 50 a 200 PO
     // Outras informações específicas da classe
   },
@@ -882,6 +885,7 @@ export const classes = [
       ],
     },
     dadosDeVida: "1d8 pontos de vida por nível",
+    dadoDeVidaFaces: 8, // 8
     riqueza: "2d4*10", // 20 a 80 PO
     // Outras informações específicas da classe
   },
@@ -930,6 +934,7 @@ export const classes = [
       equipamentoObgt: [],
     },
     dadosDeVida: "1d6 pontos de vida por nível",
+    dadoDeVidaFaces: 6,               // ✅ novo
     riqueza: "3d4*10", // 30 a 120 PO
     // Outras informações específicas da classe
   },
@@ -981,6 +986,7 @@ export const classes = [
       equipamentoObgt: [],
     },
     dadosDeVida: "1d10 pontos de vida por nível",
+    dadoDeVidaFaces: 10,              // ✅ novo
     riqueza: "5d4*10", // 50 a 200 PO
     // Outras informações específicas da classe
   },
@@ -1037,6 +1043,7 @@ export const classes = [
       ],
     },
     dadosDeVida: "1d8 pontos de vida por nível",
+    dadoDeVidaFaces: 8,               // ✅ novo
     riqueza: "4d4*10", // 40 a 160 PO
     // Outras informações específicas da classe
   },
@@ -1081,6 +1088,7 @@ export const classes = [
     },
 
     dadosDeVida: "1d6 pontos de vida por nível",
+    dadoDeVidaFaces: 6,               // ✅ novo
     riqueza: "4d4*10", // 40 a 160 PO
     // Outras informações específicas da classe
   },
@@ -1126,6 +1134,7 @@ export const classes = [
       equipamentoObgt: ["10 dardos"],
     },
     dadosDeVida: "1d8 pontos de vida por nível",
+    dadoDeVidaFaces: 8, // 8
     riqueza: "5d4", // 5 a 20 PO (sem multiplicador *10)
     // Outras informações específicas da classe
   },
@@ -1177,6 +1186,7 @@ export const classes = [
       equipamentoObgt: ["Cota de malha e Um símbolo sagrado"],
     },
     dadosDeVida: "1d10 pontos de vida por nível",
+    dadoDeVidaFaces: 10,              // ✅ novo
     riqueza: "5d4*10", // 50 a 200 PO
     // Outras informações específicas da classe
   },
@@ -1226,6 +1236,7 @@ export const classes = [
       equipamentoObgt: ["Um arco longo e Uma aljava com 20 flechas"],
     },
     dadosDeVida: "1d10 pontos de vida por nível",
+    dadoDeVidaFaces: 10,              // ✅ novo
     riqueza: "5d4*10", // 50 a 200 PO
     // Outras informações específicas da classe
   },
