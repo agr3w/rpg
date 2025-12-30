@@ -21,6 +21,7 @@ import {
   Autocomplete,
   Switch,
   FormControlLabel,
+  InputAdornment,
 } from "@mui/material";
 import { Link, useSearchParams } from "react-router-dom";
 import { auth } from "APIs/firebaseConfig";
@@ -30,12 +31,34 @@ import RpgSection from "components/RpgSection";
 import { RPG_TOKENS } from "theme/rpgTokens";
 import { createSessionLog, ensureCampaignMeta, listenSessionLogs } from "service/sessionLogService";
 
+// Ícones
+import SearchIcon from "@mui/icons-material/Search";
+import AutoStoriesIcon from "@mui/icons-material/AutoStories";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+
 const DEFAULT_CAMPAIGN_ID = "default";
+
+// --- Estilos Visuais D&D ---
+const DND_THEME = {
+  ink: "#2c1a10",
+  paperBg: "linear-gradient(135deg, #fffbf0 0%, #f3eacb 100%)",
+  paperBorder: "1px solid rgba(92, 64, 51, 0.3)",
+  goldAccent: "#bf8f00",
+  leatherBg: "#2c1a10",
+};
 
 function fmtDate(ms) {
   if (!ms) return "—";
   try {
-    return new Date(ms).toLocaleString("pt-BR");
+    return new Date(ms).toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   } catch {
     return "—";
   }
@@ -61,25 +84,25 @@ function parseTags(raw) {
 }
 
 const SESSION_TEMPLATES = [
-  { id: "livre", label: "Livre", build: () => "" },
+  { id: "livre", label: "Livre (Página em Branco)", build: () => "" },
   {
     id: "dnd_padrao",
-    label: "D&D 5e (padrão)",
+    label: "Registro de Aventura (Padrão)",
     build: () =>
       [
-        "Resumo rápido:",
+        "📜 Resumo dos Eventos:",
         "-",
         "",
-        "Cenas / Eventos:",
+        "⚔️ Encontros & Combates:",
         "-",
         "",
-        "NPCs importantes:",
+        "👥 NPCs Encontrados:",
         "-",
         "",
-        "Loot / Recompensas:",
+        "💰 Tesouros & Recompensas:",
         "-",
         "",
-        "Próximos passos (objetivos):",
+        "🔜 Próximos Passos:",
         "-",
       ].join("\n"),
   },
@@ -103,9 +126,9 @@ export default function SessionLog() {
   const [tagsRaw, setTagsRaw] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // ✅ filtros
+  // Filtros
   const [q, setQ] = useState("");
-  const [tagFilter, setTagFilter] = useState([]); // array de strings
+  const [tagFilter, setTagFilter] = useState([]);
   const [onlyLast10, setOnlyLast10] = useState(false);
 
   useEffect(() => {
@@ -167,13 +190,13 @@ export default function SessionLog() {
   }, [logs, q, tagFilter, onlyLast10]);
 
   const grouped = useMemo(() => {
-    const map = new Map(); // label -> logs[]
+    const map = new Map();
     filtered.forEach((l) => {
       const label = fmtMonth(l?.createdAt);
       if (!map.has(label)) map.set(label, []);
       map.get(label).push(l);
     });
-    return Array.from(map.entries()); // mantém ordem do filtered (já vem desc)
+    return Array.from(map.entries());
   }, [filtered]);
 
   const createLog = async () => {
@@ -212,131 +235,200 @@ export default function SessionLog() {
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { duration: T_IN * 0.18 } }}>
         <RpgSection
           title="Diário de Campanha"
-          subtitle="Registre cada sessão: decisões, NPCs, loot, XP e ganchos."
+          subtitle="As crônicas de suas aventuras, registradas para a posteridade."
           actions={
             <Button
               variant="contained"
+              startIcon={<HistoryEduIcon />}
               onClick={() => {
                 setOpen(true);
                 applyTemplateIfEmpty(templateId);
               }}
-              sx={{ fontWeight: 900 }}
+              sx={{
+                fontWeight: 800,
+                bgcolor: DND_THEME.goldAccent,
+                color: "#2c1a10",
+                fontFamily: "Cinzel",
+                "&:hover": { bgcolor: "#a67c00" },
+              }}
             >
-              Nova sessão
+              Escrever Sessão
             </Button>
           }
         >
-          {status.msg ? <Alert severity={status.type}>{status.msg}</Alert> : null}
+          {status.msg ? <Alert severity={status.type} sx={{ mb: 2 }}>{status.msg}</Alert> : null}
 
-          {/* ✅ Filtros */}
+          {/* ✅ Filtros Estilizados (Índice do Livro) */}
           <Paper
             elevation={0}
             sx={{
-              p: { xs: 1.5, md: 2 },
-              borderRadius: 3,
-              border: RPG_TOKENS.border,
-              bgcolor: "transparent",
-              mb: 1.5,
+              p: 2,
+              borderRadius: 2,
+              border: "1px solid rgba(92, 64, 51, 0.2)",
+              bgcolor: "rgba(255, 251, 240, 0.6)", // Translúcido
+              mb: 3,
+              position: "relative",
+              overflow: "hidden",
             }}
           >
-            <Stack spacing={1}>
-              <Stack direction={{ xs: "column", md: "row" }} spacing={1} alignItems={{ md: "center" }}>
+            {/* Detalhe decorativo de "marcador de página" */}
+            <Box sx={{ position: "absolute", top: 0, left: 0, width: 4, height: "100%", bgcolor: DND_THEME.goldAccent }} />
+
+            <Stack spacing={2}>
+              <Stack direction={{ xs: "column", md: "row" }} spacing={2} alignItems={{ md: "center" }}>
                 <TextField
-                  label="Buscar"
+                  size="small"
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
-                  placeholder="título, resumo, tags..."
+                  placeholder="Buscar nas crônicas..."
                   fullWidth
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon sx={{ color: "rgba(44, 26, 16, 0.5)" }} />
+                      </InputAdornment>
+                    ),
+                    sx: { bgcolor: "rgba(255,255,255,0.5)", fontFamily: "Cinzel" }
+                  }}
                 />
 
                 <FormControlLabel
-                  control={<Switch checked={onlyLast10} onChange={(e) => setOnlyLast10(e.target.checked)} />}
-                  label="Últimas 10"
+                  control={
+                    <Switch 
+                      checked={onlyLast10} 
+                      onChange={(e) => setOnlyLast10(e.target.checked)} 
+                      color="warning"
+                    />
+                  }
+                  label={<Typography variant="body2" sx={{ fontFamily: "Cinzel", fontWeight: 700 }}>Últimas 10</Typography>}
                 />
               </Stack>
 
               <Autocomplete
                 multiple
+                size="small"
                 options={tagOptions}
                 value={tagFilter}
                 onChange={(_, v) => setTagFilter(v)}
-                renderInput={(params) => <TextField {...params} label="Filtrar por tags" placeholder="Selecione tags" />}
+                renderInput={(params) => (
+                  <TextField 
+                    {...params} 
+                    label="Filtrar por Tags" 
+                    placeholder="Selecione..." 
+                    sx={{ "& .MuiInputLabel-root": { fontFamily: "Cinzel" } }}
+                  />
+                )}
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                    <Chip 
+                      label={option} 
+                      size="small" 
+                      {...getTagProps({ index })} 
+                      sx={{ bgcolor: "#e0d0b0", color: "#2c1a10", fontWeight: 600 }}
+                    />
+                  ))
+                }
               />
-
-              {tagFilter.length ? (
-                <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1 }}>
-                  {tagFilter.map((t) => (
-                    <Chip key={t} label={t} onDelete={() => setTagFilter((arr) => arr.filter((x) => x !== t))} />
-                  ))}
-                </Stack>
-              ) : null}
             </Stack>
           </Paper>
 
-          {/* ✅ Lista com agrupamento */}
-          <Paper elevation={0} sx={{ p: { xs: 1.5, md: 2 }, borderRadius: 3, border: RPG_TOKENS.border, bgcolor: "transparent" }}>
-            <Typography variant="h6" sx={{ fontWeight: 900, mb: 1 }}>
-              Sessões
-            </Typography>
-            <Divider sx={{ mb: 1.5 }} />
-
+          {/* ✅ Lista de Sessões (Páginas do Diário) */}
+          <Box sx={{ position: "relative", minHeight: 200 }}>
             {loading ? (
-              <Typography sx={{ opacity: 0.8 }}>Carregando…</Typography>
+              <Typography sx={{ textAlign: "center", mt: 4, fontStyle: "italic", color: "rgba(255,255,255,0.5)" }}>
+                Consultando os arquivos...
+              </Typography>
             ) : filtered.length === 0 ? (
-              <Typography sx={{ opacity: 0.85 }}>Nenhuma sessão encontrada com esses filtros.</Typography>
+              <Paper sx={{ p: 4, textAlign: "center", bgcolor: "rgba(0,0,0,0.2)", color: "#fff" }}>
+                <AutoStoriesIcon sx={{ fontSize: 40, opacity: 0.5, mb: 1 }} />
+                <Typography>Nenhuma crônica encontrada.</Typography>
+              </Paper>
             ) : (
-              <Stack spacing={2}>
+              <Stack spacing={4}>
                 {grouped.map(([monthLabel, monthLogs]) => (
                   <Box key={monthLabel}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 950, mb: 0.75, color: RPG_TOKENS.ink }}>
-                      {monthLabel}
-                    </Typography>
+                    {/* Cabeçalho do Mês (Capítulo) */}
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                      <BookmarkBorderIcon sx={{ color: DND_THEME.goldAccent, mr: 1 }} />
+                      <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: "#fff", letterSpacing: 1 }}>
+                        {monthLabel}
+                      </Typography>
+                      <Divider sx={{ flexGrow: 1, ml: 2, borderColor: "rgba(255,255,255,0.1)" }} />
+                    </Box>
 
-                    <Stack spacing={1.25}>
+                    <Stack spacing={2}>
                       {monthLogs.map((l) => (
                         <Paper
                           key={l.id}
-                          elevation={0}
                           component={Link}
                           to={`/diario/${l.id}?c=${encodeURIComponent(campaignId)}`}
+                          elevation={3}
                           sx={{
-                            p: 1.5,
-                            borderRadius: 2.5,
-                            border: RPG_TOKENS.border,
+                            p: 2.5,
+                            borderRadius: "2px 12px 12px 2px", // Canto arredondado estilo página
                             textDecoration: "none",
-                            color: "inherit",
-                            background: RPG_TOKENS.cardBg,
-                            "&:hover": { borderColor: RPG_TOKENS.hoverBorder },
+                            color: DND_THEME.ink,
+                            background: DND_THEME.paperBg,
+                            border: DND_THEME.paperBorder,
+                            borderLeft: `4px solid ${DND_THEME.goldAccent}`, // Lombada
+                            transition: "all 0.3s ease",
+                            position: "relative",
+                            "&:hover": {
+                              transform: "translateX(4px) scale(1.01)",
+                              boxShadow: "0 8px 20px rgba(0,0,0,0.3)",
+                              "& .edit-icon": { opacity: 1 }
+                            },
                           }}
                         >
-                          <Stack spacing={0.75}>
-                            <Stack direction="row" justifyContent="space-between" alignItems="baseline" sx={{ gap: 1, flexWrap: "wrap" }}>
-                              <Typography sx={{ fontWeight: 950, color: RPG_TOKENS.ink }}>
-                                {l.title || "—"}
-                              </Typography>
-                              <Typography variant="caption" sx={{ opacity: 0.75 }}>
-                                {fmtDate(l.createdAt)}
-                              </Typography>
+                          <Stack spacing={1}>
+                            <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+                              <Box>
+                                <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 800, lineHeight: 1.2 }}>
+                                  {l.title || "Sessão Sem Título"}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: "rgba(44, 26, 16, 0.6)", fontWeight: 600 }}>
+                                  {fmtDate(l.createdAt)}
+                                </Typography>
+                              </Box>
+                              <EditNoteIcon className="edit-icon" sx={{ opacity: 0, transition: "opacity 0.2s", color: "#833c0b" }} />
                             </Stack>
 
-                            {Array.isArray(l?.tags) && l.tags.length ? (
-                              <Stack direction="row" spacing={0.75} sx={{ flexWrap: "wrap", gap: 0.75 }}>
-                                {l.tags.slice(0, 8).map((t) => (
-                                  <Chip key={t} label={t} size="small" variant="outlined" />
+                            {Array.isArray(l?.tags) && l.tags.length > 0 && (
+                              <Stack direction="row" spacing={0.5} sx={{ flexWrap: "wrap", gap: 0.5 }}>
+                                {l.tags.slice(0, 6).map((t) => (
+                                  <Chip 
+                                    key={t} 
+                                    label={t} 
+                                    size="small" 
+                                    sx={{ 
+                                      height: 20, 
+                                      fontSize: "0.65rem", 
+                                      bgcolor: "rgba(131, 60, 11, 0.1)", 
+                                      color: "#58180D",
+                                      border: "1px solid rgba(131, 60, 11, 0.2)"
+                                    }} 
+                                  />
                                 ))}
-                                {l.tags.length > 8 ? <Chip label={`+${l.tags.length - 8}`} size="small" /> : null}
                               </Stack>
-                            ) : null}
-
-                            {l.summary ? (
-                              <Typography variant="body2" sx={{ opacity: 0.92, whiteSpace: "pre-wrap" }}>
-                                {l.summary}
-                              </Typography>
-                            ) : (
-                              <Typography variant="body2" sx={{ opacity: 0.7 }}>
-                                (Sem resumo)
-                              </Typography>
                             )}
+
+                            <Divider sx={{ borderColor: "rgba(92, 64, 51, 0.15)" }} />
+
+                            <Typography 
+                              variant="body2" 
+                              sx={{ 
+                                opacity: 0.85, 
+                                whiteSpace: "pre-wrap", 
+                                fontFamily: "'Merriweather', serif", // Fonte serifada para leitura
+                                maxHeight: 60,
+                                overflow: "hidden",
+                                display: "-webkit-box",
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: "vertical",
+                              }}
+                            >
+                              {l.summary || "(Sem resumo registrado...)"}
+                            </Typography>
                           </Stack>
                         </Paper>
                       ))}
@@ -345,25 +437,41 @@ export default function SessionLog() {
                 ))}
               </Stack>
             )}
-          </Paper>
+          </Box>
         </RpgSection>
       </motion.div>
 
-      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Nova sessão</DialogTitle>
-        <DialogContent dividers>
-          <Stack spacing={1.5}>
+      {/* ✅ Dialog de Criação (Mesa de Escrita) */}
+      <Dialog 
+        open={open} 
+        onClose={() => setOpen(false)} 
+        maxWidth="sm" 
+        fullWidth
+        PaperProps={{
+          sx: {
+            background: "#fdf6e3",
+            backgroundImage: `url("https://www.transparenttextures.com/patterns/aged-paper.png"), linear-gradient(to bottom, #fffbf0, #f3eacb)`,
+            border: "4px double #5c4033",
+            borderRadius: 2
+          }
+        }}
+      >
+        <DialogTitle sx={{ fontFamily: "Cinzel", fontWeight: 900, color: "#58180D", textAlign: "center", borderBottom: "1px solid rgba(92,64,51,0.2)" }}>
+          Nova Crônica
+        </DialogTitle>
+        <DialogContent sx={{ mt: 2 }}>
+          <Stack spacing={2.5}>
             <FormControl fullWidth size="small">
-              <InputLabel id="tpl-label">Template</InputLabel>
+              <InputLabel sx={{ fontFamily: "Cinzel" }}>Modelo de Registro</InputLabel>
               <Select
-                labelId="tpl-label"
-                label="Template"
                 value={templateId}
+                label="Modelo de Registro"
                 onChange={(e) => {
                   const next = e.target.value;
                   setTemplateId(next);
                   applyTemplateIfEmpty(next);
                 }}
+                sx={{ fontFamily: "Cinzel" }}
               >
                 {SESSION_TEMPLATES.map((t) => (
                   <MenuItem key={t.id} value={t.id}>
@@ -374,56 +482,66 @@ export default function SessionLog() {
             </FormControl>
 
             <TextField
-              label="Título"
+              label="Título da Sessão"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               fullWidth
-              placeholder="Sessão 01 — A Taverna do Grifo"
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  createLog();
-                }
+              placeholder="Ex: A Queda do Rei Louco"
+              variant="outlined"
+              sx={{
+                "& .MuiInputBase-root": { bgcolor: "rgba(255,255,255,0.5)" }
               }}
             />
 
-            {/* ✅ tags */}
             <TextField
               label="Tags (separadas por vírgula)"
               value={tagsRaw}
               onChange={(e) => setTagsRaw(e.target.value)}
               fullWidth
-              placeholder="Ex.: combate, cidade, dungeon"
+              placeholder="dungeon, boss, level-up"
+              size="small"
             />
-            {draftTags.length ? (
+            
+            {draftTags.length > 0 && (
               <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1 }}>
                 {draftTags.map((t) => (
-                  <Chip key={t} label={t} size="small" variant="outlined" />
+                  <Chip key={t} label={t} size="small" sx={{ bgcolor: "#e0d0b0" }} />
                 ))}
               </Stack>
-            ) : null}
+            )}
 
             <TextField
-              label="Resumo"
+              label="Conteúdo do Diário"
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
               fullWidth
               multiline
-              minRows={7}
-              placeholder="O grupo investigou..., encontrou..., decidiu..."
-              onKeyDown={(e) => {
-                // Ctrl+Enter salva; Enter normal mantém quebra de linha
-                if (e.key === "Enter" && e.ctrlKey) {
-                  e.preventDefault();
-                  createLog();
+              minRows={8}
+              placeholder="Escreva aqui os feitos do grupo..."
+              sx={{
+                "& .MuiInputBase-root": { 
+                  bgcolor: "rgba(255,255,255,0.3)",
+                  fontFamily: "'Merriweather', serif",
+                  fontSize: "0.95rem",
+                  lineHeight: 1.6
                 }
               }}
             />
           </Stack>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpen(false)}>Cancelar</Button>
-          <Button variant="contained" onClick={createLog} disabled={saving}>
+        <DialogActions sx={{ p: 2, borderTop: "1px solid rgba(92,64,51,0.2)", bgcolor: "rgba(92,64,51,0.05)" }}>
+          <Button onClick={() => setOpen(false)} sx={{ color: "#5c4033" }}>Cancelar</Button>
+          <Button 
+            variant="contained" 
+            onClick={createLog} 
+            disabled={saving}
+            sx={{ 
+              bgcolor: "#833c0b", 
+              fontFamily: "Cinzel", 
+              fontWeight: 700,
+              "&:hover": { bgcolor: "#5e2708" },
+            }}
+          >
             {saving ? "Salvando..." : "Salvar"}
           </Button>
         </DialogActions>

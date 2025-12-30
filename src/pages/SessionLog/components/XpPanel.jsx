@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from "react";
-import { Box, Button, Chip, Divider, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, Chip, Divider, Stack, TextField, Typography, Paper } from "@mui/material";
 import { database, firebase } from "APIs/firebaseConfig";
 import { computeLevelFromXp } from "Utils/xpTable";
 import RpgSection from "components/RpgSection";
-import { RPG_TOKENS } from "theme/rpgTokens";
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
 export default function XpPanel({ uid, linkedFichaId, sessionRef, session, setStatus }) {
   const [xpAmount, setXpAmount] = useState("");
@@ -108,93 +108,115 @@ export default function XpPanel({ uid, linkedFichaId, sessionRef, session, setSt
   };
 
   return (
-    <RpgSection
-      title="XP"
-      subtitle="Registre ganhos e aplique na ficha vinculada."
-      actions={
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ flexWrap: "wrap", gap: 1 }}>
-          <Chip
-            label={`Pendente: ${pendingXpDelta >= 0 ? `+${pendingXpDelta}` : pendingXpDelta}`}
-            variant="outlined"
-          />
-          <Button
-            variant="contained"
-            onClick={applyPendingXpToFicha}
-            disabled={!pendingXpDelta || !linkedFichaId}
-          >
-            Aplicar
-          </Button>
-        </Stack>
-      }
+    <Paper 
+      elevation={0}
+      sx={{ 
+        p: 2, 
+        borderRadius: 2, 
+        bgcolor: "#fdfbf7", 
+        border: "1px solid rgba(92, 64, 51, 0.2)",
+        position: "relative"
+      }}
     >
-      <Stack spacing={1.25}>
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
+      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+        <AutoAwesomeIcon sx={{ color: "#bf8f00" }} />
+        <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#2c1a10" }}>
+          Experiência (XP)
+        </Typography>
+      </Stack>
+
+      <Stack spacing={2}>
+        {/* Input Area */}
+        <Box sx={{ display: "flex", gap: 1 }}>
           <TextField
-            label="XP"
+            size="small"
+            label="Valor"
             value={xpAmount}
             onChange={(e) => setXpAmount(e.target.value)}
             placeholder="100"
-            sx={{ flex: 1 }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                addXpEntry();
-              }
-            }}
+            sx={{ width: 80 }}
+            type="number"
           />
           <TextField
-            label="Por quê?"
+            size="small"
+            label="Motivo"
             value={xpReason}
             onChange={(e) => setXpReason(e.target.value)}
-            placeholder="Matar 2 goblins, completar quest..."
-            sx={{ flex: 3 }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && e.ctrlKey) {
-                e.preventDefault();
-                addXpEntry();
-              }
-            }}
+            placeholder="Derrotar o Dragão..."
+            fullWidth
           />
-          <Button variant="outlined" onClick={addXpEntry}>
-            Adicionar
+          <Button 
+            variant="contained" 
+            onClick={addXpEntry}
+            sx={{ bgcolor: "#2c1a10", minWidth: 40, px: 0 }}
+          >
+            +
           </Button>
-        </Stack>
+        </Box>
 
-        <Divider />
+        {/* Pending Action */}
+        {pendingXpDelta !== 0 && (
+          <Paper 
+            elevation={0} 
+            sx={{ 
+              p: 1.5, 
+              bgcolor: "rgba(191, 143, 0, 0.1)", 
+              border: "1px dashed #bf8f00",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between"
+            }}
+          >
+            <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#833c0b" }}>
+              Total Pendente: {pendingXpDelta > 0 ? `+${pendingXpDelta}` : pendingXpDelta} XP
+            </Typography>
+            <Button 
+              size="small" 
+              variant="outlined" 
+              onClick={applyPendingXpToFicha}
+              disabled={!linkedFichaId}
+              sx={{ borderColor: "#833c0b", color: "#833c0b" }}
+            >
+              Aplicar
+            </Button>
+          </Paper>
+        )}
 
-        <Stack spacing={1}>
-          {xpEntries.length === 0 ? (
-            <Typography sx={{ opacity: 0.8 }}>Nenhuma entrada de XP.</Typography>
-          ) : (
-            xpEntries.map((e) => (
-              <Box
-                key={e.id}
-                sx={{
-                  p: 1.25,
-                  borderRadius: 2,
-                  border: RPG_TOKENS.border,
-                  background: RPG_TOKENS.cardBg,
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: 1,
-                  flexWrap: "wrap",
-                }}
-              >
-                <Typography sx={{ fontWeight: 900 }}>
+        {/* List */}
+        <Stack spacing={1} sx={{ maxHeight: 200, overflow: "auto" }}>
+          {xpEntries.map((e) => (
+            <Box
+              key={e.id}
+              sx={{
+                p: 1,
+                borderRadius: 1,
+                bgcolor: e.appliedToFichaAt ? "rgba(0,0,0,0.03)" : "#fff",
+                border: "1px solid rgba(0,0,0,0.08)",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
+              }}
+            >
+              <Box>
+                <Typography variant="body2" sx={{ fontWeight: 700, color: "#2c1a10" }}>
                   {Number(e.amount) >= 0 ? `+${e.amount}` : e.amount} XP
                 </Typography>
-                <Typography sx={{ opacity: 0.9 }}>{e.reason || "(sem motivo)"}</Typography>
-                <Chip
-                  size="small"
-                  label={e.appliedToFichaAt ? "Aplicado" : "Pendente"}
-                  color={e.appliedToFichaAt ? "success" : "default"}
-                  variant="outlined"
-                />
+                <Typography variant="caption" sx={{ color: "rgba(44, 26, 16, 0.6)" }}>
+                  {e.reason || "Sem motivo"}
+                </Typography>
               </Box>
-            ))
+              {e.appliedToFichaAt && (
+                <Chip label="Aplicado" size="small" sx={{ height: 20, fontSize: "0.6rem" }} />
+              )}
+            </Box>
+          ))}
+          {xpEntries.length === 0 && (
+            <Typography variant="caption" sx={{ textAlign: "center", fontStyle: "italic", opacity: 0.5 }}>
+              Nenhum registro de XP.
+            </Typography>
           )}
         </Stack>
       </Stack>
-    </RpgSection>
+    </Paper>
   );
 }

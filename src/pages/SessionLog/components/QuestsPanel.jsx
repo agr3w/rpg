@@ -26,6 +26,7 @@ import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import AddTaskRoundedIcon from "@mui/icons-material/AddTaskRounded";
 import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 import ExpandLessRoundedIcon from "@mui/icons-material/ExpandLessRounded";
+import MapIcon from '@mui/icons-material/Map'; // Ícone de Mapa
 import { database, firebase } from "APIs/firebaseConfig";
 import { useNavigate } from "react-router-dom";
 import QuestFlowPreview from "components/Quests/QuestFlowPreview";
@@ -462,55 +463,64 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
   };
 
   return (
-    <RpgSection
-      title="Quests"
-      subtitle="Registre quests tocadas e transforme follow-ups em objetivos."
+    <Paper
+      elevation={0}
+      sx={{
+        p: 2.5,
+        borderRadius: 2,
+        bgcolor: "#fffbf0",
+        border: "1px solid rgba(92, 64, 51, 0.2)",
+        position: "relative",
+      }}
     >
-      <Stack spacing={1.25}>
+      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+        <MapIcon sx={{ color: "#833c0b" }} />
+        <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#2c1a10" }}>
+          Quests & Missões
+        </Typography>
+      </Stack>
+
+      <Stack spacing={2}>
         {/* Form: adicionar quest */}
-        <Stack direction={{ xs: "column", md: "column" }} spacing={1} alignItems={{ md: "center", lg: "center" }}>
-          <TextField
-            freeSolo
-            value={questTitle}
-            onChange={(e) => setQuestTitle(e.target.value)}
-            label="Título da quest"
-            placeholder="Ex.: Investigar o sumiço na taverna"
-            sx={{ flex: 2, minWidth: 160 }}
-          />
+        <Paper elevation={0} sx={{ p: 1.5, bgcolor: "rgba(0,0,0,0.03)", borderRadius: 1 }}>
+          <Stack spacing={1}>
+            <TextField
+              size="small"
+              value={questTitle}
+              onChange={(e) => setQuestTitle(e.target.value)}
+              placeholder="Nova Quest (Título)"
+              fullWidth
+              sx={{ bgcolor: "#fff" }}
+            />
+            <Stack direction="row" spacing={1}>
+              <Select
+                value={questStatus}
+                onChange={(e) => setQuestStatus(e.target.value)}
+                size="small"
+                sx={{ minWidth: 100, bgcolor: "#fff" }}
+              >
+                {STATUS.map((s) => (
+                  <MenuItem key={s.value} value={s.value}>
+                    {s.label}
+                  </MenuItem>
+                ))}
+              </Select>
+              <Button variant="contained" onClick={addQuest} sx={{ bgcolor: "#833c0b", flexGrow: 1 }}>
+                Adicionar
+              </Button>
+            </Stack>
+          </Stack>
+        </Paper>
 
-          <Select
-            value={questStatus}
-            onChange={(e) => setQuestStatus(e.target.value)}
-            size="small"
-            sx={{ minWidth: 160, flex: { xs: "unset", md: 0 } }}
-          >
-            {STATUS.map((s) => (
-              <MenuItem key={s.value} value={s.value}>
-                {s.label}
-              </MenuItem>
-            ))}
-          </Select>
-
-          <TextField
-            label="Nota (opcional)"
-            value={questNote}
-            onChange={(e) => setQuestNote(e.target.value)}
-            placeholder='Ex.: "o taverneiro mentiu"'
-            sx={{ flex: 2, minWidth: 160 }}
-          />
-
-          <Button variant="outlined" onClick={addQuest}>
-            Adicionar
-          </Button>
-        </Stack>
-
-        <Divider />
+        <Divider sx={{ borderColor: "rgba(92, 64, 51, 0.1)" }} />
 
         {/* Lista: quests na sessão + plano */}
         {questsWithMaster.length === 0 ? (
-          <Typography sx={{ opacity: 0.8 }}>Nenhuma quest registrada nesta sessão.</Typography>
+          <Typography sx={{ opacity: 0.6, fontStyle: "italic", textAlign: "center" }}>
+            Nenhuma missão ativa nesta sessão.
+          </Typography>
         ) : (
-          <Stack spacing={1}>
+          <Stack spacing={1.5}>
             {questsWithMaster.map(({ row: q, master }) => {
               const qid = q?.questId || "";
               const isOpen = Boolean(expanded[qid]);
@@ -523,119 +533,85 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
                   key={q.id}
                   elevation={0}
                   sx={{
-                    p: 1.25,
-                    borderRadius: 2.5,
-                    border: RPG_TOKENS.border,
-                    background: RPG_TOKENS.cardBg,
+                    p: 2,
+                    borderRadius: 1,
+                    bgcolor: "#fff",
+                    border: "1px solid rgba(92, 64, 51, 0.15)",
+                    borderLeft: `4px solid ${q.status === 'concluida' ? '#2e7d32' : '#ed6c02'}`,
+                    transition: "transform 0.2s",
+                    "&:hover": { transform: "translateX(2px)" }
                   }}
                 >
                   <Stack spacing={1}>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        gap: 1,
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      <Stack spacing={0.25} sx={{ minWidth: 0 }}>
-                        <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: 0, flexWrap: "wrap", gap: 1 }}>
-                          <Chip label="Quest" size="small" variant="outlined" />
-                          <Chip
-                            label={STATUS.find((s) => s.value === q.status)?.label || "Pendente"}
-                            size="small"
-                            color={statusColor(q.status)}
-                            variant="outlined"
-                          />
-                          <Typography sx={{ fontWeight: 900, color: "#2c1a10" }} noWrap title={q.title || ""}>
-                            {q.title || "—"}
-                          </Typography>
-                        </Stack>
-
-                        {q.note ? (
-                          <Typography variant="caption" sx={{ opacity: 0.85 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                      <Box>
+                        <Typography variant="subtitle1" sx={{ fontFamily: "Cinzel", fontWeight: 700, color: "#2c1a10", lineHeight: 1.2 }}>
+                          {q.title || "—"}
+                        </Typography>
+                        {q.note && (
+                          <Typography variant="caption" sx={{ color: "rgba(44, 26, 16, 0.7)", display: "block", mt: 0.5 }}>
                             Nota: {q.note}
                           </Typography>
-                        ) : null}
-
-                        {qid && overall.total ? (
-                          <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 0.5, flexWrap: "wrap", gap: 1 }}>
-                            <Chip size="small" label={`Objetivos: ${overall.done}/${overall.total}`} variant="outlined" />
-                            <Box sx={{ width: 180 }}>
-                              <LinearProgress variant="determinate" value={overall.pct} sx={{ height: 10, borderRadius: 2 }} />
-                            </Box>
-                          </Stack>
-                        ) : null}
-                      </Stack>
-
-                      <Stack direction="row" spacing={0.5} alignItems="center">
-                        <Select
-                          value={q.status || "pendente"}
-                          onChange={(e) => updateQuestStatus(q, e.target.value)}
-                          size="small"
-                          sx={{ height: 32 }}
-                        >
-                          {STATUS.map((s) => (
-                            <MenuItem key={s.value} value={s.value}>
-                              {s.label}
-                            </MenuItem>
-                          ))}
-                        </Select>
-
-                        <Tooltip title="Abrir quest">
-                          <span>
-                            <IconButton size="small" onClick={() => openQuest(qid)} disabled={!qid}>
-                              <OpenInNewRoundedIcon fontSize="small" />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-
-                        <Tooltip title="Adicionar follow-up (objetivo)">
-                          <span>
-                            <IconButton size="small" onClick={() => openObjectiveDialog(q)} disabled={!qid}>
-                              <AddTaskRoundedIcon fontSize="small" />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-
-                        <Tooltip title="Marcar concluída">
-                          <span>
-                            <IconButton size="small" onClick={() => markConcluded(q)} disabled={q.status === "concluida"}>
-                              <CheckCircleRoundedIcon fontSize="small" />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-
-                        <Tooltip title={isOpen ? "Ocultar objetivos" : "Ver objetivos"}>
-                          <span>
-                            <IconButton size="small" onClick={() => toggleExpanded(qid)} disabled={!qid}>
-                              {isOpen ? <ExpandLessRoundedIcon fontSize="small" /> : <ExpandMoreRoundedIcon fontSize="small" />}
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-
-                        <Tooltip title="Remover da sessão">
-                          <IconButton size="small" onClick={() => removeQuestFromSession(q.id)}>
-                            <DeleteRoundedIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      </Stack>
+                        )}
+                      </Box>
+                      <Chip 
+                        label={STATUS.find((s) => s.value === q.status)?.label} 
+                        size="small" 
+                        color={statusColor(q.status)} 
+                        variant="outlined"
+                        sx={{ height: 20, fontSize: "0.65rem", fontWeight: 700 }}
+                      />
                     </Box>
 
-                    <Collapse in={isOpen} timeout="auto" unmountOnExit>
-                      <Divider sx={{ my: 1 }} />
+                    {/* Barra de Progresso Visual */}
+                    {qid && overall.total > 0 && (
+                      <Box sx={{ mt: 1 }}>
+                        <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                          <Typography variant="caption" sx={{ fontWeight: 700, color: "#833c0b" }}>Progresso</Typography>
+                          <Typography variant="caption">{overall.done}/{overall.total}</Typography>
+                        </Stack>
+                        <LinearProgress 
+                          variant="determinate" 
+                          value={overall.pct} 
+                          sx={{ 
+                            height: 6, 
+                            borderRadius: 3, 
+                            bgcolor: "rgba(0,0,0,0.1)",
+                            "& .MuiLinearProgress-bar": { bgcolor: "#833c0b" }
+                          }} 
+                        />
+                      </Box>
+                    )}
 
-                      {!qid ? (
-                        <Typography sx={{ opacity: 0.8 }}>Sem questId.</Typography>
-                      ) : (
+                    <Divider sx={{ borderStyle: "dashed" }} />
+
+                    {/* Ações Rápidas */}
+                    <Stack direction="row" justifyContent="flex-end" spacing={0}>
+                      <Tooltip title="Ver Detalhes">
+                        <IconButton size="small" onClick={() => openQuest(qid)}><OpenInNewRoundedIcon fontSize="small" /></IconButton>
+                      </Tooltip>
+                      <Tooltip title="Adicionar Objetivo">
+                        <IconButton size="small" onClick={() => openObjectiveDialog(q)}><AddTaskRoundedIcon fontSize="small" /></IconButton>
+                      </Tooltip>
+                      <Tooltip title="Concluir">
+                        <IconButton size="small" onClick={() => markConcluded(q)} color={q.status === 'concluida' ? 'success' : 'default'}><CheckCircleRoundedIcon fontSize="small" /></IconButton>
+                      </Tooltip>
+                      <Tooltip title="Expandir">
+                        <IconButton size="small" onClick={() => toggleExpanded(qid)}>
+                          {isOpen ? <ExpandLessRoundedIcon fontSize="small" /> : <ExpandMoreRoundedIcon fontSize="small" />}
+                        </IconButton>
+                      </Tooltip>
+                    </Stack>
+
+                    <Collapse in={isOpen} timeout="auto" unmountOnExit>
+                      <Box sx={{ mt: 1, p: 1, bgcolor: "rgba(0,0,0,0.02)", borderRadius: 1 }}>
                         <QuestFlowPreview
                           milestonesObj={milestonesObj}
                           previewMilestones={2}
                           previewTodos={6}
                           onToggleTodo={(milestoneId, todo) => toggleTodo(qid, milestoneId, todo)}
                         />
-                      )}
+                      </Box>
                     </Collapse>
                   </Stack>
                 </Paper>
@@ -645,56 +621,38 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
         )}
 
         {/* Modal: adicionar objetivo (to-do) */}
-        <Dialog open={objectiveOpen} onClose={() => setObjectiveOpen(false)} maxWidth="sm" fullWidth>
-          <DialogTitle>Adicionar follow-up (objetivo)</DialogTitle>
-          <DialogContent dividers>
-            <Stack spacing={1.25} sx={{ mt: 1 }}>
-              <Typography variant="body2" sx={{ opacity: 0.85 }}>
+        <Dialog 
+          open={objectiveOpen} 
+          onClose={() => setObjectiveOpen(false)} 
+          maxWidth="sm" 
+          fullWidth
+          PaperProps={{ sx: { bgcolor: "#fffbf0", border: "4px double #5c4033" } }}
+        >
+          <DialogTitle sx={{ fontFamily: "Cinzel", color: "#58180D" }}>Novo Objetivo</DialogTitle>
+          <DialogContent>
+            <Stack spacing={2} sx={{ mt: 1 }}>
+              <Typography variant="body2">
                 Quest: <strong>{objectiveQuest?.title || "—"}</strong>
               </Typography>
-
-              <Select
-                value={objectiveMilestoneId}
-                onChange={(e) => setObjectiveMilestoneId(e.target.value)}
-                size="small"
-                sx={{ width: "fit-content" }}
-                displayEmpty
-              >
-                <MenuItem value="">
-                  <em>(Criar/usar “Próximos passos”)</em>
-                </MenuItem>
-
-                {(() => {
-                  const master = objectiveQuest?.questId ? questMap[objectiveQuest.questId] : null;
-                  const mObj = master?.flow?.milestones || {};
-                  const mArr = Object.values(mObj).filter(Boolean).sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
-                  return mArr.map((m) => (
-                    <MenuItem key={m.id} value={m.id}>
-                      {m.title}
-                    </MenuItem>
-                  ));
-                })()}
-              </Select>
-
               <TextField
-                label="Follow-up (to-do)"
+                label="O que precisa ser feito?"
                 value={objectiveText}
                 onChange={(e) => setObjectiveText(e.target.value)}
                 fullWidth
                 multiline
-                minRows={3}
-                placeholder='Ex.: "Voltar à taverna e confrontar o dono"'
+                minRows={2}
+                sx={{ bgcolor: "#fff" }}
               />
             </Stack>
           </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setObjectiveOpen(false)}>Cancelar</Button>
-            <Button variant="contained" onClick={createObjectiveTodo} sx={{ fontWeight: 900 }}>
+          <DialogActions sx={{ bgcolor: "rgba(92,64,51,0.05)" }}>
+            <Button onClick={() => setObjectiveOpen(false)} sx={{ color: "#5c4033" }}>Cancelar</Button>
+            <Button variant="contained" onClick={createObjectiveTodo} sx={{ bgcolor: "#833c0b" }}>
               Adicionar
             </Button>
           </DialogActions>
         </Dialog>
       </Stack>
-    </RpgSection>
+    </Paper>
   );
 }

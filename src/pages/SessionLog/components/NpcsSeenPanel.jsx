@@ -8,11 +8,12 @@ import {
   TextField,
   Tooltip,
   Typography,
-  Chip,
   Autocomplete,
+  Paper,
 } from "@mui/material";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
+import PersonSearchIcon from '@mui/icons-material/PersonSearch'; // Ícone temático
 import { database, firebase } from "APIs/firebaseConfig";
 import { useNavigate } from "react-router-dom";
 import RpgSection from "components/RpgSection";
@@ -163,84 +164,109 @@ export default function NpcsSeenPanel({ uid, campaignId, sessionRef, session, se
   };
 
   return (
-    <RpgSection title="NPCs vistos" subtitle="Registre quem apareceu e uma nota rápida.">
-      <Stack spacing={1.25}>
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems={{ sm: "center" }}>
+    <Paper
+      elevation={0}
+      sx={{
+        p: 2,
+        borderRadius: 2,
+        bgcolor: "#fdfbf7",
+        border: "1px solid rgba(92, 64, 51, 0.2)",
+      }}
+    >
+      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+        <PersonSearchIcon sx={{ color: "#bf8f00" }} />
+        <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#2c1a10" }}>
+          NPCs Encontrados
+        </Typography>
+      </Stack>
+
+      <Stack spacing={2}>
+        {/* Área de Input Compacta */}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
           <Autocomplete
             freeSolo
             options={options}
             value={npcName}
             onInputChange={(_, v) => setNpcName(v)}
             renderInput={(params) => (
-              <TextField {...params} label="Nome do NPC" placeholder="Ex.: Mestre da Taverna" />
+              <TextField 
+                {...params} 
+                label="Nome do NPC" 
+                placeholder="Ex.: Mestre da Taverna" 
+                size="small"
+                sx={{ bgcolor: "#fff" }}
+              />
             )}
-            sx={{ flex: 1 }}
           />
-          <TextField
-            label="Nota rápida (opcional)"
-            value={quickNote}
-            onChange={(e) => setQuickNote(e.target.value)}
-            placeholder='Ex.: "parece suspeito"'
-            sx={{ flex: 1 }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                addNpc();
-              }
-            }}
-          />
-          <Button variant="outlined" onClick={addNpc}>
-            Adicionar
-          </Button>
-        </Stack>
+          <Stack direction="row" spacing={1}>
+            <TextField
+              label="Nota rápida"
+              value={quickNote}
+              onChange={(e) => setQuickNote(e.target.value)}
+              placeholder='Ex.: "Suspeito..."'
+              size="small"
+              fullWidth
+              sx={{ bgcolor: "#fff" }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  addNpc();
+                }
+              }}
+            />
+            <Button 
+              variant="contained" 
+              onClick={addNpc}
+              sx={{ bgcolor: "#2c1a10", minWidth: 80 }}
+            >
+              Add
+            </Button>
+          </Stack>
+        </Box>
 
-        <Divider />
+        <Divider sx={{ borderColor: "rgba(92, 64, 51, 0.1)" }} />
 
+        {/* Lista de NPCs */}
         {npcsSeen.length === 0 ? (
-          <Typography sx={{ opacity: 0.8 }}>Nenhum NPC marcado nesta sessão.</Typography>
+          <Typography variant="caption" sx={{ textAlign: "center", fontStyle: "italic", opacity: 0.5 }}>
+            Ninguém digno de nota apareceu.
+          </Typography>
         ) : (
-          <Stack spacing={1}>
+          <Stack spacing={0.5}>
             {npcsSeen.map((n) => (
               <Box
                 key={n.id}
                 sx={{
-                  p: 1.1,
-                  borderRadius: 2,
-                  border: RPG_TOKENS.border,
-                  background: RPG_TOKENS.cardBg,
+                  p: 1,
+                  borderRadius: 1,
+                  borderBottom: "1px dashed rgba(92, 64, 51, 0.2)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
                   gap: 1,
-                  flexWrap: "wrap",
+                  "&:last-child": { borderBottom: "none" }
                 }}
               >
-                <Stack spacing={0.25} sx={{ minWidth: 0 }}>
-                  <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: 0 }}>
-                    <Chip label="NPC" size="small" variant="outlined" />
-                    <Typography sx={{ fontWeight: 900, color: RPG_TOKENS.ink }} noWrap>
-                      {n.name || "—"}
+                <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#2c1a10", lineHeight: 1.2 }}>
+                    {n.name || "—"}
+                  </Typography>
+                  {n.note && (
+                    <Typography variant="caption" sx={{ color: "rgba(44, 26, 16, 0.7)", fontStyle: "italic" }}>
+                      "{n.note}"
                     </Typography>
-                  </Stack>
+                  )}
+                </Box>
 
-                  {n.note ? (
-                    <Typography variant="caption" sx={{ opacity: 0.85 }}>
-                      Nota: {n.note}
-                    </Typography>
-                  ) : null}
-                </Stack>
-
-                <Stack direction="row" spacing={0.5} alignItems="center">
-                  <Tooltip title="Abrir detalhes do NPC">
-                    <span>
-                      <IconButton size="small" onClick={() => openNpc(n)} disabled={!n.npcId}>
-                        <OpenInNewRoundedIcon fontSize="small" />
-                      </IconButton>
-                    </span>
+                <Stack direction="row" spacing={0}>
+                  <Tooltip title="Ver Detalhes">
+                    <IconButton size="small" onClick={() => openNpc(n)} disabled={!n.npcId} sx={{ color: "#833c0b" }}>
+                      <OpenInNewRoundedIcon fontSize="small" />
+                    </IconButton>
                   </Tooltip>
 
-                  <Tooltip title="Remover da sessão">
-                    <IconButton size="small" onClick={() => removeNpc(n.id)}>
+                  <Tooltip title="Remover">
+                    <IconButton size="small" onClick={() => removeNpc(n.id)} sx={{ color: "rgba(44, 26, 16, 0.4)" }}>
                       <DeleteRoundedIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>
@@ -250,6 +276,6 @@ export default function NpcsSeenPanel({ uid, campaignId, sessionRef, session, se
           </Stack>
         )}
       </Stack>
-    </RpgSection>
+    </Paper>
   );
 }

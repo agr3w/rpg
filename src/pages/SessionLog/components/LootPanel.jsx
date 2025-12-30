@@ -10,9 +10,12 @@ import {
   FormControl,
   InputLabel,
   CircularProgress,
+  Paper,
+  Box
 } from "@mui/material";
 import { database, firebase } from "APIs/firebaseConfig";
 import RpgSection from "components/RpgSection";
+import Inventory2Icon from '@mui/icons-material/Inventory2';
 
 export default function LootPanel({
   uid,
@@ -121,74 +124,98 @@ export default function LootPanel({
   };
 
   return (
-    <RpgSection
-      title="Loot"
-      subtitle="Adicione recompensas desta sessão direto na mochila da ficha vinculada."
+    <Paper
+      elevation={0}
+      sx={{
+        p: 2,
+        borderRadius: 2,
+        bgcolor: "#fdfbf7",
+        border: "1px solid rgba(92, 64, 51, 0.2)",
+      }}
     >
-      <Stack spacing={1.25}>
-        <Stack direction={{ xs: "column", md: "row" }} spacing={1} alignItems={{ md: "flex-end" }}>
-          <TextField
-            label="Item"
-            value={itemName}
-            onChange={(e) => setItemName(e.target.value)}
-            placeholder="Ex.: Espada longa +1"
-            sx={{ flex: 2, minWidth: 200 }}
-          />
+      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+        <Inventory2Icon sx={{ color: "#bf8f00" }} />
+        <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#2c1a10" }}>
+          Tesouros & Loot
+        </Typography>
+      </Stack>
 
-          <TextField
-            label="Qtd."
-            type="number"
-            value={qty}
-            onChange={(e) => setQty(e.target.value)}
-            sx={{ width: 110 }}
-            inputProps={{ min: 1 }}
-          />
-
-          <FormControl sx={{ minWidth: 200 }}>
-            <InputLabel id="loot-ficha-label">Ficha</InputLabel>
-            <Select
-              labelId="loot-ficha-label"
-              label="Ficha"
-              value={targetFichaId}
-              onChange={(e) => setTargetFichaId(e.target.value)}
+      <Stack spacing={2}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          <Stack direction="row" spacing={1}>
+            <TextField
+              size="small"
+              label="Item"
+              value={itemName}
+              onChange={(e) => setItemName(e.target.value)}
+              placeholder="Espada +1"
+              fullWidth
+            />
+            <TextField
+              size="small"
+              label="Qtd"
+              type="number"
+              value={qty}
+              onChange={(e) => setQty(e.target.value)}
+              sx={{ width: 70 }}
+            />
+          </Stack>
+          
+          <Stack direction="row" spacing={1}>
+            <FormControl size="small" fullWidth>
+              <InputLabel>Destino (Ficha)</InputLabel>
+              <Select
+                value={targetFichaId}
+                label="Destino (Ficha)"
+                onChange={(e) => setTargetFichaId(e.target.value)}
+              >
+                {fichasOptions.map((f) => (
+                  <MenuItem key={f.id} value={f.id}>{f.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Button
+              variant="contained"
+              onClick={handleAddLoot}
+              disabled={!itemName.trim() || !targetFichaId || saving}
+              sx={{ bgcolor: "#2c1a10", minWidth: 100 }}
             >
-              {fichasOptions.map((f) => (
-                <MenuItem key={f.id} value={f.id}>
-                  {f.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <Button
-            variant="contained"
-            onClick={handleAddLoot}
-            disabled={!itemName.trim() || !targetFichaId || saving}
-            sx={{ fontWeight: 900, whiteSpace: "nowrap" }}
-          >
-            {saving ? "Salvando…" : "Adicionar loot"}
-          </Button>
-        </Stack>
+              Salvar
+            </Button>
+          </Stack>
+        </Box>
 
         <Divider />
 
         {loading ? (
-          <Stack direction="row" spacing={1} alignItems="center">
-            <CircularProgress size={18} />
-            <Typography sx={{ opacity: 0.8 }}>Carregando loot…</Typography>
-          </Stack>
+          <CircularProgress size={20} sx={{ alignSelf: "center" }} />
         ) : lootList.length === 0 ? (
-          <Typography sx={{ opacity: 0.8 }}>Nenhum loot registrado nesta sessão.</Typography>
+          <Typography variant="caption" sx={{ textAlign: "center", fontStyle: "italic", opacity: 0.5 }}>
+            Nenhum tesouro encontrado.
+          </Typography>
         ) : (
           <Stack spacing={0.5}>
             {lootList.map((l) => (
-              <Typography key={l.id} variant="body2" sx={{ opacity: 0.9 }}>
-                {`${l.qty || 1}× ${l.name}`} — {fichasById[l.targetFichaId]?.nome || l.targetFichaId}
-              </Typography>
+              <Box 
+                key={l.id} 
+                sx={{ 
+                  display: "flex", 
+                  justifyContent: "space-between", 
+                  p: 0.5, 
+                  borderBottom: "1px dashed rgba(0,0,0,0.1)" 
+                }}
+              >
+                <Typography variant="body2" sx={{ fontWeight: 600, color: "#2c1a10" }}>
+                  {l.qty}x {l.name}
+                </Typography>
+                <Typography variant="caption" sx={{ color: "#833c0b" }}>
+                  → {fichasById[l.targetFichaId]?.nome || "Desconhecido"}
+                </Typography>
+              </Box>
             ))}
           </Stack>
         )}
       </Stack>
-    </RpgSection>
+    </Paper>
   );
 }
