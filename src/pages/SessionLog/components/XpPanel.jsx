@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Box, Button, Chip, Divider, Stack, TextField, Typography } from "@mui/material";
 import { database, firebase } from "APIs/firebaseConfig";
 import { computeLevelFromXp } from "Utils/xpTable";
-import RpgSection from "./RpgSection";
+import RpgSection from "components/RpgSection";
 import { RPG_TOKENS } from "theme/rpgTokens";
 
 export default function XpPanel({ uid, linkedFichaId, sessionRef, session, setStatus }) {

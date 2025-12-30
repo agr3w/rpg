@@ -26,7 +26,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { auth } from "APIs/firebaseConfig";
 import { T_IN } from "config/transitions";
 import { motion } from "framer-motion";
-import RpgSection from "./components/RpgSection";
+import RpgSection from "components/RpgSection";
 import { RPG_TOKENS } from "theme/rpgTokens";
 import { createSessionLog, ensureCampaignMeta, listenSessionLogs } from "service/sessionLogService";
 

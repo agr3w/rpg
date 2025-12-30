@@ -12,7 +12,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { database, firebase } from "APIs/firebaseConfig";
-import RpgSection from "./RpgSection";
+import RpgSection from "components/RpgSection";
 
 export default function LootPanel({
   uid,

@@ -1,41 +1,46 @@
 import React from "react";
-import { FaTrash } from "react-icons/fa";
-import styles from "./FoldersCard.module.css";
+import { Card, CardActionArea, CardContent, CardActions, Typography, Button, Stack } from "@mui/material";
+import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
+import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
+import { Link as RouterLink } from "react-router-dom";
 import { deleteArrayFolder } from "../folderDelete";
-import { Link } from "react-router-dom";
-import { Button } from "@mui/material";
-// import { deleteFolder, deleteArrayFolder } from '../FolderDelete';
+import styles from "./FoldersCard.module.css";
 
 const FoldersCard = ({ folder }) => {
   const handleDeleteFolder = () => {
     deleteArrayFolder(folder.id);
-    window.location.reload();
+    window.location.reload(); // mantém comportamento atual (depois podemos remover via Context)
   };
 
   return (
-    <div className={styles.folderContainer}>
-      <div className={styles.foldersCard}>
-        <p>Nome da Pasta: <span>{folder.name}</span></p>
-        <div className={styles.linkFolder}>
-          <Link to={`/folders/${folder.id}`} className={styles.link}>
-            <img
-              src="https://www.iconpacks.net/icons/2/free-folder-icon-1437-thumb.png"
-              alt=""
-              width={100}
-            />
-          </Link>
-        </div>
+    <Card>
+      <CardActionArea component={RouterLink} to={`/folders/${folder.id}`}>
+        <CardContent>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <FolderRoundedIcon />
+            <Typography sx={{ fontWeight: 950 }} noWrap>
+              {folder?.name || "Pasta"}
+            </Typography>
+          </Stack>
+
+          <Typography variant="caption" sx={{ opacity: 0.75 }}>
+            Abrir pasta
+          </Typography>
+        </CardContent>
+      </CardActionArea>
+
+      <CardActions sx={{ px: 2, pb: 2 }}>
         <Button
           onClick={handleDeleteFolder}
-          className={styles.deleteButton}
           variant="contained"
           color="secondary"
-          startIcon={<FaTrash size={16} />}
+          startIcon={<DeleteRoundedIcon />}
+          fullWidth
         >
-          Deletar Pasta
+          Deletar
         </Button>
-      </div>
-    </div>
+      </CardActions>
+    </Card>
   );
 };
 

@@ -1,23 +1,25 @@
 // NoteAddGlobal.jsx
 
-import React, { useState } from "react";
-import styles from "../NoteAdd/NoteAdd.module.css";
-import { useNoteContext } from "APIs/NoteContext";
-import { Button } from "@mui/material";
+import React, { useRef, useState } from "react";
+import { Stack, Button, Typography } from "@mui/material";
 import { CloudUpload } from "@mui/icons-material";
+import { useNoteContext } from "APIs/NoteContext";
 import { storage, auth } from "APIs/firebaseConfig";
 
-const NoteAddGlobal = () => {
+const NoteAddGlobal = ({ onNoteAdded }) => {
   const { addNote } = useNoteContext();
+  const inputRef = useRef(null);
+
   const [noteFile, setNoteFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleFileChange = (e) => {
-    setNoteFile(e.target.files[0] || null);
+    setNoteFile(e.target.files?.[0] || null);
   };
 
   const handleAddNote = async () => {
     if (!noteFile) return;
+
     setLoading(true);
     try {
       const user = auth.currentUser;
@@ -37,7 +39,10 @@ const NoteAddGlobal = () => {
       };
 
       await addNote(newNote);
+      onNoteAdded?.(newNote);
+
       setNoteFile(null);
+      if (inputRef.current) inputRef.current.value = "";
     } catch (err) {
       console.error("Erro ao adicionar anotação global:", err);
       alert("Erro ao adicionar anotação.");
@@ -47,17 +52,33 @@ const NoteAddGlobal = () => {
   };
 
   return (
-    <div className={styles.noteAdd}>
-      <label className={`${styles.fileInputLabel} ${noteFile ? styles.fileInputSelected : ""}`}>
-        <span className={styles.customFileInputButton}>
-          {noteFile ? "Arquivo Selecionado" : "Selecionar Arquivo"}
-        </span>
-        <input type="file" accept=".pdf,.doc,.docx,.txt" onChange={handleFileChange} className={styles.fileInput} />
-      </label>
-      <Button className={styles.addButton} onClick={handleAddNote} disabled={!noteFile || loading} variant="contained" startIcon={<CloudUpload />}>
-        {loading ? "Carregando..." : "Adicionar Anotação"}
-      </Button>
-    </div>
+    <Stack spacing={1} sx={{ flex: 1, minWidth: { xs: "100%", md: 360 } }}>
+      <Stack direction="row" spacing={1} alignItems="center" sx={{ flexWrap: "wrap", gap: 1 }}>
+        <Button variant="outlined" component="label" disabled={loading}>
+          Selecionar arquivo
+          <input
+            ref={inputRef}
+            type="file"
+            hidden
+            accept=".pdf,.doc,.docx,.txt"
+            onChange={handleFileChange}
+          />
+        </Button>
+
+        <Button
+          variant="contained"
+          startIcon={<CloudUpload />}
+          onClick={handleAddNote}
+          disabled={!noteFile || loading}
+        >
+          {loading ? "Carregando..." : "Adicionar anotação"}
+        </Button>
+      </Stack>
+
+      <Typography variant="caption" sx={{ opacity: 0.8 }}>
+        {noteFile ? `Selecionado: ${noteFile.name}` : "Nenhum arquivo selecionado."}
+      </Typography>
+    </Stack>
   );
 };
 

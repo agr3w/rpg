@@ -2,10 +2,17 @@ export const ROUTE_TO_ELEMENT = {
   "/": "parchment",
   "/fichas": "fire",
   "/criar-ficha": "fire",
+  "/ficha-completa": "fire",
+
   "/livros": "lightning",
   "/mapas": "poison",
   "/anotacoes": "ice",
   "/musicas": "void",
+
+  "/perfil": "parchment",
+  "/diario": "parchment",
+  "/quests": "parchment",
+  "/npcs": "parchment",
 };
 
 export function getElementFromPath(pathname) {

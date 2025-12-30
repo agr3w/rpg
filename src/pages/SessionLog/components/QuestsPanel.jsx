@@ -31,7 +31,7 @@ import { useNavigate } from "react-router-dom";
 import QuestFlowPreview from "components/Quests/QuestFlowPreview";
 import { computeFlowProgress } from "components/Quests/questFlowUtils";
 import { RPG_TOKENS } from "theme/rpgTokens";
-import RpgSection from "./RpgSection";
+import RpgSection from "components/RpgSection";
 
 function normalizeKey(name) {
   return String(name || "")

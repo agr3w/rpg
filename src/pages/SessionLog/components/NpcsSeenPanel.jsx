@@ -15,7 +15,7 @@ import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 import { database, firebase } from "APIs/firebaseConfig";
 import { useNavigate } from "react-router-dom";
-import RpgSection from "./RpgSection";
+import RpgSection from "components/RpgSection";
 import { RPG_TOKENS } from "theme/rpgTokens";
 
 function normalizeKey(name) {

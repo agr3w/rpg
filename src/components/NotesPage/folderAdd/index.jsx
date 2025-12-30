@@ -1,8 +1,6 @@
 import { useFolderContext } from "APIs/FolderContext";
-import styles from "./folderAdd.module.css";
-import { Button, TextField } from "@mui/material";
+import { Button, Stack, TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-
 import { useState } from "react";
 
 export const FolderAdd = () => {
@@ -10,36 +8,36 @@ export const FolderAdd = () => {
   const [folderName, setFolderName] = useState("");
 
   const handleAddFolder = async () => {
-    if (folderName) {
-      if (folderName.trim() !== "") {
-        addFolder({ name: folderName, notes: [] });
-        setFolderName("");
-      }
+    const name = String(folderName || "").trim();
+    if (!name) return;
 
-      setFolderName("");
-    }
+    await addFolder({ name, notes: [] });
+    setFolderName("");
   };
-  
+
   return (
-    <div className={styles.folderAddContainer}>
-      <div className={styles.folderAdd}>
-        <TextField
-          type="text"
-          placeholder="Nome da Pasta"
-          value={folderName}
-          onChange={(e) => setFolderName(e.target.value)}
-          variant="outlined"
-        />
-        <Button
-          onClick={handleAddFolder}
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          disabled={folderName.trim() === ""}
-        >
-          Adicionar Pasta
-        </Button>
-      </div>
-    </div>
+    <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ minWidth: { xs: "100%", md: 360 } }}>
+      <TextField
+        label="Nova pasta"
+        value={folderName}
+        onChange={(e) => setFolderName(e.target.value)}
+        fullWidth
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            handleAddFolder();
+          }
+        }}
+      />
+      <Button
+        onClick={handleAddFolder}
+        variant="contained"
+        startIcon={<AddIcon />}
+        disabled={folderName.trim() === ""}
+        sx={{ whiteSpace: "nowrap" }}
+      >
+        Adicionar pasta
+      </Button>
+    </Stack>
   );
 };

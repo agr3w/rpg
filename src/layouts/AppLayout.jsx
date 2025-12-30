@@ -7,6 +7,7 @@ import { useAuth } from "contexts/AuthContext";
 import { usePreferences } from "contexts/PreferencesContext";
 import Nav from "components/nav";
 import DragonTransition from "components/DragonTransition";
+import RouteBackground from "components/RouteBackground";
 
 import { ELEMENT_VARS, getElementFromPath } from "theme/elementTokens";
 import { T_IN, T_OUT } from "../config/transitions";
@@ -22,10 +23,13 @@ export default function AppLayout() {
   const useSimpleTransition = prefs.reduceMotion || prefs.pageTransition === "simple";
 
   return (
-    <Box sx={{ minHeight: "100vh", ...vars }}>
+    <Box sx={{ minHeight: "100vh", ...vars, position: "relative" }}>
+      {/* ✅ background animado por rota */}
+      <RouteBackground forceReduceMotion={Boolean(prefs.reduceMotion)} />
+
       {usuarioAutenticado ? <Nav /> : null}
 
-      <Box sx={{ position: "relative", overflowX: "hidden" }}>
+      <Box sx={{ position: "relative", overflowX: "hidden", zIndex: 1 }}>
         <AnimatePresence mode="wait" initial={false}>
           {useSimpleTransition ? (
             <Box

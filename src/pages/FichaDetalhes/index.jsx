@@ -30,6 +30,7 @@ import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import { classes, racas } from "Array/RacaEClasse";
 import styles from "./fichaDetalhe.module.css";
 import { backgrounds } from "./backgounds/arrayLinksBackgrounds";
+import { getClassBackgroundUrl } from "./backgounds/classBackgrounds";
 import { motion } from "framer-motion";
 import { auth } from "APIs/firebaseConfig";
 import FichaInventory from "components/FichaDetalhes/FichaInventory";
@@ -113,7 +114,7 @@ const FichaDetalhes = () => {
   useEffect(() => {
     setBgLoaded(false);
     if (!ficha) return;
-    const url = backgrounds[ficha.classe];
+    const url = getClassBackgroundUrl(ficha.classe); // ✅ imagem local da classe
     if (!url) {
       setBgLoaded(true);
       return;

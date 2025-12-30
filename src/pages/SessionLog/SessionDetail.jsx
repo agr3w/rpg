@@ -11,7 +11,7 @@ import NpcsSeenPanel from "./components/NpcsSeenPanel";
 import QuestsPanel from "./components/QuestsPanel";
 import LootPanel from "./components/LootPanel";
 
-import RpgSection from "./components/RpgSection";
+import RpgSection from "components/RpgSection";
 
 const DEFAULT_CAMPAIGN_ID = "default";
 

@@ -1,12 +1,8 @@
 import React from "react";
-import styles from "./NoteCard.module.css";
-import iconeNote from "./IconeNote.png"
-import {
-  deleteNote,
-  deleteArrayNote,
-} from "../NoteDelete";
-import { Link } from "react-router-dom";
+import { Card, CardActionArea, CardContent, Typography, Stack } from "@mui/material";
+import DescriptionRoundedIcon from "@mui/icons-material/DescriptionRounded";
 import DeleteButton from "../buttonsOfDelete/noteCommom";
+import { deleteNote, deleteArrayNote } from "../NoteDelete";
 
 const NoteCard = ({ note }) => {
   const handleDeleteNote = () => {
@@ -15,25 +11,26 @@ const NoteCard = ({ note }) => {
   };
 
   return (
-    <div className={styles.noteCard}>
-      <p>{note.title}</p>
-      <div className={styles.link_img}>
-        <Link to={note.url}>
-          <img
-            src={iconeNote}
-            alt=""
-            width={100}
-          />
-        </Link>
-      </div>
-      <DeleteButton
-        onDeleteOutsideFolder={handleDeleteNote}
-        showInsideFolderButton={false}
-      />
-      {/* <button onClick={handleDeleteNote} className={styles.deleteButton}>
-        <FaTrash size={16} /> Deletar Anotação
-      </button> */}
-    </div>
+    <Card>
+      <CardActionArea component="a" href={note.url} target="_blank" rel="noreferrer">
+        <CardContent>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <DescriptionRoundedIcon />
+            <Typography sx={{ fontWeight: 900 }} noWrap>
+              {note.title || "Anotação"}
+            </Typography>
+          </Stack>
+
+          <Typography variant="caption" sx={{ opacity: 0.75 }}>
+            Abrir arquivo
+          </Typography>
+        </CardContent>
+      </CardActionArea>
+
+      <CardContent sx={{ pt: 0 }}>
+        <DeleteButton onDeleteOutsideFolder={handleDeleteNote} showInsideFolderButton={false} />
+      </CardContent>
+    </Card>
   );
 };
 

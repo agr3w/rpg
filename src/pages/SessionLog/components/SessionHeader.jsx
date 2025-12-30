@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import RpgSection from "./RpgSection";
+import RpgSection from "components/RpgSection";
 
 export default function SessionHeader({
   uid,
