@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Box, Paper, Typography, Button, Stack } from "@mui/material";
 import { motion } from "framer-motion";
 import { calcularRiquezaInicialPorClasse } from "Utils/DiceRoller";
+import LayoutFicha from "components/FichaLayout/LayoutFicha"; // ✅ Usando LayoutFicha
 
 export default function Etapa9({
   classeSelecionada,
@@ -9,12 +10,11 @@ export default function Etapa9({
   riquezaInicial,
   setRiquezaInicial = () => {},
 }) {
-  // garante que o valor exibido nunca seja 0 (começa em 1)
   const [animando, setAnimando] = useState(false);
   const [displayValue, setDisplayValue] = useState(
     typeof riquezaInicial === "number" && riquezaInicial > 0 ? riquezaInicial : 1
   );
-  const [clickedOnce, setClickedOnce] = useState(false); // só pode clicar uma vez
+  const [clickedOnce, setClickedOnce] = useState(false);
   const timeoutRef = useRef(null);
   const rafRef = useRef(null);
 
@@ -49,57 +49,37 @@ export default function Etapa9({
   };
 
   const calcularRiquezaInicial = () => {
-    // previne múltiplos cliques
     if (animando || clickedOnce) return;
-
     setClickedOnce(true);
-
     const classKey = classKeyFromProp(classeSelecionada);
-
-    // debug: conferir o que está chegando
-    console.debug("[Etapa9] classeSelecionada:", classeSelecionada);
-    console.debug("[Etapa9] classKey:", classKey);
 
     if (!classKey) {
       const fallback = 1;
-      console.warn("[Etapa9] classKey inválido — usando fallback", fallback);
       setDisplayValue(fallback);
       setRiquezaInicial(fallback);
       onRiquezaInicialCalculada(fallback);
       return;
     }
 
-    // tenta calcular e normalizar o resultado
     let computed = calcularRiquezaInicialPorClasse(classKey);
-    console.debug("[Etapa9] raw computed from calcularRiquezaInicialPorClasse:", computed);
-
-    // se retornar string numérica, converte
     if (typeof computed === "string" && /^\s*\d+\s*$/.test(computed)) {
       computed = Number(computed);
-      console.debug("[Etapa9] parsed string computed ->", computed);
     }
 
-    // se ainda inválido, tenta pegar um valor direto da definição da classe (se existir)
     if (typeof computed !== "number" || !Number.isFinite(computed)) {
       const altFromClass =
         (classeSelecionada && (classeSelecionada.riquezaInicial || classeSelecionada.initialGold)) ||
         null;
       if (typeof altFromClass === "number" && Number.isFinite(altFromClass)) {
         computed = altFromClass;
-        console.debug("[Etapa9] usando riqueza definida na classe ->", computed);
       } else {
-        computed = 1; // fallback seguro
-        console.error(
-          "[Etapa9] calcularRiquezaInicialPorClasse retornou inválido e classe não forneceu fallback. Usando 1."
-        );
+        computed = 1;
       }
     }
 
-    const target = Math.max(1, Math.round(computed)); // nunca menor que 1
-
+    const target = Math.max(1, Math.round(computed));
     setAnimando(true);
 
-    // animação (mantida igual)
     const flickerDuration = 700;
     const flickerInterval = 70;
     const start = performance.now();
@@ -132,62 +112,70 @@ export default function Etapa9({
             onRiquezaInicialCalculada(target);
           }
         };
-
         rafRef.current = requestAnimationFrame(step);
       }
     };
-
     flickerLoop();
   };
 
   return (
-    <Paper
-      elevation={6}
-      sx={{
-        p: { xs: 2, sm: 3 },
-        borderRadius: 2,
-        maxWidth: 520,
-        width: "100%",
-        mx: "auto",
-        bgcolor: "background.paper",
-      }}
-    >
-      <Stack spacing={2} alignItems="center">
-        <Typography variant="h5" align="center" sx={{ fontWeight: 700 }}>
-          Riqueza Inicial
+    <LayoutFicha title="Riqueza Inicial">
+      <Stack spacing={4} alignItems="center" sx={{ py: 2 }}>
+        <Typography variant="body1" sx={{ color: "#3d2b1f", textAlign: "center", fontStyle: "italic" }}>
+          "O destino sorri para você? Role os dados para definir seu ouro inicial."
         </Typography>
 
-        <Box sx={{ textAlign: "center" }}>
+        <Paper
+          elevation={0}
+          sx={{
+            p: 4,
+            borderRadius: "50%", // Círculo
+            width: 200,
+            height: 200,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            bgcolor: "rgba(255, 215, 0, 0.1)", // Dourado bem claro
+            border: "4px double #bf8f00", // Borda dupla dourada
+            boxShadow: "0 0 20px rgba(191, 143, 0, 0.2)",
+          }}
+        >
           <motion.div
             key={displayValue}
-            initial={{ scale: 0.9, opacity: 0 }}
+            initial={{ scale: 0.8, opacity: 0.5 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 260, damping: 20 }}
+            transition={{ type: "spring", stiffness: 300, damping: 15 }}
           >
-            <Typography variant="h4" sx={{ fontWeight: 800 }}>
-              {Math.max(1, displayValue)} PO
+            <Typography variant="h2" sx={{ fontWeight: 900, fontFamily: "Cinzel", color: "#b8860b" }}>
+              {Math.max(1, displayValue)}
             </Typography>
           </motion.div>
-          <Typography variant="caption" color="text.secondary">
-            Valor estimado de peças de ouro
+          <Typography variant="overline" sx={{ color: "#833c0b", fontWeight: 700, mt: -1 }}>
+            Peças de Ouro
           </Typography>
-        </Box>
+        </Paper>
 
         <Button
           variant="contained"
-          color="primary"
           onClick={calcularRiquezaInicial}
           disabled={animando || clickedOnce}
           sx={{
-            px: 3,
-            py: 1,
-            borderRadius: 3,
-            "&:disabled": { opacity: 0.6, cursor: "not-allowed" },
+            px: 4,
+            py: 1.5,
+            borderRadius: 4,
+            bgcolor: "#833c0b",
+            fontFamily: "Cinzel",
+            fontWeight: 700,
+            fontSize: "1.1rem",
+            boxShadow: "0 4px 12px rgba(131, 60, 11, 0.4)",
+            "&:hover": { bgcolor: "#5e2b08" },
+            "&:disabled": { bgcolor: "rgba(131, 60, 11, 0.5)" },
           }}
         >
-          {clickedOnce ? (animando ? "Calculando..." : "Calculado") : "Calcular Riqueza"}
+          {clickedOnce ? (animando ? "Rolando..." : "Ouro Definido") : "Rolar Riqueza"}
         </Button>
       </Stack>
-    </Paper>
+    </LayoutFicha>
   );
 }

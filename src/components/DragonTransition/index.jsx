@@ -3,6 +3,8 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import { getElementFromPath } from "theme/elementTokens";
 import { T_IN, T_OUT } from "../../config/transitions";
+import { Box } from "@mui/material";
+import FichaStepper from "components/FichaPage/FichaStepper"; // ✅ Importe o novo componente
 
 // --- CONFIGURAÇÃO DOS ELEMENTOS ---
 const ELEMENTS = {
@@ -65,6 +67,7 @@ const DragonTransition = ({ children, location: locationProp }) => {
     [location.pathname]
   );
   const config = ELEMENTS[elementKey];
+  const bgUrl = config?.bgUrl ?? null;
 
   // Variants: entra COBRINDO e anima para FORA (revela). Ao sair volta para COBRIR.
   const overlayVariants = {
@@ -219,182 +222,212 @@ const DragonTransition = ({ children, location: locationProp }) => {
   })();
 
   return (
-    <>
-      {/* Filtros SVG (com animação para deixar vivo) */}
-      <svg style={{ position: "absolute", width: 0, height: 0 }}>
-        <defs>
-          {/* ✅ Pergaminho: grão de papel + leve deslocamento (bem leve) */}
-          <filter id="paper-filter">
-            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="7" result="n">
-              <animate attributeName="baseFrequency" dur="6s" values="0.85;0.95;0.88" repeatCount="indefinite" />
-            </feTurbulence>
-            <feDisplacementMap in="SourceGraphic" in2="n" scale="1.8" />
-          </filter>
+    <Box
+      component={motion.div}
+      variants={contentVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      sx={{
+        minHeight: "100vh",
+        px: { xs: 1.5, sm: 2.5 },
+        py: { xs: 2, md: 3 },
 
-          {/* 🔥 fogo: anima mais lenta (menos "tremedeira") */}
-          <filter id="fire-filter">
-            <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" seed="2" result="noise">
-              <animate
-                attributeName="baseFrequency"
-                dur="2.2s"
-                values="0.012;0.026;0.015"
-                repeatCount="indefinite"
+        // ✅ NOVO BACKGROUND: Madeira escura / Ambiente de Taverna
+        backgroundColor: "#1a120b", // Fallback escuro
+        backgroundImage: bgUrl
+          ? `
+            /* Overlay escuro para garantir leitura */
+            linear-gradient(180deg, rgba(26, 18, 11, 0.85), rgba(26, 18, 11, 0.7) 40%, rgba(26, 18, 11, 0.9)),
+            url("${bgUrl}")
+          `
+          : `
+            /* Textura de madeira procedural (CSS puro) se não tiver imagem de classe */
+            radial-gradient(circle at 50% 0%, rgba(60, 40, 30, 0.8), rgba(20, 10, 5, 1)),
+            repeating-linear-gradient(45deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 2px, transparent 2px, transparent 4px)
+          `,
+        backgroundSize: bgUrl ? "cover" : "100%",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+      }}
+    >
+      <Box sx={{ maxWidth: 1200, mx: "auto" }}>
+        {/* Filtros SVG (com animação para deixar vivo) */}
+        <svg style={{ position: "absolute", width: 0, height: 0 }}>
+          <defs>
+            {/* ✅ Pergaminho: grão de papel + leve deslocamento (bem leve) */}
+            <filter id="paper-filter">
+              <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="7" result="n">
+                <animate attributeName="baseFrequency" dur="6s" values="0.85;0.95;0.88" repeatCount="indefinite" />
+              </feTurbulence>
+              <feDisplacementMap in="SourceGraphic" in2="n" scale="1.8" />
+            </filter>
+
+            {/* 🔥 fogo: anima mais lenta (menos "tremedeira") */}
+            <filter id="fire-filter">
+              <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" seed="2" result="noise">
+                <animate
+                  attributeName="baseFrequency"
+                  dur="2.2s"
+                  values="0.012;0.026;0.015"
+                  repeatCount="indefinite"
+                />
+              </feTurbulence>
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="22" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+
+            {/* ☠ veneno: mais lento e “viscoso” */}
+            <filter id="goo-filter">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+              <feColorMatrix
+                in="blur"
+                mode="matrix"
+                values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -8"
+                result="goo"
               />
-            </feTurbulence>
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="22" xChannelSelector="R" yChannelSelector="G" />
-          </filter>
+              <feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="2" seed="3" result="noise">
+                <animate
+                  attributeName="baseFrequency"
+                  dur="3.2s"
+                  values="0.007;0.013;0.010"
+                  repeatCount="indefinite"
+                />
+              </feTurbulence>
+              <feDisplacementMap in="goo" in2="noise" scale="8" />
+            </filter>
 
-          {/* ☠ veneno: mais lento e “viscoso” */}
-          <filter id="goo-filter">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
-            <feColorMatrix
-              in="blur"
-              mode="matrix"
-              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -8"
-              result="goo"
-            />
-            <feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="2" seed="3" result="noise">
-              <animate
-                attributeName="baseFrequency"
-                dur="3.2s"
-                values="0.007;0.013;0.010"
-                repeatCount="indefinite"
+            {/* ⚡ elétrico: menos frenético */}
+            <filter id="electric-filter">
+              <feTurbulence type="turbulence" baseFrequency="0.9" numOctaves="1" seed="5" result="noise">
+                <animate
+                  attributeName="baseFrequency"
+                  dur="0.7s"
+                  values="0.65;1.05;0.80;1.10;0.75"
+                  repeatCount="indefinite"
+                />
+              </feTurbulence>
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" />
+            </filter>
+
+            {/* ❄ gelo: ok manter */}
+            <filter id="ice-filter">
+              <feGaussianBlur stdDeviation="1.2" result="b" />
+              <feColorMatrix
+                in="b"
+                type="matrix"
+                values="1 0 0 0 0  0 1.05 0 0 0  0 0 1.15 0 0  0 0 0 1 0"
               />
-            </feTurbulence>
-            <feDisplacementMap in="goo" in2="noise" scale="8" />
-          </filter>
+            </filter>
+          </defs>
+        </svg>
 
-          {/* ⚡ elétrico: menos frenético */}
-          <filter id="electric-filter">
-            <feTurbulence type="turbulence" baseFrequency="0.9" numOctaves="1" seed="5" result="noise">
-              <animate
-                attributeName="baseFrequency"
-                dur="0.7s"
-                values="0.65;1.05;0.80;1.10;0.75"
-                repeatCount="indefinite"
-              />
-            </feTurbulence>
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" />
-          </filter>
-
-          {/* ❄ gelo: ok manter */}
-          <filter id="ice-filter">
-            <feGaussianBlur stdDeviation="1.2" result="b" />
-            <feColorMatrix
-              in="b"
-              type="matrix"
-              values="1 0 0 0 0  0 1.05 0 0 0  0 0 1.15 0 0  0 0 0 1 0"
-            />
-          </filter>
-        </defs>
-      </svg>
-
-      {/* Conteúdo da Página (agora com animação por rota, bem mais suave) */}
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={location.pathname}
-          variants={contentVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          style={{ position: "relative", zIndex: 1, willChange: "opacity, transform, filter" }}
-        >
-          {children}
-        </motion.div>
-      </AnimatePresence>
-
-      {/* --- Somente UMA transição elemental por vez --- */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={elementKey}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          variants={v}
-          style={{ position: "fixed", inset: 0, zIndex: 9998, pointerEvents: "none", willChange: "transform, clip-path" }}
-        >
-          <div style={{ position: "absolute", inset: 0, backgroundColor: config.colors[0], zIndex: 0 }} />
-
+        {/* Conteúdo da Página (agora com animação por rota, bem mais suave) */}
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
-            aria-hidden
-            animate={{
-              backgroundPosition:
-                config.type === "fire"
-                  ? ["50% 110%", "55% 90%", "45% 105%"]
-                  : config.type === "poison"
-                    ? ["50% 0%", "55% 15%", "45% 5%"]
-                    : config.type === "parchment"
-                      ? ["50% 50%", "51% 49%", "49% 51%"] // ✅ quase parado (mais “calmo”)
-                      : ["50% 50%", "55% 45%", "45% 55%"],
-            }}
-            transition={{
-              backgroundPosition: {
-                duration:
-                  config.type === "lightning"
-                    ? T_IN * 1.25
-                    : config.type === "parchment"
-                      ? T_IN * 8.4
-                      : T_IN * 3.2,
-                repeat: Infinity,
-                ease: "easeInOut",
-              },
-            }}
-            style={{
-              position: "absolute",
-              inset: 0,
-              zIndex: 1,
-              filter: config.filter,
-              ...textureStyle,
-              willChange: "filter, background-position",
-              opacity: 0.98,
-            }}
-          />
+            key={location.pathname}
+            variants={contentVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            style={{ position: "relative", zIndex: 1, willChange: "opacity, transform, filter" }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
 
-          {/* ✅ Detalhe “selo” exclusivo do Início (D&D vibe) */}
-          {config.type === "parchment" && (
+        {/* --- Somente UMA transição elemental por vez --- */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={elementKey}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            variants={v}
+            style={{ position: "fixed", inset: 0, zIndex: 9998, pointerEvents: "none", willChange: "transform, clip-path" }}
+          >
+            <div style={{ position: "absolute", inset: 0, backgroundColor: config.colors[0], zIndex: 0 }} />
+
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              aria-hidden
               animate={{
-                opacity: 0.28,
-                scale: 1,
-                y: 0,
-                transition: { duration: T_IN * 0.5, ease: "easeOut", delay: T_OUT * 0.07 },
+                backgroundPosition:
+                  config.type === "fire"
+                    ? ["50% 110%", "55% 90%", "45% 105%"]
+                    : config.type === "poison"
+                      ? ["50% 0%", "55% 15%", "45% 5%"]
+                      : config.type === "parchment"
+                        ? ["50% 50%", "51% 49%", "49% 51%"] // ✅ quase parado (mais “calmo”)
+                        : ["50% 50%", "55% 45%", "45% 55%"],
               }}
-              exit={{ opacity: 0, scale: 0.98, transition: { duration: T_OUT * 0.25 } }}
-              style={{
-                position: "absolute",
-                right: 36,
-                bottom: 28,
-                width: 140,
-                height: 140,
-                borderRadius: "999px",
-                background:
-                  "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.35), rgba(0,0,0,0.0) 55%), linear-gradient(135deg, rgba(120,15,20,0.95), rgba(70,8,12,0.95))",
-                boxShadow: "0 18px 35px rgba(0,0,0,0.35)",
-                mixBlendMode: "multiply",
+              transition={{
+                backgroundPosition: {
+                  duration:
+                    config.type === "lightning"
+                      ? T_IN * 1.25
+                      : config.type === "parchment"
+                        ? T_IN * 8.4
+                        : T_IN * 3.2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                },
               }}
-            />
-          )}
-
-          {/* Flash do RAIO mais “controlado” */}
-          {config.type === "lightning" && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 0.55, 0, 0.25, 0], transition: { duration: T_IN * 0.58 } }}
-              exit={{ opacity: [0, 0.35, 0], transition: { duration: T_OUT * 0.55 } }}
               style={{
                 position: "absolute",
                 inset: 0,
-                background: "white",
-                zIndex: 2,
-                pointerEvents: "none",
-                mixBlendMode: "screen",
+                zIndex: 1,
+                filter: config.filter,
+                ...textureStyle,
+                willChange: "filter, background-position",
+                opacity: 0.98,
               }}
             />
-          )}
-        </motion.div>
-      </AnimatePresence>
-    </>
+
+            {/* ✅ Detalhe “selo” exclusivo do Início (D&D vibe) */}
+            {config.type === "parchment" && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{
+                  opacity: 0.28,
+                  scale: 1,
+                  y: 0,
+                  transition: { duration: T_IN * 0.5, ease: "easeOut", delay: T_OUT * 0.07 },
+                }}
+                exit={{ opacity: 0, scale: 0.98, transition: { duration: T_OUT * 0.25 } }}
+                style={{
+                  position: "absolute",
+                  right: 36,
+                  bottom: 28,
+                  width: 140,
+                  height: 140,
+                  borderRadius: "999px",
+                  background:
+                    "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.35), rgba(0,0,0,0.0) 55%), linear-gradient(135deg, rgba(120,15,20,0.95), rgba(70,8,12,0.95))",
+                  boxShadow: "0 18px 35px rgba(0,0,0,0.35)",
+                  mixBlendMode: "multiply",
+                }}
+              />
+            )}
+
+            {/* Flash do RAIO mais “controlado” */}
+            {config.type === "lightning" && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 0.55, 0, 0.25, 0], transition: { duration: T_IN * 0.58 } }}
+                exit={{ opacity: [0, 0.35, 0], transition: { duration: T_OUT * 0.55 } }}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  background: "white",
+                  zIndex: 2,
+                  pointerEvents: "none",
+                  mixBlendMode: "screen",
+                }}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </Box>
+    </Box>
   );
 };
 

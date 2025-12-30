@@ -10,8 +10,20 @@ import {
   Paper,
   List,
   ListItem,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
+import HistoryEduIcon from "@mui/icons-material/HistoryEdu"; // Ícone de pena/escrita
 import LayoutFicha from "components/FichaLayout/LayoutFicha";
+
+// Estilo reutilizável de "Caixa de Texto D&D"
+const dndBoxStyle = {
+  p: 2.5,
+  borderRadius: 2,
+  bgcolor: "rgba(243, 235, 214, 0.5)",
+  border: "1px solid rgba(92, 64, 51, 0.2)",
+  boxShadow: "inset 0 2px 4px rgba(0,0,0,0.03)",
+};
 
 const Etapa6 = ({
   antecedente,
@@ -26,18 +38,23 @@ const Etapa6 = ({
 }) => {
   return (
     <LayoutFicha title="Selecione o Antecedente">
-      <Stack spacing={2}>
-        <Typography variant="subtitle1" color="text.secondary" align="center">
-          Escolha o antecedente do seu personagem e selecione idiomas se aplicável.
+      <Stack spacing={3}>
+        <Typography variant="body1" sx={{ color: "#3d2b1f", textAlign: "center", fontStyle: "italic" }}>
+          "Quem você era antes de se tornar um aventureiro? O que deixou para trás?"
         </Typography>
 
         <FormControl fullWidth>
-          <InputLabel>Antecedente</InputLabel>
+          <InputLabel sx={{ fontFamily: "Cinzel" }}>Antecedente</InputLabel>
           <Select
             label="Antecedente"
             value={antecedente}
             onChange={(e) => setAntecedente(e.target.value)}
-            aria-label="Selecione um antecedente"
+            sx={{
+              fontWeight: 700,
+              color: "#2c1a10",
+              "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(92, 64, 51, 0.3)" },
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#833c0b" },
+            }}
           >
             <MenuItem value="">
               <em>Selecione um antecedente</em>
@@ -50,101 +67,95 @@ const Etapa6 = ({
           </Select>
         </FormControl>
 
-        <Paper
-          variant="outlined"
-          sx={{
-            p: 2,
-            borderRadius: 2,
-            bgcolor: "background.paper",
-            boxShadow: "0 6px 18px rgba(15,23,42,0.04)",
-            maxHeight: 300,
-            overflow: "auto",
-          }}
-        >
-          <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-            Proficiências / Detalhes do antecedente:
+        <Paper elevation={0} sx={{ ...dndBoxStyle, maxHeight: 320, overflow: "auto" }}>
+          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 800, color: "#58180D", fontFamily: "Cinzel" }}>
+            Detalhes & Proficiências:
           </Typography>
 
           {itensDaAntecedencia.length > 0 ? (
-            <List sx={{ pl: 0 }}>
+            <List dense>
               {itensDaAntecedencia.map((item, idx) => (
-                <ListItem key={idx} sx={{ display: "list-item", pl: 2 }}>
-                  <Typography
-                    variant="body2"
-                    sx={{ whiteSpace: "pre-wrap", wordBreak: "break-word", lineHeight: 1.5 }}
-                  >
-                    {item}
-                  </Typography>
+                <ListItem key={idx} alignItems="flex-start" sx={{ px: 0 }}>
+                  <ListItemIcon sx={{ minWidth: 32, mt: 0.5 }}>
+                    <HistoryEduIcon sx={{ fontSize: 20, color: "#833c0b" }} />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={item}
+                    primaryTypographyProps={{
+                      variant: "body2",
+                      style: { color: "#3d2b1f", lineHeight: 1.5 },
+                    }}
+                  />
                 </ListItem>
               ))}
             </List>
           ) : (
-            <Typography variant="caption" color="text.secondary">
-              Nenhuma informação disponível para o antecedente selecionado.
+            <Typography variant="caption" sx={{ color: "rgba(44, 26, 16, 0.5)", fontStyle: "italic" }}>
+              Selecione um antecedente para ver sua história.
             </Typography>
           )}
         </Paper>
 
-        {/* Idiomas adicionais — dois */}
+        {/* Idiomas adicionais */}
         {(antecedente === "Acólito" || antecedente === "Sábio") && (
-          <Stack spacing={1}>
-            <FormControl fullWidth>
-              <InputLabel>Idioma adicional 1</InputLabel>
-              <Select
-                label="Idioma adicional 1"
-                value={idiomaDoAntecedente}
-                onChange={(e) => setIdiomaAntecedente(e.target.value)}
-              >
-                <MenuItem value="">
-                  <em>Selecione Idioma</em>
-                </MenuItem>
-                {idiomaOption.map((opcao) => (
-                  <MenuItem key={opcao} value={opcao}>
-                    {opcao}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+          <Paper elevation={0} sx={{ ...dndBoxStyle, bgcolor: "rgba(255,255,255,0.4)" }}>
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: "#2c1a10" }}>
+              Idiomas Conhecidos
+            </Typography>
+            <Stack spacing={2}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Idioma adicional 1</InputLabel>
+                <Select
+                  value={idiomaDoAntecedente}
+                  onChange={(e) => setIdiomaAntecedente(e.target.value)}
+                  label="Idioma adicional 1"
+                >
+                  {idiomaOption.map((opcao) => (
+                    <MenuItem key={opcao} value={opcao}>
+                      {opcao}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-            <FormControl fullWidth>
-              <InputLabel>Idioma adicional 2</InputLabel>
-              <Select
-                label="Idioma adicional 2"
-                value={idiomaDoAntecendente2}
-                onChange={(e) => setIdiomaAntecendente2(e.target.value)}
-              >
-                <MenuItem value="">
-                  <em>Selecione Idioma</em>
-                </MenuItem>
-                {idiomaOption.map((opcao) => (
-                  <MenuItem key={opcao} value={opcao}>
-                    {opcao}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Stack>
+              <FormControl fullWidth size="small">
+                <InputLabel>Idioma adicional 2</InputLabel>
+                <Select
+                  value={idiomaDoAntecendente2}
+                  onChange={(e) => setIdiomaAntecendente2(e.target.value)}
+                  label="Idioma adicional 2"
+                >
+                  {idiomaOption.map((opcao) => (
+                    <MenuItem key={opcao} value={opcao}>
+                      {opcao}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
+          </Paper>
         )}
 
-        {/* Idioma adicional — um */}
         {["Artesão de Guilda", "Eremita", "Forasteiro", "Nobre"].includes(antecedente) && (
-          <FormControl fullWidth>
-            <InputLabel>Idioma adicional</InputLabel>
-            <Select
-              label="Idioma adicional"
-              value={idiomaDoAntecedente}
-              onChange={(e) => setIdiomaAntecedente(e.target.value)}
-            >
-              <MenuItem value="">
-                <em>Selecione Idioma</em>
-              </MenuItem>
-              {idiomaOption.map((opcao) => (
-                <MenuItem key={opcao} value={opcao}>
-                  {opcao}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Paper elevation={0} sx={{ ...dndBoxStyle, bgcolor: "rgba(255,255,255,0.4)" }}>
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: "#2c1a10" }}>
+              Idioma Conhecido
+            </Typography>
+            <FormControl fullWidth size="small">
+              <InputLabel>Idioma adicional</InputLabel>
+              <Select
+                value={idiomaDoAntecedente}
+                onChange={(e) => setIdiomaAntecedente(e.target.value)}
+                label="Idioma adicional"
+              >
+                {idiomaOption.map((opcao) => (
+                  <MenuItem key={opcao} value={opcao}>
+                    {opcao}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Paper>
         )}
       </Stack>
     </LayoutFicha>

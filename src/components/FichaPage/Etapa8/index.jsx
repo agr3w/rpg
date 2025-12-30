@@ -9,6 +9,7 @@ import {
   Typography,
   Stack,
   Paper,
+  Divider,
 } from "@mui/material";
 import LayoutFicha from "components/FichaLayout/LayoutFicha";
 
@@ -17,6 +18,14 @@ function truncateText(s, max = 64) {
   if (str.length <= max) return str;
   return `${str.slice(0, max - 1)}…`;
 }
+
+const dndBoxStyle = {
+  p: 2.5,
+  borderRadius: 2,
+  bgcolor: "rgba(243, 235, 214, 0.5)",
+  border: "1px solid rgba(92, 64, 51, 0.2)",
+  boxShadow: "inset 0 2px 4px rgba(0,0,0,0.03)",
+};
 
 const Etapa8 = ({
   tracoPersonalidade,
@@ -42,28 +51,31 @@ const Etapa8 = ({
 
   const commonMenuProps = {
     PaperProps: {
-      sx: {
-        maxWidth: "92vw",
-      },
+      sx: { maxWidth: "92vw" },
     },
   };
 
   return (
-    <LayoutFicha title="Traços do personagem">
-      <Stack spacing={2}>
-        <Typography variant="subtitle1" color="text.secondary" align="center">
-          Escolha traços, ideais, defeitos e vínculos. O texto completo aparece
-          abaixo.
+    <LayoutFicha title="Traços de Personalidade">
+      <Stack spacing={3}>
+        <Typography
+          variant="body1"
+          sx={{
+            color: "#3d2b1f",
+            textAlign: "center",
+            fontStyle: "italic",
+          }}
+        >
+          "O que define o caráter do seu herói? Suas falhas e virtudes."
         </Typography>
 
-        <Stack spacing={1}>
+        <Stack spacing={2}>
           <FormControl fullWidth>
             <InputLabel>Traço de Personalidade</InputLabel>
             <Select
               value={tracoPersonalidadeSelecionado}
               onChange={onSelecionarTracoPersonalidade}
               label="Traço de Personalidade"
-              aria-label="Traço de Personalidade"
               sx={commonSelectSx}
               MenuProps={commonMenuProps}
               renderValue={(selected) =>
@@ -71,7 +83,7 @@ const Etapa8 = ({
               }
             >
               <MenuItem value="">
-                <em>Selecione um traço de personalidade</em>
+                <em>Selecione</em>
               </MenuItem>
               {tracoPersonalidade.map((traco, index) => (
                 <MenuItem
@@ -91,7 +103,6 @@ const Etapa8 = ({
               value={idealSelecionado}
               onChange={onSelecionarIdeal}
               label="Ideal"
-              aria-label="Ideal"
               sx={commonSelectSx}
               MenuProps={commonMenuProps}
               renderValue={(selected) =>
@@ -99,7 +110,7 @@ const Etapa8 = ({
               }
             >
               <MenuItem value="">
-                <em>Selecione um ideal</em>
+                <em>Selecione</em>
               </MenuItem>
               {ideal.map((item, index) => (
                 <MenuItem
@@ -119,7 +130,6 @@ const Etapa8 = ({
               value={defeitoSelecionado}
               onChange={onSelecionarDefeito}
               label="Defeito"
-              aria-label="Defeito"
               sx={commonSelectSx}
               MenuProps={commonMenuProps}
               renderValue={(selected) =>
@@ -127,7 +137,7 @@ const Etapa8 = ({
               }
             >
               <MenuItem value="">
-                <em>Selecione um defeito</em>
+                <em>Selecione</em>
               </MenuItem>
               {defeito.map((item, index) => (
                 <MenuItem
@@ -147,7 +157,6 @@ const Etapa8 = ({
               value={vinculoSelecionado}
               onChange={onSelecionarVinculo}
               label="Vínculo"
-              aria-label="Vínculo"
               sx={commonSelectSx}
               MenuProps={commonMenuProps}
               renderValue={(selected) =>
@@ -155,7 +164,7 @@ const Etapa8 = ({
               }
             >
               <MenuItem value="">
-                <em>Selecione um vínculo</em>
+                <em>Selecione</em>
               </MenuItem>
               {vinculo.map((item, index) => (
                 <MenuItem
@@ -170,56 +179,55 @@ const Etapa8 = ({
           </FormControl>
         </Stack>
 
-        <Paper sx={{ p: 2, borderRadius: 2 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1 }}>
-            Visualização completa
+        <Paper elevation={0} sx={dndBoxStyle}>
+          <Typography
+            variant="h6"
+            sx={{
+              mb: 2,
+              fontFamily: "Cinzel",
+              color: "#58180D",
+              textAlign: "center",
+            }}
+          >
+            Resumo da Personalidade
           </Typography>
 
-          <Box sx={{ display: "grid", gap: 1 }}>
-            <Box>
-              <Typography variant="overline">Traço de Personalidade</Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ whiteSpace: "pre-wrap", lineHeight: 1.5 }}
-              >
-                {tracoPersonalidadeSelecionado || "—"}
-              </Typography>
-            </Box>
-
-            <Box>
-              <Typography variant="overline">Ideal</Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ whiteSpace: "pre-wrap", lineHeight: 1.5 }}
-              >
-                {idealSelecionado || "—"}
-              </Typography>
-            </Box>
-
-            <Box>
-              <Typography variant="overline">Defeito</Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ whiteSpace: "pre-wrap", lineHeight: 1.5 }}
-              >
-                {defeitoSelecionado || "—"}
-              </Typography>
-            </Box>
-
-            <Box>
-              <Typography variant="overline">Vínculo</Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ whiteSpace: "pre-wrap", lineHeight: 1.5 }}
-              >
-                {vinculoSelecionado || "—"}
-              </Typography>
-            </Box>
-          </Box>
+          <Stack
+            spacing={2}
+            divider={
+              <Divider sx={{ borderColor: "rgba(92, 64, 51, 0.1)" }} />
+            }
+          >
+            {[
+              { label: "Traço", val: tracoPersonalidadeSelecionado },
+              { label: "Ideal", val: idealSelecionado },
+              { label: "Defeito", val: defeitoSelecionado },
+              { label: "Vínculo", val: vinculoSelecionado },
+            ].map((item, idx) => (
+              <Box key={idx}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: 700,
+                    color: "#833c0b",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {item.label}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "#2c1a10",
+                    fontStyle: item.val ? "normal" : "italic",
+                    opacity: item.val ? 1 : 0.6,
+                  }}
+                >
+                  {item.val || "Não selecionado"}
+                </Typography>
+              </Box>
+            ))}
+          </Stack>
         </Paper>
       </Stack>
     </LayoutFicha>

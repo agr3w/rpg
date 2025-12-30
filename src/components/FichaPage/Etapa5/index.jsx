@@ -1,4 +1,3 @@
-// Etapa4.js
 import React from "react";
 import {
   Box,
@@ -10,23 +9,29 @@ import {
   Stack,
   Paper,
 } from "@mui/material";
+import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
 import LayoutFicha from "components/FichaLayout/LayoutFicha";
 
 const Etapa5 = ({ tendencia, setTendencia, TendenciasOptions, itensDaTendencia }) => {
   return (
-    <LayoutFicha title="Tendência do personagem">
-      <Stack spacing={2}>
-        <Typography variant="subtitle1" color="text.secondary" align="center">
-          Escolha a tendência que melhor descreve seu personagem.
+    <LayoutFicha title="Sua Bússola Moral">
+      <Stack spacing={3}>
+        <Typography variant="body1" sx={{ color: "#3d2b1f", textAlign: "center", fontStyle: "italic" }}>
+          "Onde seu personagem se encaixa na batalha cósmica entre o bem e o mal, a lei e o caos?"
         </Typography>
 
         <FormControl fullWidth>
-          <InputLabel>Tendência</InputLabel>
+          <InputLabel sx={{ fontFamily: "Cinzel" }}>Tendência</InputLabel>
           <Select
             value={tendencia}
             onChange={(e) => setTendencia(e.target.value)}
             label="Tendência"
-            aria-label="Selecione a tendência"
+            sx={{
+              fontWeight: 700,
+              color: "#2c1a10",
+              "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(92, 64, 51, 0.3)" },
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#833c0b" },
+            }}
           >
             <MenuItem value="">
               <em>Selecione uma tendência</em>
@@ -39,38 +44,66 @@ const Etapa5 = ({ tendencia, setTendencia, TendenciasOptions, itensDaTendencia }
           </Select>
         </FormControl>
 
+        {/* Caixa de Descrição Estilizada como Citação/Lore */}
         <Paper
-          variant="outlined"
+          elevation={0}
           sx={{
-            p: 2,
+            p: 3,
             borderRadius: 2,
-            bgcolor: "background.paper",
-            boxShadow: "0 6px 18px rgba(15,23,42,0.04)",
-            maxHeight: 340,
-            overflow: "auto",
+            bgcolor: "rgba(243, 235, 214, 0.6)",
+            border: "1px solid rgba(92, 64, 51, 0.2)",
+            position: "relative",
+            minHeight: 120,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
           }}
         >
-          <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-            Descrição da tendência:
-          </Typography>
-
+          <FormatQuoteIcon 
+            sx={{ 
+              position: "absolute", 
+              top: 8, 
+              left: 8, 
+              fontSize: 40, 
+              color: "rgba(131, 60, 11, 0.15)",
+              transform: "rotate(180deg)"
+            }} 
+          />
+          
           {itensDaTendencia && itensDaTendencia.length > 0 ? (
-            <Box component="div" sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            <Box sx={{ position: "relative", zIndex: 1, px: 2 }}>
               {itensDaTendencia.map((item, idx) => (
                 <Typography
                   key={idx}
-                  variant="body2"
-                  sx={{ whiteSpace: "pre-wrap", wordBreak: "break-word", lineHeight: 1.5 }}
+                  variant="body1"
+                  sx={{ 
+                    whiteSpace: "pre-wrap", 
+                    lineHeight: 1.6, 
+                    color: "#2c1a10",
+                    fontFamily: "'Cinzel', serif", // Fonte mais elegante para a descrição
+                    fontWeight: 500,
+                    textAlign: "center"
+                  }}
                 >
                   {item}
                 </Typography>
               ))}
             </Box>
           ) : (
-            <Typography variant="caption" color="text.secondary">
-              Nenhuma descrição disponível para a tendência selecionada.
+            <Typography variant="caption" sx={{ textAlign: "center", color: "rgba(44, 26, 16, 0.5)", fontStyle: "italic" }}>
+              Selecione uma tendência para ler sobre sua filosofia.
             </Typography>
           )}
+
+           <FormatQuoteIcon 
+            sx={{ 
+              position: "absolute", 
+              bottom: 8, 
+              right: 8, 
+              fontSize: 40, 
+              color: "rgba(131, 60, 11, 0.15)"
+            }} 
+          />
         </Paper>
       </Stack>
     </LayoutFicha>

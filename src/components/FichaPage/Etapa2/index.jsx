@@ -12,38 +12,45 @@ import {
   Paper,
   List,
   ListItem,
-  Chip,
 } from "@mui/material";
 import LayoutFicha from "components/FichaLayout/LayoutFicha";
+
+// Estilo reutilizável para "Caixas de Texto D&D"
+const dndBoxStyle = {
+  p: 2,
+  borderRadius: 2,
+  bgcolor: "rgba(243, 235, 214, 0.5)", // Fundo amarelado translúcido
+  border: "1px solid rgba(92, 64, 51, 0.2)", // Borda sutil marrom
+  boxShadow: "inset 0 2px 4px rgba(0,0,0,0.03)",
+};
 
 const Etapa2 = ({
   raca,
   setRaca,
   racasOptions,
   itensDaRaca,
-
+  racaSelecionada,
   idiomaRacaSelecionado,
   setIdiomaRacaSelecionado,
-  racaSelecionada,
-
   idiomaRacaSelecionado2,
   setIdiomaRacaSelecionado2,
   idiomaOption,
 }) => {
   return (
-    <LayoutFicha title="Selecione uma Raça">
-      <Stack spacing={2}>
-        <Typography variant="subtitle1" color="text.secondary" align="center">
-          Escolha a raça do seu personagem e os idiomas opcionais.
-        </Typography>
-
-        <FormControl fullWidth sx={{ mb: 1 }}>
-          <InputLabel>Raça</InputLabel>
+    <LayoutFicha title="Escolha sua Raça">
+      <Stack spacing={3}>
+        <FormControl fullWidth>
+          <InputLabel sx={{ fontFamily: "Cinzel" }}>Raça</InputLabel>
           <Select
             value={raca}
             onChange={(e) => setRaca(e.target.value)}
             label="Raça"
-            aria-label="Selecione a raça"
+            sx={{
+              "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(92, 64, 51, 0.3)" },
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#833c0b" },
+              fontWeight: 600,
+              color: "#2c1a10",
+            }}
           >
             <MenuItem value="">
               <em>Selecione uma raça</em>
@@ -56,125 +63,88 @@ const Etapa2 = ({
           </Select>
         </FormControl>
 
-        <Paper
-          variant="outlined"
-          sx={{
-            p: 2,
-            bgcolor: "background.paper",
-            borderRadius: 2,
-            boxShadow: "0 6px 18px rgba(15,23,42,0.06)",
-            maxHeight: 260, // limita altura e permite rolagem para textos muito longos
-            overflow: "auto",
-          }}
-        >
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            Descrições / Traits da raça selecionada:
+        {/* Caixa de Descrição Estilizada */}
+        <Paper elevation={0} sx={{ ...dndBoxStyle, maxHeight: 300, overflow: "auto" }}>
+          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 800, color: "#58180D", fontFamily: "Cinzel" }}>
+            Características da Raça:
           </Typography>
 
           <List dense sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
             {itensDaRaca.length > 0 ? (
               itensDaRaca.map((item, index) => (
-                <ListItem key={index} sx={{ pl: 0 }}>
+                <ListItem key={index} sx={{ pl: 0, alignItems: "flex-start" }}>
                   <Box
+                    component="span"
                     sx={{
-                      bgcolor: (theme) => theme.palette.action.hover,
-                      p: 1,
-                      borderRadius: 1,
-                      width: "100%",
-                      boxSizing: "border-box",
+                      mr: 1,
+                      mt: 0.5,
+                      width: 6,
+                      height: 6,
+                      borderRadius: "50%",
+                      bgcolor: "#833c0b",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      whiteSpace: "pre-wrap",
+                      lineHeight: 1.6,
+                      color: "#3d2b1f",
                     }}
                   >
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        whiteSpace: "pre-wrap", // preserva quebras de linha
-                        wordBreak: "break-word", // quebra palavras longas
-                        lineHeight: 1.4,
-                      }}
-                    >
-                      {item}
-                    </Typography>
-                  </Box>
+                    {item}
+                  </Typography>
                 </ListItem>
               ))
             ) : (
-              <Typography variant="caption" color="text.secondary" sx={{ pl: 0.5 }}>
-                Nenhuma informação disponível.
+              <Typography variant="caption" sx={{ fontStyle: "italic", opacity: 0.7 }}>
+                Selecione uma raça para ver seus traços raciais.
               </Typography>
             )}
           </List>
         </Paper>
 
-        {(raca === "Anão" ||
-          raca === "Elfo" ||
-          raca === "Halfling" ||
-          raca === "Draconato" ||
-          raca === "Gnomo" ||
-          raca === "Meio-Elfo" ||
-          raca === "Meio-Orc" ||
-          raca === "Tiefling") && (
-          <Box>
-            <FormControl fullWidth sx={{ mb: 1 }}>
-              <InputLabel>Idiomas da Raça</InputLabel>
-              <Select
-                value={idiomaRacaSelecionado}
-                onChange={(e) => setIdiomaRacaSelecionado(e.target.value)}
-                label="Idiomas da Raça"
-                aria-label="Idiomas da raça"
-              >
-                <MenuItem value="">
-                  <em>Idiomas da Raça</em>
-                </MenuItem>
-                {racaSelecionada?.idiomaRaca?.map((opcao) => (
-                  <MenuItem key={opcao} value={opcao}>
-                    {opcao}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-        )}
+        {/* Seletores Condicionais */}
+        {(raca === "Humano" || raca === "Meio-Elfo") && (
+          <Paper elevation={0} sx={{ ...dndBoxStyle, bgcolor: "rgba(255,255,255,0.4)" }}>
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
+              Idiomas Adicionais
+            </Typography>
+            <Stack spacing={2}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Idioma Extra 1</InputLabel>
+                <Select
+                  value={idiomaRacaSelecionado}
+                  onChange={(e) => setIdiomaRacaSelecionado(e.target.value)}
+                  label="Idioma Extra 1"
+                >
+                  {idiomaOption.map((idioma) => (
+                    <MenuItem key={idioma} value={idioma}>
+                      {idioma}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-        {raca === "Humano" && (
-          <Stack spacing={1}>
-            <FormControl fullWidth>
-              <InputLabel>Idiomas da Raça</InputLabel>
-              <Select
-                value={idiomaRacaSelecionado}
-                onChange={(e) => setIdiomaRacaSelecionado(e.target.value)}
-                label="Idiomas da Raça"
-                aria-label="Idiomas da raça humano"
-              >
-                <MenuItem value="">
-                  <em>Idiomas da Raça</em>
-                </MenuItem>
-                {racaSelecionada?.idiomaRaca?.map((opcao) => (
-                  <MenuItem key={opcao} value={opcao}>
-                    {opcao}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl fullWidth>
-              <InputLabel>Selecione o segundo Idioma</InputLabel>
-              <Select
-                value={idiomaRacaSelecionado2}
-                onChange={(e) => setIdiomaRacaSelecionado2(e.target.value)}
-                label="Selecione o segundo Idioma"
-                aria-label="Segundo idioma humano"
-              >
-                <MenuItem value="">
-                  <em>Selecione o segundo Idioma</em>
-                </MenuItem>
-                {idiomaOption.map((opcao) => (
-                  <MenuItem key={opcao} value={opcao}>
-                    {opcao}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Stack>
+              {raca === "Meio-Elfo" && (
+                <FormControl fullWidth size="small">
+                  <InputLabel>Idioma Extra 2</InputLabel>
+                  <Select
+                    value={idiomaRacaSelecionado2}
+                    onChange={(e) => setIdiomaRacaSelecionado2(e.target.value)}
+                    label="Idioma Extra 2"
+                  >
+                    {idiomaOption.map((idioma) => (
+                      <MenuItem key={idioma} value={idioma}>
+                        {idioma}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
+            </Stack>
+          </Paper>
         )}
       </Stack>
     </LayoutFicha>

@@ -29,7 +29,6 @@ const Etapa10 = ({
     "Carisma",
   ];
 
-  // valores base permitidos (standard array)
   const valoresPossiveisBase = [
     { realValue: 15, label: "15" },
     { realValue: 14, label: "14" },
@@ -39,29 +38,21 @@ const Etapa10 = ({
     { realValue: 8, label: "8" },
   ];
 
-  // bônus por raça/sub-raça (espera objeto com chaves de habilidade)
   const bonusRaca = racaSelecionada?.proficienciaHabilidadeBonus || {};
   const bonusSub = detalhesSubRaca?.habilidadeBonusSubRaca || {};
 
-  // manter consistência: armazenamos números (não strings)
   const handleSelecionarValor = (habilidade, valorReal) => {
     const currentValues = { ...valoresHabilidade };
-    // transforma valores existentes para números para comparação
     const valoresAtuais = Object.fromEntries(
       Object.entries(currentValues).map(([k, v]) => [k, v === "" ? "" : Number(v)])
     );
 
-    // se a mesma opção já foi escolhida em outra habilidade, desmarca dessa habilidade atual
     const alreadyUsed = Object.entries(valoresAtuais).some(
       ([k, v]) => k !== habilidade && v === valorReal
     );
 
-    if (alreadyUsed) {
-      // ignora seleção duplicada
-      return;
-    }
+    if (alreadyUsed) return;
 
-    // toggle: se já está selecionado nessa habilidade, limpa; senão seta
     if (valoresAtuais[habilidade] === valorReal) {
       setValoresHabilidade({ ...valoresAtuais, [habilidade]: "" });
     } else {
@@ -74,7 +65,6 @@ const Etapa10 = ({
     return bonus >= 0 ? `+${bonus}` : `${bonus}`;
   };
 
-  // opcoes que ficam visíveis por habilidade (aplica bônus para exibição)
   const opcoesDisponiveis = (habilidade) => {
     const valoresSelecionados = Object.values(valoresHabilidade)
       .filter((v) => v !== "")
@@ -106,72 +96,113 @@ const Etapa10 = ({
   );
 
   return (
-    <LayoutFicha title="Distribuir Pontos de Habilidade">
-      <Stack spacing={2}>
-        <Typography variant="subtitle1" color="text.secondary">
-          Selecione um valor diferente para cada habilidade (standard array). Bônus de raça/sub-raça já aplicado na visualização.
+    <LayoutFicha title="Atributos">
+      <Stack spacing={3}>
+        <Typography variant="body1" sx={{ color: "#3d2b1f", textAlign: "center", fontStyle: "italic" }}>
+          "Defina suas capacidades físicas e mentais. (Standard Array)"
         </Typography>
 
-        <Paper sx={{ p: 2, borderRadius: 2 }}>
-          <Grid container spacing={2}>
-            {habilidades.map((habilidade, index) => (
+        <Grid container spacing={2}>
+          {habilidades.map((habilidade, index) => {
+            const valorBase = valoresHabilidade[habilidade] ? Number(valoresHabilidade[habilidade]) : 0;
+            const bonusTotal = (bonusRaca[habilidade] || 0) + (bonusSub[habilidade] || 0);
+            const valorFinal = valorBase > 0 ? valorBase + bonusTotal : 0;
+            const mod = valorFinal > 0 ? calcularBonus(valorFinal) : "—";
+
+            return (
               <Grid item xs={12} sm={6} md={4} key={index}>
-                <Box sx={{ mb: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <Typography variant="subtitle2">{habilidade}</Typography>
-                  <Chip
-                    label={
-                      valoresHabilidade[habilidade]
-                        ? `${valoresHabilidade[habilidade]} (${calcularBonus(Number(valoresHabilidade[habilidade]) + (bonusRaca[habilidade] || 0) + (bonusSub[habilidade] || 0))})`
-                        : "—"
-                    }
-                    size="small"
-                  />
-                </Box>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    bgcolor: "rgba(243, 235, 214, 0.6)",
+                    border: "1px solid rgba(92, 64, 51, 0.3)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    position: "relative",
+                  }}
+                >
+                  <Typography variant="subtitle2" sx={{ fontFamily: "Cinzel", fontWeight: 700, color: "#58180D", mb: 1 }}>
+                    {habilidade}
+                  </Typography>
 
-                <FormControl fullWidth>
-                  <Select
-                    value={valoresHabilidade[habilidade] ?? ""}
-                    onChange={(e) => handleSelecionarValor(habilidade, Number(e.target.value))}
-                    displayEmpty
+                  {/* Caixa do Modificador (Estilo Ficha D&D) */}
+                  <Box
+                    sx={{
+                      width: 50,
+                      height: 50,
+                      borderRadius: "12px",
+                      border: "2px solid #2c1a10",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      bgcolor: "#fff",
+                      mb: 1,
+                    }}
                   >
-                    <MenuItem value="">
-                      <em>Escolha</em>
-                    </MenuItem>
+                    <Typography variant="h5" sx={{ fontWeight: 900, color: "#2c1a10" }}>
+                      {mod}
+                    </Typography>
+                  </Box>
 
-                    {opcoesDisponiveis(habilidade).map((opcao) => (
-                      <MenuItem key={opcao.realValue} value={opcao.realValue}>
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ duration: 0.18 }}
-                          style={{ width: "100%" }}
-                        >
-                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+                  <Typography variant="caption" sx={{ color: "#833c0b", fontWeight: 700, mb: 1 }}>
+                    Valor: {valorFinal > 0 ? valorFinal : "—"}
+                  </Typography>
+
+                  <FormControl fullWidth size="small">
+                    <Select
+                      value={valoresHabilidade[habilidade] ?? ""}
+                      onChange={(e) => handleSelecionarValor(habilidade, Number(e.target.value))}
+                      displayEmpty
+                      sx={{ bgcolor: "rgba(255,255,255,0.5)" }}
+                    >
+                      <MenuItem value="">
+                        <em>Escolha</em>
+                      </MenuItem>
+                      {opcoesDisponiveis(habilidade).map((opcao) => (
+                        <MenuItem key={opcao.realValue} value={opcao.realValue}>
+                          <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
                             <span>{opcao.displayValue}</span>
-                            <Typography variant="caption" color="text.secondary">
-                              ({opcao.bonusText}) base {opcao.realValue}
+                            <Typography variant="caption" sx={{ opacity: 0.6 }}>
+                              (Base {opcao.realValue})
                             </Typography>
                           </Box>
-                        </motion.div>
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Paper>
               </Grid>
-            ))}
-          </Grid>
-        </Paper>
+            );
+          })}
+        </Grid>
 
-        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-          <Typography variant="caption" color="text.secondary">
-            Valores usados:
-          </Typography>
-          {selecionadas.length === 0 ? (
-            <Typography variant="caption">Nenhum</Typography>
-          ) : (
-            selecionadas.map((v) => <Chip key={v} label={v} size="small" />)
-          )}
-        </Box>
+        <Paper elevation={0} sx={{ p: 2, bgcolor: "rgba(0,0,0,0.05)", borderRadius: 2 }}>
+          <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+            <Typography variant="caption" sx={{ fontWeight: 700, color: "#58180D" }}>
+              VALORES USADOS:
+            </Typography>
+            {selecionadas.length === 0 ? (
+              <Typography variant="caption" sx={{ fontStyle: "italic" }}>Nenhum</Typography>
+            ) : (
+              selecionadas.map((v) => (
+                <Chip 
+                  key={v} 
+                  label={v} 
+                  size="small" 
+                  sx={{ 
+                    bgcolor: "#833c0b", 
+                    color: "#fff", 
+                    fontWeight: 700,
+                    fontFamily: "Cinzel" 
+                  }} 
+                />
+              ))
+            )}
+          </Stack>
+        </Paper>
       </Stack>
     </LayoutFicha>
   );
