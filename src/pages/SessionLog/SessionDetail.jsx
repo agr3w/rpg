@@ -149,12 +149,12 @@ export default function SessionLogDetail() {
           >
             <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1 }}>
               <Chip
-                label={`XP pendente: ${overview.pendingXp >= 0 ? `+${overview.pendingXp}` : overview.pendingXp}`}
+                label={`XP pendente total: ${overview.pendingXp >= 0 ? `+${overview.pendingXp}` : overview.pendingXp}`}
                 variant="outlined"
               />
-              <Chip label={`NPCs: ${overview.npcsCount}`} variant="outlined" />
-              <Chip label={`Quests: ${overview.questsCount}`} variant="outlined" />
-              <Chip label={`Loot: ${overview.lootCount}`} variant="outlined" />
+              <Chip label={`NPCs vistos: ${overview.npcsCount}`} variant="outlined" />
+              <Chip label={`Quests tocadas: ${overview.questsCount}`} variant="outlined" />
+              <Chip label={`Loot adicionado: ${overview.lootCount}`} variant="outlined" />
               <Chip
                 label={linkedFichaId ? "Ficha vinculada: OK" : "Ficha vinculada: nenhuma"}
                 color={linkedFichaId ? "success" : "default"}

@@ -26,11 +26,6 @@ export default function SessionHeader({
     <RpgSection
       title={session?.title || "Sessão"}
       subtitle="Título, resumo e ficha vinculada (para aplicar XP/loot)."
-      actions={
-        <Button component={Link} to={`/diario?c=${encodeURIComponent(campaignId)}`}>
-          Voltar
-        </Button>
-      }
     >
       <Stack spacing={1}>
         <TextField
