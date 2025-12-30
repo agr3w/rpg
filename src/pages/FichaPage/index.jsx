@@ -42,7 +42,11 @@ import {
   List,
   ListItem,
   ListItemText,
+  LinearProgress,
+  Stack,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { Link, useNavigate } from "react-router-dom";
 import { getClassBackgroundUrl } from "pages/FichaDetalhes/backgounds/classBackgrounds";
 import { backgrounds } from "pages/FichaDetalhes/backgounds/arrayLinksBackgrounds"; // ✅ ADICIONAR
@@ -64,6 +68,9 @@ const pageTransition = {
 };
 
 const FichaCriar = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [nome, setNome] = useState("");
   const [raca, setRaca] = useState("");
   const [SubRaca, setSubRaca] = useState("");
@@ -409,6 +416,13 @@ const FichaCriar = () => {
     "Atributos",
   ];
 
+  const TOTAL_STEPS = 11; // 1..11 (11 = resumo)
+  const progressValue = useMemo(() => {
+    // etapa 1 => ~0%, etapa 11 => 100%
+    const clamped = Math.min(Math.max(etapa, 1), TOTAL_STEPS);
+    return ((clamped - 1) / (TOTAL_STEPS - 1)) * 100;
+  }, [etapa]);
+
   // ✅ Atualiza detalhes/traits ao trocar raça + reseta dependências
   useEffect(() => {
     if (!raca) {
@@ -586,13 +600,29 @@ const FichaCriar = () => {
           <Typography variant="h6" align="center" gutterBottom>
             Criar Ficha
           </Typography>
-          <Stepper activeStep={Math.max(0, etapa - 1)} alternativeLabel>
-            {steps.map((label) => (
-              <Step key={label}>
-                <StepLabel>{label}</StepLabel>
-              </Step>
-            ))}
-          </Stepper>
+
+          {/* ✅ Mobile: compacto e legível */}
+          {isMobile ? (
+            <Stack spacing={1}>
+              <Stack direction="row" justifyContent="space-between" alignItems="baseline">
+                <Typography variant="body2" sx={{ fontWeight: 900 }}>
+                  Etapa {etapa} de {TOTAL_STEPS}
+                </Typography>
+                <Typography variant="caption" sx={{ opacity: 0.75 }}>
+                  {etapa <= 10 ? steps[etapa - 1] : "Resumo"}
+                </Typography>
+              </Stack>
+              <LinearProgress variant="determinate" value={progressValue} />
+            </Stack>
+          ) : (
+            <Stepper activeStep={Math.max(0, etapa - 1)} alternativeLabel>
+              {steps.map((label) => (
+                <Step key={label}>
+                  <StepLabel>{label}</StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+          )}
         </Paper>
 
         <AnimatePresence mode="wait" initial={false}>
