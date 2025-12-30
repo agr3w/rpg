@@ -1,6 +1,6 @@
 // Inicio.js
 import React, { memo } from "react";
-import { motion, MotionConfig, useReducedMotion } from "framer-motion"; // ✅ add useReducedMotion
+import { motion, MotionConfig, useReducedMotion } from "framer-motion";
 import {
   Box,
   Container,
@@ -9,32 +9,136 @@ import {
   Typography,
   Divider,
   Chip,
+  Button,
+  Grid,
 } from "@mui/material";
 import { alpha, useTheme } from "@mui/material/styles";
+import AutoStoriesIcon from "@mui/icons-material/AutoStories";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import { Link as RouterLink } from "react-router-dom";
 
 import { T_IN } from "../../config/transitions";
-
 import bg from "./tumblr_okx6d5BR4K1rnbw6mo1_540.webp";
 import AppCard from "components/Cards/AppCard";
 import { HOME_SECTIONS } from "components/Cards/cardsRegistry";
 
+// Animações
 const containerVariants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: { staggerChildren: 0.08, when: "beforeChildren" },
+    transition: { staggerChildren: 0.1, when: "beforeChildren" },
   },
 };
 
-const cardItemVariants = {
-  hidden: { opacity: 0, y: 10 },
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: T_IN * 0.44, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.5, ease: "easeOut" },
   },
 };
 
+// Componente Hero (Banner Principal)
+const HeroBanner = () => {
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        mb: 4,
+        p: { xs: 3, md: 5 },
+        borderRadius: 3,
+        position: "relative",
+        overflow: "hidden",
+        color: "#fff",
+        // Estilo "Couro Escuro"
+        background: `linear-gradient(135deg, #2c1a10 0%, #4a2c1d 100%)`,
+        border: "1px solid rgba(255,255,255,0.1)",
+        boxShadow: "0 20px 40px rgba(0,0,0,0.4)",
+      }}
+    >
+      {/* Detalhe Dourado de Fundo */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: -50,
+          right: -50,
+          width: 200,
+          height: 200,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(191, 143, 0, 0.2) 0%, transparent 70%)",
+          filter: "blur(40px)",
+        }}
+      />
+
+      <Grid container spacing={3} alignItems="center">
+        <Grid item xs={12} md={8}>
+          <Stack spacing={2}>
+            <Box>
+              <Typography
+                variant="overline"
+                sx={{ color: "#bf8f00", fontWeight: 800, letterSpacing: 2 }}
+              >
+                Bem-vindo, Viajante
+              </Typography>
+              <Typography
+                variant="h3"
+                sx={{
+                  fontFamily: "Cinzel",
+                  fontWeight: 900,
+                  lineHeight: 1,
+                  background: "linear-gradient(45deg, #fff 30%, #e0c097 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  textShadow: "0 2px 10px rgba(0,0,0,0.3)",
+                }}
+              >
+                RPG Organizer
+              </Typography>
+            </Box>
+            <Typography sx={{ color: "rgba(255,255,255,0.7)", maxWidth: 600, lineHeight: 1.6 }}>
+              Sua mesa virtual está pronta. Acesse suas campanhas, consulte o grimório ou
+              crie novos personagens para a próxima aventura.
+            </Typography>
+
+            <Stack direction="row" spacing={2} sx={{ pt: 1 }}>
+              <Button
+                component={RouterLink}
+                to="/fichas"
+                variant="contained"
+                startIcon={<AddCircleOutlineIcon />}
+                sx={{
+                  bgcolor: "#bf8f00",
+                  color: "#2c1a10",
+                  fontWeight: 800,
+                  "&:hover": { bgcolor: "#a67c00" },
+                }}
+              >
+                Criar Ficha
+              </Button>
+              <Button
+                component={RouterLink}
+                to="/diario"
+                variant="outlined"
+                startIcon={<AutoStoriesIcon />}
+                sx={{
+                  borderColor: "rgba(255,255,255,0.3)",
+                  color: "#fff",
+                  "&:hover": { borderColor: "#fff", bgcolor: "rgba(255,255,255,0.05)" },
+                }}
+              >
+                Diário
+              </Button>
+            </Stack>
+          </Stack>
+        </Grid>
+      </Grid>
+    </Paper>
+  );
+};
+
+// Componente de Seção (Estilo Pergaminho)
 const Section = memo(function Section({
   title,
   subtitle,
@@ -46,79 +150,54 @@ const Section = memo(function Section({
   const accentColor = theme.palette?.[accent]?.main || theme.palette.primary.main;
 
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        borderRadius: 2.5,
-        bgcolor: alpha(theme.palette.background.paper, 0.92),
-        boxShadow: "0 10px 30px rgba(0,0,0,0.18)",
-        p: { xs: 1.5, sm: 2, md: 2.25 },
-
-        // ✅ diferenciação visual por seção
-        border: `1px solid ${alpha(accentColor, 0.22)}`,
-        backgroundImage: `
-          linear-gradient(180deg,
-            ${alpha(accentColor, 0.10)} 0%,
-            ${alpha(theme.palette.background.paper, 0.92)} 42%,
-            ${alpha(theme.palette.background.paper, 0.92)} 100%
-          )
-        `,
-        position: "relative",
-        "&::before": {
-          content: '""',
-          position: "absolute",
-          inset: 0,
-          borderRadius: 2.5,
-          pointerEvents: "none",
-          boxShadow: `inset 0 0 0 1px ${alpha("#000", 0.06)}`,
-        },
-
-        // ✅ PERF: renderização preguiçosa (ótimo quando você tiver mais cards/seções)
-        contentVisibility: "auto",
-        containIntrinsicSize: "420px",
-      }}
-    >
-      <Stack spacing={0.75}>
-        <Stack
-          direction="row"
-          spacing={1}
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ gap: 1, flexWrap: "wrap" }}
-        >
-          <Typography variant="h6" sx={{ fontWeight: 900, color: "#2c1a10" }}>
-            {title}
-          </Typography>
-
-          {chipLabel ? (
-            <Chip
-              size="small"
-              label={chipLabel}
-              sx={{
-                fontWeight: 900,
-                bgcolor: alpha(accentColor, 0.14),
-                border: `1px solid ${alpha(accentColor, 0.35)}`,
-                color: alpha("#2c1a10", 0.92),
-              }}
-            />
-          ) : null}
-        </Stack>
-
-        {subtitle ? (
-          <Typography sx={{ color: "rgba(44,26,16,0.85)" }}>{subtitle}</Typography>
-        ) : null}
-
-        <Divider sx={{ borderColor: alpha(accentColor, 0.20) }} />
-
-        {children}
+    <Box component={motion.div} variants={itemVariants} sx={{ mb: 4 }}>
+      <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2, px: 1 }}>
+        <Box
+          sx={{
+            width: 4,
+            height: 24,
+            bgcolor: accentColor,
+            borderRadius: 1,
+            boxShadow: `0 0 10px ${alpha(accentColor, 0.5)}`,
+          }}
+        />
+        <Typography variant="h5" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#fff" }}>
+          {title}
+        </Typography>
+        {chipLabel && (
+          <Chip
+            label={chipLabel}
+            size="small"
+            sx={{
+              bgcolor: alpha(accentColor, 0.2),
+              color: "#fff", // Melhor contraste no fundo escuro
+              border: `1px solid ${alpha(accentColor, 0.3)}`,
+              fontWeight: 700,
+            }}
+          />
+        )}
       </Stack>
-    </Paper>
+
+      {/* Container dos Cards */}
+      <Box
+        sx={{
+          display: "grid",
+          gap: 2,
+          gridTemplateColumns: {
+            xs: "1fr",
+            sm: "1fr 1fr",
+            lg: "1fr 1fr 1fr",
+          },
+        }}
+      >
+        {children}
+      </Box>
+    </Box>
   );
 });
 
 export default function Inicio() {
-  const prefersReducedMotion = useReducedMotion(); // ✅ PERF: respeita config do usuário
-
+  const prefersReducedMotion = useReducedMotion();
   const sections = HOME_SECTIONS;
 
   return (
@@ -127,98 +206,70 @@ export default function Inicio() {
         component={motion.div}
         initial="hidden"
         animate="show"
-        variants={prefersReducedMotion ? undefined : containerVariants} // ✅ PERF: sem stagger quando reduz motion
+        variants={prefersReducedMotion ? undefined : containerVariants}
         sx={{
           minHeight: "100vh",
           position: "relative",
-
-          // ✅ PERF: "fixed" em mobile costuma causar engasgo em scroll
+          py: { xs: 2, md: 4 },
+          // Background fixo e escuro para contraste
           "&::before": {
             content: '""',
-            position: { xs: "absolute", md: "fixed" }, // ✅
+            position: "fixed",
             inset: 0,
             zIndex: -2,
-            backgroundImage: `linear-gradient(rgba(16, 18, 16, 0.55), rgba(16, 18, 16, 0.55)), url(${bg})`,
+            backgroundImage: `linear-gradient(rgba(16, 18, 16, 0.85), rgba(16, 18, 16, 0.75)), url(${bg})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           },
-          "&::after": {
-            content: '""',
-            position: { xs: "absolute", md: "fixed" }, // ✅
-            inset: 0,
-            zIndex: -1,
-            background:
-              "radial-gradient(80% 60% at 50% 30%, rgba(255,255,255,0.08), rgba(0,0,0,0.35))",
-            pointerEvents: "none",
-          },
-
-          py: { xs: 2, md: 5 },
         }}
       >
         <Container maxWidth="lg">
-          <Paper
-            elevation={0}
+          {/* Hero Section */}
+          <motion.div variants={itemVariants}>
+            <HeroBanner />
+          </motion.div>
+
+          {/* Seções */}
+          {sections.map((section) => (
+            <Section
+              key={section.key}
+              title={section.title}
+              subtitle={section.subtitle}
+              chipLabel={section.chipLabel}
+              accent={section.accent}
+            >
+              {section.items.map((card) => {
+                const Wrapper = prefersReducedMotion ? Box : motion.div;
+                return (
+                  <Box key={card.id} component={Wrapper} variants={itemVariants}>
+                    <AppCard {...card} />
+                  </Box>
+                );
+              })}
+            </Section>
+          ))}
+
+          {/* Footer discreto */}
+          <Typography
+            align="center"
             sx={{
-              mb: 2,
-              p: { xs: 2, md: 2.5 },
-              borderRadius: 2.5,
-              bgcolor: "rgba(223, 214, 205, 0.92)",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.18)",
+              mt: 6,
+              fontSize: 12,
+              opacity: 0.6,
+              color: "#fff",
+              fontFamily: "Cinzel",
             }}
           >
-            <Stack spacing={0.75}>
-              <Typography variant="h4" sx={{ fontWeight: 900, color: "#2c1a10" }}>
-                RPG Organizer
-              </Typography>
-              <Typography sx={{ color: "rgba(44,26,16,0.85)" }}>
-                Escolha um caminho — campanha primeiro, ou ferramentas do seu acervo.
-              </Typography>
-            </Stack>
-          </Paper>
-
-          <Stack spacing={2}>
-            {sections.map((section) => (
-              <Section
-                key={section.key}
-                title={section.title}
-                subtitle={section.subtitle}
-                chipLabel={section.chipLabel}
-                accent={section.accent}
-              >
-                <Box
-                  sx={{
-                    display: "grid",
-                    gap: 1.5,
-                    gridTemplateColumns: {
-                      xs: "1fr",
-                      sm: "1fr 1fr",
-                      lg: "1fr 1fr 1fr",
-                    },
-                  }}
-                >
-                  {section.items.map((card) => {
-                    const Wrapper = prefersReducedMotion ? Box : motion.div; // ✅ PERF: sem motion quando reduz
-                    return (
-                      <Box key={card.id} component={Wrapper} variants={cardItemVariants}>
-                        <AppCard {...card} />
-                      </Box>
-                    );
-                  })}
-                </Box>
-              </Section>
-            ))}
-          </Stack>
-
-          <Typography sx={{ mt: 2, fontSize: 12, opacity: 0.85, color: "rgba(255,255,255,0.8)" }}>
-            BackGround Art By:{" "}
+            "A aventura espera por aqueles que ousam escrever seu destino."
+            <br />
             <Box
               component="a"
-              href="https://waneella.tumblr.com/post/156858332747/preparing-pixel-art-video-backgrounds-for"
+              href="https://waneella.tumblr.com/"
               target="_blank"
               rel="noreferrer"
-              sx={{ color: "inherit", textDecoration: "underline" }}
+              sx={{ color: "inherit", textDecoration: "none", opacity: 0.7 }}
             >
-              Waneella Pixel Art
+              Arte por Waneella
             </Box>
           </Typography>
         </Container>
