@@ -1,8 +1,9 @@
 import React from "react";
-import { Box, Container, Typography, Paper } from "@mui/material";
+import { Box, Divider, Link as MuiLink, Stack, Typography } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import AuthComponent from "components/SingIn";
-import { useTheme } from "@mui/material/styles";
+import AuthShell from "components/Auth/AuthShell";
 
 const pageVariants = {
   hidden: { opacity: 0, y: 8 },
@@ -10,24 +11,34 @@ const pageVariants = {
 };
 
 export default function Login() {
-  const theme = useTheme();
-
   return (
-    <>
-      <Container maxWidth="md" sx={{ minHeight: "calc(100vh - 80px)", display: "flex", alignItems: "center", justifyContent: "center", py: 6 }}>
-        <motion.div initial="hidden" animate="show" variants={pageVariants} style={{ width: "100%" }}>
-          <Box sx={{ textAlign: "center", mb: 3 }}>
-            <Typography variant="h3" sx={{ fontWeight: 800, color: "primary.main" }}>
-              Bem-vindo de volta, aventureiro
-            </Typography>
-            <Typography sx={{ color: "text.secondary" }}>Entre para acessar suas campanhas e recursos</Typography>
+    <AuthShell
+      title="Entrar"
+      subtitle="Acesse suas fichas, diário e ferramentas de campanha."
+      elementOverride="parchment"
+    >
+      <Box component={motion.div} initial="hidden" animate="show" variants={pageVariants}>
+        <Stack spacing={2}>
+          <Box
+            sx={{
+              borderRadius: 2.5,
+              border: "1px solid var(--rpg-stroke)",
+              bgcolor: "rgba(0,0,0,0.06)",
+              p: { xs: 1, md: 2 },
+            }}
+          >
+            <AuthComponent />
           </Box>
 
-          <Paper elevation={0} sx={{ display: "flex", justifyContent: "center", p: { xs: 1, md: 0 } }}>
-            <AuthComponent />
-          </Paper>
-        </motion.div>
-      </Container>
-    </>
+          <Divider />
+
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={1} justifyContent="center">
+            <Typography variant="caption" sx={{ opacity: 0.75,  }}>
+              Continue de onde parou.
+            </Typography>
+          </Stack>
+        </Stack>
+      </Box>
+    </AuthShell>
   );
 }

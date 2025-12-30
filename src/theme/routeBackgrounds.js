@@ -46,3 +46,20 @@ export function pickBackgroundUrl({ element, pathname }) {
   const idx = hashString(`${element}:${pathname}`) % pool.length;
   return pool[idx];
 }
+
+// Backgrounds por rota (Vite).
+// Coloque as imagens em: src/assets/backgrounds/auth/
+
+const AUTH_LOGIN = new URL("../assets/backgrounds/auth/login.jpg", import.meta.url).href;
+const AUTH_REGISTER = new URL("../assets/backgrounds/auth/register.jpg", import.meta.url).href;
+const AUTH_WELCOME = new URL("../assets/backgrounds/auth/welcome.jpg", import.meta.url).href;
+
+export const ROUTE_BACKGROUND = {
+  "/login": AUTH_LOGIN,
+  "/Registrar-se": AUTH_REGISTER,
+  "/BemVindo": AUTH_WELCOME,
+};
+
+export function getRouteBackgroundUrl(pathname) {
+  return ROUTE_BACKGROUND[pathname] || null;
+}

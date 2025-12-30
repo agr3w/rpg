@@ -1,10 +1,20 @@
-import React, { useState } from "react";
-// usar auth compat exportado pelo arquivo central
+import React, { useMemo, useState } from "react";
 import { auth } from "APIs/firebaseConfig";
-import { Button, TextField, Typography, IconButton } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  Divider,
+  FormHelperText,
+  IconButton,
+  InputAdornment,
+  Paper,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import styles from "./RegisterComponent.module.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 
 const emailIsValid = (email) => /\S+@\S+\.\S+/.test(email);
 
@@ -12,128 +22,151 @@ const RegisterComponent = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
   const [error, setError] = useState("");
-  const [passwordValid, setPasswordValid] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleEmailChange = (event) => {
-    setEmail(event.target.value);
-  };
+  const passwordRules = useMemo(() => {
+    const hasMin = password.length >= 8;
+    const hasNumber = /\d/.test(password);
+    return { hasMin, hasNumber, ok: hasMin && hasNumber };
+  }, [password]);
 
-  const handlePasswordChange = (event) => {
-    const newPassword = event.target.value;
-    setPassword(newPassword);
-    setPasswordValid(newPassword.length >= 8 && /\d/.test(newPassword));
-  };
+  const passwordsMatch = password && confirmPassword && password === confirmPassword;
 
-  const handleConfirmPasswordChange = (event) => {
-    setConfirmPassword(event.target.value);
-  };
+  const handleTogglePasswordVisibility = () => setShowPassword((s) => !s);
 
-  const handleTogglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
+  const handleRegister = async (e) => {
+    e?.preventDefault();
+    setError("");
 
-  const handleRegister = async () => {
     const cleanedEmail = email.trim();
-    if (!emailIsValid(cleanedEmail)) {
-      setError("Email inválido");
-      return;
-    }
+    if (!emailIsValid(cleanedEmail)) return setError("Email inválido.");
+    if (!passwordRules.ok) return setError("A senha deve ter pelo menos 8 caracteres e conter um número.");
+    if (!passwordsMatch) return setError("As senhas não coincidem.");
 
-    if (!passwordValid) {
-      setError("A senha deve ter pelo menos 8 caracteres e conter pelo menos um número.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError("As senhas não coincidem.");
-      return;
-    }
-
+    setSubmitting(true);
     try {
-      setError("");
-      // compat API: auth é firebase.auth() — usar método compat
       await auth.createUserWithEmailAndPassword(cleanedEmail, password);
-      // redireciona para home após registro
       navigate("/");
     } catch (err) {
       console.error("Error during registration:", err);
-      setError(err.message || "Erro durante o registro.");
+      setError("Não foi possível criar a conta. Tente outro email ou tente novamente.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className={styles.registerForm}>
-      <h2>Cadastro</h2>
-      <TextField
-        label="Email"
-        type="email"
-        value={email}
-        onChange={handleEmailChange}
-        variant="outlined"
-        className={styles.inputField}
-        style={{ margin: "10px" }}
-      />
-      <TextField
-        label="Password"
-        type={showPassword ? "text" : "password"}
-        value={password}
-        onChange={handlePasswordChange}
-        variant="outlined"
-        className={styles.inputField}
-        style={{ margin: "10px" }}
-        InputProps={{
-          endAdornment: (
-            <IconButton aria-label="toggle password visibility" onClick={handleTogglePasswordVisibility} edge="end">
-              {showPassword ? <Visibility /> : <VisibilityOff />}
-            </IconButton>
-          ),
-        }}
-      />
-      <TextField
-        label="Confirm Password"
-        type={showPassword ? "text" : "password"}
-        value={confirmPassword}
-        onChange={handleConfirmPasswordChange}
-        variant="outlined"
-        className={styles.inputField}
-        style={{ margin: "10px" }}
-        InputProps={{
-          endAdornment: (
-            <IconButton aria-label="toggle password visibility" onClick={handleTogglePasswordVisibility} edge="end">
-              {showPassword ? <Visibility /> : <VisibilityOff />}
-            </IconButton>
-          ),
-        }}
-      />
-      {error && <Typography color="error">{error}</Typography>}
-      {!passwordValid && (
-        <Typography color="error" style={{ marginTop: "0", marginBottom: "10px" }} className={styles.error}>
-          A senha deve ter pelo menos:
-          <ul>
-            <li>8 caracteres</li>
-            <li>conter pelo menos um número.</li>
-          </ul>
+    <Paper
+      elevation={0}
+      sx={{
+        mx: "auto",
+        p: { xs: 2, md: 3 },
+        borderRadius: 3,
+        border: "1px solid var(--rpg-stroke)",
+        bgcolor: "rgba(0,0,0,0.04)",
+      }}
+    >
+      <Stack spacing={1} sx={{ textAlign: "center" }}>
+        <Typography variant="h5" sx={{ fontWeight: 1000, color: "var(--rpg-ink)" }}>
+          Cadastro
         </Typography>
-      )}
-      <Button
-        variant="contained"
-        onClick={handleRegister}
-        className={styles.registerButton}
-        style={{ marginTop: "0", marginBottom: "10px" }}
-        disabled={!passwordValid || password !== confirmPassword || error !== "" || !email}
-      >
-        Registrar-se
-      </Button>
+        <Typography variant="caption" sx={{ opacity: 0.8 }}>
+          Forje sua conta e comece a registrar a jornada.
+        </Typography>
+      </Stack>
 
-      <Link to={"/login"}>
-        <Button variant="outlined" style={{ marginTop: "5px" }} className={styles.registerButton}>
-          Já tenho uma conta
-        </Button>
-      </Link>
-    </div>
+      <Divider sx={{ my: 2, borderColor: "rgba(0,0,0,0.06)" }} />
+
+      <Box component="form" onSubmit={handleRegister}>
+        <Stack spacing={2}>
+          <TextField
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            fullWidth
+            autoComplete="email"
+          />
+
+          <TextField
+            label="Senha"
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            fullWidth
+            autoComplete="new-password"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={handleTogglePasswordVisibility} edge="end" aria-label="Mostrar/ocultar senha">
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <TextField
+            label="Confirmar senha"
+            type={showPassword ? "text" : "password"}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            fullWidth
+            autoComplete="new-password"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={handleTogglePasswordVisibility} edge="end" aria-label="Mostrar/ocultar senha">
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <FormHelperText sx={{ m: 0 }}>
+            Regras da senha:{" "}
+            <b style={{ color: passwordRules.hasMin ? "var(--rpg-accent2)" : "inherit" }}>8+ caracteres</b>{" "}
+            e{" "}
+            <b style={{ color: passwordRules.hasNumber ? "var(--rpg-accent2)" : "inherit" }}>1 número</b>.
+          </FormHelperText>
+
+          {error ? <Alert severity="error">{error}</Alert> : null}
+
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            disabled={
+              submitting ||
+              !email.trim() ||
+              !passwordRules.ok ||
+              !passwordsMatch
+            }
+            sx={{ fontWeight: 950 }}
+          >
+            {submitting ? "Criando..." : "Criar conta"}
+          </Button>
+
+          <Button
+            component={RouterLink}
+            to="/login"
+            variant="outlined"
+            type="button"
+            fullWidth
+            sx={{ fontWeight: 900 }}
+          >
+            Já tenho uma conta
+          </Button>
+        </Stack>
+      </Box>
+    </Paper>
   );
 };
 

@@ -10,9 +10,11 @@ import {
   InputAdornment,
   Divider,
   Link as MuiLink,
+  Alert,
+  Stack,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { Link, useNavigate } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { auth } from "APIs/firebaseConfig";
 
 const emailIsValid = (email) => /\S+@\S+\.\S+/.test(email);
@@ -20,7 +22,10 @@ const emailIsValid = (email) => /\S+@\S+\.\S+/.test(email);
 const AuthComponent = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
@@ -29,30 +34,20 @@ const AuthComponent = () => {
   const handleSignIn = async (e) => {
     e?.preventDefault();
     setError("");
+
     const cleanedEmail = email.trim();
-    if (!emailIsValid(cleanedEmail)) return setError("Email inválido");
-    if (password.length < 6) return setError("Senha precisa ter ao menos 6 caracteres");
+    if (!emailIsValid(cleanedEmail)) return setError("Email inválido.");
+    if (password.length < 6) return setError("Senha precisa ter ao menos 6 caracteres.");
+
+    setSubmitting(true);
     try {
       await auth.signInWithEmailAndPassword(cleanedEmail, password);
       navigate("/");
     } catch (err) {
       console.error("Erro ao logar:", err);
-      setError(err.message || "Erro ao autenticar");
-    }
-  };
-
-  const handleRegister = async (e) => {
-    e?.preventDefault();
-    setError("");
-    const cleanedEmail = email.trim();
-    if (!emailIsValid(cleanedEmail)) return setError("Email inválido");
-    if (password.length < 6) return setError("Senha precisa ter ao menos 6 caracteres");
-    try {
-      await auth.createUserWithEmailAndPassword(cleanedEmail, password);
-      navigate("/");
-    } catch (err) {
-      console.error("Erro durante o registro:", err);
-      setError(err.message || "Erro durante o registro");
+      setError("Não foi possível entrar. Verifique email e senha.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -64,37 +59,37 @@ const AuthComponent = () => {
   return (
     <motion.div initial="hidden" animate="show" variants={cardVariants}>
       <Paper
-        elevation={8}
+        elevation={0}
         sx={{
-          maxWidth: 480,
           mx: "auto",
-          p: 3,
+          p: { xs: 2, md: 3 },
           borderRadius: 3,
-          background:
-            "linear-gradient(180deg, rgba(255,250,244,1) 0%, rgba(245,238,229,1) 100%)",
-          border: (theme) => `1px solid ${theme.palette.rpg?.border || "#6b2f1f"}`,
+          border: "1px solid var(--rpg-stroke)",
+          bgcolor: "rgba(0,0,0,0.04)",
         }}
       >
         <Box sx={{ textAlign: "center", mb: 1 }}>
-          {/* Ornamental header - simple SVG/emoji for D&D vibe */}
-          <Typography variant="h5" sx={{ fontWeight: 700, color: "primary.dark", mb: 0.5 }}>
-            🐉 RPG Organizer
+          <Typography variant="h5" sx={{ fontWeight: 1000, color: "var(--rpg-ink)", mb: 0.5 }}>
+            RPG Organizer
           </Typography>
           <Typography variant="caption" sx={{ color: "text.secondary" }}>
-            Organize suas aventuras — fichas, mapas, músicas e anotações
+            Entrar para continuar sua campanha
           </Typography>
         </Box>
 
         <Divider sx={{ my: 2, borderColor: "rgba(0,0,0,0.06)" }} />
 
-        <Box component="form" onSubmit={handleSignIn} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <Box
+          component="form"
+          onSubmit={handleSignIn}
+          sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+        >
           <TextField
             label="Email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             fullWidth
-            variant="outlined"
             autoComplete="email"
           />
 
@@ -104,12 +99,15 @@ const AuthComponent = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             fullWidth
-            variant="outlined"
             autoComplete="current-password"
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton onClick={handleTogglePasswordVisibility} edge="end" aria-label="toggle password">
+                  <IconButton
+                    onClick={handleTogglePasswordVisibility}
+                    edge="end"
+                    aria-label="Mostrar/ocultar senha"
+                  >
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
@@ -117,41 +115,37 @@ const AuthComponent = () => {
             }}
           />
 
-          {error && (
-            <Typography color="error" variant="body2" sx={{ textAlign: "center" }}>
-              {error}
-            </Typography>
-          )}
+          {error ? <Alert severity="error">{error}</Alert> : null}
 
-          <Box sx={{ display: "flex", gap: 2, justifyContent: "center", mt: 1, flexWrap: "wrap" }}>
-            <Button variant="contained" color="primary" onClick={handleSignIn} sx={{ minWidth: 140 }}>
-              Entrar
+          <Stack spacing={1.25} sx={{ mt: 0.5 }}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              disabled={submitting}
+              sx={{ fontWeight: 950 }}
+              fullWidth
+            >
+              {submitting ? "Entrando..." : "Entrar"}
             </Button>
-            <Button variant="outlined" onClick={handleRegister} sx={{ minWidth: 140 }}>
-              Registrar-se
-            </Button>
-          </Box>
 
-          <Typography variant="body2" sx={{ textAlign: "center", mt: 1 }}>
-            Ou experimente
-          </Typography>
-
-          {/* Decorative quick-actions: small themed buttons (placeholders para futuro OAuth) */}
-          <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
-            {/* <Button size="small" variant="contained" sx={{ bgcolor: "secondary.main", color: "#2b160e" }}>
-              <span style={{ marginRight: 8 }}>⚔️</span> Dungeon
-            </Button> */}
-            <Button size="small" variant="contained" sx={{ bgcolor: "secondary.main" }}>
-              <span style={{ marginRight: 8 }}>📜</span> Ficha Rápida
-            </Button>
-          </Box>
-
-          <Typography variant="body2" sx={{ textAlign: "center", mt: 1 }}>
-            Ainda não tem conta?{" "}
-            <MuiLink component={Link} to="/Registrar-se" sx={{ fontWeight: 700 }}>
+            <Button
+              component={RouterLink}
+              to="/Registrar-se"
+              variant="outlined"
+              type="button"
+              fullWidth
+              sx={{ fontWeight: 900 }}
+            >
               Criar conta
-            </MuiLink>
-          </Typography>
+            </Button>
+
+            <Typography variant="body2" sx={{ textAlign: "center", mt: 0.5 }}>
+              <MuiLink component={RouterLink} to="/BemVindo" underline="hover" sx={{ fontWeight: 800 }}>
+                Ver o que o site oferece
+              </MuiLink>
+            </Typography>
+          </Stack>
         </Box>
       </Paper>
     </motion.div>
