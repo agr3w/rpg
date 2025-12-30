@@ -26,6 +26,7 @@ export function createAppTheme({ mode = "dark", style = "parchment" } = {}) {
         secondary: alpha("#2c1a10", 0.78),
       },
       rpg: {
+        style, // ✅ expõe o preset atual
         leather: "#ba9173",
         ink: "#2c1a10",
         stroke: alpha("#000", 0.12),

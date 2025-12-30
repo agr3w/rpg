@@ -5,13 +5,13 @@ import {
   FormControl,
   InputLabel,
   MenuItem,
-  Paper,
   Select,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import { Link } from "react-router-dom";
+import RpgSection from "./RpgSection";
 
 export default function SessionHeader({
   uid,
@@ -23,31 +23,16 @@ export default function SessionHeader({
   onUpdateSession,
 }) {
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        p: 2.25,
-        borderRadius: 3,
-        border: "1px solid rgba(0,0,0,0.10)",
-        bgcolor: "rgba(223, 214, 205, 0.92)",
-      }}
+    <RpgSection
+      title={session?.title || "Sessão"}
+      subtitle="Título, resumo e ficha vinculada (para aplicar XP/loot)."
+      actions={
+        <Button component={Link} to={`/diario?c=${encodeURIComponent(campaignId)}`}>
+          Voltar
+        </Button>
+      }
     >
       <Stack spacing={1}>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          sx={{ gap: 1, flexWrap: "wrap" }}
-        >
-          <Typography variant="h5" sx={{ fontWeight: 1000, color: "#2c1a10" }}>
-            {session?.title || "Sessão"}
-          </Typography>
-
-          <Button component={Link} to={`/diario?c=${encodeURIComponent(campaignId)}`}>
-            Voltar
-          </Button>
-        </Stack>
-
         <TextField
           label="Título da sessão"
           value={session?.title || ""}
@@ -92,6 +77,6 @@ export default function SessionHeader({
           </Typography>
         ) : null}
       </Stack>
-    </Paper>
+    </RpgSection>
   );
 }

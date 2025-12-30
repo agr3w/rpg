@@ -19,7 +19,6 @@ import {
   DialogTitle,
   Collapse,
   LinearProgress,
-  Checkbox,
 } from "@mui/material";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
@@ -31,6 +30,8 @@ import { database, firebase } from "APIs/firebaseConfig";
 import { useNavigate } from "react-router-dom";
 import QuestFlowPreview from "components/Quests/QuestFlowPreview";
 import { computeFlowProgress } from "components/Quests/questFlowUtils";
+import { RPG_TOKENS } from "theme/rpgTokens";
+import RpgSection from "./RpgSection";
 
 function normalizeKey(name) {
   return String(name || "")
@@ -461,28 +462,20 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
   };
 
   return (
-    <Paper elevation={0} sx={{ p: 2.25, borderRadius: 3, border: "1px solid rgba(0,0,0,0.10)" }}>
+    <RpgSection
+      title="Quests"
+      subtitle="Registre quests tocadas e transforme follow-ups em objetivos."
+    >
       <Stack spacing={1.25}>
-        <Stack direction="row" justifyContent="space-between" alignItems="baseline" sx={{ gap: 1, flexWrap: "wrap" }}>
-          <Typography variant="h6" sx={{ fontWeight: 950 }}>
-            Quests
-          </Typography>
-          <Typography variant="caption" sx={{ opacity: 0.75 }}>
-            (Follow-ups viraram objetivos do plano + eventos)
-          </Typography>
-        </Stack>
-
-        <Divider />
-
         {/* Form: adicionar quest */}
-        <Stack direction={{ xs: "column", md: "row" }} spacing={1} alignItems={{ md: "center" }}>
-          <Autocomplete
+        <Stack direction={{ xs: "column", md: "column" }} spacing={1} alignItems={{ md: "center", lg: "center" }}>
+          <TextField
             freeSolo
-            options={options}
             value={questTitle}
-            onInputChange={(_, v) => setQuestTitle(v)}
-            renderInput={(params) => <TextField {...params} label="Título da quest" placeholder="Ex.: Investigar o sumiço na taverna" />}
-            sx={{ flex: 2 }}
+            onChange={(e) => setQuestTitle(e.target.value)}
+            label="Título da quest"
+            placeholder="Ex.: Investigar o sumiço na taverna"
+            sx={{ flex: 2, minWidth: 160 }}
           />
 
           <Select
@@ -503,13 +496,15 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
             value={questNote}
             onChange={(e) => setQuestNote(e.target.value)}
             placeholder='Ex.: "o taverneiro mentiu"'
-            sx={{ flex: 2 }}
+            sx={{ flex: 2, minWidth: 160 }}
           />
 
           <Button variant="outlined" onClick={addQuest}>
             Adicionar
           </Button>
         </Stack>
+
+        <Divider />
 
         {/* Lista: quests na sessão + plano */}
         {questsWithMaster.length === 0 ? (
@@ -530,8 +525,8 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
                   sx={{
                     p: 1.25,
                     borderRadius: 2.5,
-                    border: "1px solid rgba(0,0,0,0.10)",
-                    background: "linear-gradient(180deg, rgba(255,250,244,1) 0%, rgba(245,238,229,1) 100%)",
+                    border: RPG_TOKENS.border,
+                    background: RPG_TOKENS.cardBg,
                   }}
                 >
                   <Stack spacing={1}>
@@ -700,6 +695,6 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
           </DialogActions>
         </Dialog>
       </Stack>
-    </Paper>
+    </RpgSection>
   );
 }

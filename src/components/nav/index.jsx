@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
 import {
@@ -111,11 +111,9 @@ const Nav = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // ✅ Desktop: menu “Ferramentas”
   const [toolsAnchorEl, setToolsAnchorEl] = useState(null);
   const toolsMenuOpen = Boolean(toolsAnchorEl);
 
-  // ✅ Drawer: collapse “Ferramentas”
   const [toolsOpen, setToolsOpen] = useState(true);
 
   const mainItems = useMemo(
@@ -148,21 +146,81 @@ const Nav = () => {
 
   const handleToolsMenuOpen = useCallback((event) => setToolsAnchorEl(event.currentTarget), []);
   const handleToolsMenuClose = useCallback(() => setToolsAnchorEl(null), []);
-  const toggleToolsOpen = useCallback(() => setToolsOpen((v) => !v), []);
+
+  const toggleToolsOpen = useCallback(() => {
+    setToolsOpen((v) => !v);
+  }, []);
 
   const handleLogout = useCallback(async () => {
     try {
       await signOut(auth);
       navigate("/login");
-    } catch {
-      // opcional: toast/snackbar
+    } catch (e) {
+      console.error("Erro ao sair:", e);
     }
   }, [navigate]);
 
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 110, damping: 26, restDelta: 0.001 });
+  useEffect(() => {
+    setDrawerOpen(false);
+    setToolsAnchorEl(null);
+    setAnchorEl(null);
+  }, [location.pathname]);
 
-  // ✅ Indicador “marcador de página” para rota ativa (usa .active do NavLink)
+  // ✅ Menu "Ferramentas" com EXACTAMENTE o mesmo visual do NAV (vars + camadas)
+  const toolsMenuPaperSx = useMemo(
+    () => ({
+      mt: 1.25,
+      minWidth: 240,
+      borderRadius: 2,
+      backgroundColor: "var(--rpg-navBg)",
+      border: "1px solid var(--rpg-stroke)",
+      overflow: "hidden",
+      isolation: "isolate",
+      boxShadow: "0 14px 35px rgba(0,0,0,0.22)",
+
+      "&::before": {
+        content: '""',
+        position: "absolute",
+        inset: 0,
+        pointerEvents: "none",
+        zIndex: 0,
+        opacity: "var(--rpg-woodOpacity)", 
+        mixBlendMode: "multiply",
+      },
+      "&::after": {
+        content: '""',
+        position: "absolute",
+        inset: 0,
+        pointerEvents: "none",
+        zIndex: 0,
+        opacity: "var(--rpg-emberOpacity)",
+        backgroundImage: `
+          radial-gradient(1px 1px at 12% 40%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 60%),
+          radial-gradient(2px 2px at 46% 22%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 60%),
+          radial-gradient(1px 1px at 78% 52%, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0) 60%),
+          radial-gradient(7px 7px at 18% 66%, color-mix(in srgb, var(--rpg-accent2) 60%, transparent) 0%, transparent 60%),
+          radial-gradient(5px 5px at 62% 42%, color-mix(in srgb, var(--rpg-accent) 55%, transparent) 0%, transparent 62%),
+          radial-gradient(6px 6px at 84% 32%, color-mix(in srgb, var(--rpg-accent2) 45%, transparent) 0%, transparent 62%),
+          radial-gradient(80% 140% at 50% 110%, rgba(255,120,0,0.10) 0%, rgba(255,120,0,0.00) 60%)
+        `,
+        mixBlendMode: "screen",
+      },
+
+      // garante conteúdo acima das camadas e com espaçamento igual
+      "& .MuiMenu-list": { position: "relative", zIndex: 1, py: 0.75 },
+    }),
+    []
+  );
+
+  const handleToolsNavigate = useCallback(
+    (path) => {
+      handleToolsMenuClose();      // ✅ fecha sempre
+      navigate(path);              // ✅ navega mesmo se for “rota atual”
+    },
+    [handleToolsMenuClose, navigate]
+  );
+
+  // ✅ estilo reaproveitado do NAV (mesma base visual)
   const bookmarkSx = useMemo(
     () => ({
       position: "relative",
@@ -369,20 +427,25 @@ const Nav = () => {
                 anchorEl={toolsAnchorEl}
                 open={toolsMenuOpen}
                 onClose={handleToolsMenuClose}
-                PaperProps={{ sx: { mt: 1.5, minWidth: 220 } }}
+                keepMounted
+                PaperProps={{ sx: toolsMenuPaperSx }}
               >
                 {toolsItems.map((item) => (
                   <MenuItem
                     key={item.text}
-                    component={NavLink}
-                    to={item.path}
-                    onClick={handleToolsMenuClose}
+                    onClick={() => handleToolsNavigate(item.path)}
                     sx={{
-                      "&.active": { color: "var(--rpg-accent)" },
+                      borderRadius: 1.5,
+                      mx: 0.75,
+                      my: 0.25,
+                      color: "inherit",
+                      "&:hover": { backgroundColor: alpha("#000", 0.06) },
                     }}
                   >
-                    <ListItemIcon>{item.icon}</ListItemIcon>
-                    {item.text}
+                    <ListItemIcon sx={{ minWidth: 38, color: "inherit", opacity: 0.9 }}>
+                      {item.icon}
+                    </ListItemIcon>
+                    <Typography sx={{ fontWeight: 800, color: "inherit" }}>{item.text}</Typography>
                   </MenuItem>
                 ))}
               </Menu>
@@ -412,7 +475,9 @@ const Nav = () => {
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
               onClose={handleMenuClose}
-              PaperProps={{ sx: { mt: 1.5, minWidth: 200 } }}
+              PaperProps={{ sx: toolsMenuPaperSx }}
+              sx={{ borderRadius: 1.5, mx: 0.75, my: 0.25, color: "inherit", "&:hover": { backgroundColor: alpha("#000", 0.06) } }}
+
             >
               <MenuItem
                 onClick={() => {
@@ -420,7 +485,7 @@ const Nav = () => {
                   navigate("/perfil");
                 }}
               >
-                <ListItemIcon>
+                <ListItemIcon sx={{ minWidth: 38, color: "inherit", opacity: 0.9 }}>
                   <SettingsIcon fontSize="small" />
                 </ListItemIcon>
                 Perfil
@@ -429,7 +494,7 @@ const Nav = () => {
               <Divider />
 
               <MenuItem onClick={handleLogout}>
-                <ListItemIcon>
+                <ListItemIcon sx={{ minWidth: 38, color: "inherit", opacity: 0.9 }}>
                   <LogoutIcon fontSize="small" />
                 </ListItemIcon>
                 Sair

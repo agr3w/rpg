@@ -1,6 +1,34 @@
 {
-    "compilerOptions": {
-      "baseUrl": "./src"
-    }
-  }
-  
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "target": "ES6",
+    "jsx": "react",
+    "module": "commonjs",
+    "allowSyntheticDefaultImports": true,
+    "editor.minimap.enabled": false,
+    "explorer.decorations.colors": false,
+    "explorer.decorations.badges": false
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    ".vscode",
+    "coverage",
+    "**/*.png",
+    "**/*.jpg",
+    "**/*.jpeg",
+    "**/*.gif",
+    "**/*.svg",
+    "**/*.mp4"
+  ],
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/*.png": true,
+    "**/*.jpg": true,
+    "**/*.jpeg": true,
+    "**/*.gif": true,
+    "**/*.svg": true
+}
+}

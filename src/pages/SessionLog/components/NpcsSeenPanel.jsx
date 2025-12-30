@@ -4,7 +4,6 @@ import {
   Button,
   Divider,
   IconButton,
-  Paper,
   Stack,
   TextField,
   Tooltip,
@@ -16,6 +15,8 @@ import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 import { database, firebase } from "APIs/firebaseConfig";
 import { useNavigate } from "react-router-dom";
+import RpgSection from "./RpgSection";
+import { RPG_TOKENS } from "theme/rpgTokens";
 
 function normalizeKey(name) {
   return String(name || "")
@@ -31,7 +32,7 @@ export default function NpcsSeenPanel({ uid, campaignId, sessionRef, session, se
   const navigate = useNavigate();
   const [options, setOptions] = useState([]);
   const [npcName, setNpcName] = useState("");
-  const [quickNote, setQuickNote] = useState(""); // ✅ add
+  const [quickNote, setQuickNote] = useState("");
 
   const npcsSeen = useMemo(() => {
     const obj = session?.npcsSeen || {};
@@ -61,7 +62,7 @@ export default function NpcsSeenPanel({ uid, campaignId, sessionRef, session, se
     if (!uid || !campaignId || !sessionRef) return;
 
     const name = String(npcName || "").trim();
-    const note = String(quickNote || "").trim(); // ✅ add
+    const note = String(quickNote || "").trim();
     if (!name) {
       setStatus?.({ type: "warning", msg: "Informe o nome do NPC." });
       return;
@@ -69,7 +70,6 @@ export default function NpcsSeenPanel({ uid, campaignId, sessionRef, session, se
 
     const key = normalizeKey(name);
     if (!key) {
-      setStatus?.({topics: "warning", msg: "Nome inválido para NPC." });
       setStatus?.({ type: "warning", msg: "Nome inválido para NPC." });
       return;
     }
@@ -81,7 +81,6 @@ export default function NpcsSeenPanel({ uid, campaignId, sessionRef, session, se
 
       let npcId = idx?.npcId;
 
-      // ✅ se não existe no índice, cria NPC master
       if (!npcId) {
         const npcRef = database.ref(`users/${uid}/campaigns/${campaignId}/npcs`).push();
         npcId = npcRef.key;
@@ -94,9 +93,9 @@ export default function NpcsSeenPanel({ uid, campaignId, sessionRef, session, se
           tags: [],
           relationships: [],
           imageUrl: "",
-          lastSeenNote: note || "", // ✅ add
-          lastSeenAt: firebase.database.ServerValue.TIMESTAMP, // ✅ add
-          lastSeenSessionId: session?.id || "", // ✅ add
+          lastSeenNote: note || "",
+          lastSeenAt: firebase.database.ServerValue.TIMESTAMP,
+          lastSeenSessionId: session?.id || "",
           createdAt: firebase.database.ServerValue.TIMESTAMP,
           updatedAt: firebase.database.ServerValue.TIMESTAMP,
         });
@@ -108,13 +107,11 @@ export default function NpcsSeenPanel({ uid, campaignId, sessionRef, session, se
           updatedAt: firebase.database.ServerValue.TIMESTAMP,
         });
       } else {
-        // mantém nome do índice atualizável
         await idxRef.update({
           name,
           updatedAt: firebase.database.ServerValue.TIMESTAMP,
         });
 
-        // ✅ atualiza “última vez visto” no NPC master
         await database.ref(`users/${uid}/campaigns/${campaignId}/npcs/${npcId}`).update({
           lastSeenNote: note || "",
           lastSeenAt: firebase.database.ServerValue.TIMESTAMP,
@@ -123,27 +120,25 @@ export default function NpcsSeenPanel({ uid, campaignId, sessionRef, session, se
         });
       }
 
-      // ✅ evita duplicar na sessão por npcId
       const already = npcsSeen.some((n) => n?.npcId && n.npcId === npcId);
       if (already) {
         setNpcName("");
-        setQuickNote(""); // ✅ add
+        setQuickNote("");
         setStatus?.({ type: "info", msg: "Esse NPC já está marcado como visto nesta sessão." });
         return;
       }
 
-      // grava na sessão (inclui nota rápida)
       const rowRef = sessionRef.child("npcsSeen").push();
       await rowRef.set({
         id: rowRef.key,
         npcId,
         name,
-        note: note || "", // ✅ add
+        note: note || "",
         createdAt: firebase.database.ServerValue.TIMESTAMP,
       });
 
       setNpcName("");
-      setQuickNote(""); // ✅ add
+      setQuickNote("");
       setStatus?.({ type: "success", msg: "NPC adicionado à sessão." });
     } catch (e) {
       setStatus?.({ type: "error", msg: e?.message || "Erro ao adicionar NPC." });
@@ -168,26 +163,17 @@ export default function NpcsSeenPanel({ uid, campaignId, sessionRef, session, se
   };
 
   return (
-    <Paper elevation={0} sx={{ p: 2.25, borderRadius: 3, border: "1px solid rgba(0,0,0,0.10)" }}>
+    <RpgSection title="NPCs vistos" subtitle="Registre quem apareceu e uma nota rápida.">
       <Stack spacing={1.25}>
-        <Stack direction="row" justifyContent="space-between" alignItems="baseline" sx={{ gap: 1, flexWrap: "wrap" }}>
-          <Typography variant="h6" sx={{ fontWeight: 950 }}>
-            NPCs vistos
-          </Typography>
-          <Typography variant="caption" sx={{ opacity: 0.75 }}>
-            (Clique no ícone para abrir detalhes)
-          </Typography>
-        </Stack>
-
-        <Divider />
-
         <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems={{ sm: "center" }}>
           <Autocomplete
             freeSolo
             options={options}
             value={npcName}
             onInputChange={(_, v) => setNpcName(v)}
-            renderInput={(params) => <TextField {...params} label="Nome do NPC" placeholder="Ex.: Mestre da Taverna" />}
+            renderInput={(params) => (
+              <TextField {...params} label="Nome do NPC" placeholder="Ex.: Mestre da Taverna" />
+            )}
             sx={{ flex: 1 }}
           />
           <TextField
@@ -196,11 +182,19 @@ export default function NpcsSeenPanel({ uid, campaignId, sessionRef, session, se
             onChange={(e) => setQuickNote(e.target.value)}
             placeholder='Ex.: "parece suspeito"'
             sx={{ flex: 1 }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                addNpc();
+              }
+            }}
           />
           <Button variant="outlined" onClick={addNpc}>
             Adicionar
           </Button>
         </Stack>
+
+        <Divider />
 
         {npcsSeen.length === 0 ? (
           <Typography sx={{ opacity: 0.8 }}>Nenhum NPC marcado nesta sessão.</Typography>
@@ -212,7 +206,8 @@ export default function NpcsSeenPanel({ uid, campaignId, sessionRef, session, se
                 sx={{
                   p: 1.1,
                   borderRadius: 2,
-                  border: "1px solid rgba(0,0,0,0.10)",
+                  border: RPG_TOKENS.border,
+                  background: RPG_TOKENS.cardBg,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
@@ -223,7 +218,7 @@ export default function NpcsSeenPanel({ uid, campaignId, sessionRef, session, se
                 <Stack spacing={0.25} sx={{ minWidth: 0 }}>
                   <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: 0 }}>
                     <Chip label="NPC" size="small" variant="outlined" />
-                    <Typography sx={{ fontWeight: 900, color: "#2c1a10" }} noWrap>
+                    <Typography sx={{ fontWeight: 900, color: RPG_TOKENS.ink }} noWrap>
                       {n.name || "—"}
                     </Typography>
                   </Stack>
@@ -255,6 +250,6 @@ export default function NpcsSeenPanel({ uid, campaignId, sessionRef, session, se
           </Stack>
         )}
       </Stack>
-    </Paper>
+    </RpgSection>
   );
 }

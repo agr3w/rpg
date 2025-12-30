@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, Button, Container, Paper, Stack, Typography } from "@mui/material";
+import { Alert, Button, Chip, Container, Stack, Typography, Box } from "@mui/material";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { auth, database, firebase } from "APIs/firebaseConfig";
 import { T_IN } from "config/transitions";
@@ -10,6 +10,8 @@ import XpPanel from "./components/XpPanel";
 import NpcsSeenPanel from "./components/NpcsSeenPanel";
 import QuestsPanel from "./components/QuestsPanel";
 import LootPanel from "./components/LootPanel";
+
+import RpgSection from "./components/RpgSection";
 
 const DEFAULT_CAMPAIGN_ID = "default";
 
@@ -97,9 +99,22 @@ export default function SessionLogDetail() {
     }
   };
 
+  const overview = useMemo(() => {
+    const xpEntries = session?.xpEntries ? Object.values(session.xpEntries) : [];
+    const pendingXp = xpEntries
+      .filter((e) => e && !e.appliedToFichaAt)
+      .reduce((acc, e) => acc + Number(e.amount || 0), 0);
+
+    const npcsCount = session?.npcsSeen ? Object.keys(session.npcsSeen).length : 0;
+    const questsCount = session?.quests ? Object.keys(session.quests).length : 0;
+    const lootCount = session?.loot ? Object.keys(session.loot).length : 0;
+
+    return { pendingXp, npcsCount, questsCount, lootCount };
+  }, [session]);
+
   if (loading) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
         <Typography sx={{ opacity: 0.8 }}>Carregando sessão…</Typography>
       </Container>
     );
@@ -107,7 +122,7 @@ export default function SessionLogDetail() {
 
   if (!session) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
         <Alert severity="warning">Sessão não encontrada.</Alert>
         <Button component={Link} to={`/diario?c=${encodeURIComponent(campaignId)}`} sx={{ mt: 2 }}>
           Voltar
@@ -117,75 +132,95 @@ export default function SessionLogDetail() {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: { xs: 2, md: 4 } }}>
+    <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0, transition: { duration: T_IN * 0.18 } }}
       >
         <Stack spacing={2}>
-          <SessionHeader
-            uid={uid}
-            campaignId={campaignId}
-            session={session}
-            fichas={fichas}
-            linkedFichaId={linkedFichaId}
-            onLinkedFichaChange={saveLinkedFicha}
-            onUpdateSession={updateSession}
-          />
+          <RpgSection
+            title="Visão geral"
+            subtitle="Um resumo rápido do que você registrou nesta sessão."
+            actions={
+              <Button component={Link} to={`/diario?c=${encodeURIComponent(campaignId)}`}>
+                Voltar
+              </Button>
+            }
+          >
+            <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1 }}>
+              <Chip
+                label={`XP pendente: ${overview.pendingXp >= 0 ? `+${overview.pendingXp}` : overview.pendingXp}`}
+                variant="outlined"
+              />
+              <Chip label={`NPCs: ${overview.npcsCount}`} variant="outlined" />
+              <Chip label={`Quests: ${overview.questsCount}`} variant="outlined" />
+              <Chip label={`Loot: ${overview.lootCount}`} variant="outlined" />
+              <Chip
+                label={linkedFichaId ? "Ficha vinculada: OK" : "Ficha vinculada: nenhuma"}
+                color={linkedFichaId ? "success" : "default"}
+                variant="outlined"
+              />
+            </Stack>
+          </RpgSection>
 
-          {status.msg ? (
-            <Alert severity={status.type}>{status.msg}</Alert>
-          ) : null}
+          {status.msg ? <Alert severity={status.type}>{status.msg}</Alert> : null}
 
-          <XpPanel
-            uid={uid}
-            linkedFichaId={linkedFichaId}
-            sessionRef={sessionRef}
-            session={session}
-            setStatus={setStatus}
-          />
-
-          <NpcsSeenPanel
-            uid={uid}
-            campaignId={campaignId}
-            sessionRef={sessionRef}
-            session={session}
-            setStatus={setStatus}
-          />
-
-          <QuestsPanel
-            uid={uid}
-            campaignId={campaignId}
-            sessionRef={sessionRef}
-            session={session}
-            setStatus={setStatus}
-          />
-
-          <LootPanel
-            uid={uid}
-            campaignId={campaignId}
-            sessionRef={sessionRef}
-            session={session}
-            fichas={fichas}
-            linkedFichaId={linkedFichaId}
-            setStatus={setStatus}
-          />
-
-          <Paper
-            elevation={0}
+          <Box
             sx={{
-              p: 2.25,
-              borderRadius: 3,
-              border: "1px solid rgba(0,0,0,0.10)",
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", md: "1.35fr 1fr" },
+              gap: 2,
+              alignItems: "start",
             }}
           >
-            <Typography variant="h6" sx={{ fontWeight: 950, mb: 1 }}>
-              Estrutura da sessão (em construção)
-            </Typography>
-            <Typography sx={{ opacity: 0.8 }}>
-              Próximo: tags/filtro/busca e links para anotações/ficha.
-            </Typography>
-          </Paper>
+            <Stack spacing={2}>
+              <SessionHeader
+                uid={uid}
+                campaignId={campaignId}
+                session={session}
+                fichas={fichas}
+                linkedFichaId={linkedFichaId}
+                onLinkedFichaChange={saveLinkedFicha}
+                onUpdateSession={updateSession}
+              />
+
+              <QuestsPanel
+                uid={uid}
+                campaignId={campaignId}
+                sessionRef={sessionRef}
+                session={session}
+                setStatus={setStatus}
+              />
+            </Stack>
+
+            <Stack spacing={2}>
+              <XpPanel
+                uid={uid}
+                linkedFichaId={linkedFichaId}
+                sessionRef={sessionRef}
+                session={session}
+                setStatus={setStatus}
+              />
+
+              <NpcsSeenPanel
+                uid={uid}
+                campaignId={campaignId}
+                sessionRef={sessionRef}
+                session={session}
+                setStatus={setStatus}
+              />
+
+              <LootPanel
+                uid={uid}
+                campaignId={campaignId}
+                sessionRef={sessionRef}
+                session={session}
+                fichas={fichas}
+                linkedFichaId={linkedFichaId}
+                setStatus={setStatus}
+              />
+            </Stack>
+          </Box>
         </Stack>
       </motion.div>
     </Container>

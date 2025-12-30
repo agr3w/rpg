@@ -1,7 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import firebase from "firebase/compat/app";
 import {
-  Paper,
   Stack,
   Typography,
   Divider,
@@ -13,7 +11,8 @@ import {
   InputLabel,
   CircularProgress,
 } from "@mui/material";
-import { database } from "APIs/firebaseConfig";
+import { database, firebase } from "APIs/firebaseConfig";
+import RpgSection from "./RpgSection";
 
 export default function LootPanel({
   uid,
@@ -84,27 +83,20 @@ export default function LootPanel({
         createdAt: firebase.database.ServerValue.TIMESTAMP,
       };
 
-      // 1) registra na sessão (histórico de loot)
       const lootRef = sessionRef.child("loot").push();
       await lootRef.set({
         id: lootRef.key,
         ...baseItem,
       });
 
-      // 2) joga direto na mochila da ficha vinculada
       const fichasRef = database.ref(`fichas/${uid}`);
-      const snap = await fichasRef
-        .orderByChild("id")
-        .equalTo(targetFichaId)
-        .once("value");
+      const snap = await fichasRef.orderByChild("id").equalTo(targetFichaId).once("value");
       const fichasObj = snap.val() || {};
       const key = Object.keys(fichasObj)[0];
 
       if (!key) throw new Error("Ficha não encontrada para receber o loot.");
 
-      const backpackRef = fichasRef
-        .child(`${key}/inventory/backpack`)
-        .push();
+      const backpackRef = fichasRef.child(`${key}/inventory/backpack`).push();
 
       await backpackRef.set({
         id: backpackRef.key,
@@ -129,37 +121,18 @@ export default function LootPanel({
   };
 
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        p: 2.25,
-        borderRadius: 3,
-        border: "1px solid rgba(0,0,0,0.10)",
-      }}
+    <RpgSection
+      title="Loot"
+      subtitle="Adicione recompensas desta sessão direto na mochila da ficha vinculada."
     >
       <Stack spacing={1.25}>
-        <Typography variant="h6" sx={{ fontWeight: 950 }}>
-          Loot
-        </Typography>
-        <Typography variant="caption" sx={{ opacity: 0.75 }}>
-          Adicione recompensas desta sessão direto na mochila da ficha
-          vinculada.
-        </Typography>
-
-        <Divider />
-
-        {/* Form de criação */}
-        <Stack
-          direction={{ xs: "column", md: "row" }}
-          spacing={1}
-          alignItems={{ md: "flex-end" }}
-        >
+        <Stack direction={{ xs: "column", md: "row" }} spacing={1} alignItems={{ md: "flex-end" }}>
           <TextField
             label="Item"
             value={itemName}
             onChange={(e) => setItemName(e.target.value)}
             placeholder="Ex.: Espada longa +1"
-            sx={{ flex: 2 }}
+            sx={{ flex: 2, minWidth: 200 }}
           />
 
           <TextField
@@ -199,29 +172,23 @@ export default function LootPanel({
 
         <Divider />
 
-        {/* Lista de loot desta sessão */}
         {loading ? (
           <Stack direction="row" spacing={1} alignItems="center">
             <CircularProgress size={18} />
-            <Typography sx={{ opacity: 0.8 }}>
-              Carregando loot…
-            </Typography>
+            <Typography sx={{ opacity: 0.8 }}>Carregando loot…</Typography>
           </Stack>
         ) : lootList.length === 0 ? (
-          <Typography sx={{ opacity: 0.8 }}>
-            Nenhum loot registrado nesta sessão.
-          </Typography>
+          <Typography sx={{ opacity: 0.8 }}>Nenhum loot registrado nesta sessão.</Typography>
         ) : (
           <Stack spacing={0.5}>
             {lootList.map((l) => (
               <Typography key={l.id} variant="body2" sx={{ opacity: 0.9 }}>
-                {`${l.qty || 1}× ${l.name}`} —{" "}
-                {fichasById[l.targetFichaId]?.nome || l.targetFichaId}
+                {`${l.qty || 1}× ${l.name}`} — {fichasById[l.targetFichaId]?.nome || l.targetFichaId}
               </Typography>
             ))}
           </Stack>
         )}
       </Stack>
-    </Paper>
+    </RpgSection>
   );
 }
