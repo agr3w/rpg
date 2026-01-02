@@ -1,162 +1,221 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Stage, Layer, Line, Rect, Circle, Image as KonvaImage } from "react-konva";
-import { 
-  Box, Paper, IconButton, Tooltip, Typography, CircularProgress, 
-  Button, Slider, Popover, Stack, Dialog, DialogTitle, DialogContent, 
-  DialogActions, TextField, Grid 
-} from "@mui/material";
+import { useParams } from "react-router-dom";
+import { Stage, Layer, Line, Rect, Circle, Text, Image as KonvaImage, Group, Label, Tag, Transformer } from "react-konva";
+import { Box, CircularProgress, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button } from "@mui/material";
 import { useMapContext } from "APIs/MapContext";
 
-// Ícones
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import PanToolIcon from '@mui/icons-material/PanTool';
-import BrushIcon from '@mui/icons-material/Brush';
-import RemoveIcon from '@mui/icons-material/Remove';
-import CropSquareIcon from '@mui/icons-material/CropSquare';
-import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
-import UndoIcon from '@mui/icons-material/Undo';
-import PaletteIcon from '@mui/icons-material/Palette';
-import SettingsIcon from '@mui/icons-material/Settings';
-import ImageIcon from '@mui/icons-material/Image';
-import BrokenImageIcon from '@mui/icons-material/BrokenImage';
+import EditorToolbar from "components/MapEditor/EditorToolbar";
+import LayersPanel from "components/MapEditor/LayersPanel";
+import MapSettingsDialog from "components/MapEditor/MapSettingsDialog";
 
 const MapEditor = () => {
   const { mapId } = useParams();
-  const navigate = useNavigate();
   const { userMaps, saveMapState, updateMapSettings, loading } = useMapContext();
   const currentMap = userMaps.find(m => m.id === mapId);
   const stageRef = useRef(null);
+  const transformerRef = useRef(null);
 
   // --- ESTADOS ---
-  const [tool, setTool] = useState("pan");
+  const [tool, setTool] = useState("select");
   const [elements, setElements] = useState([]);
+  const [selectedId, setSelectedId] = useState(null);
+  
   const [currentElement, setCurrentElement] = useState(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [strokeColor, setStrokeColor] = useState("#000000");
   const [strokeWidth, setStrokeWidth] = useState(5);
-  const [anchorEl, setAnchorEl] = useState(null);
   
-  // Zoom e Pan
   const [stageScale, setStageScale] = useState(1);
   const [stagePos, setStagePos] = useState({ x: 0, y: 0 });
-
-  // Imagem de Fundo
   const [bgImageObj, setBgImageObj] = useState(null);
-
-  // Modal de Configurações
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [tempConfig, setTempConfig] = useState({});
-  const [newBgFile, setNewBgFile] = useState(null);
+  const [textDialogOpen, setTextDialogOpen] = useState(false);
+  const [textInput, setTextInput] = useState("");
+  const [textPos, setTextPos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     if (currentMap) {
       if (currentMap.elements) setElements(currentMap.elements);
-      
-      // Carregar imagem
       if (currentMap.backgroundImage) {
         const img = new window.Image();
         img.src = currentMap.backgroundImage;
         img.onload = () => setBgImageObj(img);
-      } else {
-        setBgImageObj(null);
       }
     }
   }, [currentMap]);
 
-  // --- CONFIGURAÇÕES DO MAPA ---
+  // --- LÓGICA DE SELEÇÃO E TRANSFORMER ---
+  useEffect(() => {
+    if (selectedId && transformerRef.current && stageRef.current) {
+      const node = stageRef.current.findOne('#' + selectedId);
+      if (node) {
+        transformerRef.current.nodes([node]);
+        transformerRef.current.getLayer().batchDraw();
+      }
+    }
+  }, [selectedId, elements]);
+
+  const handleSelect = (id) => {
+    if (tool === "select") {
+      setSelectedId(id);
+    }
+  };
+
+  const checkDeselect = (e) => {
+    const clickedOnEmpty = e.target === e.target.getStage();
+    if (clickedOnEmpty && tool === "select") {
+      setSelectedId(null);
+      if (transformerRef.current) transformerRef.current.nodes([]);
+    }
+  };
+
+  const handleTransformEnd = (e) => {
+    const node = e.target;
+    const id = node.id();
+    
+    const newElements = elements.map(el => {
+      if (el.id.toString() === id) {
+        return {
+          ...el,
+          x: node.x(),
+          y: node.y(),
+          rotation: node.rotation(),
+          scaleX: node.scaleX(),
+          scaleY: node.scaleY(),
+        };
+      }
+      return el;
+    });
+    setElements(newElements);
+    saveMapState(mapId, newElements);
+  };
+
+  const handleDragEnd = (e) => {
+    handleTransformEnd(e);
+  };
+
+  const handleToggleVisibility = (id) => {
+    const newElements = elements.map(el => {
+      if (el.id === id) {
+        return { ...el, isVisible: el.isVisible === false ? true : false };
+      }
+      return el;
+    });
+    setElements(newElements);
+    saveMapState(mapId, newElements);
+  };
+
+  const handleDeleteElement = (id) => {
+    const newElements = elements.filter(el => el.id !== id);
+    setElements(newElements);
+    setSelectedId(null);
+    if (transformerRef.current) transformerRef.current.nodes([]);
+    saveMapState(mapId, newElements);
+  };
+
+  // --- HELPERS ---
   const mapWidth = currentMap?.gridConfig?.width || 20;
   const mapHeight = currentMap?.gridConfig?.height || 15;
   const cellSize = currentMap?.gridConfig?.cellSize || 50;
-  
-  const getThemeColors = (theme) => {
-    switch(theme) {
-      case "stone": return { bg: "#2b2b2b", grid: "#424242" };
-      case "grass": return { bg: "#2e7d32", grid: "#1b5e20" };
-      case "water": return { bg: "#0288d1", grid: "#01579b" };
-      case "void": return { bg: "#121212", grid: "#333" };
-      default: return { bg: "#e3e3e3", grid: "#a5c9ea" };
-    }
-  };
-  const themeColors = getThemeColors(currentMap?.theme);
+  const showGrid = currentMap?.gridConfig?.showGrid !== false; 
+  const themeColors = currentMap ? 
+    (currentMap.theme === "stone" ? { bg: "#2b2b2b", grid: "#424242" } : 
+     currentMap.theme === "grass" ? { bg: "#2e7d32", grid: "#1b5e20" } : 
+     currentMap.theme === "water" ? { bg: "#0288d1", grid: "#01579b" } : 
+     currentMap.theme === "void" ? { bg: "#121212", grid: "#333" } : 
+     { bg: "#e3e3e3", grid: "#a5c9ea" }) : { bg: "#e3e3e3", grid: "#a5c9ea" };
 
-  // --- LÓGICA DE ZOOM (WHEEL) ---
   const handleWheel = (e) => {
     e.evt.preventDefault();
     const scaleBy = 1.1;
     const stage = stageRef.current;
     const oldScale = stage.scaleX();
     const pointer = stage.getPointerPosition();
-
-    const mousePointTo = {
-      x: (pointer.x - stage.x()) / oldScale,
-      y: (pointer.y - stage.y()) / oldScale,
-    };
-
+    const mousePointTo = { x: (pointer.x - stage.x()) / oldScale, y: (pointer.y - stage.y()) / oldScale };
     let newScale = e.evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy;
-    
-    // Limites de Zoom
-    if (newScale < 0.1) newScale = 0.1;
-    if (newScale > 5) newScale = 5;
-
+    if (newScale < 0.1) newScale = 0.1; if (newScale > 5) newScale = 5;
     setStageScale(newScale);
-    setStagePos({
-      x: pointer.x - mousePointTo.x * newScale,
-      y: pointer.y - mousePointTo.y * newScale,
-    });
+    setStagePos({ x: pointer.x - mousePointTo.x * newScale, y: pointer.y - mousePointTo.y * newScale });
   };
 
-  // --- LÓGICA DE COORDENADAS (CORRIGIDA PARA ZOOM) ---
   const getPointerPos = (stage) => {
-    // Transforma a posição do mouse na tela para a posição no "mundo" do canvas (considerando zoom e pan)
     const transform = stage.getAbsoluteTransform().copy();
     transform.invert();
     const pos = transform.point(stage.getPointerPosition());
-
-    // Snap to grid
-    const x = Math.round(pos.x / (cellSize / 2)) * (cellSize / 2);
-    const y = Math.round(pos.y / (cellSize / 2)) * (cellSize / 2);
+    const snap = tool !== "text" && tool !== "ruler" && tool !== "select" && tool !== "brush";
     
+    // Proteção contra NaN se cellSize for inválido
+    const safeCellSize = cellSize || 50;
+    
+    const x = snap ? Math.round(pos.x / (safeCellSize / 2)) * (safeCellSize / 2) : pos.x;
+    const y = snap ? Math.round(pos.y / (safeCellSize / 2)) * (safeCellSize / 2) : pos.y;
     return { x, y, rawX: pos.x, rawY: pos.y };
   };
 
-  // --- HANDLERS DE DESENHO ---
+  // --- HANDLERS DE DESENHO (CORRIGIDOS) ---
   const handleMouseDown = (e) => {
-    if (tool === "pan") return; // Deixa o Konva lidar com o drag
-    
-    // Se clicar com botão do meio ou direito, não desenha
-    if (e.evt.button !== 0) return;
+    if (tool === "pan" || tool === "select" || e.evt.button !== 0) {
+      checkDeselect(e);
+      return;
+    }
+
+    const { x, y, rawX, rawY } = getPointerPos(e.target.getStage());
+
+    if (tool === "text") {
+      setTextPos({ x, y });
+      setTextInput("");
+      setTextDialogOpen(true);
+      return;
+    }
 
     setIsDrawing(true);
-    const { x, y, rawX, rawY } = getPointerPos(e.target.getStage());
     const startX = tool === "brush" ? rawX : x;
     const startY = tool === "brush" ? rawY : y;
 
+    // CORREÇÃO: Inicializar pontos corretamente para evitar NaN
+    // Para Linha e Régua, usamos coordenadas relativas (0,0 é a origem)
+    let initialPoints = [];
+    if (tool === "line" || tool === "ruler") {
+      initialPoints = [0, 0, 0, 0]; 
+    } else if (tool === "brush") {
+      initialPoints = [0, 0]; // Brush usa pontos relativos também agora
+    }
+
     const newEl = {
-      tool, points: [startX, startY], x: startX, y: startY, width: 0, height: 0, radius: 0,
-      stroke: strokeColor, strokeWidth: strokeWidth
+      tool, 
+      points: initialPoints, 
+      x: startX, 
+      y: startY, 
+      width: 0, 
+      height: 0, 
+      radius: 0,
+      stroke: strokeColor, 
+      strokeWidth: strokeWidth,
+      id: Date.now(),
+      isVisible: true
     };
     setCurrentElement(newEl);
   };
 
   const handleMouseMove = (e) => {
-    if (!isDrawing || tool === "pan") return;
+    if (!isDrawing || tool === "pan" || tool === "select") return;
     const { x, y, rawX, rawY } = getPointerPos(e.target.getStage());
-    const currX = tool === "brush" ? rawX : x;
-    const currY = tool === "brush" ? rawY : y;
+    
+    // Coordenadas relativas ao ponto inicial (currentElement.x/y)
+    const relX = (tool === "brush" ? rawX : x) - currentElement.x;
+    const relY = (tool === "brush" ? rawY : y) - currentElement.y;
 
     if (tool === "brush") {
-      const newPoints = currentElement.points.concat([currX, currY]);
+      const newPoints = currentElement.points.concat([relX, relY]);
       setCurrentElement({ ...currentElement, points: newPoints });
-    } else if (tool === "line") {
-      const newPoints = [currentElement.points[0], currentElement.points[1], currX, currY];
+    } else if (tool === "line" || tool === "ruler") {
+      // Atualiza apenas o ponto final [x1, y1, x2, y2]
+      const newPoints = [0, 0, relX, relY];
       setCurrentElement({ ...currentElement, points: newPoints });
     } else if (tool === "rect") {
-      setCurrentElement({ ...currentElement, width: currX - currentElement.x, height: currY - currentElement.y });
+      setCurrentElement({ ...currentElement, width: relX, height: relY });
     } else if (tool === "circle") {
-      const dx = currX - currentElement.x;
-      const dy = currY - currentElement.y;
-      const radius = Math.sqrt(dx * dx + dy * dy);
+      const radius = Math.sqrt(relX * relX + relY * relY);
       setCurrentElement({ ...currentElement, radius });
     }
   };
@@ -164,11 +223,34 @@ const MapEditor = () => {
   const handleMouseUp = () => {
     if (isDrawing && currentElement) {
       setIsDrawing(false);
+      // Evita salvar elementos minúsculos ou inválidos
+      if (tool === "ruler" || tool === "line") {
+         const dx = currentElement.points[2];
+         const dy = currentElement.points[3];
+         if (Math.abs(dx) < 5 && Math.abs(dy) < 5) {
+             setCurrentElement(null);
+             return;
+         }
+      }
+
       const newElements = [...elements, currentElement];
       setElements(newElements);
       setCurrentElement(null);
       saveMapState(mapId, newElements);
     }
+  };
+
+  const handleConfirmText = () => {
+    if (textInput.trim()) {
+      const newEl = {
+        tool: "text", text: textInput, x: textPos.x, y: textPos.y, stroke: strokeColor,
+        id: Date.now(), isVisible: true
+      };
+      const newElements = [...elements, newEl];
+      setElements(newElements);
+      saveMapState(mapId, newElements);
+    }
+    setTextDialogOpen(false);
   };
 
   const handleUndo = () => {
@@ -177,28 +259,11 @@ const MapEditor = () => {
     saveMapState(mapId, newElements);
   };
 
-  // --- SETTINGS HANDLERS ---
-  const handleOpenSettings = () => {
-    setTempConfig({
-      name: currentMap.name,
-      width: currentMap.gridConfig.width,
-      height: currentMap.gridConfig.height,
-      cellSize: currentMap.gridConfig.cellSize,
-      theme: currentMap.theme
-    });
-    setNewBgFile(null);
-    setSettingsOpen(true);
-  };
-
-  const handleSaveSettings = async () => {
+  const handleSaveSettings = async (newConfig, newBgFile) => {
     const configToUpdate = {
-      name: tempConfig.name,
-      gridConfig: {
-        width: tempConfig.width,
-        height: tempConfig.height,
-        cellSize: tempConfig.cellSize
-      },
-      theme: tempConfig.theme
+      name: newConfig.name,
+      gridConfig: { width: newConfig.width, height: newConfig.height, cellSize: newConfig.cellSize, showGrid: newConfig.showGrid },
+      theme: newConfig.theme
     };
     await updateMapSettings(mapId, configToUpdate, newBgFile);
     setSettingsOpen(false);
@@ -206,26 +271,66 @@ const MapEditor = () => {
 
   // --- RENDERIZAÇÃO ---
   const renderGrid = () => {
+    if (!showGrid) return null;
     const linesGrid = [];
     const widthPx = mapWidth * cellSize;
     const heightPx = mapHeight * cellSize;
-    
-    for (let i = 0; i <= mapWidth; i++) {
-      linesGrid.push(<Line key={`v-${i}`} points={[i * cellSize, 0, i * cellSize, heightPx]} stroke={themeColors.grid} strokeWidth={1 / stageScale} opacity={0.6} />);
-    }
-    for (let j = 0; j <= mapHeight; j++) {
-      linesGrid.push(<Line key={`h-${j}`} points={[0, j * cellSize, widthPx, j * cellSize]} stroke={themeColors.grid} strokeWidth={1 / stageScale} opacity={0.6} />);
-    }
+    for (let i = 0; i <= mapWidth; i++) linesGrid.push(<Line key={`v-${i}`} points={[i * cellSize, 0, i * cellSize, heightPx]} stroke={themeColors.grid} strokeWidth={1 / stageScale} opacity={0.6} listening={false} />);
+    for (let j = 0; j <= mapHeight; j++) linesGrid.push(<Line key={`h-${j}`} points={[0, j * cellSize, widthPx, j * cellSize]} stroke={themeColors.grid} strokeWidth={1 / stageScale} opacity={0.6} listening={false} />);
     return linesGrid;
   };
 
   const renderElement = (el, i) => {
+    if (el.isVisible === false) return null;
+
+    const commonProps = {
+      key: el.id || i,
+      id: el.id ? el.id.toString() : i.toString(),
+      stroke: el.stroke,
+      strokeWidth: el.strokeWidth,
+      draggable: tool === "select",
+      onClick: () => handleSelect(el.id),
+      onTap: () => handleSelect(el.id),
+      onDragEnd: handleDragEnd,
+      onTransformEnd: handleTransformEnd,
+      x: el.x,
+      y: el.y,
+      rotation: el.rotation || 0,
+      scaleX: el.scaleX || 1,
+      scaleY: el.scaleY || 1,
+    };
+
     if (el.tool === "brush" || el.tool === "line") {
-      return <Line key={i} points={el.points} stroke={el.stroke} strokeWidth={el.strokeWidth} tension={el.tool === "brush" ? 0.5 : 0} lineCap="round" lineJoin="round" />;
+      return <Line {...commonProps} points={el.points} tension={el.tool === "brush" ? 0.5 : 0} lineCap="round" lineJoin="round" />;
     } else if (el.tool === "rect") {
-      return <Rect key={i} x={el.x} y={el.y} width={el.width} height={el.height} stroke={el.stroke} strokeWidth={el.strokeWidth} />;
+      return <Rect {...commonProps} width={el.width} height={el.height} />;
     } else if (el.tool === "circle") {
-      return <Circle key={i} x={el.x} y={el.y} radius={el.radius} stroke={el.stroke} strokeWidth={el.strokeWidth} />;
+      return <Circle {...commonProps} radius={el.radius} />;
+    } else if (el.tool === "text") {
+      return <Text {...commonProps} text={el.text} fontSize={24} fill={el.stroke} fontFamily="Cinzel" />;
+    } else if (el.tool === "ruler") {
+      // CORREÇÃO: Verificação de segurança para evitar NaN
+      if (!el.points || el.points.length < 4) return null;
+
+      const x2 = el.points[2];
+      const y2 = el.points[3];
+      
+      // Distância baseada nas coordenadas relativas
+      const distancePx = Math.sqrt(x2 * x2 + y2 * y2);
+      const cells = distancePx / (cellSize || 50);
+      const meters = (cells * 1.5).toFixed(1);
+      
+      return (
+        <Group {...commonProps}>
+          <Line points={[0, 0, x2, y2]} stroke={el.stroke} strokeWidth={2} dash={[10, 5]} />
+          <Label x={x2/2} y={y2/2}>
+            <Tag fill="rgba(0,0,0,0.7)" cornerRadius={5} />
+            <Text text={`${meters}m`} fill="white" padding={5} fontSize={14} />
+          </Label>
+          <Circle x={0} y={0} radius={3} fill={el.stroke} />
+          <Circle x={x2} y={y2} radius={3} fill={el.stroke} />
+        </Group>
+      );
     }
     return null;
   };
@@ -234,74 +339,40 @@ const MapEditor = () => {
   if (!currentMap) return <Box sx={{ p: 5, color: "#fff" }}>Mapa não encontrado</Box>;
 
   return (
-    <Box sx={{ width: "100vw", height: "100vh", overflow: "hidden", bgcolor: "#111" }}>
+    <Box sx={{ width: "100vw", height: "100vh", overflow: "hidden", bgcolor: "#111", position: "relative" }}>
       
-      {/* --- BARRA DE FERRAMENTAS --- */}
-      <Paper elevation={6} sx={{ position: "absolute", top: 20, left: 20, zIndex: 10, p: 1.5, display: "flex", flexDirection: "column", gap: 1.5, bgcolor: "#2e1e14", border: "2px solid #833c0b", borderRadius: 2 }}>
-        <Tooltip title="Voltar"><IconButton onClick={() => navigate("/mapas")} sx={{ color: "#fff" }}><ArrowBackIcon /></IconButton></Tooltip>
-        <Box sx={{ height: 1, bgcolor: "rgba(255,255,255,0.2)" }} />
-        <Tooltip title="Mover (Pan)"><IconButton onClick={() => setTool("pan")} sx={{ color: tool === "pan" ? "#bf8f00" : "#aaa" }}><PanToolIcon /></IconButton></Tooltip>
-        <Tooltip title="Pincel Livre"><IconButton onClick={() => setTool("brush")} sx={{ color: tool === "brush" ? "#bf8f00" : "#aaa" }}><BrushIcon /></IconButton></Tooltip>
-        <Tooltip title="Linha Reta"><IconButton onClick={() => setTool("line")} sx={{ color: tool === "line" ? "#bf8f00" : "#aaa" }}><RemoveIcon /></IconButton></Tooltip>
-        <Tooltip title="Retângulo (Sala)"><IconButton onClick={() => setTool("rect")} sx={{ color: tool === "rect" ? "#bf8f00" : "#aaa" }}><CropSquareIcon /></IconButton></Tooltip>
-        <Tooltip title="Círculo (Área)"><IconButton onClick={() => setTool("circle")} sx={{ color: tool === "circle" ? "#bf8f00" : "#aaa" }}><RadioButtonUncheckedIcon /></IconButton></Tooltip>
-        <Box sx={{ height: 1, bgcolor: "rgba(255,255,255,0.2)" }} />
-        <Tooltip title="Cor da Tinta"><IconButton onClick={(e) => setAnchorEl(e.currentTarget)} sx={{ color: strokeColor }}><PaletteIcon /></IconButton></Tooltip>
-        <Tooltip title="Desfazer"><IconButton onClick={handleUndo} sx={{ color: "#fff" }}><UndoIcon /></IconButton></Tooltip>
-        <Box sx={{ height: 1, bgcolor: "rgba(255,255,255,0.2)" }} />
-        <Tooltip title="Configurações do Mapa"><IconButton onClick={handleOpenSettings} sx={{ color: "#fff" }}><SettingsIcon /></IconButton></Tooltip>
-      </Paper>
+      <EditorToolbar 
+        tool={tool} setTool={setTool}
+        strokeColor={strokeColor} setStrokeColor={setStrokeColor}
+        strokeWidth={strokeWidth} setStrokeWidth={setStrokeWidth}
+        onUndo={handleUndo}
+        onOpenSettings={() => setSettingsOpen(true)}
+      />
 
-      {/* --- POPOVER DE CORES --- */}
-      <Popover open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={() => setAnchorEl(null)} anchorOrigin={{ vertical: 'center', horizontal: 'right' }}>
-        <Box sx={{ p: 2, bgcolor: "#fdfbf7", border: "1px solid #5d4037" }}>
-          <Typography variant="caption" sx={{ fontFamily: "Cinzel", fontWeight: "bold" }}>Cor</Typography>
-          <Stack direction="row" spacing={1} sx={{ mb: 2, mt: 1 }}>
-            {["#000000", "#d32f2f", "#1976d2", "#388e3c", "#fbc02d", "#795548", "#ffffff"].map(color => (
-              <Box key={color} onClick={() => { setStrokeColor(color); setAnchorEl(null); }} sx={{ width: 24, height: 24, bgcolor: color, borderRadius: "50%", cursor: "pointer", border: strokeColor === color ? "2px solid #000" : "1px solid #ccc" }} />
-            ))}
-          </Stack>
-          <Typography variant="caption" sx={{ fontFamily: "Cinzel", fontWeight: "bold" }}>Espessura: {strokeWidth}px</Typography>
-          <Slider value={strokeWidth} min={1} max={20} onChange={(e, v) => setStrokeWidth(v)} sx={{ color: "#833c0b", width: 150 }} />
-        </Box>
-      </Popover>
+      <LayersPanel 
+        elements={elements} 
+        selectedId={selectedId}
+        onSelectElement={(id) => { setTool("select"); setSelectedId(id); }}
+        onDeleteElement={handleDeleteElement}
+        onToggleVisibility={handleToggleVisibility}
+      />
 
-      {/* --- MODAL DE CONFIGURAÇÕES --- */}
-      <Dialog open={settingsOpen} onClose={() => setSettingsOpen(false)} PaperProps={{ sx: { bgcolor: "#fdfbf7", border: "4px solid #833c0b" } }}>
-        <DialogTitle sx={{ fontFamily: "Cinzel", color: "#833c0b" }}>Configurações do Território</DialogTitle>
+      <MapSettingsDialog 
+        open={settingsOpen} onClose={() => setSettingsOpen(false)} 
+        currentConfig={currentMap} onSave={handleSaveSettings}
+      />
+
+      <Dialog open={textDialogOpen} onClose={() => setTextDialogOpen(false)}>
+        <DialogTitle>Inserir Texto</DialogTitle>
         <DialogContent>
-          <Stack spacing={3} sx={{ mt: 1, minWidth: 300 }}>
-            <TextField label="Nome" fullWidth value={tempConfig.name || ""} onChange={(e) => setTempConfig({...tempConfig, name: e.target.value})} />
-            
-            <Box>
-              <Typography variant="caption">Tamanho do Grid (Células)</Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={6}><TextField label="Largura" type="number" value={tempConfig.width || 20} onChange={(e) => setTempConfig({...tempConfig, width: Number(e.target.value)})} /></Grid>
-                <Grid item xs={6}><TextField label="Altura" type="number" value={tempConfig.height || 15} onChange={(e) => setTempConfig({...tempConfig, height: Number(e.target.value)})} /></Grid>
-              </Grid>
-            </Box>
-
-            <Box>
-              <Typography variant="caption">Zoom Base (Tamanho da Célula)</Typography>
-              <Slider value={tempConfig.cellSize || 50} min={30} max={100} onChange={(e, v) => setTempConfig({...tempConfig, cellSize: v})} sx={{ color: "#833c0b" }} />
-            </Box>
-
-            <Box>
-              <Typography variant="caption">Imagem de Fundo</Typography>
-              <Button variant="outlined" component="label" fullWidth startIcon={<ImageIcon />} sx={{ mt: 1, borderColor: "#833c0b", color: "#5d4037" }}>
-                {newBgFile ? "Nova Imagem Selecionada" : "Trocar Imagem"}
-                <input type="file" hidden accept="image/*" onChange={(e) => setNewBgFile(e.target.files[0])} />
-              </Button>
-            </Box>
-          </Stack>
+          <TextField autoFocus margin="dense" label="Texto" fullWidth variant="standard" value={textInput} onChange={(e) => setTextInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleConfirmText()} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setSettingsOpen(false)}>Cancelar</Button>
-          <Button onClick={handleSaveSettings} variant="contained" sx={{ bgcolor: "#833c0b" }}>Salvar</Button>
+          <Button onClick={() => setTextDialogOpen(false)}>Cancelar</Button>
+          <Button onClick={handleConfirmText}>Inserir</Button>
         </DialogActions>
       </Dialog>
 
-      {/* --- CANVAS --- */}
       <Stage
         ref={stageRef}
         width={window.innerWidth}
@@ -315,39 +386,30 @@ const MapEditor = () => {
         scaleY={stageScale}
         x={stagePos.x}
         y={stagePos.y}
-        onDragEnd={(e) => setStagePos({ x: e.target.x(), y: e.target.y() })} // Salva posição do pan
-        style={{ cursor: tool === "pan" ? "grab" : "crosshair" }}
+        onDragEnd={(e) => setStagePos({ x: e.target.x(), y: e.target.y() })}
+        style={{ cursor: tool === "pan" ? "grab" : tool === "select" ? "default" : "crosshair" }}
       >
         <Layer>
-          {/* Fundo Infinito */}
-          <Rect width={window.innerWidth * 10} height={window.innerHeight * 10} x={-window.innerWidth * 5} y={-window.innerHeight * 5} fill="#111" />
-          
-          {/* Fundo do Mapa (Cor Sólida) */}
-          <Rect 
-            x={0} y={0} 
-            width={mapWidth * cellSize} 
-            height={mapHeight * cellSize} 
-            fill={themeColors.bg} 
-            shadowBlur={20} shadowColor="black" shadowOpacity={0.5}
-          />
-
-          {/* Imagem de Fundo (Se houver) */}
-          {bgImageObj && (
-            <KonvaImage
-              image={bgImageObj}
-              x={0} y={0}
-              width={mapWidth * cellSize}
-              height={mapHeight * cellSize}
-              opacity={1}
-            />
-          )}
-          
-          {/* Grid (Desenhado por cima da imagem) */}
+          <Rect width={window.innerWidth * 10} height={window.innerHeight * 10} x={-window.innerWidth * 5} y={-window.innerHeight * 5} fill="#111" listening={false} />
+          <Rect x={0} y={0} width={mapWidth * cellSize} height={mapHeight * cellSize} fill={themeColors.bg} shadowBlur={20} shadowColor="black" shadowOpacity={0.5} onClick={checkDeselect} />
+          {bgImageObj && <KonvaImage image={bgImageObj} x={0} y={0} width={mapWidth * cellSize} height={mapHeight * cellSize} opacity={1} listening={false} />}
           {renderGrid()}
 
-          {/* Elementos */}
           {elements.map((el, i) => renderElement(el, i))}
           {currentElement && renderElement(currentElement, "preview")}
+
+          <Transformer
+            ref={transformerRef}
+            boundBoxFunc={(oldBox, newBox) => {
+              if (newBox.width < 5 || newBox.height < 5) return oldBox;
+              return newBox;
+            }}
+            anchorSize={8}
+            anchorCornerRadius={4}
+            borderStroke="#00a8ff"
+            anchorStroke="#00a8ff"
+            anchorFill="#fff"
+          />
         </Layer>
       </Stage>
     </Box>
