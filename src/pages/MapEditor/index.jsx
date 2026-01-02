@@ -269,6 +269,51 @@ const MapEditor = () => {
     setSettingsOpen(false);
   };
 
+  // --- DRAG AND DROP DE ASSETS ---
+  const handleDrop = (e) => {
+    e.preventDefault();
+    // Pega a posição do mouse relativa ao Stage
+    stageRef.current.setPointersPositions(e);
+    const { x, y } = getPointerPos(stageRef.current);
+
+    const imageUrl = e.dataTransfer.getData("imageUrl");
+    const type = e.dataTransfer.getData("type");
+
+    if (type === "image" && imageUrl) {
+      const img = new window.Image();
+      img.src = imageUrl;
+      img.onload = () => {
+        // Calcula tamanho inicial (max 100px ou 2 células)
+        const maxSize = cellSize * 2;
+        const scale = Math.min(maxSize / img.width, maxSize / img.height);
+        
+        const newEl = {
+          tool: "image",
+          imageObj: img, // Objeto de imagem para o Konva
+          src: imageUrl, // URL para salvar no banco
+          x: x,
+          y: y,
+          width: img.width * scale,
+          height: img.height * scale,
+          rotation: 0,
+          id: Date.now(),
+          isVisible: true,
+          stroke: "transparent" // Apenas para compatibilidade com a lista
+        };
+        
+        const newElements = [...elements, newEl];
+        setElements(newElements);
+        saveMapState(mapId, newElements);
+        setTool("select"); // Muda para select para poder ajustar a imagem logo em seguida
+        setSelectedId(newEl.id);
+      };
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault(); // Necessário para permitir o drop
+  };
+
   // --- RENDERIZAÇÃO ---
   const renderGrid = () => {
     if (!showGrid) return null;
@@ -331,6 +376,26 @@ const MapEditor = () => {
           <Circle x={x2} y={y2} radius={3} fill={el.stroke} />
         </Group>
       );
+    } else if (el.tool === "image") {
+      // Se a imagem não estiver carregada (ex: carregou do banco), carrega agora
+      if (!el.imageObj && el.src) {
+         const img = new window.Image();
+         img.src = el.src;
+         img.onload = () => {
+             el.imageObj = img;
+             // Força re-render (pode precisar de um state update melhor num cenário real, mas o Konva costuma lidar bem)
+             stageRef.current.batchDraw(); 
+         }
+      }
+
+      return (
+        <KonvaImage
+          {...commonProps}
+          image={el.imageObj}
+          width={el.width}
+          height={el.height}
+        />
+      );
     }
     return null;
   };
@@ -339,7 +404,11 @@ const MapEditor = () => {
   if (!currentMap) return <Box sx={{ p: 5, color: "#fff" }}>Mapa não encontrado</Box>;
 
   return (
-    <Box sx={{ width: "100vw", height: "100vh", overflow: "hidden", bgcolor: "#111", position: "relative" }}>
+    <Box 
+      sx={{ width: "100vw", height: "100vh", overflow: "hidden", bgcolor: "#111", position: "relative" }}
+      onDrop={handleDrop} 
+      onDragOver={handleDragOver}
+    >
       
       <EditorToolbar 
         tool={tool} setTool={setTool}
