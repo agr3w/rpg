@@ -24,6 +24,7 @@ const NpcsPage = lazy(() => import("pages/Npcs"));
 const NpcDetail = lazy(() => import("pages/Npcs/NpcDetail"));
 const QuestsPage = lazy(() => import("pages/Quests"));
 const QuestDetail = lazy(() => import("pages/Quests/QuestDetail"));
+const MapEditor = lazy(() => import("pages/MapEditor"));
 
 const AppRoutes = () => {
   const { user: usuarioAutenticado } = useAuth();
@@ -49,6 +50,7 @@ const AppRoutes = () => {
             <Route path="/criar-ficha" element={<FichaCriar />} />
             <Route path="/ficha-completa/:ID" element={<FichaDetalhes />} />
             <Route path="/mapas" element={<MapasPage />} />
+            <Route path="/mapas/editor/:mapId" element={<MapEditor />} />
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/diario" element={<SessionLog />} />
             <Route path="/diario/:sessionId" element={<SessionLogDetail />} /> // ✅ add

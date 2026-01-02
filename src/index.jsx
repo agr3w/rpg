@@ -10,6 +10,7 @@ import { MusicProvider } from "APIs/MusicContext";
 import { NoteProvider } from "APIs/NoteContext";
 import { FolderProvider } from "APIs/FolderContext";
 import { AuthProvider } from "contexts/AuthContext";
+import { MapProvider } from "APIs/MapContext";
 
 import { PreferencesProvider, usePreferences } from "contexts/PreferencesContext"; // ✅ add
 import { createAppTheme } from "./theme"; // ✅ add
@@ -36,13 +37,15 @@ function AppWithTheme() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
-        <MusicProvider>
-          <FolderProvider>
-            <NoteProvider>
-              <Rout />
-            </NoteProvider>
-          </FolderProvider>
-        </MusicProvider>
+        <MapProvider>
+          <MusicProvider>
+            <FolderProvider>
+              <NoteProvider>
+                <Rout />
+              </NoteProvider>
+            </FolderProvider>
+          </MusicProvider>
+        </MapProvider>
       </AuthProvider>
     </ThemeProvider>
   );

@@ -1,19 +1,19 @@
 Ferramentas para Jogador
 ------------------------
 
-1.  **Diário de Campanha (Session Log)** 🟨 Em progresso
+1.  **Diário de Campanha (Session Log)** 🟢 Concluido!
     -   Entrada por sessão: resumo, NPCs vistos, quests, decisões, loot, XP.
     -   Linkar com notas/itens/NPCs (referências rápidas). 
-2.  **Inventário inteligente**
+2.  **Inventário inteligente** 🟦 Parcialmente Concluído
     -   Itens com peso, quantidade, valor, raridade.
     -   "Kits" (ex.: kit de exploração) e cálculo automático de carga.
-3.  **Spellbook / Lista de magias**
+3.  **Spellbook / Lista de magias** 🟦 Parcialmente Concluído
     -   Filtros por nível, escola, components, concentração, ritual.
     -   "Preparadas hoje" + contadores rápidos (slots, pact magic).
-4.  **Tracker de recursos**
+4.  **Tracker de recursos** 🟦 Parcialmente Concluído
     -   HP/Temp HP, dados de vida, cargas, usos por descanso curto/longo.
     -   Botão "Descanso Curto/Longo" que reseta o que estiver marcado.
-5.  **Anotações por personagem**
+5.  **Anotações por personagem** 🟢 Concluido!
     -   Notas privadas do jogador separadas do "diário de mesa".
 
 Ferramentas para DM
@@ -43,7 +43,7 @@ Ferramentas "neutras" (servem pros dois)
 1.  **Rolador de dados (Dice Roller)**
     -   Expressões tipo `2d20kh1+5`, vantagem/desvantagem, histórico.
     -   "Macros" por personagem/campanha.
-2.  **Biblioteca de Handouts**
+2.  **Biblioteca de Handouts** 🟢 Concluido!
     -   Upload/organização de imagens/PDFs por campanha (mapas, cartas).
 3.  **Campanhas e Permissões**
     -   Campanha com membros (DM + jogadores), e compartilhamento seletivo:
