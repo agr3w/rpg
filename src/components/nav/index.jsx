@@ -37,8 +37,7 @@ import {
   ExitToApp as LogoutIcon,
   Settings as SettingsIcon,
   Folder as FolderIcon,
-  ExpandLess,
-  ExpandMore,
+  ExpandMore, // Usaremos apenas este e rotacionaremos
 } from "@mui/icons-material";
 
 import { auth } from "APIs/firebaseConfig";
@@ -51,7 +50,7 @@ const PAGE_TITLES = {
   "/": "Início",
   "/diario": "Diário de Campanha",
   "/npcs": "NPCs",
-  "/quests": "Quests", // ✅ add
+  "/quests": "Quests",
   "/fichas": "Fichas",
   "/livros": "Biblioteca",
   "/musicas": "Bardo",
@@ -65,12 +64,11 @@ function getTitleFromPath(pathname) {
   if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
   if (pathname.includes("folders")) return "Pastas";
   if (pathname.includes("ficha-completa")) return "Ficha Detalhada";
-  if (pathname.startsWith("/npcs/")) return "NPC"; // ✅ add
-  if (pathname.startsWith("/quests/")) return "Quest"; // ✅ add
+  if (pathname.startsWith("/npcs/")) return "NPC";
+  if (pathname.startsWith("/quests/")) return "Quest";
   return "RPG Organizer";
 }
 
-// ✅ Marca D20 inline (sem assets)
 function D20Mark({ size = 22 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden focusable="false">
@@ -107,6 +105,12 @@ const Nav = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const prefersReducedMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001,
+  });
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -114,7 +118,8 @@ const Nav = () => {
   const [toolsAnchorEl, setToolsAnchorEl] = useState(null);
   const toolsMenuOpen = Boolean(toolsAnchorEl);
 
-  const [toolsOpen, setToolsOpen] = useState(true);
+  // Alterado para false: Começa fechado para manter a UI limpa
+  const [toolsOpen, setToolsOpen] = useState(false);
 
   const mainItems = useMemo(
     () => [
@@ -130,8 +135,8 @@ const Nav = () => {
       { text: "Biblioteca", icon: <LibraryBooksIcon />, path: "/livros" },
       { text: "Bardo", icon: <MusicNoteIcon />, path: "/musicas" },
       { text: "Anotações", icon: <EditNoteIcon />, path: "/anotacoes" },
-      { text: "NPCs", icon: <PeopleAltRoundedIcon />, path: "/npcs" }, // ✅ add
-      { text: "Quests", icon: <FactCheckRoundedIcon />, path: "/quests" }, // ✅ add
+      { text: "NPCs", icon: <PeopleAltRoundedIcon />, path: "/npcs" },
+      { text: "Quests", icon: <FactCheckRoundedIcon />, path: "/quests" },
     ],
     []
   );
@@ -147,7 +152,9 @@ const Nav = () => {
   const handleToolsMenuOpen = useCallback((event) => setToolsAnchorEl(event.currentTarget), []);
   const handleToolsMenuClose = useCallback(() => setToolsAnchorEl(null), []);
 
-  const toggleToolsOpen = useCallback(() => {
+  // ✅ FIX: StopPropagation evita conflitos de evento e garante renderização limpa
+  const toggleToolsOpen = useCallback((e) => {
+    if (e) e.stopPropagation();
     setToolsOpen((v) => !v);
   }, []);
 
@@ -160,13 +167,13 @@ const Nav = () => {
     }
   }, [navigate]);
 
+  // Este useEffect garante que tudo se feche ao mudar de rota
   useEffect(() => {
     setDrawerOpen(false);
     setToolsAnchorEl(null);
     setAnchorEl(null);
   }, [location.pathname]);
 
-  // ✅ Menu "Ferramentas" com EXACTAMENTE o mesmo visual do NAV (vars + camadas)
   const toolsMenuPaperSx = useMemo(
     () => ({
       mt: 1.25,
@@ -177,7 +184,6 @@ const Nav = () => {
       overflow: "hidden",
       isolation: "isolate",
       boxShadow: "0 14px 35px rgba(0,0,0,0.22)",
-
       "&::before": {
         content: '""',
         position: "absolute",
@@ -205,8 +211,6 @@ const Nav = () => {
         `,
         mixBlendMode: "screen",
       },
-
-      // garante conteúdo acima das camadas e com espaçamento igual
       "& .MuiMenu-list": { position: "relative", zIndex: 1, py: 0.75 },
     }),
     []
@@ -214,13 +218,12 @@ const Nav = () => {
 
   const handleToolsNavigate = useCallback(
     (path) => {
-      handleToolsMenuClose();      // ✅ fecha sempre
-      navigate(path);              // ✅ navega mesmo se for “rota atual”
+      handleToolsMenuClose();
+      navigate(path);
     },
     [handleToolsMenuClose, navigate]
   );
 
-  // ✅ estilo reaproveitado do NAV (mesma base visual)
   const bookmarkSx = useMemo(
     () => ({
       position: "relative",
@@ -258,11 +261,7 @@ const Nav = () => {
           position: "sticky",
           overflow: "hidden",
           isolation: "isolate",
-
-          // garante que o conteúdo fique sempre acima das camadas
           "& .MuiToolbar-root": { position: "relative", zIndex: 1 },
-
-          // ✅ Madeira queimada “rachada” (camada escura)
           "&::before": {
             content: '""',
             position: "absolute",
@@ -271,7 +270,6 @@ const Nav = () => {
             zIndex: 0,
             opacity: "var(--rpg-woodOpacity)",
             backgroundImage: `
-              /* base carvão */
               linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.55)),
 
               /* veios horizontais queimados */
@@ -305,8 +303,6 @@ const Nav = () => {
             `,
             mixBlendMode: "multiply",
           },
-
-          // ✅ Cinzas + brasas (camada clara por cima)
           "&::after": {
             content: '""',
             position: "absolute",
@@ -532,7 +528,6 @@ const Nav = () => {
             borderRight: "1px solid var(--rpg-stroke)",
             overflow: "hidden",
             isolation: "isolate",
-
             "&::before": {
               content: '""',
               position: "absolute",
@@ -638,18 +633,26 @@ const Nav = () => {
             </ListItem>
           ))}
 
-          {/* ✅ Grupo Ferramentas (Collapse) */}
+          {/* ✅ Grupo Ferramentas (Collapse Corrigido) */}
           <ListItem disablePadding>
             <ListItemButton onClick={toggleToolsOpen}>
               <ListItemIcon sx={{ minWidth: 40, color: theme.palette.primary.main }}>
                 <FolderIcon />
               </ListItemIcon>
               <ListItemText primary="Ferramentas" />
-              {toolsOpen ? <ExpandLess /> : <ExpandMore />}
+              {/* Animação de rotação suave em vez de troca de ícone */}
+              <ExpandMore 
+                sx={{ 
+                  transform: toolsOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "transform 0.3s ease",
+                  color: theme.palette.primary.main
+                }} 
+              />
             </ListItemButton>
           </ListItem>
 
-          <Collapse in={toolsOpen} timeout="auto" unmountOnExit>
+          {/* ✅ FIX: Removido unmountOnExit para evitar congelamento em listas complexas */}
+          <Collapse in={toolsOpen} timeout="auto">
             <List component="div" disablePadding sx={{ pl: 1 }}>
               {toolsItems.map((item) => (
                 <ListItem key={item.text} disablePadding>

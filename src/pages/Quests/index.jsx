@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  Alert,
   Container,
-  Divider,
   MenuItem,
   Paper,
   Select,
@@ -11,20 +9,31 @@ import {
   Typography,
   Autocomplete,
   Chip,
+  Box,
+  InputAdornment,
 } from "@mui/material";
 import { useSearchParams } from "react-router-dom";
 import { auth, database } from "APIs/firebaseConfig";
 import { T_IN } from "config/transitions";
 import { motion } from "framer-motion";
 import QuestCard from "./components/QuestCard";
+import SearchIcon from "@mui/icons-material/Search";
+import FilterListIcon from "@mui/icons-material/FilterList";
 
 const DEFAULT_CAMPAIGN_ID = "default";
 
+// --- Estilos D&D ---
+const DND_THEME = {
+  paperBg: "linear-gradient(135deg, #fffbf0 0%, #f3eacb 100%)",
+  ink: "#2c1a10",
+  gold: "#bf8f00",
+};
+
 const STATUS_OPTIONS = [
-  { value: "all", label: "Todas" },
-  { value: "ativa", label: "Ativas" },
-  { value: "pendente", label: "Pendentes" },
-  { value: "concluida", label: "Concluídas" },
+  { value: "all", label: "Todas as Situações" },
+  { value: "ativa", label: "Em Andamento (Ativas)" },
+  { value: "pendente", label: "Não Iniciadas (Pendentes)" },
+  { value: "concluida", label: "Finalizadas (Concluídas)" },
 ];
 
 export default function QuestsPage() {
@@ -116,27 +125,52 @@ export default function QuestsPage() {
   return (
     <Container maxWidth="md" sx={{ py: { xs: 2, md: 4 } }}>
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { duration: T_IN * 0.18 } }}>
-        <Stack spacing={2}>
-          <Paper elevation={0} sx={{ p: 2.25, borderRadius: 3, border: "1px solid rgba(0,0,0,0.10)", bgcolor: "rgba(223, 214, 205, 0.92)" }}>
-            <Stack spacing={0.75}>
-              <Typography variant="h4" sx={{ fontWeight: 1000, color: "#2c1a10" }}>
-                Quests
-              </Typography>
+        <Stack spacing={3}>
+          {/* Header & Filtros (Estilo Índice de Livro) */}
+          <Paper
+            elevation={0}
+            sx={{
+              p: 3,
+              borderRadius: 2,
+              border: "1px solid rgba(92, 64, 51, 0.3)",
+              background: DND_THEME.paperBg,
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            {/* Detalhe decorativo */}
+            <Box sx={{ position: "absolute", top: 0, left: 0, width: "100%", height: 4, bgcolor: DND_THEME.gold }} />
 
-              <Typography sx={{ opacity: 0.85, color: "rgba(44,26,16,0.85)" }}>
-                Quests por campanha, com status e links para sessões.
-              </Typography>
+            <Stack spacing={2}>
+              <Box>
+                <Typography variant="h4" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: DND_THEME.ink }}>
+                  Mural de Missões
+                </Typography>
+                <Typography variant="body2" sx={{ fontFamily: "Cinzel", color: "rgba(44,26,16,0.7)", mt: 0.5 }}>
+                  O registro de contratos, destinos e lendas a serem desbravadas.
+                </Typography>
+              </Box>
 
-              <Stack direction={{ xs: "column", md: "row" }} spacing={1}>
+              <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
                 <TextField
-                  label="Buscar"
+                  size="small"
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
-                  placeholder="título, tags, descrição, nota rápida..."
+                  placeholder="Buscar nos registros..."
                   fullWidth
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "#833c0b" }} /></InputAdornment>,
+                    sx: { bgcolor: "rgba(255,255,255,0.5)", fontFamily: "Cinzel" },
+                  }}
                 />
 
-                <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} size="small" sx={{ minWidth: 180 }}>
+                <Select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  size="small"
+                  sx={{ minWidth: 200, bgcolor: "rgba(255,255,255,0.5)", fontFamily: "Cinzel" }}
+                  startAdornment={<InputAdornment position="start"><FilterListIcon sx={{ color: "#833c0b", fontSize: 20 }} /></InputAdornment>}
+                >
                   {STATUS_OPTIONS.map((s) => (
                     <MenuItem key={s.value} value={s.value}>
                       {s.label}
@@ -147,59 +181,65 @@ export default function QuestsPage() {
 
               <Autocomplete
                 multiple
+                size="small"
                 options={tagOptions}
                 value={tagFilter}
                 onChange={(_, v) => setTagFilter(v)}
-                renderInput={(params) => <TextField {...params} label="Filtrar por tags" placeholder="Selecione tags" />}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    placeholder={tagFilter.length ? "" : "Filtrar por tags..."}
+                    sx={{ "& .MuiInputBase-root": { bgcolor: "rgba(255,255,255,0.5)" } }}
+                  />
+                )}
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                    <Chip
+                      label={option}
+                      size="small"
+                      {...getTagProps({ index })}
+                      sx={{ bgcolor: "#e0d0b0", color: "#2c1a10", fontWeight: 700, fontFamily: "Cinzel" }}
+                    />
+                  ))
+                }
               />
-
-              {tagFilter.length ? (
-                <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1 }}>
-                  {tagFilter.map((t) => (
-                    <Chip key={t} label={t} onDelete={() => setTagFilter((arr) => arr.filter((x) => x !== t))} />
-                  ))}
-                </Stack>
-              ) : null}
-
-              <Typography variant="caption" sx={{ opacity: 0.8 }}>
-                Dica: filtre por campanha com <code>?c=ID</code> (ou deixe <code>all</code>).
-              </Typography>
             </Stack>
           </Paper>
 
           {loading ? (
-            <Typography sx={{ opacity: 0.8 }}>Carregando…</Typography>
+            <Typography sx={{ textAlign: "center", mt: 4, fontStyle: "italic", color: "rgba(255,255,255,0.5)" }}>
+              Consultando os pergaminhos...
+            </Typography>
           ) : filtered.length === 0 ? (
-            <Typography sx={{ opacity: 0.85 }}>Nenhuma quest encontrada.</Typography>
+            <Paper sx={{ p: 4, textAlign: "center", bgcolor: "rgba(0,0,0,0.2)", color: "#fff" }}>
+              <Typography sx={{ fontFamily: "Cinzel" }}>Nenhuma missão encontrada com estes critérios.</Typography>
+            </Paper>
           ) : (
-            <Stack spacing={2}>
+            <Stack spacing={4}>
               {filtered.map((c) => (
-                <Paper key={c.campaignId} elevation={0} sx={{ p: 2, borderRadius: 3, border: "1px solid rgba(0,0,0,0.10)" }}>
-                  <Stack spacing={1}>
-                    <Stack direction="row" justifyContent="space-between" alignItems="baseline" sx={{ gap: 1, flexWrap: "wrap" }}>
-                      <Typography variant="h6" sx={{ fontWeight: 950 }}>
-                        {c.name}
-                      </Typography>
-                      <Typography variant="caption" sx={{ opacity: 0.75 }}>
-                        {c.quests.length} quest(s)
-                      </Typography>
-                    </Stack>
+                <Box key={c.campaignId}>
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 2, ml: 1 }}>
+                    <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: DND_THEME.gold, mr: 1.5 }} />
+                    <Typography variant="h5" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#fff", letterSpacing: 1 }}>
+                      {c.name}
+                    </Typography>
+                    <Typography variant="caption" sx={{ ml: 2, color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.2)", px: 1, borderRadius: 1 }}>
+                      {c.quests.length}
+                    </Typography>
+                  </Box>
 
-                    <Divider />
-
-                    <Stack
-                      sx={{
-                        display: "grid",
-                        gap: 1.25,
-                        gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-                      }}
-                    >
-                      {c.quests.map((qt) => (
-                        <QuestCard key={qt.id} uid={uid} campaignId={c.campaignId} quest={qt} />
-                      ))}
-                    </Stack>
-                  </Stack>
-                </Paper>
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gap: 2,
+                      gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                    }}
+                  >
+                    {c.quests.map((qt) => (
+                      <QuestCard key={qt.id} uid={uid} campaignId={c.campaignId} quest={qt} />
+                    ))}
+                  </Box>
+                </Box>
               ))}
             </Stack>
           )}
