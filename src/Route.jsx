@@ -9,7 +9,6 @@ import AppLayout from "layouts/AppLayout";
 const Inicio = lazy(() => import("pages/Inicio"));
 const BemVindo = lazy(() => import("pages/BemVindo"));
 const MusicasPage = lazy(() => import("pages/musicas"));
-const LivrosPage = lazy(() => import("pages/livros"));
 const NotePage = lazy(() => import("pages/Notes"));
 const FolderPage = lazy(() => import("pages/foldersPage"));
 const FichaPage = lazy(() => import("pages/FichaCompleta/fichaCompleta"));
@@ -20,7 +19,7 @@ const Register = lazy(() => import("pages/Regsiter"));
 const MapasPage = lazy(() => import("pages/MapasPage"));
 const Perfil = lazy(() => import("pages/ProfilePage"));
 const SessionLog = lazy(() => import("pages/SessionLog"));
-const SessionLogDetail = lazy(() => import("pages/SessionLog/SessionDetail")); // ✅ add
+const SessionLogDetail = lazy(() => import("pages/SessionLog/SessionDetail"));
 const NpcsPage = lazy(() => import("pages/Npcs"));
 const NpcDetail = lazy(() => import("pages/Npcs/NpcDetail"));
 const QuestsPage = lazy(() => import("pages/Quests"));
@@ -43,9 +42,8 @@ const AppRoutes = () => {
           </>
         ) : (
           <>
-            <Route path="/musicas" element={<MusicasPage />} />
-            <Route path="/livros" element={<LivrosPage />} />
-            <Route path="/anotacoes" element={<NotePage />} />
+            <Route path="/Taverna-do-Bardo" element={<MusicasPage />} />
+            <Route path="/Biblioteca-Arcana" element={<NotePage />} />
             <Route path="/folders/:folderId" element={<FolderPage />} />
             <Route path="/fichas" element={<FichaPage />} />
             <Route path="/criar-ficha" element={<FichaCriar />} />

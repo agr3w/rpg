@@ -45,11 +45,10 @@ const ROUTE_TO_ELEMENT = {
   "/": "parchment",
   "/fichas": "fire",
   "/criar-ficha": "fire",
-  "/livros": "lightning",
   "/mapas": "poison",
-  "/anotacoes": "ice",
-  "/musicas": "void",
-  "/perfil": "parchment",
+  "/Biblioteca-Arcana": "ice",
+  "/Taverna-do-Bardo": "void",
+  "/perfil": "lightning",
 };
 
 function pickElementKey(pathname) {

@@ -53,7 +53,7 @@ const PAGE_TITLES = {
   "/quests": "Quests",
   "/fichas": "Fichas",
   "/livros": "Biblioteca",
-  "/musicas": "Bardo",
+  "/Taverna-do-Bardo": "Taverna do Bardo",
   "/anotacoes": "Anotações",
   "/mapas": "Cartografia",
   "/criar-ficha": "Nova Lenda",
@@ -132,9 +132,8 @@ const Nav = () => {
 
   const toolsItems = useMemo(
     () => [
-      { text: "Biblioteca", icon: <LibraryBooksIcon />, path: "/livros" },
-      { text: "Bardo", icon: <MusicNoteIcon />, path: "/musicas" },
-      { text: "Anotações", icon: <EditNoteIcon />, path: "/anotacoes" },
+      { text: "Taverna do Bardo", icon: <MusicNoteIcon />, path: "/Taverna-do-Bardo" },
+      { text: "Biblioteca Arcana", icon: <EditNoteIcon />, path: "/Biblioteca-Arcana" },
       { text: "NPCs", icon: <PeopleAltRoundedIcon />, path: "/npcs" },
       { text: "Quests", icon: <FactCheckRoundedIcon />, path: "/quests" },
     ],

@@ -34,34 +34,24 @@ export const CARDS = {
     icon: MapRoundedIcon, // ✅
   },
   anotacoes: {
-    id: "anotacoes",
-    title: "Anotações",
+    id: "biblioteca-arcana",
+    title: "Biblioteca Arcana",
     description: "Organize ideias, sessões e lembretes.",
-    to: "/anotacoes",
+    to: "/Biblioteca-Arcana",
     image: anotacoesImg,
     accent: "secondary",
     badge: "Ferramenta",
     icon: EditNoteRoundedIcon, // ✅
   },
   musicas: {
-    id: "musicas",
-    title: "Bardo",
+    id: "taverna-do-bardo",
+    title: "Taverna do Bardo",
     description: "Trilhas, playlists e controle de ambiente.",
-    to: "/musicas",
+    to: "/Taverna-do-Bardo",
     image: musicasImg,
     accent: "secondary",
     badge: "Ferramenta",
     icon: MusicNoteRoundedIcon, // ✅
-  },
-  livros: {
-    id: "livros",
-    title: "Biblioteca",
-    description: "Arquivos, PDFs e materiais de apoio.",
-    to: "/livros",
-    image: livrosImg,
-    accent: "secondary",
-    badge: "Ferramenta",
-    icon: MenuBookRoundedIcon, // ✅
   },
   diario: {
     id: "diario",
@@ -113,6 +103,6 @@ export const HOME_SECTIONS = [
       "Seu acervo: anotações, biblioteca e músicas. Aqui entram as próximas ferramentas do site.",
     chipLabel: "Extras",
     accent: "secondary",
-    items: [CARDS.anotacoes, CARDS.musicas, CARDS.livros],
+    items: [CARDS.anotacoes, CARDS.musicas],
   },
 ];

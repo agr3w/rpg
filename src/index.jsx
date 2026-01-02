@@ -7,7 +7,6 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 
 import "./APIs/firebaseConfig";
 import { MusicProvider } from "APIs/MusicContext";
-import { BookProvider } from "APIs/BookContext";
 import { NoteProvider } from "APIs/NoteContext";
 import { FolderProvider } from "APIs/FolderContext";
 import { AuthProvider } from "contexts/AuthContext";
@@ -38,13 +37,11 @@ function AppWithTheme() {
       <CssBaseline />
       <AuthProvider>
         <MusicProvider>
-          <BookProvider>
-            <FolderProvider>
-              <NoteProvider>
-                <Rout />
-              </NoteProvider>
-            </FolderProvider>
-          </BookProvider>
+          <FolderProvider>
+            <NoteProvider>
+              <Rout />
+            </NoteProvider>
+          </FolderProvider>
         </MusicProvider>
       </AuthProvider>
     </ThemeProvider>
