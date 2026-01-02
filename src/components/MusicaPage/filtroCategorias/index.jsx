@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import styles from "./FiltroCategoria.module.css"; // Importe seus estilos CSS
+import { Tabs, Tab, Box } from "@mui/material";
+import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 import { useMusicContext } from "APIs/MusicContext";
+import styles from "./FiltroCategoria.module.css"; // Importe seus estilos CSS
 
-const FiltroCategoria = ({ onFiltroCategoriaChange }) => {
-    const { categorias } = useMusicContext();
+const FiltroCategoria = ({ onFiltroCategoriaChange, categoriaAtiva }) => {
+  const { categorias } = useMusicContext();
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("");
 
   const handleCategoriaChange = (event) => {
@@ -12,21 +14,44 @@ const FiltroCategoria = ({ onFiltroCategoriaChange }) => {
     onFiltroCategoriaChange(novaCategoria);
   };
 
+  const handleChange = (event, newValue) => {
+    onFiltroCategoriaChange(newValue);
+  };
+
   return (
-    <div className={styles.filtroCategoria}>
-      <select
-        value={categoriaSelecionada}
-        onChange={handleCategoriaChange}
-        className={styles.select}
+    <Box sx={{ width: '100%' }}>
+      <Tabs
+        value={categoriaAtiva || ""} // Se vazio, seleciona "Todos"
+        onChange={handleChange}
+        variant="scrollable"
+        scrollButtons="auto"
+        textColor="secondary"
+        indicatorColor="secondary"
+        sx={{
+          "& .MuiTab-root": {
+            fontFamily: "Cinzel",
+            fontWeight: "bold",
+            color: "rgba(0, 0, 0, 0.5)",
+            "&.Mui-selected": { color: "#bf8f00" }
+          },
+          "& .MuiTabs-indicator": { backgroundColor: "#bf8f00" }
+        }}
       >
-        <option value="">Todas as Categorias</option>
-        {categorias.map((categoria, index) => (
-          <option key={index} value={categoria}>
-            {categoria}
-          </option>
+        <Tab 
+          value="" 
+          label="Todos os Ritmos" 
+          icon={<AllInclusiveIcon fontSize="small" />} 
+          iconPosition="start"
+        />
+        {categorias.map((categoria) => (
+          <Tab 
+            key={categoria} 
+            value={categoria} 
+            label={categoria} 
+          />
         ))}
-      </select>
-    </div>
+      </Tabs>
+    </Box>
   );
 };
 
