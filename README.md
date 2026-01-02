@@ -48,6 +48,8 @@ Ferramentas "neutras" (servem pros dois)
 3.  **Campanhas e Permissões**
     -   Campanha com membros (DM + jogadores), e compartilhamento seletivo:
         -   "Visível para todos" vs "Só DM".
+4.  **linkar o google drive**
+    -   Linkar o google drive para pegar documentos.
 
 * * * * *
 
