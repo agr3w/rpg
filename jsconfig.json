@@ -5,9 +5,6 @@
     "jsx": "react",
     "module": "commonjs",
     "allowSyntheticDefaultImports": true,
-    "editor.minimap.enabled": false,
-    "explorer.decorations.colors": false,
-    "explorer.decorations.badges": false
   },
   "exclude": [
     "node_modules",

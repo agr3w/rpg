@@ -1,6 +1,7 @@
 import { useFolderContext } from "APIs/FolderContext";
-import { Button, Stack, TextField } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
+import { Button, Stack, TextField, InputAdornment } from "@mui/material";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import { useState } from "react";
 
 export const FolderAdd = () => {
@@ -16,27 +17,64 @@ export const FolderAdd = () => {
   };
 
   return (
-    <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ minWidth: { xs: "100%", md: 360 } }}>
+    <Stack spacing={1} sx={{ width: "100%" }}>
       <TextField
-        label="Nova pasta"
+        label="Nova Gaveta"
         value={folderName}
         onChange={(e) => setFolderName(e.target.value)}
         fullWidth
+        variant="filled"
+        size="small"
+        placeholder="Ex: Magias, Mapas..."
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             handleAddFolder();
           }
         }}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <CreateNewFolderIcon sx={{ color: "#dcbfa6" }} />
+            </InputAdornment>
+          ),
+          disableUnderline: true,
+          sx: {
+            color: "#fff",
+            fontFamily: "Cinzel",
+            bgcolor: "rgba(0,0,0,0.3)",
+            borderRadius: 1,
+            border: "1px solid rgba(255,255,255,0.1)",
+            "&:hover": {
+              bgcolor: "rgba(0,0,0,0.5)",
+            },
+            "&.Mui-focused": {
+              bgcolor: "rgba(0,0,0,0.5)",
+              border: "1px solid #bf8f00",
+            }
+          }
+        }}
+        InputLabelProps={{
+          sx: { color: "rgba(255,255,255,0.5)", fontFamily: "Cinzel" },
+          shrink: true
+        }}
       />
       <Button
         onClick={handleAddFolder}
         variant="contained"
-        startIcon={<AddIcon />}
+        fullWidth
+        startIcon={<AddCircleIcon />}
         disabled={folderName.trim() === ""}
-        sx={{ whiteSpace: "nowrap" }}
+        sx={{ 
+          bgcolor: "#833c0b",
+          color: "#fff",
+          fontFamily: "Cinzel",
+          fontWeight: "bold",
+          "&:hover": { bgcolor: "#a04d14" },
+          "&.Mui-disabled": { bgcolor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.3)" }
+        }}
       >
-        Adicionar pasta
+        Construir
       </Button>
     </Stack>
   );
