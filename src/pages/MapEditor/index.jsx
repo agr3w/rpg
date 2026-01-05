@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Stage, Layer, Line, Rect, Circle, Text, Image as KonvaImage, Group, Label, Tag, Transformer } from "react-konva";
-import { Box, CircularProgress, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button } from "@mui/material";
+import { Box, CircularProgress, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, Snackbar, Alert } from "@mui/material";
 import { useMapContext } from "APIs/MapContext";
 
 import EditorToolbar from "components/MapEditor/EditorToolbar";
@@ -19,12 +19,12 @@ const MapEditor = () => {
   const [tool, setTool] = useState("select");
   const [elements, setElements] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
-  
+
   const [currentElement, setCurrentElement] = useState(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [strokeColor, setStrokeColor] = useState("#000000");
   const [strokeWidth, setStrokeWidth] = useState(5);
-  
+
   const [stageScale, setStageScale] = useState(1);
   const [stagePos, setStagePos] = useState({ x: 0, y: 0 });
   const [bgImageObj, setBgImageObj] = useState(null);
@@ -32,6 +32,10 @@ const MapEditor = () => {
   const [textDialogOpen, setTextDialogOpen] = useState(false);
   const [textInput, setTextInput] = useState("");
   const [textPos, setTextPos] = useState({ x: 0, y: 0 });
+
+  // Feedback visual para atalhos
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState("");
 
   useEffect(() => {
     if (currentMap) {
@@ -44,6 +48,47 @@ const MapEditor = () => {
     }
   }, [currentMap]);
 
+  // --- ATALHOS DE TECLADO ---
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Ignora se estiver digitando em um input
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      switch (e.key.toLowerCase()) {
+        case 'v': setTool("select"); showMsg("Ferramenta: Seleção"); break;
+        case 'h': setTool("pan"); showMsg("Ferramenta: Mover Mapa (Pan)"); break;
+        case 'b': setTool("brush"); showMsg("Ferramenta: Pincel"); break;
+        case 'l': setTool("line"); showMsg("Ferramenta: Linha"); break;
+        case 'r': setTool("rect"); showMsg("Ferramenta: Retângulo"); break;
+        case 'c': setTool("circle"); showMsg("Ferramenta: Círculo"); break;
+        case 't': setTool("text"); showMsg("Ferramenta: Texto"); break;
+        case 'z':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            handleUndo();
+            showMsg("Desfazer");
+          }
+          break;
+        case 'delete':
+        case 'backspace':
+          if (selectedId) {
+            handleDeleteElement(selectedId);
+            showMsg("Elemento deletado");
+          }
+          break;
+        default: break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedId, elements]); // Dependências para garantir que delete/undo funcionem com estado atual
+
+  const showMsg = (msg) => {
+    setSnackbarMsg(msg);
+    setSnackbarOpen(true);
+  };
+
   // --- LÓGICA DE SELEÇÃO E TRANSFORMER ---
   useEffect(() => {
     if (selectedId && transformerRef.current && stageRef.current) {
@@ -51,7 +96,11 @@ const MapEditor = () => {
       if (node) {
         transformerRef.current.nodes([node]);
         transformerRef.current.getLayer().batchDraw();
+      } else {
+        transformerRef.current.nodes([]);
       }
+    } else if (transformerRef.current) {
+      transformerRef.current.nodes([]);
     }
   }, [selectedId, elements]);
 
@@ -65,14 +114,19 @@ const MapEditor = () => {
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty && tool === "select") {
       setSelectedId(null);
-      if (transformerRef.current) transformerRef.current.nodes([]);
     }
+  };
+
+  // --- MANIPULAÇÃO DE CAMADAS (NOVA FUNÇÃO PARA DRAG AND DROP) ---
+  const handleReorderElements = (newElementsOrder) => {
+    setElements(newElementsOrder);
+    saveMapState(mapId, newElementsOrder);
   };
 
   const handleTransformEnd = (e) => {
     const node = e.target;
     const id = node.id();
-    
+
     const newElements = elements.map(el => {
       if (el.id.toString() === id) {
         return {
@@ -109,7 +163,6 @@ const MapEditor = () => {
     const newElements = elements.filter(el => el.id !== id);
     setElements(newElements);
     setSelectedId(null);
-    if (transformerRef.current) transformerRef.current.nodes([]);
     saveMapState(mapId, newElements);
   };
 
@@ -117,13 +170,13 @@ const MapEditor = () => {
   const mapWidth = currentMap?.gridConfig?.width || 20;
   const mapHeight = currentMap?.gridConfig?.height || 15;
   const cellSize = currentMap?.gridConfig?.cellSize || 50;
-  const showGrid = currentMap?.gridConfig?.showGrid !== false; 
-  const themeColors = currentMap ? 
-    (currentMap.theme === "stone" ? { bg: "#2b2b2b", grid: "#424242" } : 
-     currentMap.theme === "grass" ? { bg: "#2e7d32", grid: "#1b5e20" } : 
-     currentMap.theme === "water" ? { bg: "#0288d1", grid: "#01579b" } : 
-     currentMap.theme === "void" ? { bg: "#121212", grid: "#333" } : 
-     { bg: "#e3e3e3", grid: "#a5c9ea" }) : { bg: "#e3e3e3", grid: "#a5c9ea" };
+  const showGrid = currentMap?.gridConfig?.showGrid !== false;
+  const themeColors = currentMap ?
+    (currentMap.theme === "stone" ? { bg: "#2b2b2b", grid: "#424242" } :
+      currentMap.theme === "grass" ? { bg: "#2e7d32", grid: "#1b5e20" } :
+        currentMap.theme === "water" ? { bg: "#0288d1", grid: "#01579b" } :
+          currentMap.theme === "void" ? { bg: "#121212", grid: "#333" } :
+            { bg: "#e3e3e3", grid: "#a5c9ea" }) : { bg: "#e3e3e3", grid: "#a5c9ea" };
 
   const handleWheel = (e) => {
     e.evt.preventDefault();
@@ -143,18 +196,22 @@ const MapEditor = () => {
     transform.invert();
     const pos = transform.point(stage.getPointerPosition());
     const snap = tool !== "text" && tool !== "ruler" && tool !== "select" && tool !== "brush";
-    
-    // Proteção contra NaN se cellSize for inválido
     const safeCellSize = cellSize || 50;
-    
     const x = snap ? Math.round(pos.x / (safeCellSize / 2)) * (safeCellSize / 2) : pos.x;
     const y = snap ? Math.round(pos.y / (safeCellSize / 2)) * (safeCellSize / 2) : pos.y;
     return { x, y, rawX: pos.x, rawY: pos.y };
   };
 
-  // --- HANDLERS DE DESENHO (CORRIGIDOS) ---
+  // --- HANDLERS DE DESENHO ---
   const handleMouseDown = (e) => {
-    if (tool === "pan" || tool === "select" || e.evt.button !== 0) {
+    // Se clicar com botão do meio ou direito, ou ferramenta Pan
+    if (tool === "pan" || e.evt.button !== 0) {
+      return; // Deixa o Stage lidar com o drag
+    }
+
+    // Se clicar em um elemento existente com Select, o evento do elemento lida com isso.
+    // Aqui lidamos com cliques no VAZIO ou início de desenho.
+    if (tool === "select") {
       checkDeselect(e);
       return;
     }
@@ -172,24 +229,22 @@ const MapEditor = () => {
     const startX = tool === "brush" ? rawX : x;
     const startY = tool === "brush" ? rawY : y;
 
-    // CORREÇÃO: Inicializar pontos corretamente para evitar NaN
-    // Para Linha e Régua, usamos coordenadas relativas (0,0 é a origem)
     let initialPoints = [];
     if (tool === "line" || tool === "ruler") {
-      initialPoints = [0, 0, 0, 0]; 
+      initialPoints = [0, 0, 0, 0];
     } else if (tool === "brush") {
-      initialPoints = [0, 0]; // Brush usa pontos relativos também agora
+      initialPoints = [0, 0];
     }
 
     const newEl = {
-      tool, 
-      points: initialPoints, 
-      x: startX, 
-      y: startY, 
-      width: 0, 
-      height: 0, 
+      tool,
+      points: initialPoints,
+      x: startX,
+      y: startY,
+      width: 0,
+      height: 0,
       radius: 0,
-      stroke: strokeColor, 
+      stroke: strokeColor,
       strokeWidth: strokeWidth,
       id: Date.now(),
       isVisible: true
@@ -200,8 +255,7 @@ const MapEditor = () => {
   const handleMouseMove = (e) => {
     if (!isDrawing || tool === "pan" || tool === "select") return;
     const { x, y, rawX, rawY } = getPointerPos(e.target.getStage());
-    
-    // Coordenadas relativas ao ponto inicial (currentElement.x/y)
+
     const relX = (tool === "brush" ? rawX : x) - currentElement.x;
     const relY = (tool === "brush" ? rawY : y) - currentElement.y;
 
@@ -209,7 +263,6 @@ const MapEditor = () => {
       const newPoints = currentElement.points.concat([relX, relY]);
       setCurrentElement({ ...currentElement, points: newPoints });
     } else if (tool === "line" || tool === "ruler") {
-      // Atualiza apenas o ponto final [x1, y1, x2, y2]
       const newPoints = [0, 0, relX, relY];
       setCurrentElement({ ...currentElement, points: newPoints });
     } else if (tool === "rect") {
@@ -223,16 +276,14 @@ const MapEditor = () => {
   const handleMouseUp = () => {
     if (isDrawing && currentElement) {
       setIsDrawing(false);
-      // Evita salvar elementos minúsculos ou inválidos
       if (tool === "ruler" || tool === "line") {
-         const dx = currentElement.points[2];
-         const dy = currentElement.points[3];
-         if (Math.abs(dx) < 5 && Math.abs(dy) < 5) {
-             setCurrentElement(null);
-             return;
-         }
+        const dx = currentElement.points[2];
+        const dy = currentElement.points[3];
+        if (Math.abs(dx) < 5 && Math.abs(dy) < 5) {
+          setCurrentElement(null);
+          return;
+        }
       }
-
       const newElements = [...elements, currentElement];
       setElements(newElements);
       setCurrentElement(null);
@@ -269,13 +320,10 @@ const MapEditor = () => {
     setSettingsOpen(false);
   };
 
-  // --- DRAG AND DROP DE ASSETS ---
   const handleDrop = (e) => {
     e.preventDefault();
-    // Pega a posição do mouse relativa ao Stage
     stageRef.current.setPointersPositions(e);
     const { x, y } = getPointerPos(stageRef.current);
-
     const imageUrl = e.dataTransfer.getData("imageUrl");
     const type = e.dataTransfer.getData("type");
 
@@ -283,36 +331,23 @@ const MapEditor = () => {
       const img = new window.Image();
       img.src = imageUrl;
       img.onload = () => {
-        // Calcula tamanho inicial (max 100px ou 2 células)
         const maxSize = cellSize * 2;
         const scale = Math.min(maxSize / img.width, maxSize / img.height);
-        
         const newEl = {
-          tool: "image",
-          imageObj: img, // Objeto de imagem para o Konva
-          src: imageUrl, // URL para salvar no banco
-          x: x,
-          y: y,
-          width: img.width * scale,
-          height: img.height * scale,
-          rotation: 0,
-          id: Date.now(),
-          isVisible: true,
-          stroke: "transparent" // Apenas para compatibilidade com a lista
+          tool: "image", imageObj: img, src: imageUrl, x: x, y: y,
+          width: img.width * scale, height: img.height * scale,
+          rotation: 0, id: Date.now(), isVisible: true, stroke: "transparent"
         };
-        
         const newElements = [...elements, newEl];
         setElements(newElements);
         saveMapState(mapId, newElements);
-        setTool("select"); // Muda para select para poder ajustar a imagem logo em seguida
+        setTool("select");
         setSelectedId(newEl.id);
       };
     }
   };
 
-  const handleDragOver = (e) => {
-    e.preventDefault(); // Necessário para permitir o drop
-  };
+  const handleDragOver = (e) => { e.preventDefault(); };
 
   // --- RENDERIZAÇÃO ---
   const renderGrid = () => {
@@ -334,8 +369,18 @@ const MapEditor = () => {
       stroke: el.stroke,
       strokeWidth: el.strokeWidth,
       draggable: tool === "select",
-      onClick: () => handleSelect(el.id),
-      onTap: () => handleSelect(el.id),
+
+      // CORREÇÃO DO BUG DA CÂMERA:
+      // Impede que o clique no elemento propague para o Stage (que tenta fazer Pan ou Deselect)
+      onMouseDown: (e) => {
+        e.cancelBubble = true;
+        handleSelect(el.id);
+      },
+      onTap: (e) => {
+        e.cancelBubble = true;
+        handleSelect(el.id);
+      },
+
       onDragEnd: handleDragEnd,
       onTransformEnd: handleTransformEnd,
       x: el.x,
@@ -354,21 +399,16 @@ const MapEditor = () => {
     } else if (el.tool === "text") {
       return <Text {...commonProps} text={el.text} fontSize={24} fill={el.stroke} fontFamily="Cinzel" />;
     } else if (el.tool === "ruler") {
-      // CORREÇÃO: Verificação de segurança para evitar NaN
       if (!el.points || el.points.length < 4) return null;
-
       const x2 = el.points[2];
       const y2 = el.points[3];
-      
-      // Distância baseada nas coordenadas relativas
       const distancePx = Math.sqrt(x2 * x2 + y2 * y2);
       const cells = distancePx / (cellSize || 50);
       const meters = (cells * 1.5).toFixed(1);
-      
       return (
         <Group {...commonProps}>
           <Line points={[0, 0, x2, y2]} stroke={el.stroke} strokeWidth={2} dash={[10, 5]} />
-          <Label x={x2/2} y={y2/2}>
+          <Label x={x2 / 2} y={y2 / 2}>
             <Tag fill="rgba(0,0,0,0.7)" cornerRadius={5} />
             <Text text={`${meters}m`} fill="white" padding={5} fontSize={14} />
           </Label>
@@ -377,25 +417,15 @@ const MapEditor = () => {
         </Group>
       );
     } else if (el.tool === "image") {
-      // Se a imagem não estiver carregada (ex: carregou do banco), carrega agora
       if (!el.imageObj && el.src) {
-         const img = new window.Image();
-         img.src = el.src;
-         img.onload = () => {
-             el.imageObj = img;
-             // Força re-render (pode precisar de um state update melhor num cenário real, mas o Konva costuma lidar bem)
-             stageRef.current.batchDraw(); 
-         }
+        const img = new window.Image();
+        img.src = el.src;
+        img.onload = () => {
+          el.imageObj = img;
+          stageRef.current.batchDraw();
+        }
       }
-
-      return (
-        <KonvaImage
-          {...commonProps}
-          image={el.imageObj}
-          width={el.width}
-          height={el.height}
-        />
-      );
+      return <KonvaImage {...commonProps} image={el.imageObj} width={el.width} height={el.height} />;
     }
     return null;
   };
@@ -404,13 +434,13 @@ const MapEditor = () => {
   if (!currentMap) return <Box sx={{ p: 5, color: "#fff" }}>Mapa não encontrado</Box>;
 
   return (
-    <Box 
+    <Box
       sx={{ width: "100vw", height: "100vh", overflow: "hidden", bgcolor: "#111", position: "relative" }}
-      onDrop={handleDrop} 
+      onDrop={handleDrop}
       onDragOver={handleDragOver}
     >
-      
-      <EditorToolbar 
+
+      <EditorToolbar
         tool={tool} setTool={setTool}
         strokeColor={strokeColor} setStrokeColor={setStrokeColor}
         strokeWidth={strokeWidth} setStrokeWidth={setStrokeWidth}
@@ -418,16 +448,17 @@ const MapEditor = () => {
         onOpenSettings={() => setSettingsOpen(true)}
       />
 
-      <LayersPanel 
-        elements={elements} 
+      <LayersPanel
+        elements={elements}
         selectedId={selectedId}
         onSelectElement={(id) => { setTool("select"); setSelectedId(id); }}
         onDeleteElement={handleDeleteElement}
         onToggleVisibility={handleToggleVisibility}
+        onReorderElements={handleReorderElements} 
       />
 
-      <MapSettingsDialog 
-        open={settingsOpen} onClose={() => setSettingsOpen(false)} 
+      <MapSettingsDialog
+        open={settingsOpen} onClose={() => setSettingsOpen(false)}
         currentConfig={currentMap} onSave={handleSaveSettings}
       />
 
@@ -442,6 +473,12 @@ const MapEditor = () => {
         </DialogActions>
       </Dialog>
 
+      <Snackbar open={snackbarOpen} autoHideDuration={2000} onClose={() => setSnackbarOpen(false)}>
+        <Alert severity="info" sx={{ width: '100%', bgcolor: '#333', color: '#fff' }}>
+          {snackbarMsg}
+        </Alert>
+      </Snackbar>
+
       <Stage
         ref={stageRef}
         width={window.innerWidth}
@@ -450,12 +487,17 @@ const MapEditor = () => {
         onMousemove={handleMouseMove}
         onMouseup={handleMouseUp}
         onWheel={handleWheel}
-        draggable={tool === "pan"}
+        draggable={tool === "pan"} // Stage só é arrastável se a ferramenta for PAN
         scaleX={stageScale}
         scaleY={stageScale}
         x={stagePos.x}
         y={stagePos.y}
-        onDragEnd={(e) => setStagePos({ x: e.target.x(), y: e.target.y() })}
+        onDragEnd={(e) => {
+          // Garante que é o Stage que está sendo arrastado e não um elemento
+          if (e.target === stageRef.current) {
+            setStagePos({ x: e.target.x(), y: e.target.y() });
+          }
+        }}
         style={{ cursor: tool === "pan" ? "grab" : tool === "select" ? "default" : "crosshair" }}
       >
         <Layer>
