@@ -1,4 +1,4 @@
-// Inicio.js
+// Inicio.jsx
 import React, { memo } from "react";
 import { motion, MotionConfig, useReducedMotion } from "framer-motion";
 import {
@@ -7,68 +7,107 @@ import {
   Paper,
   Stack,
   Typography,
-  Divider,
   Chip,
   Button,
   Grid,
 } from "@mui/material";
-import { alpha, useTheme } from "@mui/material/styles";
+import { alpha, styled, useTheme } from "@mui/material/styles";
 import AutoStoriesIcon from "@mui/icons-material/AutoStories";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { Link as RouterLink } from "react-router-dom";
 
-import { T_IN } from "../../config/transitions";
 import bg from "./tumblr_okx6d5BR4K1rnbw6mo1_540.webp";
 import AppCard from "components/Cards/AppCard";
 import { HOME_SECTIONS } from "components/Cards/cardsRegistry";
 
-// Animações
+// --- OTIMIZAÇÃO 1: Styled Components (Zero Runtime Overhead no render) ---
+
+const PageContainer = styled(motion.div)({
+  minHeight: "100vh",
+  position: "relative",
+  paddingTop: 32,
+  paddingBottom: 32,
+  // Background fixo otimizado para GPU
+  "&::before": {
+    content: '""',
+    position: "fixed",
+    inset: 0,
+    zIndex: -2,
+    backgroundImage: `linear-gradient(rgba(16, 18, 16, 0.85), rgba(16, 18, 16, 0.75)), url(${bg})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    willChange: "transform", // Instrui o navegador a preparar a GPU
+    backfaceVisibility: "hidden", // Evita flickering em alguns navegadores
+  },
+});
+
+const HeroPaper = styled(Paper)(({ theme }) => ({
+  marginBottom: theme.spacing(4),
+  padding: theme.spacing(3),
+  borderRadius: theme.shape.borderRadius * 3,
+  position: "relative",
+  overflow: "hidden",
+  color: "#fff",
+  background: `linear-gradient(135deg, #2c1a10 0%, #4a2c1d 100%)`,
+  border: "1px solid rgba(255,255,255,0.1)",
+  boxShadow: "0 20px 40px rgba(0,0,0,0.4)",
+  [theme.breakpoints.up("md")]: {
+    padding: theme.spacing(5),
+  },
+}));
+
+// --- OTIMIZAÇÃO 2: Variantes de Animação Ajustadas ---
+
 const containerVariants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: { staggerChildren: 0.1, when: "beforeChildren" },
+    transition: {
+      staggerChildren: 0.06, // Mais rápido para parecer ágil
+      when: "beforeChildren",
+    },
+  },
+  // Saída instantânea para não brigar com a Transição do Dragão
+  exit: {
+    opacity: 0,
+    transition: { duration: 0.2, ease: "easeIn" },
   },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 15 }, // Movimento menor = menos repaint
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: "easeOut" },
+    transition: { duration: 0.35, ease: "easeOut" },
   },
 };
 
-// Componente Hero (Banner Principal)
-const HeroBanner = () => {
+// Botões com feedback tátil (Game Feel)
+const buttonMotionProps = {
+  component: motion.button,
+  whileHover: { scale: 1.02, filter: "brightness(1.1)" },
+  whileTap: { scale: 0.96 },
+  transition: { type: "spring", stiffness: 400, damping: 17 },
+};
+
+// --- COMPONENTES ---
+
+const HeroBanner = memo(() => {
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        mb: 4,
-        p: { xs: 3, md: 5 },
-        borderRadius: 3,
-        position: "relative",
-        overflow: "hidden",
-        color: "#fff",
-        // Estilo "Couro Escuro"
-        background: `linear-gradient(135deg, #2c1a10 0%, #4a2c1d 100%)`,
-        border: "1px solid rgba(255,255,255,0.1)",
-        boxShadow: "0 20px 40px rgba(0,0,0,0.4)",
-      }}
-    >
-      {/* Detalhe Dourado de Fundo */}
+    <HeroPaper elevation={0}>
+      {/* Gradiente leve substituindo Blur pesado */}
       <Box
         sx={{
           position: "absolute",
-          top: -50,
-          right: -50,
-          width: 200,
-          height: 200,
+          top: -60,
+          right: -60,
+          width: 240,
+          height: 240,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(191, 143, 0, 0.2) 0%, transparent 70%)",
-          filter: "blur(40px)",
+          background:
+            "radial-gradient(circle, rgba(191, 143, 0, 0.15) 0%, transparent 70%)",
+          pointerEvents: "none",
         }}
       />
 
@@ -97,7 +136,13 @@ const HeroBanner = () => {
                 RPG Organizer
               </Typography>
             </Box>
-            <Typography sx={{ color: "rgba(255,255,255,0.7)", maxWidth: 600, lineHeight: 1.6 }}>
+            <Typography
+              sx={{
+                color: "rgba(255,255,255,0.7)",
+                maxWidth: 600,
+                lineHeight: 1.6,
+              }}
+            >
               Sua mesa virtual está pronta. Acesse suas campanhas, consulte o grimório ou
               crie novos personagens para a próxima aventura.
             </Typography>
@@ -108,10 +153,12 @@ const HeroBanner = () => {
                 to="/fichas"
                 variant="contained"
                 startIcon={<AddCircleOutlineIcon />}
+                {...buttonMotionProps} // ✅ Aplica a física de botão
                 sx={{
                   bgcolor: "#bf8f00",
                   color: "#2c1a10",
                   fontWeight: 800,
+                  border: "none", // Remove borda padrão do button HTML
                   "&:hover": { bgcolor: "#a67c00" },
                 }}
               >
@@ -122,10 +169,14 @@ const HeroBanner = () => {
                 to="/diario"
                 variant="outlined"
                 startIcon={<AutoStoriesIcon />}
+                {...buttonMotionProps} // ✅ Aplica a física de botão
                 sx={{
                   borderColor: "rgba(255,255,255,0.3)",
                   color: "#fff",
-                  "&:hover": { borderColor: "#fff", bgcolor: "rgba(255,255,255,0.05)" },
+                  "&:hover": {
+                    borderColor: "#fff",
+                    bgcolor: "rgba(255,255,255,0.05)",
+                  },
                 }}
               >
                 Diário
@@ -134,20 +185,22 @@ const HeroBanner = () => {
           </Stack>
         </Grid>
       </Grid>
-    </Paper>
+    </HeroPaper>
   );
-};
+});
 
-// Componente de Seção (Estilo Pergaminho)
 const Section = memo(function Section({
   title,
-  subtitle,
   chipLabel,
   accent = "primary",
   children,
+  prefersReducedMotion,
 }) {
   const theme = useTheme();
   const accentColor = theme.palette?.[accent]?.main || theme.palette.primary.main;
+
+  // Wrapper condicional para evitar overhead de animação se o usuário preferir movimento reduzido
+  const CardWrapper = prefersReducedMotion ? Box : motion.div;
 
   return (
     <Box component={motion.div} variants={itemVariants} sx={{ mb: 4 }}>
@@ -170,7 +223,7 @@ const Section = memo(function Section({
             size="small"
             sx={{
               bgcolor: alpha(accentColor, 0.2),
-              color: "#fff", // Melhor contraste no fundo escuro
+              color: "#fff",
               border: `1px solid ${alpha(accentColor, 0.3)}`,
               fontWeight: 700,
             }}
@@ -178,7 +231,6 @@ const Section = memo(function Section({
         )}
       </Stack>
 
-      {/* Container dos Cards */}
       <Box
         sx={{
           display: "grid",
@@ -190,7 +242,11 @@ const Section = memo(function Section({
           },
         }}
       >
-        {children}
+        {React.Children.map(children, (child) => (
+          <CardWrapper variants={itemVariants} style={{ height: "100%" }}>
+            {child}
+          </CardWrapper>
+        ))}
       </Box>
     </Box>
   );
@@ -202,26 +258,11 @@ export default function Inicio() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <Box
-        component={motion.div}
+      <PageContainer
         initial="hidden"
         animate="show"
+        exit="exit" // ✅ Garante saída limpa para o DragonTransition
         variants={prefersReducedMotion ? undefined : containerVariants}
-        sx={{
-          minHeight: "100vh",
-          position: "relative",
-          py: { xs: 2, md: 4 },
-          // Background fixo e escuro para contraste
-          "&::before": {
-            content: '""',
-            position: "fixed",
-            inset: 0,
-            zIndex: -2,
-            backgroundImage: `linear-gradient(rgba(16, 18, 16, 0.85), rgba(16, 18, 16, 0.75)), url(${bg})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          },
-        }}
       >
         <Container maxWidth="lg">
           {/* Hero Section */}
@@ -237,15 +278,11 @@ export default function Inicio() {
               subtitle={section.subtitle}
               chipLabel={section.chipLabel}
               accent={section.accent}
+              prefersReducedMotion={prefersReducedMotion}
             >
-              {section.items.map((card) => {
-                const Wrapper = prefersReducedMotion ? Box : motion.div;
-                return (
-                  <Box key={card.id} component={Wrapper} variants={itemVariants}>
-                    <AppCard {...card} />
-                  </Box>
-                );
-              })}
+              {section.items.map((card) => (
+                <AppCard key={card.id} {...card} />
+              ))}
             </Section>
           ))}
 
@@ -273,7 +310,7 @@ export default function Inicio() {
             </Box>
           </Typography>
         </Container>
-      </Box>
+      </PageContainer>
     </MotionConfig>
   );
 }

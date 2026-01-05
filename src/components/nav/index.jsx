@@ -32,12 +32,11 @@ import {
   Home as HomeIcon,
   LibraryBooks as LibraryBooksIcon,
   MusicNote as MusicNoteIcon,
-  Save as SaveIcon,
   Map as MapIcon,
   ExitToApp as LogoutIcon,
   Settings as SettingsIcon,
   Folder as FolderIcon,
-  ExpandMore, // Usaremos apenas este e rotacionaremos
+  ExpandMore,
 } from "@mui/icons-material";
 
 import { auth } from "APIs/firebaseConfig";
@@ -45,6 +44,9 @@ import { signOut } from "firebase/auth";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
+
+// ✅ Importamos a lógica para saber qual elemento estamos
+import { getElementFromPath } from "theme/elementTokens";
 
 const PAGE_TITLES = {
   "/": "Início",
@@ -99,6 +101,104 @@ function D20Mark({ size = 22 }) {
   );
 }
 
+// --- CONFIGURAÇÃO DE TEXTURAS POR ELEMENTO ---
+const NAV_VARIANTS = {
+  // 🔥 FOGO: Madeira queimada, cinzas e brasas
+  fire: {
+    before: `
+      linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.65)),
+      repeating-linear-gradient(90deg, transparent 0px, transparent 12px, rgba(0,0,0,0.35) 13px, transparent 22px),
+      repeating-linear-gradient(25deg, transparent 0px, transparent 26px, rgba(0,0,0,0.25) 27px, transparent 34px),
+      radial-gradient(circle at 50% 0%, rgba(0,0,0,0.6) 0%, transparent 70%)
+    `,
+    after: `
+      radial-gradient(1px 1px at 12% 40%, rgba(255,255,255,0.35) 0%, transparent 60%),
+      radial-gradient(2px 2px at 46% 22%, rgba(255,255,255,0.22) 0%, transparent 60%),
+      radial-gradient(80% 140% at 50% 110%, rgba(255,100,0,0.15) 0%, transparent 60%)
+    `,
+    mixBlendBefore: "multiply",
+    mixBlendAfter: "screen",
+  },
+
+  // 🧪 VENENO: Metal corroído, lodo e bolhas
+  poison: {
+    before: `
+      linear-gradient(180deg, rgba(10,20,10,0.6), rgba(10,20,10,0.8)),
+      radial-gradient(circle at 20% 20%, rgba(0,0,0,0.2) 0%, transparent 20%),
+      radial-gradient(circle at 80% 80%, rgba(0,0,0,0.2) 0%, transparent 25%),
+      repeating-linear-gradient(45deg, rgba(0,0,0,0.1) 0px, transparent 2px, transparent 8px)
+    `,
+    after: `
+      radial-gradient(circle at 30% 50%, rgba(100,255,50,0.08) 0%, transparent 40%),
+      radial-gradient(circle at 70% 50%, rgba(100,255,50,0.05) 0%, transparent 40%),
+      linear-gradient(0deg, rgba(50,200,50,0.05) 0%, transparent 30%)
+    `,
+    mixBlendBefore: "multiply",
+    mixBlendAfter: "overlay",
+  },
+
+  // ❄️ GELO: Vidro fosco, cristais e ar frio
+  ice: {
+    before: `
+      linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.05) 100%),
+      repeating-linear-gradient(60deg, rgba(255,255,255,0.05) 0px, transparent 1px, transparent 15px),
+      linear-gradient(180deg, rgba(10,30,50,0.4), rgba(10,30,50,0.6))
+    `,
+    after: `
+      radial-gradient(circle at 50% 0%, rgba(200,240,255,0.15) 0%, transparent 70%),
+      linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent)
+    `,
+    mixBlendBefore: "overlay",
+    mixBlendAfter: "screen",
+  },
+
+  // ⚡ RAIO: Estática, linhas nítidas e energia
+  lightning: {
+    before: `
+      linear-gradient(90deg, rgba(0,0,0,0.5), rgba(0,0,0,0.7)),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0px, transparent 1px, transparent 40px),
+      linear-gradient(0deg, rgba(0,0,50,0.2) 0%, transparent 100%)
+    `,
+    after: `
+      radial-gradient(circle at 50% 100%, rgba(100,150,255,0.15) 0%, transparent 60%),
+      linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.1) 50%, transparent 55%)
+    `,
+    mixBlendBefore: "multiply",
+    mixBlendAfter: "screen",
+  },
+
+  // 🌌 VAZIO: Escuridão, estrelas e etéreo
+  void: {
+    before: `
+      linear-gradient(180deg, rgba(5,0,10,0.8), rgba(5,0,10,0.95)),
+      radial-gradient(circle at 50% 50%, rgba(40,0,60,0.2) 0%, transparent 80%)
+    `,
+    after: `
+      radial-gradient(1px 1px at 10% 10%, white 0%, transparent 100%),
+      radial-gradient(1px 1px at 25% 60%, white 0%, transparent 100%),
+      radial-gradient(2px 2px at 80% 30%, rgba(200,150,255,0.5) 0%, transparent 100%),
+      radial-gradient(circle at 50% 120%, rgba(138,43,226,0.15) 0%, transparent 50%)
+    `,
+    mixBlendBefore: "multiply",
+    mixBlendAfter: "screen",
+  },
+
+  // 📜 PERGAMINHO (Padrão): Madeira polida e couro
+  parchment: {
+    before: `
+      linear-gradient(180deg, rgba(0,0,0,0.2), rgba(0,0,0,0.4)),
+      repeating-linear-gradient(90deg, transparent 0px, transparent 4px, rgba(0,0,0,0.05) 5px, transparent 10px),
+      radial-gradient(circle at 50% 0%, rgba(255,255,255,0.05) 0%, transparent 60%)
+    `,
+    after: `
+      linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 10%),
+      radial-gradient(circle at 50% 100%, rgba(0,0,0,0.1) 0%, transparent 50%)
+    `,
+    mixBlendBefore: "multiply",
+    mixBlendAfter: "overlay",
+  },
+};
+
 const Nav = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -114,12 +214,13 @@ const Nav = () => {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-
   const [toolsAnchorEl, setToolsAnchorEl] = useState(null);
   const toolsMenuOpen = Boolean(toolsAnchorEl);
-
-  // Alterado para false: Começa fechado para manter a UI limpa
   const [toolsOpen, setToolsOpen] = useState(false);
+
+  // ✅ Identifica o elemento atual da rota
+  const currentElement = useMemo(() => getElementFromPath(location.pathname), [location.pathname]);
+  const navVariant = NAV_VARIANTS[currentElement] || NAV_VARIANTS.parchment;
 
   const mainItems = useMemo(
     () => [
@@ -144,14 +245,11 @@ const Nav = () => {
 
   const handleMenuOpen = useCallback((event) => setAnchorEl(event.currentTarget), []);
   const handleMenuClose = useCallback(() => setAnchorEl(null), []);
-
   const handleOpenDrawer = useCallback(() => setDrawerOpen(true), []);
   const handleCloseDrawer = useCallback(() => setDrawerOpen(false), []);
-
   const handleToolsMenuOpen = useCallback((event) => setToolsAnchorEl(event.currentTarget), []);
   const handleToolsMenuClose = useCallback(() => setToolsAnchorEl(null), []);
 
-  // ✅ FIX: StopPropagation evita conflitos de evento e garante renderização limpa
   const toggleToolsOpen = useCallback((e) => {
     if (e) e.stopPropagation();
     setToolsOpen((v) => !v);
@@ -166,32 +264,33 @@ const Nav = () => {
     }
   }, [navigate]);
 
-  // Este useEffect garante que tudo se feche ao mudar de rota
   useEffect(() => {
     setDrawerOpen(false);
     setToolsAnchorEl(null);
     setAnchorEl(null);
   }, [location.pathname]);
 
-  const toolsMenuPaperSx = useMemo(
+  // ✅ Estilo dinâmico para Menus e Drawers
+  const dynamicPaperSx = useMemo(
     () => ({
-      mt: 1.25,
-      minWidth: 240,
-      borderRadius: 2,
       backgroundColor: "var(--rpg-navBg)",
       border: "1px solid var(--rpg-stroke)",
       overflow: "hidden",
       isolation: "isolate",
       boxShadow: "0 14px 35px rgba(0,0,0,0.22)",
+      // Camada de Textura (Before)
       "&::before": {
         content: '""',
         position: "absolute",
         inset: 0,
         pointerEvents: "none",
         zIndex: 0,
-        opacity: "var(--rpg-woodOpacity)", 
-        mixBlendMode: "multiply",
+        opacity: "var(--rpg-woodOpacity)", // Controla intensidade via CSS var
+        backgroundImage: navVariant.before,
+        mixBlendMode: navVariant.mixBlendBefore,
+        transition: "background-image 0.5s ease",
       },
+      // Camada de Efeito/Brilho (After)
       "&::after": {
         content: '""',
         position: "absolute",
@@ -199,20 +298,23 @@ const Nav = () => {
         pointerEvents: "none",
         zIndex: 0,
         opacity: "var(--rpg-emberOpacity)",
-        backgroundImage: `
-          radial-gradient(1px 1px at 12% 40%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 60%),
-          radial-gradient(2px 2px at 46% 22%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 60%),
-          radial-gradient(1px 1px at 78% 52%, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0) 60%),
-          radial-gradient(7px 7px at 18% 66%, color-mix(in srgb, var(--rpg-accent2) 60%, transparent) 0%, transparent 60%),
-          radial-gradient(5px 5px at 62% 42%, color-mix(in srgb, var(--rpg-accent) 55%, transparent) 0%, transparent 62%),
-          radial-gradient(6px 6px at 84% 32%, color-mix(in srgb, var(--rpg-accent2) 45%, transparent) 0%, transparent 62%),
-          radial-gradient(80% 140% at 50% 110%, rgba(255,120,0,0.10) 0%, rgba(255,120,0,0.00) 60%)
-        `,
-        mixBlendMode: "screen",
+        backgroundImage: navVariant.after,
+        mixBlendMode: navVariant.mixBlendAfter,
+        transition: "background-image 0.5s ease",
       },
+    }),
+    [navVariant]
+  );
+
+  const toolsMenuPaperSx = useMemo(
+    () => ({
+      mt: 1.25,
+      minWidth: 240,
+      borderRadius: 2,
+      ...dynamicPaperSx,
       "& .MuiMenu-list": { position: "relative", zIndex: 1, py: 0.75 },
     }),
-    []
+    [dynamicPaperSx]
   );
 
   const handleToolsNavigate = useCallback(
@@ -255,12 +357,16 @@ const Nav = () => {
         sx={{
           top: 0,
           zIndex: 1100,
-          backgroundColor: "var(--rpg-navBg)",
+          // ✅ FORÇAMOS a cor de fundo da variável, ignorando o tema padrão
+          backgroundColor: "var(--rpg-navBg) !important", 
           borderBottom: "1px solid var(--rpg-stroke)",
           position: "sticky",
           overflow: "hidden",
           isolation: "isolate",
+          transition: "background-color 0.5s ease, border-color 0.5s ease",
           "& .MuiToolbar-root": { position: "relative", zIndex: 1 },
+          
+          // ✅ Textura Dinâmica
           "&::before": {
             content: '""',
             position: "absolute",
@@ -268,40 +374,12 @@ const Nav = () => {
             pointerEvents: "none",
             zIndex: 0,
             opacity: "var(--rpg-woodOpacity)",
-            backgroundImage: `
-              linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.55)),
-
-              /* veios horizontais queimados */
-              repeating-linear-gradient(
-                90deg,
-                rgba(0,0,0,0.00) 0px,
-                rgba(0,0,0,0.00) 12px,
-                rgba(0,0,0,0.26) 13px,
-                rgba(0,0,0,0.00) 22px
-              ),
-
-              /* micro-rachas diagonais (dão aspecto “quebrado”) */
-              repeating-linear-gradient(
-                25deg,
-                rgba(0,0,0,0.00) 0px,
-                rgba(0,0,0,0.00) 26px,
-                rgba(0,0,0,0.22) 27px,
-                rgba(0,0,0,0.00) 34px
-              ),
-              repeating-linear-gradient(
-                -22deg,
-                rgba(0,0,0,0.00) 0px,
-                rgba(0,0,0,0.00) 30px,
-                rgba(0,0,0,0.18) 31px,
-                rgba(0,0,0,0.00) 40px
-              ),
-
-              /* vinheta de fuligem */
-              radial-gradient(120% 85% at 50% 0%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.00) 70%),
-              radial-gradient(120% 95% at 50% 120%, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.00) 72%)
-            `,
-            mixBlendMode: "multiply",
+            backgroundImage: navVariant.before,
+            mixBlendMode: navVariant.mixBlendBefore,
+            transition: "background-image 0.8s ease-in-out",
           },
+          
+          // ✅ Efeitos de Luz/Brilho Dinâmicos
           "&::after": {
             content: '""',
             position: "absolute",
@@ -309,21 +387,9 @@ const Nav = () => {
             pointerEvents: "none",
             zIndex: 0,
             opacity: "var(--rpg-emberOpacity)",
-            backgroundImage: `
-              /* cinzas (pontos claros) */
-              radial-gradient(1px 1px at 12% 40%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 60%),
-              radial-gradient(2px 2px at 46% 22%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 60%),
-              radial-gradient(1px 1px at 78% 52%, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0) 60%),
-
-              /* brasas (puxam do elemento via vars) */
-              radial-gradient(7px 7px at 18% 66%, color-mix(in srgb, var(--rpg-accent2) 60%, transparent) 0%, transparent 60%),
-              radial-gradient(5px 5px at 62% 42%, color-mix(in srgb, var(--rpg-accent) 55%, transparent) 0%, transparent 62%),
-              radial-gradient(6px 6px at 84% 32%, color-mix(in srgb, var(--rpg-accent2) 45%, transparent) 0%, transparent 62%),
-
-              /* brilho quente bem sutil */
-              radial-gradient(80% 140% at 50% 110%, rgba(255,120,0,0.10) 0%, rgba(255,120,0,0.00) 60%)
-            `,
-            mixBlendMode: "screen",
+            backgroundImage: navVariant.after,
+            mixBlendMode: navVariant.mixBlendAfter,
+            transition: "background-image 0.8s ease-in-out",
           },
         }}
       >
@@ -334,9 +400,36 @@ const Nav = () => {
             </IconButton>
           )}
 
-          {/* ✅ Hierarquia do título + Brasão/D20 */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {/* ✅ Hierarquia do título + Brasão/D20 (Agora clicável e com efeito) */}
+          <Box 
+            component={NavLink}
+            to="/"
+            sx={{ 
+              display: "flex", 
+              alignItems: "center", 
+              gap: 1,
+              textDecoration: "none", // Remove sublinhado padrão de link
+              cursor: "pointer",
+              userSelect: "none",
+              
+              // --- EFEITO DE HOVER ---
+              // Quando passar o mouse no container, anima o D20
+              "&:hover .d20-wrapper": {
+                backgroundColor: "var(--rpg-accent)", // Preenche com a cor do elemento (Fogo, Gelo, etc)
+                color: "var(--rpg-navBg)", // Contraste com o fundo
+                borderColor: "transparent",
+                boxShadow: "0 0 20px var(--rpg-accent)", // Glow mágico
+                transform: "rotate(180deg) scale(1.1)", // Giro e leve aumento
+              },
+              // Efeito sutil no título
+              "&:hover .app-title": {
+                color: "var(--rpg-accent)",
+                textShadow: "0 0 8px var(--rpg-accent)",
+              }
+            }}
+          >
             <Box
+              className="d20-wrapper" // Classe alvo para o hover
               sx={{
                 width: 40,
                 height: 40,
@@ -347,6 +440,8 @@ const Nav = () => {
                 background: "rgba(0,0,0,0.18)",
                 border: "1px solid var(--rpg-stroke)",
                 flex: "0 0 auto",
+                // Transição "elástica" para dar peso ao movimento
+                transition: "all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
               }}
             >
               <D20Mark size={22} />
@@ -361,6 +456,7 @@ const Nav = () => {
                   textTransform: "uppercase",
                   opacity: 0.75,
                   whiteSpace: "nowrap",
+                  color: "inherit" // Herda cor do link
                 }}
               >
                 RPG Organizer
@@ -368,6 +464,7 @@ const Nav = () => {
 
               <Typography
                 variant="h6"
+                className="app-title"
                 sx={{
                   fontWeight: 900,
                   letterSpacing: 0.8,
@@ -378,6 +475,7 @@ const Nav = () => {
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   maxWidth: { xs: 180, sm: 360, md: 520 },
+                  transition: "all 0.3s ease",
                 }}
               >
                 {title}
@@ -408,7 +506,6 @@ const Nav = () => {
                 </Button>
               ))}
 
-              {/* ✅ Agrupador: Ferramentas (Livros/Músicas/Anotações) */}
               <Button
                 color="inherit"
                 startIcon={<FolderIcon />}
@@ -472,7 +569,6 @@ const Nav = () => {
               onClose={handleMenuClose}
               PaperProps={{ sx: toolsMenuPaperSx }}
               sx={{ borderRadius: 1.5, mx: 0.75, my: 0.25, color: "inherit", "&:hover": { backgroundColor: alpha("#000", 0.06) } }}
-
             >
               <MenuItem
                 onClick={() => {
@@ -523,40 +619,7 @@ const Nav = () => {
           sx: {
             width: 290,
             position: "relative",
-            backgroundColor: "var(--rpg-navBg)",
-            borderRight: "1px solid var(--rpg-stroke)",
-            overflow: "hidden",
-            isolation: "isolate",
-            "&::before": {
-              content: '""',
-              position: "absolute",
-              inset: 0,
-              pointerEvents: "none",
-              opacity: "var(--rpg-woodOpacity)",
-              backgroundImage: `
-                linear-gradient(180deg, rgba(0,0,0,0.28), rgba(0,0,0,0.55)),
-                repeating-linear-gradient(90deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 12px, rgba(0,0,0,0.24) 13px, rgba(0,0,0,0) 22px),
-                repeating-linear-gradient(25deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 26px, rgba(0,0,0,0.18) 27px, rgba(0,0,0,0) 34px),
-                radial-gradient(120% 85% at 50% 0%, rgba(0,0,0,0.52) 0%, rgba(0,0,0,0) 70%),
-                radial-gradient(120% 95% at 50% 120%, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0) 72%)
-              `,
-              mixBlendMode: "multiply",
-            },
-
-            "&::after": {
-              content: '""',
-              position: "absolute",
-              inset: 0,
-              pointerEvents: "none",
-              opacity: "var(--rpg-emberOpacity)",
-              backgroundImage: `
-                radial-gradient(1px 1px at 18% 26%, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 60%),
-                radial-gradient(2px 2px at 70% 38%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 60%),
-                radial-gradient(7px 7px at 22% 72%, color-mix(in srgb, var(--rpg-accent2) 55%, transparent) 0%, transparent 60%),
-                radial-gradient(5px 5px at 62% 56%, color-mix(in srgb, var(--rpg-accent) 50%, transparent) 0%, transparent 62%)
-              `,
-              mixBlendMode: "screen",
-            },
+            ...dynamicPaperSx, // ✅ Aplica o mesmo estilo dinâmico ao Drawer
           },
         }}
       >
@@ -593,7 +656,6 @@ const Nav = () => {
           </Box>
         </Box>
 
-        {/* ✅ Divisor com “runa” */}
         <Divider
           sx={{
             borderColor: alpha("#000", 0.10),
@@ -632,14 +694,12 @@ const Nav = () => {
             </ListItem>
           ))}
 
-          {/* ✅ Grupo Ferramentas (Collapse Corrigido) */}
           <ListItem disablePadding>
             <ListItemButton onClick={toggleToolsOpen}>
               <ListItemIcon sx={{ minWidth: 40, color: theme.palette.primary.main }}>
                 <FolderIcon />
               </ListItemIcon>
               <ListItemText primary="Ferramentas" />
-              {/* Animação de rotação suave em vez de troca de ícone */}
               <ExpandMore 
                 sx={{ 
                   transform: toolsOpen ? "rotate(180deg)" : "rotate(0deg)",
@@ -650,7 +710,6 @@ const Nav = () => {
             </ListItemButton>
           </ListItem>
 
-          {/* ✅ FIX: Removido unmountOnExit para evitar congelamento em listas complexas */}
           <Collapse in={toolsOpen} timeout="auto">
             <List component="div" disablePadding sx={{ pl: 1 }}>
               {toolsItems.map((item) => (

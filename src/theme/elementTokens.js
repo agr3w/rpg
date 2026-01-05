@@ -1,3 +1,5 @@
+import { alpha } from "@mui/material/styles";
+
 export const ROUTE_TO_ELEMENT = {
   "/": "parchment",
   "/fichas": "fire",
@@ -8,126 +10,83 @@ export const ROUTE_TO_ELEMENT = {
   "/mapas": "poison",
   "/anotacoes": "ice",
   "/musicas": "void",
+  "/Taverna-do-Bardo": "void",
+  "/Biblioteca-Arcana": "ice",
 
-  "/perfil": "parchment",
+  "/perfil": "lightning",
   "/diario": "parchment",
   "/quests": "parchment",
   "/npcs": "parchment",
 };
 
 export function getElementFromPath(pathname) {
-  const matched =
-    Object.keys(ROUTE_TO_ELEMENT).find((path) =>
-      path !== "/" ? pathname.startsWith(path) : pathname === "/"
-    ) || "/musicas";
-
-  return ROUTE_TO_ELEMENT[matched] || "void";
+  // Match exato
+  if (ROUTE_TO_ELEMENT[pathname]) return ROUTE_TO_ELEMENT[pathname];
+  
+  // Match por prefixo (ex: /mapas/editor/123 -> poison)
+  const keys = Object.keys(ROUTE_TO_ELEMENT);
+  for (const key of keys) {
+    if (key !== "/" && pathname.startsWith(key)) {
+      return ROUTE_TO_ELEMENT[key];
+    }
+  }
+  return "parchment";
 }
 
-// CSS vars (cores “de ambiente”). Mantém desempenho: sem blur, sem animação obrigatória.
+// ✅ AQUI ESTÁ O SEGREDO: Definimos as variáveis CSS para cada elemento
 export const ELEMENT_VARS = {
   parchment: {
     "--rpg-accent": "#833c0b",
     "--rpg-accent2": "#bf8f00",
     "--rpg-ink": "#2c1a10",
-    "--rpg-surface": "rgba(223,214,205,0.94)",
-    "--rpg-navBg": "rgba(223,214,205,0.88)",
+    "--rpg-navBg": "#fdfbf7", // Claro
+    "--rpg-woodOpacity": "0.6",
+    "--rpg-emberOpacity": "0.4",
     "--rpg-stroke": "rgba(0,0,0,0.12)",
-
-    // controle de intensidade das texturas
-    "--rpg-woodOpacity": "0.10",
-    "--rpg-ashOpacity": "0.10",
-    "--rpg-emberOpacity": "0.06",
-
-    "--rpg-cardPanelBg": "rgba(255,255,255,0.42)",
-    "--rpg-cardText": "#2c1a10",
-    "--rpg-cardTextMuted": "rgba(44,26,16,0.78)",
   },
-
   fire: {
-    // ✅ madeira queimada + cinzas + brasa (texto claro em superfície escura)
-    "--rpg-accent": "#b32d00",
-    "--rpg-accent2": "#ffcc00",
-    "--rpg-ink": "#f3ead6",                 // cinza/papel (legível no fundo escuro)
-    "--rpg-surface": "rgba(22, 18, 16, 0.88)", // carvão mais “sólido”
-    "--rpg-navBg": "rgba(18, 14, 12, 0.92)",
-    "--rpg-stroke": "rgba(255,255,255,0.12)",
-
-    "--rpg-woodOpacity": "0.28", // mais forte
-    "--rpg-ashOpacity": "0.22",
-    "--rpg-emberOpacity": "0.22",
-
-    // ✅ painel de leitura no carvão
-    "--rpg-cardPanelBg": "rgba(0,0,0,0.38)",
-    "--rpg-cardText": "rgba(243,234,214,0.92)",
-    "--rpg-cardTextMuted": "rgba(243,234,214,0.74)",
+    "--rpg-accent": "#ffcc00",
+    "--rpg-accent2": "#ff4500",
+    "--rpg-ink": "#2a0505",
+    "--rpg-navBg": "#2a0505", // Escuro avermelhado
+    "--rpg-woodOpacity": "0.8",
+    "--rpg-emberOpacity": "0.6",
+    "--rpg-stroke": "rgba(255, 100, 0, 0.3)",
   },
-
-  lightning: {
-    "--rpg-accent": "#0044cc",
-    "--rpg-accent2": "#ccffff",
-    "--rpg-ink": "#0b1220",
-    "--rpg-surface": "rgba(223,214,205,0.92)",
-    "--rpg-navBg": "rgba(223,214,205,0.86)",
-    "--rpg-stroke": "rgba(0,0,0,0.12)",
-
-    "--rpg-woodOpacity": "0.10",
-    "--rpg-ashOpacity": "0.08",
-    "--rpg-emberOpacity": "0.06",
-
-    "--rpg-cardPanelBg": "rgba(255,255,255,0.40)",
-    "--rpg-cardText": "#2c1a10",
-    "--rpg-cardTextMuted": "rgba(44,26,16,0.78)",
-  },
-
   poison: {
-    "--rpg-accent": "#228b22",
-    "--rpg-accent2": "#adff2f",
-    "--rpg-ink": "#0f2014",
-    "--rpg-surface": "rgba(223,214,205,0.92)",
-    "--rpg-navBg": "rgba(223,214,205,0.86)",
-    "--rpg-stroke": "rgba(0,0,0,0.12)",
-
-    "--rpg-woodOpacity": "0.10",
-    "--rpg-ashOpacity": "0.08",
-    "--rpg-emberOpacity": "0.06",
-
-    "--rpg-cardPanelBg": "rgba(255,255,255,0.40)",
-    "--rpg-cardText": "#2c1a10",
-    "--rpg-cardTextMuted": "rgba(44,26,16,0.78)",
+    "--rpg-accent": "#adff2f",
+    "--rpg-accent2": "#228b22",
+    "--rpg-ink": "#061a06",
+    "--rpg-navBg": "#0a140a", // Escuro esverdeado
+    "--rpg-woodOpacity": "0.7",
+    "--rpg-emberOpacity": "0.5",
+    "--rpg-stroke": "rgba(50, 205, 50, 0.3)",
   },
-
   ice: {
-    "--rpg-accent": "#4da6ff",
-    "--rpg-accent2": "#ffffff",
-    "--rpg-ink": "#0c1b2a",
-    "--rpg-surface": "rgba(223,214,205,0.92)",
-    "--rpg-navBg": "rgba(223,214,205,0.86)",
-    "--rpg-stroke": "rgba(0,0,0,0.12)",
-
-    "--rpg-woodOpacity": "0.10",
-    "--rpg-ashOpacity": "0.08",
-    "--rpg-emberOpacity": "0.06",
-
-    "--rpg-cardPanelBg": "rgba(255,255,255,0.40)",
-    "--rpg-cardText": "#2c1a10",
-    "--rpg-cardTextMuted": "rgba(44,26,16,0.78)",
+    "--rpg-accent": "#00ffff",
+    "--rpg-accent2": "#0044cc",
+    "--rpg-ink": "#08131f",
+    "--rpg-navBg": "#08131f", // Azul profundo
+    "--rpg-woodOpacity": "0.5",
+    "--rpg-emberOpacity": "0.7",
+    "--rpg-stroke": "rgba(100, 200, 255, 0.3)",
   },
-
+  lightning: {
+    "--rpg-accent": "#ccffff",
+    "--rpg-accent2": "#ffd700",
+    "--rpg-ink": "#06061a",
+    "--rpg-navBg": "#0a0a20", // Roxo elétrico escuro
+    "--rpg-woodOpacity": "0.6",
+    "--rpg-emberOpacity": "0.8",
+    "--rpg-stroke": "rgba(200, 200, 255, 0.3)",
+  },
   void: {
-    "--rpg-accent": "#4B0082",
-    "--rpg-accent2": "#9370DB",
-    "--rpg-ink": "#12081a",
-    "--rpg-surface": "rgba(223,214,205,0.92)",
-    "--rpg-navBg": "rgba(223,214,205,0.86)",
-    "--rpg-stroke": "rgba(0,0,0,0.12)",
-
-    "--rpg-woodOpacity": "0.10",
-    "--rpg-ashOpacity": "0.08",
-    "--rpg-emberOpacity": "0.06",
-
-    "--rpg-cardPanelBg": "rgba(255,255,255,0.40)",
-    "--rpg-cardText": "#2c1a10",
-    "--rpg-cardTextMuted": "rgba(44,26,16,0.78)",
+    "--rpg-accent": "#9370DB",
+    "--rpg-accent2": "#4B0082",
+    "--rpg-ink": "#e0e0e0",
+    "--rpg-navBg": "#05000a", // Quase preto
+    "--rpg-woodOpacity": "0.4",
+    "--rpg-emberOpacity": "0.6",
+    "--rpg-stroke": "rgba(147, 112, 219, 0.3)",
   },
 };
