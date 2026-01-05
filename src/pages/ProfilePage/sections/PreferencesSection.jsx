@@ -1,115 +1,111 @@
 import React from "react";
 import {
-  Box,
-  Divider,
-  FormControl,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  Stack,
-  FormLabel,
-  Switch,
-  Typography,
+  Box, Typography, Switch, FormControlLabel, Slider,
+  Grid, Paper, Divider, Tooltip
 } from "@mui/material";
 import { usePreferences } from "contexts/PreferencesContext";
+import { DarkMode, LightMode, Speed, Visibility, VolumeUp } from "@mui/icons-material";
 
 export default function PreferencesSection() {
-  const {
-    prefs,
-    setThemeMode,      
-    setThemeStyle,     
-    setReduceMotion,   
-    setPageTransition, 
-  } = usePreferences();
+  const { prefs, updatePrefs } = usePreferences();
 
-  const forceSimple = Boolean(prefs.reduceMotion);
+  const handleToggle = (key) => {
+    updatePrefs({ [key]: !prefs[key] });
+  };
+
+  const handleChange = (key, value) => {
+    updatePrefs({ [key]: value });
+  };
 
   return (
     <Box>
-      <Stack spacing={2}>
-        <Box>
-          <Typography variant="h6" sx={{ fontWeight: 900 }}>
-            Preferências
-          </Typography>
-          <Typography variant="body2" sx={{ opacity: 0.8 }}>
-            Personalize o visual e a experiência.
-          </Typography>
-        </Box>
-
-        <Divider />
-
-        <FormControl>
-          <FormLabel sx={{ fontWeight: 900 }}>Tema</FormLabel>
-          <RadioGroup
-            value={prefs.themeMode}
-            onChange={(e) => setThemeMode(e.target.value)}
-          >
-            <FormControlLabel value="system" control={<Radio />} label="Sistema" />
-            <FormControlLabel value="light" control={<Radio />} label="Claro" />
-            <FormControlLabel value="dark" control={<Radio />} label="Escuro" />
-          </RadioGroup>
-        </FormControl>
-
-        <Divider />
-
-        <FormControl>
-          <FormLabel sx={{ fontWeight: 900 }}>Estilo</FormLabel>
-          <RadioGroup
-            value={prefs.themeStyle}
-            onChange={(e) => setThemeStyle(e.target.value)}
-          >
-            <FormControlLabel value="parchment" control={<Radio />} label="Pergaminho" />
-            <FormControlLabel value="default" control={<Radio />} label="Padrão" />
-          </RadioGroup>
-        </FormControl>
-
-        <Divider />
-
-        <FormControlLabel
-          control={
-            <Switch
-              checked={Boolean(prefs.reduceMotion)}
-              onChange={(e) => setReduceMotion(e.target.checked)}
-            />
-          }
-          label={
-            <Box>
-              <Typography sx={{ fontWeight: 900 }}>Reduzir animações</Typography>
-              <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                Desativa/transfere animações para ficar mais leve.
-              </Typography>
+      <Typography variant="h6" sx={{ fontFamily: "Cinzel", color: "#58180D", mb: 2, fontWeight: "bold" }}>
+        Visualização & Ambiente
+      </Typography>
+      
+      <Grid container spacing={3}>
+        {/* Tema */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 2, bgcolor: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.1)" }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <DarkMode sx={{ color: "#58180D" }} />
+              <Typography variant="subtitle1" sx={{ fontFamily: "Cinzel", fontWeight: "bold" }}>Modo Escuro</Typography>
             </Box>
-          }
-        />
-      </Stack>
+            <Typography variant="body2" sx={{ mb: 2, color: "#666" }}>
+              Alterna entre o pergaminho claro (Dia) e o couro escuro (Noite).
+            </Typography>
+            <FormControlLabel
+              control={
+                <Switch 
+                  checked={prefs.themeMode === 'dark'} 
+                  onChange={() => handleChange('themeMode', prefs.themeMode === 'dark' ? 'light' : 'dark')} 
+                  color="primary" 
+                />
+              }
+              label={prefs.themeMode === 'dark' ? "Ativado (Noite)" : "Desativado (Dia)"}
+            />
+          </Paper>
+        </Grid>
 
-      <Divider sx={{ my: 2 }} />
+        {/* Redução de Movimento (Performance) */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 2, bgcolor: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.1)" }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <Speed sx={{ color: "#58180D" }} />
+              <Typography variant="subtitle1" sx={{ fontFamily: "Cinzel", fontWeight: "bold" }}>Desempenho</Typography>
+            </Box>
+            <Typography variant="body2" sx={{ mb: 2, color: "#666" }}>
+              Reduz animações e efeitos para melhorar a velocidade em dispositivos antigos.
+            </Typography>
+            <FormControlLabel
+              control={
+                <Switch 
+                  checked={prefs.reduceMotion} 
+                  onChange={() => handleToggle('reduceMotion')} 
+                  color="warning" 
+                />
+              }
+              label="Modo Econômico (Reduzir Motion)"
+            />
+          </Paper>
+        </Grid>
+      </Grid>
 
-      <Typography sx={{ fontWeight: 900, mb: 1 }}>Transição de tela</Typography>
-      <Typography variant="body2" sx={{ opacity: 0.8, mb: 1.25 }}>
-        Para PCs mais fracos, use a transição simples (sem “bafos”).
+      <Divider sx={{ my: 4, borderColor: "rgba(88, 24, 13, 0.2)" }} />
+
+      <Typography variant="h6" sx={{ fontFamily: "Cinzel", color: "#58180D", mb: 2, fontWeight: "bold" }}>
+        Configurações de Sistema
       </Typography>
 
-      <FormControl component="fieldset">
-        <RadioGroup
-          value={forceSimple ? "simple" : (prefs.pageTransition || "dragon")}
-          onChange={(e) => setPageTransition(e.target.value)}
-        >
-          <FormControlLabel
-            value="dragon"
-            control={<Radio />}
-            label="Dinâmica (bafos do dragão)"
-            disabled={forceSimple}
-          />
-          <FormControlLabel value="simple" control={<Radio />} label="Simples (leve e direta)" />
-        </RadioGroup>
-      </FormControl>
-
-      {forceSimple ? (
-        <Typography variant="caption" sx={{ display: "block", mt: 0.5, opacity: 0.8 }}>
-          “Reduzir animações” está ativo, então a transição simples fica forçada.
+      <Box sx={{ mb: 3 }}>
+        <Typography gutterBottom sx={{ fontFamily: "Merriweather", fontWeight: "bold" }}>
+          Qualidade dos Efeitos Visuais
         </Typography>
-      ) : null}
+        <Grid container spacing={2} alignItems="center">
+          <Grid item>
+            <Visibility sx={{ color: "#888" }} />
+          </Grid>
+          <Grid item xs>
+            <Slider
+              value={prefs.visualQuality || 2}
+              min={0}
+              max={2}
+              step={1}
+              marks={[
+                { value: 0, label: 'Baixa' },
+                { value: 1, label: 'Média' },
+                { value: 2, label: 'Alta' },
+              ]}
+              onChange={(e, v) => handleChange('visualQuality', v)}
+              sx={{ color: "#833c0b" }}
+            />
+          </Grid>
+        </Grid>
+        <Typography variant="caption" sx={{ color: "#666", fontStyle: "italic" }}>
+          Afeta partículas, sombras e resolução de texturas.
+        </Typography>
+      </Box>
+
     </Box>
   );
 }

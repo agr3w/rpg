@@ -9,6 +9,8 @@ const DEFAULTS = {
   themeStyle: "parchment", // "default" | "parchment"
   reduceMotion: false,
   pageTransition: "dragon", // "dragon" | "simple"
+  visualQuality: 2,        // 0=Baixa, 1=Média, 2=Alta
+  volume: 50,              // 0-100
 };
 
 function safeParse(json) {
@@ -63,6 +65,8 @@ export function PreferencesProvider({ children }) {
             return merged;
           });
         }
+      } catch (err) {
+        console.error("Erro ao carregar preferências:", err);
       } finally {
         hydratedFromRemoteRef.current = true;
       }
@@ -91,6 +95,7 @@ export function PreferencesProvider({ children }) {
   const value = useMemo(
     () => ({
       prefs,
+      updatePrefs: update, // ✅ CORREÇÃO: Expondo com o nome que o componente espera
       update,
       setThemeMode: (themeMode) => update({ themeMode }),
       setThemeStyle: (themeStyle) => update({ themeStyle }),

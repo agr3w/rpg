@@ -8,13 +8,16 @@ export async function fetchUserPreferences(uid) {
 
 export async function saveUserPreferences(uid, prefs) {
   if (!uid) return;
-  // manter só o que é preferências (evita lixo)
+  
+  // ✅ CORREÇÃO: Incluindo visualQuality e volume no payload
   const payload = {
     themeMode: prefs?.themeMode ?? "system",
     themeStyle: prefs?.themeStyle ?? "parchment",
     reduceMotion: Boolean(prefs?.reduceMotion),
     pageTransition: prefs?.pageTransition ?? "dragon",
-    updatedAt: Date.now(),
+    visualQuality: prefs?.visualQuality ?? 2,
+    updatedAt: Date.now(), // timestamp compatível
   };
+  
   await database.ref(`preferences/${uid}`).set(payload);
 }
