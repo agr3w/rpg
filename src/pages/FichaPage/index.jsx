@@ -116,6 +116,10 @@ const FichaCriar = () => {
 
   const [periciasClasseSelecionadas, setPericiasSelecionadas] = useState([]);
 
+  // --- ADICIONE ESTA LINHA AQUI ---
+  const [subSelecaoArmas, setSubSelecaoArmas] = useState({});
+  // --------------------------------
+
   const [exibirPainelHabilidades, setExibirPainelHabilidades] = useState("");
 
   const [valoresHabilidade, setValoresHabilidade] = useState({
@@ -214,6 +218,88 @@ const FichaCriar = () => {
     return String(c);
   };
 
+  // --- FUNÇÃO AUXILIAR PARA CRIAR ITENS DE INVENTÁRIO ---
+  const gerarInventarioInicial = (equipamentosFormatados, equipamentosObrigatorios) => {
+    const backpack = {};
+    
+    // Junta tudo em um array só, filtrando vazios
+    const listaBruta = [
+      ...Object.values(equipamentosFormatados),
+      ...(equipamentosObrigatorios || [])
+    ].filter(item => item && typeof item === "string");
+
+    listaBruta.forEach((itemStr) => {
+      // 1. Verifica se tem conteúdo entre parênteses gerado pela nossa seleção específica
+      // Ex: "Qualquer Arma Simples (Adaga)" -> pega "Adaga"
+      // Ex: "Duas armas marciais (Espada Longa e Escudo)" -> pega "Espada Longa e Escudo"
+      const matchParenteses = itemStr.match(/\((.*?)\)$/);
+      
+      let itensParaProcessar = [];
+
+      if (matchParenteses) {
+        // Se tiver parênteses no final, usa o conteúdo deles
+        const conteudo = matchParenteses[1];
+        // Se tiver " e ", separa em dois itens
+        if (conteudo.includes(" e ")) {
+            itensParaProcessar = conteudo.split(" e ");
+        } else {
+            itensParaProcessar = [conteudo];
+        }
+      } else {
+        // Se não, usa a string original (ex: "Um pacote de explorador")
+        // Remove prefixos de escolha como "(a) ", "(b) "
+        let limpo = itemStr.replace(/^\([a-z]\)\s*/i, "");
+        itensParaProcessar = [limpo];
+      }
+
+      itensParaProcessar.forEach(nomeItem => {
+        let nomeFinal = nomeItem.trim();
+        let qtd = 1;
+
+        // Tenta detectar quantidade numérica no início (ex: "20 flechas")
+        const matchNumber = nomeFinal.match(/^(\d+)\s+(.*)/);
+        if (matchNumber) {
+            qtd = parseInt(matchNumber[1]);
+            nomeFinal = matchNumber[2];
+        } else {
+            // Tenta detectar quantidade por extenso comum
+            if (nomeFinal.toLowerCase().startsWith("duas ")) {
+                qtd = 2;
+                nomeFinal = nomeFinal.substring(5);
+            } else if (nomeFinal.toLowerCase().startsWith("dois ")) {
+                qtd = 2;
+                nomeFinal = nomeFinal.substring(5);
+            } else if (nomeFinal.toLowerCase().startsWith("quatro ")) {
+                qtd = 4;
+                nomeFinal = nomeFinal.substring(7);
+            } else if (nomeFinal.toLowerCase().startsWith("cinco ")) {
+                qtd = 5;
+                nomeFinal = nomeFinal.substring(6);
+            } else if (nomeFinal.toLowerCase().startsWith("dez ")) {
+                qtd = 10;
+                nomeFinal = nomeFinal.substring(4);
+            } else if (nomeFinal.toLowerCase().startsWith("um ") || nomeFinal.toLowerCase().startsWith("uma ")) {
+                // Remove "Um/Uma" mas mantém qtd 1
+                nomeFinal = nomeFinal.substring(nomeFinal.indexOf(" ") + 1);
+            }
+        }
+
+        // Cria ID único
+        const id = `bp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        backpack[id] = {
+            id,
+            name: nomeFinal.charAt(0).toUpperCase() + nomeFinal.slice(1), // Capitalize
+            qty: qtd,
+            notes: "Item inicial de classe",
+            createdAt: Date.now()
+        };
+      });
+    });
+
+    return { backpack, equipped: {} };
+  };
+
   const handleConcluir = async () => {
     if (submitting) return;
     setSubmitting(true);
@@ -263,18 +349,41 @@ const FichaCriar = () => {
         SubRacasInfo: { ...SubRacasField, SubRacaGnomoField },
       };
 
-      // ClassesParaMandar
+      // ClassesParaMandar (ATUALIZADO)
+      const formatarEquipamento = (equipamentoGen, slotKey) => {
+        if (!equipamentoGen) return "";
+        
+        const subA = subSelecaoArmas[`${slotKey}_a`];
+        const subB = subSelecaoArmas[`${slotKey}_b`];
+        const sub = subSelecaoArmas[slotKey];
+
+        if (subA && subB) return `${equipamentoGen} (${subA} e ${subB})`;
+        if (sub) return `${equipamentoGen} (${sub})`;
+        
+        return equipamentoGen;
+      };
+
+      const equipamentosFormatados = {
+          equipamentosClasseSelecionada1: formatarEquipamento(equipamentosClasseSelecionada1, "slot1"),
+          equipamentosClasseSelecionada2: formatarEquipamento(equipamentosClasseSelecionada2, "slot2"),
+          equipamentosClasseSelecionada3: formatarEquipamento(equipamentosClasseSelecionada3, "slot3"),
+          equipamentosClasseSelecionada4: formatarEquipamento(equipamentosClasseSelecionada4, "slot4"),
+      };
+
       const Classesinfo = {
         imagens: classeSelecioanda?.imagens || [],
         Equipamentos: {
-          equipamentosClasseSelecionada1,
-          equipamentosClasseSelecionada2,
-          equipamentosClasseSelecionada3,
-          equipamentosClasseSelecionada4,
+          ...equipamentosFormatados,
           equipamentoObgt: classeSelecioanda?.equipamentos?.equipamentoObgt,
         },
         periciasClasseSelecionadas,
       };
+
+      // --- GERA O INVENTÁRIO ---
+      const inventoryPayload = gerarInventarioInicial(
+        equipamentosFormatados, 
+        classeSelecioanda?.equipamentos?.equipamentoObgt
+      );
 
       const itensSelecionados = {
         tracoPersonalidade: tracoPersonalidadeSelecionado,
@@ -303,7 +412,8 @@ const FichaCriar = () => {
         itensSelecionados,
         riquezaInicial,
         RacasInfo,
-        Classesinfo
+        Classesinfo,
+        inventoryPayload // <--- Passando o inventário gerado
       );
 
       if (res && res.success) {
@@ -672,19 +782,28 @@ const FichaCriar = () => {
                 setClasse={setClasse}
                 classesOptions={classesOptions}
                 itensDaClasse={itensDaClasse}
+                
                 equipamentosClasseSelecionada1={equipamentosClasseSelecionada1}
                 setEquipamentoClasseSelecionado1={setEquipamentoClasseSelecionado1}
+                
                 equipamentosClasseSelecionada2={equipamentosClasseSelecionada2}
                 setEquipamentoClasseSelecionado2={setEquipamentoClasseSelecionado2}
+                
                 equipamentosClasseSelecionada3={equipamentosClasseSelecionada3}
                 setEquipamentoClasseSelecionado3={setEquipamentoClasseSelecionado3}
+                
                 equipamentosClasseSelecionada4={equipamentosClasseSelecionada4}
                 setEquipamentoClasseSelecionado4={setEquipamentoClasseSelecionado4}
+                
                 classeSelecioanda={classeSelecioanda}
                 periciasClasseSelecionadas={periciasClasseSelecionadas}
                 setPericiasSelecionadas={setPericiasSelecionadas}
                 setExibirPainelHabilidades={setExibirPainelHabilidades}
                 exibirPainelHabilidades={exibirPainelHabilidades}
+
+                // NOVAS PROPS
+                subSelecaoArmas={subSelecaoArmas}
+                setSubSelecaoArmas={setSubSelecaoArmas}
               />
             )}
             {etapa === 5 && (

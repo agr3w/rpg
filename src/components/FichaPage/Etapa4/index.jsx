@@ -17,17 +17,86 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Grid,
 } from "@mui/material";
-import CircleIcon from "@mui/icons-material/Circle"; // Para bullet points
+import CircleIcon from "@mui/icons-material/Circle";
 import LayoutFicha from "components/FichaLayout/LayoutFicha";
+import { armas } from "Array/Armas";
 
-// Estilo reutilizável de "Caixa de Texto D&D"
+// Estilo reutilizável
 const dndBoxStyle = {
   p: 2.5,
   borderRadius: 2,
-  bgcolor: "rgba(243, 235, 214, 0.5)", // Pergaminho translúcido
-  border: "1px solid rgba(92, 64, 51, 0.2)", // Borda marrom sutil
+  bgcolor: "rgba(243, 235, 214, 0.5)",
+  border: "1px solid rgba(92, 64, 51, 0.2)",
   boxShadow: "inset 0 2px 4px rgba(0,0,0,0.03)",
+};
+
+// Sub-componente simplificado: recebe filtros diretos
+const WeaponSubSelector = ({ filtros, slotKey, subSelecaoArmas, setSubSelecaoArmas }) => {
+  if (!filtros) return null;
+
+  // Filtra as opções baseado no objeto de filtros
+  const opcoesFiltradas = armas.filter((arma) => {
+    if (filtros.tipo && arma.tipo !== filtros.tipo) return false;
+    if (filtros.alcance && arma.alcance !== filtros.alcance) return false;
+    return true;
+  });
+
+  if (opcoesFiltradas.length === 0) return null;
+
+  const handleChange = (key, value) => {
+    setSubSelecaoArmas(prev => ({ ...prev, [key]: value }));
+  };
+
+  const quantidade = filtros.quantidade || 1;
+  const isDuas = quantidade > 1;
+
+  return (
+    <Box sx={{ mt: 1, ml: 2, p: 1, borderLeft: "2px solid #bf8f00", bgcolor: "rgba(0,0,0,0.2)" }}>
+      <Typography variant="caption" color="secondary" sx={{ mb: 1, display: "block" }}>
+        Especifique sua escolha:
+      </Typography>
+      
+      <Grid container spacing={1}>
+        <Grid item xs={isDuas ? 6 : 12}>
+          <FormControl fullWidth size="small">
+            <InputLabel>Arma {isDuas ? "1" : ""}</InputLabel>
+            <Select
+              value={subSelecaoArmas[isDuas ? `${slotKey}_a` : slotKey] || ""}
+              label={`Arma ${isDuas ? "1" : ""}`}
+              onChange={(e) => handleChange(isDuas ? `${slotKey}_a` : slotKey, e.target.value)}
+            >
+              {opcoesFiltradas.map((arma) => (
+                <MenuItem key={arma.nome} value={arma.nome}>
+                  {arma.nome} <Typography variant="caption" sx={{ ml: 1, opacity: 0.7 }}>({arma.dano})</Typography>
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+
+        {isDuas && (
+          <Grid item xs={6}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Arma 2</InputLabel>
+              <Select
+                value={subSelecaoArmas[`${slotKey}_b`] || ""}
+                label="Arma 2"
+                onChange={(e) => handleChange(`${slotKey}_b`, e.target.value)}
+              >
+                {opcoesFiltradas.map((arma) => (
+                  <MenuItem key={arma.nome} value={arma.nome}>
+                    {arma.nome}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+        )}
+      </Grid>
+    </Box>
+  );
 };
 
 const Etapa4 = ({
@@ -43,11 +112,13 @@ const Etapa4 = ({
   setEquipamentoClasseSelecionado3,
   equipamentosClasseSelecionada4,
   setEquipamentoClasseSelecionado4,
+  classeSelecioanda,
   periciasClasseSelecionadas,
   setPericiasSelecionadas,
   setExibirPainelHabilidades,
   exibirPainelHabilidades,
-  classeSelecioanda,
+  subSelecaoArmas,
+  setSubSelecaoArmas
 }) => {
   const handleTogglePainelHabilidades = () => {
     setExibirPainelHabilidades(!exibirPainelHabilidades);
@@ -68,6 +139,52 @@ const Etapa4 = ({
         periciaSelecionada,
       ]);
     }
+  };
+
+  // Renderizador de Select de Equipamento
+  const renderEquipSelect = (label, value, setValue, options, slotKey) => {
+    if (!options || options.length === 0) return null;
+
+    // Encontra o objeto selecionado atualmente para saber se tem sub-seleção
+    const selectedOptionObj = options.find(opt => opt.label === value);
+
+    return (
+      <Box sx={{ mb: 2 }}>
+        <FormControl fullWidth variant="outlined">
+          <InputLabel>{label}</InputLabel>
+          <Select
+            value={value}
+            onChange={(e) => {
+              setValue(e.target.value);
+              // Limpa sub-seleção ao trocar a opção principal
+              setSubSelecaoArmas(prev => {
+                const novo = { ...prev };
+                delete novo[slotKey];
+                delete novo[`${slotKey}_a`];
+                delete novo[`${slotKey}_b`];
+                return novo;
+              });
+            }}
+            label={label}
+          >
+            <MenuItem value=""><em>Selecione</em></MenuItem>
+            {options.map((opt, index) => (
+              <MenuItem key={index} value={opt.label} sx={{ whiteSpace: "normal" }}>
+                {opt.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        
+        {/* Passa os filtros diretamente do objeto selecionado */}
+        <WeaponSubSelector 
+          filtros={selectedOptionObj?.subSelecao} 
+          slotKey={slotKey} 
+          subSelecaoArmas={subSelecaoArmas} 
+          setSubSelecaoArmas={setSubSelecaoArmas} 
+        />
+      </Box>
+    );
   };
 
   return (
@@ -216,26 +333,12 @@ const Etapa4 = ({
 
           <Stack spacing={2}>
             {[
-              { val: equipamentosClasseSelecionada1, set: setEquipamentoClasseSelecionado1, opts: classeSelecioanda?.equipamentos?.equipamentoAlpha1, label: "Opção 1" },
-              { val: equipamentosClasseSelecionada2, set: setEquipamentoClasseSelecionado2, opts: classeSelecioanda?.equipamentos?.equipamentoAlpha2, label: "Opção 2" },
-              { val: equipamentosClasseSelecionada3, set: setEquipamentoClasseSelecionado3, opts: classeSelecioanda?.equipamentos?.equipamentoAlpha3, label: "Opção 3" },
-              { val: equipamentosClasseSelecionada4, set: setEquipamentoClasseSelecionado4, opts: classeSelecioanda?.equipamentos?.equipamentoAlpha4, label: "Opção 4" },
+              { val: equipamentosClasseSelecionada1, set: setEquipamentoClasseSelecionado1, opts: classeSelecioanda?.equipamentos?.equipamentoAlpha1, label: "Opção 1", slotKey: "slot1" },
+              { val: equipamentosClasseSelecionada2, set: setEquipamentoClasseSelecionado2, opts: classeSelecioanda?.equipamentos?.equipamentoAlpha2, label: "Opção 2", slotKey: "slot2" },
+              { val: equipamentosClasseSelecionada3, set: setEquipamentoClasseSelecionado3, opts: classeSelecioanda?.equipamentos?.equipamentoAlpha3, label: "Opção 3", slotKey: "slot3" },
+              { val: equipamentosClasseSelecionada4, set: setEquipamentoClasseSelecionado4, opts: classeSelecioanda?.equipamentos?.equipamentoAlpha4, label: "Opção 4", slotKey: "slot4" },
             ].map((field, idx) => (
-              field.opts && (
-                <FormControl key={idx} fullWidth size="small">
-                  <InputLabel>{field.label}</InputLabel>
-                  <Select
-                    value={field.val}
-                    onChange={(e) => field.set(e.target.value)}
-                    label={field.label}
-                  >
-                    <MenuItem value=""><em>Selecione</em></MenuItem>
-                    {field.opts.map((opcao) => (
-                      <MenuItem key={opcao} value={opcao} sx={{ whiteSpace: "normal" }}>{opcao}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )
+              renderEquipSelect(field.label, field.val, field.set, field.opts, field.slotKey)
             ))}
           </Stack>
         </Paper>

@@ -11,10 +11,11 @@ export const enviarFichaParaDatabase = async (
   raca,
   classe,
   tendencia,
-  antecedente,
+  itensSelecionados, // Alterei o nome aqui para bater com a chamada, antes estava 'antecedente' solto
   riquezaInicial,
   RacasInfo,
-  Classesinfo
+  Classesinfo,
+  inventory = {} // <--- NOVO PARÂMETRO
 ) => {
   const user = auth.currentUser;
 
@@ -37,10 +38,16 @@ export const enviarFichaParaDatabase = async (
     raca: raca || null,
     classe: classe || null,
     tendencia: tendencia || null,
-    antecedenteDetalhes: antecedente || null,
+
+    // Ajuste para bater com o objeto 'itensSelecionados' passado no index.jsx
+    antecedenteDetalhes: itensSelecionados || null,
+
     riquezaInicial: typeof riquezaInicial === "number" ? riquezaInicial : null,
     DetalhesDaRaça: RacasInfo || null,
     DetalhesDaClasse: Classesinfo || null,
+
+    inventory: inventory, // <--- SALVANDO O INVENTÁRIO
+
     createdAt: firebase.database.ServerValue.TIMESTAMP,
   };
 

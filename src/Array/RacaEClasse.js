@@ -651,15 +651,20 @@ export const classes = [
     },
     equipamentos: {
       equipamentoAlpha1: [
-        "Um machado grande",
-        "Qualquer Arma marcial corpo-a-corpo",
+        { label: "Um machado grande" },
+        {
+          label: "Qualquer Arma marcial corpo-a-corpo",
+          subSelecao: { tipo: "Marcial", alcance: "Corpo-a-Corpo" },
+        },
       ],
-      equipamentoAlpha2: ["Dois machados de mão", "Qualquer Arma simples"],
+      equipamentoAlpha2: [
+        { label: "Dois machados de mão" },
+        { label: "Qualquer Arma simples", subSelecao: { tipo: "Simples" } },
+      ],
       equipamentoObgt: ["Um pacote de aventureiros e Quatro azagaias"],
     },
-
     dadosDeVida: "1d12 pontos de vida por nível",
-    dadoDeVidaFaces: 12,              // ✅ novo
+    dadoDeVidaFaces: 12,
     riqueza: "2d4*10",
   },
 
@@ -711,19 +716,17 @@ export const classes = [
     },
     equipamentos: {
       equipamentoAlpha1: [
-        "Uma rapieira",
-        "Uma espada longa",
-        "Qualuer Arma Simples",
+        { label: "Uma rapieira" },
+        { label: "Uma espada longa" },
+        { label: "Qualquer Arma Simples", subSelecao: { tipo: "Simples" } },
       ],
-      equipamentoAlpha2: ["Um pacote de diplomacia", "Um pacote de artista"],
-      equipamentoAlpha3: ["Um lute", "Qualquer outro instrumento musical"],
+      equipamentoAlpha2: [{ label: "Um pacote de diplomacia" }, { label: "Um pacote de artista" }],
+      equipamentoAlpha3: [{ label: "Um lute" }, { label: "Qualquer outro instrumento musical" }], // Instrumentos não estão no array de armas, então sem subSelecao por enquanto
       equipamentoObgt: ["Armadura de couro e uma adaga"],
     },
-
     dadosDeVida: "1d8 pontos de vida por nível",
-    dadoDeVidaFaces: 8,               // ✅ novo
-    riqueza: "5d4*10", // 50 a 200 PO
-    // Outras informações específicas da classe
+    dadoDeVidaFaces: 8,
+    riqueza: "5d4*10",
   },
 
   // ---------------------------------------------------------------------------------------------------------------  //
@@ -759,22 +762,16 @@ export const classes = [
     },
     equipamentos: {
       equipamentoAlpha1: [
-        "(a) Uma besta leve e 20 virotes",
-        "(b) Qualquer arma simples",
+        { label: "(a) Uma besta leve e 20 virotes" },
+        { label: "(b) Qualquer arma simples", subSelecao: { tipo: "Simples" } },
       ],
-      equipamentoAlpha2: ["(a) Uma bolsa de componentes", "(b) Um foco arcano"],
-      equipamentoAlpha3: [
-        "(a) Um pacote de estudioso",
-        "(b) Um pacote de explorador",
-      ],
-      equipamentoObgt: [
-        "Armadura de couro, Qualquer arma simples e Duas adagas",
-      ],
+      equipamentoAlpha2: [{ label: "(a) Uma bolsa de componentes" }, { label: "(b) Um foco arcano" }],
+      equipamentoAlpha3: [{ label: "(a) Um pacote de estudioso" }, { label: "(b) Um pacote de explorador" }],
+      equipamentoObgt: ["Armadura de couro, Qualquer arma simples e Duas adagas"],
     },
     dadosDeVida: "1d8 pontos de vida por nível",
-    dadoDeVidaFaces: 8,               // ✅ novo
-    riqueza: "4d4*10", // 40 a 160 PO
-    // Outras informações específicas da classe
+    dadoDeVidaFaces: 8,
+    riqueza: "4d4*10",
   },
 
   // ---------------------------------------------------------------------------------------------------------------  //
@@ -808,28 +805,24 @@ export const classes = [
     },
     equipamentos: {
       equipamentoAlpha1: [
-        "(a) Uma maça",
-        "(b) Um martelo de guerra (se for proficiente)",
+        { label: "(a) Uma maça" },
+        { label: "(b) Um martelo de guerra (se for proficiente)" },
       ],
       equipamentoAlpha2: [
-        "(a) Brunea",
-        "(b) Armadura de couro",
-        "(c) Cota de malha (se for proficiente)",
+        { label: "(a) Brunea" },
+        { label: "(b) Armadura de couro" },
+        { label: "(c) Cota de malha (se for proficiente)" },
       ],
       equipamentoAlpha3: [
-        "(a) Uma besta leve e 20 virotes",
-        "(b) Qualquer arma simples",
+        { label: "(a) Uma besta leve e 20 virotes" },
+        { label: "(b) Qualquer arma simples", subSelecao: { tipo: "Simples" } },
       ],
-      equipamentoAlpha4: [
-        "(a) Um pacote de sacerdote",
-        "(b) Um pacote de aventureiro",
-      ],
+      equipamentoAlpha4: [{ label: "(a) Um pacote de sacerdote" }, { label: "(b) Um pacote de aventureiro" }],
       equipamentoObgt: ["Um escudo e Um símbolo sagrado"],
     },
     dadosDeVida: "1d8 pontos de vida por nível",
-    dadoDeVidaFaces: 8,               // ✅ novo
-    riqueza: "5d4*10", // 50 a 200 PO
-    // Outras informações específicas da classe
+    dadoDeVidaFaces: 8,
+    riqueza: "5d4*10",
   },
   // ---------------------------------------------------------------------------------------------------------------  //
   {
@@ -869,25 +862,19 @@ export const classes = [
     },
     equipamentos: {
       equipamentoAlpha1: [
-        "(a) Um escudo de madeira",
-        "(b) Qualquer arma simples",
+        { label: "(a) Um escudo de madeira" },
+        { label: "(b) Qualquer arma simples", subSelecao: { tipo: "Simples" } },
       ],
       equipamentoAlpha2: [
-        "(a) Uma cimitarra",
-        "(b) Qualquer arma corpo-a-corpo simples",
+        { label: "(a) Uma cimitarra" },
+        { label: "(b) Qualquer arma corpo-a-corpo simples", subSelecao: { tipo: "Simples", alcance: "Corpo-a-Corpo" } },
       ],
-      equipamentoAlpha3: [
-        "(a) Um pacote de estudioso",
-        "(b) Um pacote de explorador",
-      ],
-      equipamentoObgt: [
-        "Armadura de couro, Um pacote de aventureiro e Um foco druídico",
-      ],
+      equipamentoAlpha3: [{ label: "(a) Um pacote de estudioso" }, { label: "(b) Um pacote de explorador" }],
+      equipamentoObgt: ["Armadura de couro, Um pacote de aventureiro e Um foco druídico"],
     },
     dadosDeVida: "1d8 pontos de vida por nível",
-    dadoDeVidaFaces: 8, // 8
-    riqueza: "2d4*10", // 20 a 80 PO
-    // Outras informações específicas da classe
+    dadoDeVidaFaces: 8,
+    riqueza: "2d4*10",
   },
 
   // ---------------------------------------------------------------------------------------------------------------  //
@@ -903,9 +890,9 @@ export const classes = [
     ],
     proficiencias: {
       armaduras: "Nenhuma",
-      armas: "Adagas, Dardos, Fundas, Bordões e Bestas Leves",
+      armas: ["adagas, ", "dardos, ", "fundas, ", "bordões, ", "bestas leves"],
       ferramentas: "Nenhuma",
-      testesDeResistecia: "Constituição, Carisma",
+      testesDeResistecia: [" Inteligência, ", "Sabedoria"],
       periciasLabel: "Escolha duas dentre:",
       perficiasMinimo: "2",
       periciasSelecao: [
@@ -923,20 +910,16 @@ export const classes = [
     },
     equipamentos: {
       equipamentoAlpha1: [
-        "(a) Uma besta leve e 20 virotes",
-        "(b) Qualquer arma simples",
+        { label: "(a) Uma besta leve e 20 virotes" },
+        { label: "(b) Qualquer arma simples", subSelecao: { tipo: "Simples" } },
       ],
-      equipamentoAlpha2: ["(a) Uma bolsa de componentes", "(b) Um foco arcano"],
-      equipamentoAlpha3: [
-        "(a) Um pacote de explorador",
-        "(b) Um pacote de aventureiro",
-      ],
+      equipamentoAlpha2: [{ label: "(a) Uma bolsa de componentes" }, { label: "(b) Um foco arcano" }],
+      equipamentoAlpha3: [{ label: "(a) Um pacote de explorador" }, { label: "(b) Um pacote de aventureiro" }],
       equipamentoObgt: [],
     },
     dadosDeVida: "1d6 pontos de vida por nível",
-    dadoDeVidaFaces: 6,               // ✅ novo
-    riqueza: "3d4*10", // 30 a 120 PO
-    // Outras informações específicas da classe
+    dadoDeVidaFaces: 6,
+    riqueza: "3d4*10",
   },
 
   // ---------------------------------------------------------------------------------------------------------------  //
@@ -972,23 +955,22 @@ export const classes = [
     },
     equipamentos: {
       equipamentoAlpha1: [
-        "(a) Cota de malha",
-        "(b) Gibão de peles, arco longo e 20 flechas",
+        { label: "(a) Cota de malha" },
+        { label: "(b) Gibão de peles, arco longo e 20 flechas" },
       ],
       equipamentoAlpha2: [
-        "(a) Uma arma marcial e um escudo",
-        "(b) Duas armas marciais",
+        { label: "(a) Uma arma marcial e um escudo", subSelecao: { tipo: "Marcial" } }, // Apenas 1 arma aqui
+        { label: "(b) Duas armas marciais", subSelecao: { tipo: "Marcial", quantidade: 2 } },
       ],
       equipamentoAlpha3: [
-        "(a) Uma besta leve e 20 virotes",
-        "(b) Dois machados de arremesso",
+        { label: "(a) Uma besta leve e 20 virotes" },
+        { label: "(b) Dois machados de arremesso" },
       ],
       equipamentoObgt: [],
     },
     dadosDeVida: "1d10 pontos de vida por nível",
-    dadoDeVidaFaces: 10,              // ✅ novo
-    riqueza: "5d4*10", // 50 a 200 PO
-    // Outras informações específicas da classe
+    dadoDeVidaFaces: 10,
+    riqueza: "5d4*10",
   },
 
   // ---------------------------------------------------------------------------------------------------------------  //
@@ -1028,24 +1010,21 @@ export const classes = [
       habilidadeNv2: "Ação Ardilosa",
     },
     equipamentos: {
-      equipamentoAlpha1: ["(a) Uma rapieira", "(b) Uma espada longa"],
+      equipamentoAlpha1: [{ label: "(a) Uma rapieira" }, { label: "(b) Uma espada longa" }],
       equipamentoAlpha2: [
-        "(a) Um arco curto e uma aljava com 20 flechas",
-        "(b) Uma espada curta",
+        { label: "(a) Um arco curto e uma aljava com 20 flechas" },
+        { label: "(b) Uma espada curta" },
       ],
       equipamentoAlpha3: [
-        "(a) Um pacote de assaltante",
-        "(b) Um pacote de aventureiro",
-        "(c) Um pacote de explorador",
+        { label: "(a) Um pacote de assaltante" },
+        { label: "(b) Um pacote de aventureiro" },
+        { label: "(c) Um pacote de explorador" },
       ],
-      equipamentoObgt: [
-        "Armadura de couro, Duas adagas e Ferramentas de ladrão",
-      ],
+      equipamentoObgt: ["Armadura de couro, Duas adagas e Ferramentas de ladrão"],
     },
     dadosDeVida: "1d8 pontos de vida por nível",
-    dadoDeVidaFaces: 8,               // ✅ novo
-    riqueza: "4d4*10", // 40 a 160 PO
-    // Outras informações específicas da classe
+    dadoDeVidaFaces: 8,
+    riqueza: "4d4*10",
   },
 
   // ---------------------------------------------------------------------------------------------------------------  //
@@ -1081,16 +1060,15 @@ export const classes = [
       habilidadeNv2: ["TRADIÇÃO ARCANA"],
     },
     equipamentos: {
-      equipamentoAlpha1: ["Um bordão", "Uma adaga"],
-      equipamentoAlpha2: ["Uma bolsa de componentes", "um foco arcano"],
-      equipamentoAlpha3: ["Um pacote de estudioso", "Um pacote de explorador"],
+      equipamentoAlpha1: [{ label: "Um bordão" }, { label: "Uma adaga" }],
+      equipamentoAlpha2: [{ label: "Uma bolsa de componentes" }, { label: "um foco arcano" }],
+      equipamentoAlpha3: [{ label: "Um pacote de estudioso" }, { label: "Um pacote de explorador" }],
       equipamentoObgt: ["Um grimório"],
     },
 
     dadosDeVida: "1d6 pontos de vida por nível",
-    dadoDeVidaFaces: 6,               // ✅ novo
-    riqueza: "4d4*10", // 40 a 160 PO
-    // Outras informações específicas da classe
+    dadoDeVidaFaces: 6,
+    riqueza: "4d4*10",
   },
 
   // ---------------------------------------------------------------------------------------------------------------  //
@@ -1126,17 +1104,16 @@ export const classes = [
       habilidadeNv2: "Chi e Movimento Sem Armadura",
     },
     equipamentos: {
-      equipamentoAlpha1: ["(a) Uma espada curta", "(b) Qualquer arma simples"],
-      equipamentoAlpha2: [
-        "(a) Um pacote de explorador",
-        "(b) Um pacote de aventureiro",
+      equipamentoAlpha1: [
+        { label: "(a) Uma espada curta" },
+        { label: "(b) Qualquer arma simples", subSelecao: { tipo: "Simples" } },
       ],
+      equipamentoAlpha2: [{ label: "(a) Um pacote de explorador" }, { label: "(b) Um pacote de aventureiro" }],
       equipamentoObgt: ["10 dardos"],
     },
     dadosDeVida: "1d8 pontos de vida por nível",
-    dadoDeVidaFaces: 8, // 8
-    riqueza: "5d4", // 5 a 20 PO (sem multiplicador *10)
-    // Outras informações específicas da classe
+    dadoDeVidaFaces: 8,
+    riqueza: "5d4",
   },
 
   // ---------------------------------------------------------------------------------------------------------------  //
@@ -1172,23 +1149,19 @@ export const classes = [
     },
     equipamentos: {
       equipamentoAlpha1: [
-        "(a) Uma arma marcial e um escudo",
-        "(b) Duas armas marciais",
+        { label: "(a) Uma arma marcial e um escudo", subSelecao: { tipo: "Marcial" } },
+        { label: "(b) Duas armas marciais", subSelecao: { tipo: "Marcial", quantidade: 2 } },
       ],
       equipamentoAlpha2: [
-        "(a) Cinco azagaias",
-        "(b) Qualquer arma simples corpo-a-corpo",
+        { label: "(a) Cinco azagaias" },
+        { label: "(b) Qualquer arma simples corpo-a-corpo", subSelecao: { tipo: "Simples", alcance: "Corpo-a-Corpo" } },
       ],
-      equipamentoAlpha3: [
-        "(a) Um pacote de sacerdote",
-        "(b) Um pacote de aventureiro",
-      ],
+      equipamentoAlpha3: [{ label: "(a) Um pacote de sacerdote" }, { label: "(b) Um pacote de aventureiro" }],
       equipamentoObgt: ["Cota de malha e Um símbolo sagrado"],
     },
     dadosDeVida: "1d10 pontos de vida por nível",
-    dadoDeVidaFaces: 10,              // ✅ novo
-    riqueza: "5d4*10", // 50 a 200 PO
-    // Outras informações específicas da classe
+    dadoDeVidaFaces: 10,
+    riqueza: "5d4*10",
   },
 
   // ---------------------------------------------------------------------------------------------------------------  //
@@ -1224,21 +1197,17 @@ export const classes = [
       habilidadeNv2: "Estilo de Luta e Conjuração",
     },
     equipamentos: {
-      equipamentoAlpha1: ["(a) Brunea", "(b) Armadura de couro"],
+      equipamentoAlpha1: [{ label: "(a) Brunea" }, { label: "(b) Armadura de couro" }],
       equipamentoAlpha2: [
-        "(a) Duas espadas curtas",
-        "(b) Duas armas simples corpo-a-corpo",
+        { label: "(a) Duas espadas curtas" },
+        { label: "(b) Duas armas simples corpo-a-corpo", subSelecao: { tipo: "Simples", alcance: "Corpo-a-Corpo", quantidade: 2 } },
       ],
-      equipamentoAlpha3: [
-        "(a) Um pacote de explorador",
-        "(b) Um pacote de aventureiro",
-      ],
+      equipamentoAlpha3: [{ label: "(a) Um pacote de explorador" }, { label: "(b) Um pacote de aventureiro" }],
       equipamentoObgt: ["Um arco longo e Uma aljava com 20 flechas"],
     },
     dadosDeVida: "1d10 pontos de vida por nível",
-    dadoDeVidaFaces: 10,              // ✅ novo
-    riqueza: "5d4*10", // 50 a 200 PO
-    // Outras informações específicas da classe
+    dadoDeVidaFaces: 10,
+    riqueza: "5d4*10",
   },
 
   // ---------------------------------------------------------------------------------------------------------------  //
