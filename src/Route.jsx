@@ -25,6 +25,8 @@ const NpcDetail = lazy(() => import("pages/Npcs/NpcDetail"));
 const QuestsPage = lazy(() => import("pages/Quests"));
 const QuestDetail = lazy(() => import("pages/Quests/QuestDetail"));
 const MapEditor = lazy(() => import("pages/MapEditor"));
+// ✅ Importar Admin
+const AdminPage = lazy(() => import("pages/Admin"));
 
 const AppRoutes = () => {
   const { user: usuarioAutenticado } = useAuth();
@@ -53,11 +55,12 @@ const AppRoutes = () => {
             <Route path="/mapas/editor/:mapId" element={<MapEditor />} />
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/diario" element={<SessionLog />} />
-            <Route path="/diario/:sessionId" element={<SessionLogDetail />} /> // ✅ add
-            <Route path="/npcs" element={<NpcsPage />} />
-            <Route path="/npcs/:npcId" element={<NpcDetail />} />
-            <Route path="/quests" element={<QuestsPage />} />
-            <Route path="/quests/:questId" element={<QuestDetail />} />
+            <Route path="/diario/:sessionId" element={<SessionLogDetail />} />
+            
+            {/* ✅ Rota Secreta */}
+            <Route path="/master-control" element={<AdminPage />} />
+            
+            <Route path="/*" element={<Inicio />} />
           </>
         )}
       </Route>

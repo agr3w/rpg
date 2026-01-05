@@ -16,8 +16,8 @@ import AutoStoriesIcon from "@mui/icons-material/AutoStories";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { Link as RouterLink } from "react-router-dom";
 
-// ✅ Importamos a versão
-import { APP_VERSION, CODENAME, BUILD_TYPE } from "config/appVersion";
+// ✅ IMPORTAR o novo Hook
+import { useSystem } from "hooks/useSystem";
 
 import bg from "./tumblr_okx6d5BR4K1rnbw6mo1_540.webp";
 import AppCard from "components/Cards/AppCard";
@@ -258,6 +258,9 @@ const Section = memo(function Section({
 export default function Inicio() {
   const prefersReducedMotion = useReducedMotion();
   const sections = HOME_SECTIONS;
+  
+  // ✅ Usar o hook aqui
+  const system = useSystem();
 
   return (
     <MotionConfig reducedMotion="user">
@@ -318,7 +321,7 @@ export default function Inicio() {
               Arte por Waneella
             </Box>
 
-            {/* ✅ VERSÃO DO SISTEMA (Estilo RPG) */}
+            {/* ✅ VERSÃO DO SISTEMA (Dinâmica via Firebase) */}
             <Stack 
               direction="row" 
               justifyContent="center" 
@@ -331,7 +334,7 @@ export default function Inicio() {
               }}
             >
               <Typography variant="caption" sx={{ fontFamily: "Cinzel", color: "#bf8f00" }}>
-                v{APP_VERSION}
+                v{system.number}
               </Typography>
               <Box sx={{ width: 4, height: 4, borderRadius: "50%", bgcolor: "rgba(255,255,255,0.3)" }} />
               <Typography 
@@ -344,11 +347,11 @@ export default function Inicio() {
                   color: "#fff"
                 }}
               >
-                {CODENAME}
+                {system.codename}
               </Typography>
-              {BUILD_TYPE && (
+              {system.build && (
                 <Chip 
-                  label={BUILD_TYPE} 
+                  label={system.build} 
                   size="small" 
                   sx={{ 
                     height: 16, 

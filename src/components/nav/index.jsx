@@ -24,6 +24,7 @@ import {
   useTheme,
   alpha,
   Collapse,
+  Chip,
 } from "@mui/material";
 
 import {
@@ -44,9 +45,18 @@ import { signOut } from "firebase/auth";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
+// ✅ Importar ícone de segurança para o menu admin
+import SecurityIcon from '@mui/icons-material/Security'; 
+import InfoIcon from '@mui/icons-material/Info';
+import NewReleasesIcon from '@mui/icons-material/NewReleases'; // Para novidades
+import WarningIcon from '@mui/icons-material/Warning'; // Para avisos
+import AutoStoriesIcon from '@mui/icons-material/AutoStories'; // Para Lore
+import ReportProblemIcon from '@mui/icons-material/ReportProblem'; // Para Erros
 
 // ✅ Importamos a lógica para saber qual elemento estamos
 import { getElementFromPath } from "theme/elementTokens";
+// ✅ Importar o hook do sistema
+import { useSystem } from "hooks/useSystem";
 
 const PAGE_TITLES = {
   "/": "Início",
@@ -199,6 +209,14 @@ const NAV_VARIANTS = {
   },
 };
 
+// Mapeamento de ícones e cores por tipo
+const NOTIF_TYPES = {
+  info: { icon: AutoStoriesIcon, color: "#29b6f6", label: "Lore Update" },
+  success: { icon: NewReleasesIcon, color: "#66bb6a", label: "Novidade" },
+  warning: { icon: WarningIcon, color: "#ffa726", label: "Atenção" },
+  error: { icon: ReportProblemIcon, color: "#ef5350", label: "Crítico" },
+};
+
 const Nav = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -215,8 +233,47 @@ const Nav = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [toolsAnchorEl, setToolsAnchorEl] = useState(null);
+  
+  // ✅ Estado para o menu de notificações
+  const [notifAnchorEl, setNotifAnchorEl] = useState(null);
+  
   const toolsMenuOpen = Boolean(toolsAnchorEl);
   const [toolsOpen, setToolsOpen] = useState(false);
+
+  // ✅ Dados do Sistema
+  const system = useSystem();
+  const announcement = system.announcement;
+  const hasAnnouncement = announcement && announcement.message;
+
+  // ✅ SEU UID DE ADMIN (Para mostrar o botão no perfil)
+  const MY_ADMIN_UID = "hKYEhI9JIEPOS2RSON7tsviLzjV2";
+  const isAdmin = auth.currentUser?.uid === MY_ADMIN_UID;
+
+  // --- CÓDIGO QUE FALTAVA ---
+  
+  // ✅ 1. Estado para controlar se é novo
+  const [isNewNotification, setIsNewNotification] = useState(false);
+
+  // ✅ 2. Efeito para verificar o localStorage
+  useEffect(() => {
+    if (hasAnnouncement && announcement.id) {
+      const lastSeenId = localStorage.getItem("rpg_last_announcement_id");
+      // Se o ID do sistema for diferente do salvo, é novo!
+      if (lastSeenId !== String(announcement.id)) {
+        setIsNewNotification(true);
+      } else {
+        setIsNewNotification(false);
+      }
+    } else {
+      setIsNewNotification(false);
+    }
+  }, [hasAnnouncement, announcement?.id]);
+
+  // ✅ 3. Helper para pegar estilo da notificação atual
+  const notifStyle = NOTIF_TYPES[announcement?.type] || NOTIF_TYPES.info;
+  const NotifIcon = notifStyle.icon;
+
+  // --- FIM DO CÓDIGO QUE FALTAVA ---
 
   // ✅ Identifica o elemento atual da rota
   const currentElement = useMemo(() => getElementFromPath(location.pathname), [location.pathname]);
@@ -245,6 +302,18 @@ const Nav = () => {
 
   const handleMenuOpen = useCallback((event) => setAnchorEl(event.currentTarget), []);
   const handleMenuClose = useCallback(() => setAnchorEl(null), []);
+  
+  // ✅ Handlers de Notificação
+  const handleNotifOpen = useCallback((event) => {
+    setNotifAnchorEl(event.currentTarget);
+    if (hasAnnouncement && announcement.id) {
+      localStorage.setItem("rpg_last_announcement_id", String(announcement.id));
+      setIsNewNotification(false); // Para de piscar instantaneamente
+    }
+  }, [hasAnnouncement, announcement]);
+
+  const handleNotifClose = useCallback(() => setNotifAnchorEl(null), []);
+
   const handleOpenDrawer = useCallback(() => setDrawerOpen(true), []);
   const handleCloseDrawer = useCallback(() => setDrawerOpen(false), []);
   const handleToolsMenuOpen = useCallback((event) => setToolsAnchorEl(event.currentTarget), []);
@@ -456,7 +525,7 @@ const Nav = () => {
                   textTransform: "uppercase",
                   opacity: 0.75,
                   whiteSpace: "nowrap",
-                  color: "inherit" // Herda cor do link
+                  color: "var(--rpg-accent)" // Herda cor do link
                 }}
               >
                 RPG Organizer
@@ -545,11 +614,120 @@ const Nav = () => {
           )}
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, ml: 1 }}>
-            <IconButton color="inherit" aria-label="notificações">
-              <Badge badgeContent={0} color="error">
+            
+            {/* ✅ ÍCONE DE NOTIFICAÇÕES INTELIGENTE */}
+            <IconButton 
+              color="inherit" 
+              aria-label="notificações"
+              onClick={handleNotifOpen}
+            >
+              <Badge 
+                badgeContent={isNewNotification ? "!" : 0} 
+                sx={{ 
+                  "& .MuiBadge-badge": { 
+                    bgcolor: notifStyle.color, // Cor dinâmica baseada no tipo
+                    color: "#000",
+                    fontWeight: "bold",
+                    fontSize: 10, 
+                    height: 18, 
+                    minWidth: 18,
+                    // Só anima se for novo
+                    animation: isNewNotification ? "pulse 2s infinite" : "none",
+                    "@keyframes pulse": {
+                      "0%": { boxShadow: `0 0 0 0 ${alpha(notifStyle.color, 0.7)}` },
+                      "70%": { boxShadow: `0 0 0 6px ${alpha(notifStyle.color, 0)}` },
+                      "100%": { boxShadow: `0 0 0 0 ${alpha(notifStyle.color, 0)}` }
+                    }
+                  } 
+                }}
+              >
                 <NotificationsIcon />
               </Badge>
             </IconButton>
+
+            {/* ✅ MENU DE NOTIFICAÇÕES RICO */}
+            <Menu
+              anchorEl={notifAnchorEl}
+              open={Boolean(notifAnchorEl)}
+              onClose={handleNotifClose}
+              PaperProps={{ sx: { ...toolsMenuPaperSx, maxWidth: 360, p: 0 } }}
+            >
+              <Box sx={{ p: 2, pb: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Typography variant="overline" sx={{ opacity: 0.7, fontWeight: 700 }}>
+                  Mural de Avisos
+                </Typography>
+                {hasAnnouncement && (
+                  <Chip 
+                    label={notifStyle.label} 
+                    size="small" 
+                    sx={{ 
+                      height: 20, 
+                      fontSize: 10, 
+                      bgcolor: alpha(notifStyle.color, 0.2), 
+                      color: notifStyle.color,
+                      border: `1px solid ${alpha(notifStyle.color, 0.3)}`
+                    }} 
+                  />
+                )}
+              </Box>
+              <Divider sx={{ borderColor: "rgba(255,255,255,0.1)" }} />
+              
+              {hasAnnouncement ? (
+                <Box sx={{ p: 2 }}>
+                  <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
+                    <Box 
+                      sx={{ 
+                        p: 1, 
+                        borderRadius: 1.5, 
+                        bgcolor: alpha(notifStyle.color, 0.1),
+                        color: notifStyle.color,
+                        display: "grid",
+                        placeItems: "center"
+                      }}
+                    >
+                      <NotifIcon />
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                      {announcement.title && (
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#fff", mb: 0.5 }}>
+                          {announcement.title}
+                        </Typography>
+                      )}
+                      <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.8)", lineHeight: 1.5 }}>
+                        {announcement.message}
+                      </Typography>
+                      
+                      {/* Botão de Ação (Link) */}
+                      {announcement.link && (
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          href={announcement.link}
+                          target="_blank" // Abre em nova aba
+                          rel="noopener noreferrer"
+                          sx={{ 
+                            mt: 2, 
+                            borderColor: alpha(notifStyle.color, 0.5),
+                            color: notifStyle.color,
+                            "&:hover": {
+                              borderColor: notifStyle.color,
+                              bgcolor: alpha(notifStyle.color, 0.1)
+                            }
+                          }}
+                        >
+                          {announcement.linkText || "Saiba Mais"}
+                        </Button>
+                      )}
+                    </Box>
+                  </Box>
+                </Box>
+              ) : (
+                <Box sx={{ p: 4, textAlign: "center", opacity: 0.5 }}>
+                  <Typography variant="body2">O vento sopra silencioso...</Typography>
+                  <Typography variant="caption">Nenhum aviso no momento.</Typography>
+                </Box>
+              )}
+            </Menu>
 
             <Tooltip title="Conta">
               <IconButton onClick={handleMenuOpen} sx={{ p: 0, ml: 0.5 }}>
@@ -570,6 +748,29 @@ const Nav = () => {
               PaperProps={{ sx: toolsMenuPaperSx }}
               sx={{ borderRadius: 1.5, mx: 0.75, my: 0.25, color: "inherit", "&:hover": { backgroundColor: alpha("#000", 0.06) } }}
             >
+              {/* ✅ BOTÃO DE ADMIN (Só aparece para você) */}
+              {isAdmin && (
+                <MenuItem
+                  onClick={() => {
+                    handleMenuClose();
+                    navigate("/master-control");
+                  }}
+                  sx={{ 
+                    color: "#ff4500", 
+                    fontWeight: "bold",
+                    bgcolor: alpha("#ff4500", 0.05),
+                    "&:hover": { bgcolor: alpha("#ff4500", 0.15) }
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: 38, color: "inherit" }}>
+                    <SecurityIcon fontSize="small" />
+                  </ListItemIcon>
+                  Painel do Mestre
+                </MenuItem>
+              )}
+
+              {isAdmin && <Divider sx={{ borderColor: "rgba(255,69,0,0.2)" }} />}
+
               <MenuItem
                 onClick={() => {
                   handleMenuClose();

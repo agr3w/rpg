@@ -19,6 +19,7 @@ export default defineConfig({
             'theme': path.resolve(__dirname, './src/theme'),
             'service': path.resolve(__dirname, './src/service'),
             'config': path.resolve(__dirname, './src/config'),
+            'hooks': path.resolve(__dirname, './src/hooks'),
         },
     },
     server: {
