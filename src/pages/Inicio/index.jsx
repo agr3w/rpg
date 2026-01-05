@@ -16,6 +16,9 @@ import AutoStoriesIcon from "@mui/icons-material/AutoStories";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { Link as RouterLink } from "react-router-dom";
 
+// ✅ Importamos a versão
+import { APP_VERSION, CODENAME, BUILD_TYPE } from "config/appVersion";
+
 import bg from "./tumblr_okx6d5BR4K1rnbw6mo1_540.webp";
 import AppCard from "components/Cards/AppCard";
 import { HOME_SECTIONS } from "components/Cards/cardsRegistry";
@@ -287,28 +290,77 @@ export default function Inicio() {
           ))}
 
           {/* Footer discreto */}
-          <Typography
-            align="center"
-            sx={{
-              mt: 6,
-              fontSize: 12,
-              opacity: 0.6,
-              color: "#fff",
-              fontFamily: "Cinzel",
-            }}
-          >
-            "A aventura espera por aqueles que ousam escrever seu destino."
-            <br />
+          <Box sx={{ mt: 8, pb: 2, textAlign: "center", opacity: 0.6 }}>
+            <Typography
+              sx={{
+                fontSize: 12,
+                color: "#fff",
+                fontFamily: "Cinzel",
+                mb: 1,
+              }}
+            >
+              "A aventura espera por aqueles que ousam escrever seu destino."
+            </Typography>
+            
             <Box
               component="a"
               href="https://waneella.tumblr.com/"
               target="_blank"
               rel="noreferrer"
-              sx={{ color: "inherit", textDecoration: "none", opacity: 0.7 }}
+              sx={{ 
+                color: "inherit", 
+                textDecoration: "none", 
+                fontSize: 11, 
+                display: "block", 
+                mb: 3 
+              }}
             >
               Arte por Waneella
             </Box>
-          </Typography>
+
+            {/* ✅ VERSÃO DO SISTEMA (Estilo RPG) */}
+            <Stack 
+              direction="row" 
+              justifyContent="center" 
+              alignItems="center" 
+              spacing={1}
+              sx={{ 
+                opacity: 0.5, 
+                transition: "opacity 0.3s", 
+                "&:hover": { opacity: 1 } 
+              }}
+            >
+              <Typography variant="caption" sx={{ fontFamily: "Cinzel", color: "#bf8f00" }}>
+                v{APP_VERSION}
+              </Typography>
+              <Box sx={{ width: 4, height: 4, borderRadius: "50%", bgcolor: "rgba(255,255,255,0.3)" }} />
+              <Typography 
+                variant="caption" 
+                sx={{ 
+                  fontFamily: "Cinzel", 
+                  fontWeight: 700, 
+                  letterSpacing: 1,
+                  textTransform: "uppercase",
+                  color: "#fff"
+                }}
+              >
+                {CODENAME}
+              </Typography>
+              {BUILD_TYPE && (
+                <Chip 
+                  label={BUILD_TYPE} 
+                  size="small" 
+                  sx={{ 
+                    height: 16, 
+                    fontSize: "0.6rem", 
+                    bgcolor: "rgba(255,255,255,0.1)", 
+                    color: "#aaa",
+                    border: "1px solid rgba(255,255,255,0.1)"
+                  }} 
+                />
+              )}
+            </Stack>
+          </Box>
         </Container>
       </PageContainer>
     </MotionConfig>
