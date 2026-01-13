@@ -30,17 +30,17 @@ const PageContainer = styled(motion.div)({
   position: "relative",
   paddingTop: 32,
   paddingBottom: 32,
-  // Background fixo otimizado para GPU
+  // OTIMIZAÇÃO DE BACKGROUND
   "&::before": {
     content: '""',
-    position: "fixed",
+    position: "fixed", // Mantenha fixed aqui, é performático pois é um pseudo-elemento isolado
     inset: 0,
     zIndex: -2,
     backgroundImage: `linear-gradient(rgba(16, 18, 16, 0.85), rgba(16, 18, 16, 0.75)), url(${bg})`,
     backgroundSize: "cover",
     backgroundPosition: "center",
-    willChange: "transform", // Instrui o navegador a preparar a GPU
-    backfaceVisibility: "hidden", // Evita flickering em alguns navegadores
+    willChange: "transform", // ✅ ESSENCIAL: Prepara a GPU
+    pointerEvents: "none", // ✅ ESSENCIAL: Evita bloqueio de eventos
   },
 });
 

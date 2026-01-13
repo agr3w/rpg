@@ -251,71 +251,59 @@ const DragonTransition = ({ children, location: locationProp }) => {
       }}
     >
       <Box sx={{ maxWidth: 1200, mx: "auto" }}>
-        {/* Filtros SVG (com animação para deixar vivo) */}
-        <svg style={{ position: "absolute", width: 0, height: 0 }}>
+        {/* SVG Filters Definidos globalmente para reuso */}
+        <svg style={{ position: "absolute", width: 0, height: 0, pointerEvents: "none" }} aria-hidden="true">
           <defs>
-            {/* ✅ Pergaminho: grão de papel + leve deslocamento (bem leve) */}
+            {/* 📜 papel: textura estática (Removido <animate>) */}
             <filter id="paper-filter">
-              <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="7" result="n">
-                <animate attributeName="baseFrequency" dur="6s" values="0.85;0.95;0.88" repeatCount="indefinite" />
+              <feTurbulence
+                type="fractalNoise"
+                baseFrequency="0.8" 
+                numOctaves="3"
+                seed="5"
+                result="noise"
+              >
+                {/* ❌ REMOVIDO: <animate ... /> - Isso matava a CPU */}
+              </feTurbulence>
+              <feDiffuseLighting in="noise" lightingColor="#fff" surfaceScale="1.2">
+                <feDistantLight azimuth="45" elevation="60" />
+              </feDiffuseLighting>
+            </filter>
+
+            {/* ⚡ elétrico: textura estática (Removido <animate>) */}
+            <filter id="electric-filter">
+              <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" seed="1" result="noise">
+                 {/* ❌ REMOVIDO: <animate ... /> */}
+              </feTurbulence>
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" />
+            </filter>
+
+            {/* 🤢 veneno/goo: textura estática (Removido <animate>) */}
+            <filter id="goo-filter">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
+              <feColorMatrix
+                in="blur"
+                mode="matrix"
+                values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9"
+                result="goo"
+              />
+              <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+            </filter>
+
+            {/* 🧊 gelo: textura estática (Removido <animate>) */}
+            <filter id="ice-filter">
+              <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" result="n">
+                 {/* ❌ REMOVIDO: <animate ... /> */}
               </feTurbulence>
               <feDisplacementMap in="SourceGraphic" in2="n" scale="1.8" />
             </filter>
 
-            {/* 🔥 fogo: anima mais lenta (menos "tremedeira") */}
+            {/* 🔥 fogo: textura estática (Removido <animate>) */}
             <filter id="fire-filter">
               <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" seed="2" result="noise">
-                <animate
-                  attributeName="baseFrequency"
-                  dur="2.2s"
-                  values="0.012;0.026;0.015"
-                  repeatCount="indefinite"
-                />
+                 {/* ❌ REMOVIDO: <animate ... /> */}
               </feTurbulence>
               <feDisplacementMap in="SourceGraphic" in2="noise" scale="22" xChannelSelector="R" yChannelSelector="G" />
-            </filter>
-
-            {/* ☠ veneno: mais lento e “viscoso” */}
-            <filter id="goo-filter">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
-              <feColorMatrix
-                in="blur"
-                mode="matrix"
-                values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -8"
-                result="goo"
-              />
-              <feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="2" seed="3" result="noise">
-                <animate
-                  attributeName="baseFrequency"
-                  dur="3.2s"
-                  values="0.007;0.013;0.010"
-                  repeatCount="indefinite"
-                />
-              </feTurbulence>
-              <feDisplacementMap in="goo" in2="noise" scale="8" />
-            </filter>
-
-            {/* ⚡ elétrico: menos frenético */}
-            <filter id="electric-filter">
-              <feTurbulence type="turbulence" baseFrequency="0.9" numOctaves="1" seed="5" result="noise">
-                <animate
-                  attributeName="baseFrequency"
-                  dur="0.7s"
-                  values="0.65;1.05;0.80;1.10;0.75"
-                  repeatCount="indefinite"
-                />
-              </feTurbulence>
-              <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" />
-            </filter>
-
-            {/* ❄ gelo: ok manter */}
-            <filter id="ice-filter">
-              <feGaussianBlur stdDeviation="1.2" result="b" />
-              <feColorMatrix
-                in="b"
-                type="matrix"
-                values="1 0 0 0 0  0 1.05 0 0 0  0 0 1.15 0 0  0 0 0 1 0"
-              />
             </filter>
           </defs>
         </svg>

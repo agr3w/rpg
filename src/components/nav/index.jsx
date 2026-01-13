@@ -55,8 +55,35 @@ import ReportProblemIcon from '@mui/icons-material/ReportProblem'; // Para Erros
 
 // ✅ Importamos a lógica para saber qual elemento estamos
 import { getElementFromPath } from "theme/elementTokens";
-// ✅ Importar o hook do sistema
 import { useSystem } from "hooks/useSystem";
+
+// ✅ 1. CRIAR COMPONENTE ISOLADO DE PROGRESSO (Fora do Nav principal)
+// Isso evita que o Nav inteiro renderize a cada pixel de scroll
+// const ScrollProgress = React.memo(({ accent, accent2 }) => {
+//   const { scrollYProgress } = useScroll();
+//   const scaleX = useSpring(scrollYProgress, {
+//     stiffness: 100,
+//     damping: 30,
+//     restDelta: 0.001,
+//   });
+
+//   return (
+//     <motion.div
+//       style={{
+//         scaleX,
+//         height: "3px",
+//         background: `linear-gradient(90deg, ${accent2}, ${accent})`,
+//         transformOrigin: "0%",
+//         position: "absolute",
+//         bottom: 0,
+//         left: 0,
+//         right: 0,
+//         opacity: 0.95,
+//         willChange: "transform", // Dica para a GPU
+//       }}
+//     />
+//   );
+// });
 
 const PAGE_TITLES = {
   "/": "Início",
@@ -223,12 +250,6 @@ const Nav = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const prefersReducedMotion = useReducedMotion();
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001,
-  });
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -460,6 +481,9 @@ const Nav = () => {
             mixBlendMode: navVariant.mixBlendAfter,
             transition: "background-image 0.8s ease-in-out",
           },
+
+          // ADICIONAR will-change para evitar repaints
+          willChange: "background-color",
         }}
       >
         <Toolbar sx={{ gap: 1.5 }}>
@@ -795,21 +819,13 @@ const Nav = () => {
           </Box>
         </Toolbar>
 
-        {!prefersReducedMotion && (
-          <motion.div
-            style={{
-              scaleX,
-              height: "3px",
-              background: "linear-gradient(90deg, var(--rpg-accent2), var(--rpg-accent))",
-              transformOrigin: "0%",
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              opacity: 0.95,
-            }}
+        {/* ✅ USAR O COMPONENTE OTIMIZADO AQUI */}
+        {/* {!prefersReducedMotion && (
+          <ScrollProgress 
+            accent="var(--rpg-accent)" 
+            accent2="var(--rpg-accent2)" 
           />
-        )}
+        )} */}
       </AppBar>
 
       <Drawer
