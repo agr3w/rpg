@@ -109,14 +109,22 @@ export default function FichaXpPanel({ userID, fichaKey, ficha, onFichaChange })
   return (
     <>
       <Box sx={{ mb: 2 }}>
-        <Paper elevation={2} sx={{ p: 2 }}>
+        <Paper
+          elevation={2}
+          sx={{
+            p: 2,
+            border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.24))",
+            bgcolor: "var(--ficha-surface, rgba(236,225,207,0.9))",
+            color: "var(--ficha-text, #2f2318)",
+          }}
+        >
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} md={4}>
               <Typography variant="subtitle2">Nível atual</Typography>
               <Typography variant="h5" sx={{ fontWeight: 700 }}>
                 {ficha?.level ?? ficha?.Level ?? computeLevelFromXp(currentXp)}
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant="caption" sx={{ color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" }}>
                 XP total: {Number(ficha?.xp ?? ficha?.XP ?? currentXp)}
               </Typography>
             </Grid>
@@ -131,12 +139,23 @@ export default function FichaXpPanel({ userID, fichaKey, ficha, onFichaChange })
                 fullWidth
                 size="small"
                 inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                sx={{
+                  "& .MuiInputBase-root": { color: "var(--ficha-text, #2f2318)" },
+                  "& .MuiInputLabel-root": { color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" },
+                }}
               />
               <Box sx={{ mt: 1 }}>
                 <LinearProgress
                   variant="determinate"
                   value={progressFromLevel * 100}
-                  sx={{ height: 10, borderRadius: 2 }}
+                  sx={{
+                    height: 10,
+                    borderRadius: 2,
+                    bgcolor: "var(--ficha-surface-alt, rgba(225,211,189,0.86))",
+                    "& .MuiLinearProgress-bar": {
+                      backgroundColor: "var(--ficha-accent, #bf8f00)",
+                    },
+                  }}
                 />
                 <Box
                   sx={{
@@ -166,6 +185,7 @@ export default function FichaXpPanel({ userID, fichaKey, ficha, onFichaChange })
                 onClick={handleSaveXp}
                 disabled={saving}
                 size="medium"
+                sx={{ bgcolor: "var(--ficha-accent, #bf8f00)", color: "var(--ficha-text, #2f2318)", fontWeight: 800, "&:hover": { filter: "brightness(0.94)" } }}
               >
                 {saving ? "Salvando..." : "Salvar XP"}
               </Button>

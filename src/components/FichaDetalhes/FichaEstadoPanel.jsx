@@ -121,7 +121,19 @@ const profBonus =
   };
 
   return (
-    <Box>
+    <Box
+      sx={{
+        "& .MuiPaper-root": {
+          border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.2))",
+          bgcolor: "var(--ficha-surface, rgba(236,225,207,0.9))",
+          color: "var(--ficha-text, #2f2318)",
+        },
+        "& .MuiDivider-root": { borderColor: "var(--ficha-line, rgba(47,35,24,0.22))" },
+        "& .MuiTypography-root": { color: "inherit" },
+        "& .MuiListItemText-primary": { color: "var(--ficha-text, #2f2318)" },
+        "& .MuiCheckbox-root.Mui-checked": { color: "var(--ficha-accent, #bf8f00)" },
+      }}
+    >
       {/* 1) XP / Nível */}
       <motion.div {...sectionMotion}>
         <Box sx={{ mb: 3 }}>
@@ -338,6 +350,13 @@ const profBonus =
         onClose={() => setInventoryOpen(false)}
         maxWidth="md"
         fullWidth
+        PaperProps={{
+          sx: {
+            border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.2))",
+            backgroundColor: "var(--ficha-surface, rgba(236,225,207,0.9))",
+            color: "var(--ficha-text, #2f2318)",
+          },
+        }}
       >
         <DialogTitle>Inventário</DialogTitle>
         <DialogContent dividers>

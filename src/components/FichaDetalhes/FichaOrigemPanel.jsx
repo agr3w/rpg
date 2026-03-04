@@ -54,7 +54,30 @@ export default function FichaOrigemPanel({
   };
 
   return (
-    <>
+    <Box
+      sx={{
+        "& .MuiPaper-root": {
+          border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.2))",
+          bgcolor: "var(--ficha-surface, rgba(236,225,207,0.9))",
+          color: "var(--ficha-text, #2f2318)",
+          borderRadius: 2,
+        },
+        "& .MuiTypography-root": { color: "inherit" },
+        "& .MuiListItemText-primary": { color: "var(--ficha-text, #2f2318)" },
+        "& .MuiFormLabel-root": { color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" },
+        "& .MuiInputBase-input": { color: "var(--ficha-text, #2f2318)" },
+        "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+          borderColor: "var(--ficha-line, rgba(47,35,24,0.22))",
+        },
+        "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
+          borderColor: "var(--ficha-accent, #bf8f00)",
+        },
+        "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
+          borderColor: "var(--ficha-accent, #bf8f00)",
+        },
+        "& .MuiCheckbox-root.Mui-checked": { color: "var(--ficha-accent, #bf8f00)" },
+      }}
+    >
       {/* Verso: História + Antecedente / Traços / Lore */}
       <Box sx={{ mt: 1 }}>
         <motion.div {...sectionMotion}>
@@ -251,6 +274,6 @@ export default function FichaOrigemPanel({
           </Paper>
         </motion.div>
       </Box>
-    </>
+    </Box>
   );
 }

@@ -403,7 +403,49 @@ export default function FichaMagiasPanel({
   }, [draft.castingTime]);
 
   return (
-    <Box>
+    <Box
+      sx={{
+        "& .MuiPaper-root": {
+          border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.2))",
+          bgcolor: "var(--ficha-surface, rgba(236,225,207,0.9))",
+          color: "var(--ficha-text, #2f2318)",
+          borderRadius: 2,
+        },
+        "& .MuiAccordion-root": {
+          border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.2))",
+          backgroundColor: "rgba(255,251,242,0.98)",
+          color: "#2c1a10",
+        },
+        "& .MuiAccordion-root:before": { display: "none" },
+        "& .MuiTypography-root": { color: "inherit" },
+        "& .MuiChip-root": {
+          borderColor: "var(--ficha-line, rgba(47,35,24,0.22))",
+          color: "var(--ficha-text, #2f2318)",
+        },
+        "& .MuiChip-filled": {
+          backgroundColor: "var(--ficha-accent-soft, rgba(191,143,0,0.16))",
+        },
+        "& .MuiCheckbox-root.Mui-checked": { color: "var(--ficha-accent, #bf8f00)" },
+        "& .MuiFormLabel-root": { color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" },
+        "& .MuiInputLabel-root": { color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" },
+        "& .MuiInputLabel-root.Mui-focused": { color: "var(--ficha-accent, #bf8f00)" },
+        "& .MuiInputBase-input": { color: "var(--ficha-text, #2f2318)" },
+        "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+          borderColor: "var(--ficha-line, rgba(47,35,24,0.22))",
+        },
+        "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
+          borderColor: "var(--ficha-accent, #bf8f00)",
+        },
+        "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
+          borderColor: "var(--ficha-accent, #bf8f00)",
+        },
+        "& .MuiDialog-paper": {
+          border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.2))",
+          backgroundColor: "var(--ficha-surface, rgba(236,225,207,0.9))",
+          color: "var(--ficha-text, #2f2318)",
+        },
+      }}
+    >
       <Grid container spacing={2} sx={{ mb: 2 }}>
         {/* Atributo de conjuração */}
         <Grid item xs={12} md={4}>
@@ -485,7 +527,8 @@ export default function FichaMagiasPanel({
                   <Grid key={lvlCircle} item xs={12} sm={6} md={4}>
                     <Box
                       sx={{
-                        border: "1px solid rgba(0,0,0,0.12)",
+                        border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.2))",
+                        backgroundColor: "rgba(255,251,242,0.98)",
                         borderRadius: 1.5,
                         p: 1,
                       }}

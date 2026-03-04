@@ -211,27 +211,28 @@ export default function FichaArmorPanel({ value, onSave, dexMod = 0 }) {
   return (
     <>
       <Paper
-        elevation={3}
+        elevation={0}
         sx={{
           p: 2,
           textAlign: "center",
+          borderRadius: 2.5,
           borderWidth: 2,
           borderStyle: "solid",
-          borderColor: state.usaEscudo ? "primary.main" : "divider",
-          bgcolor: state.usaEscudo
-            ? "rgba(25, 118, 210, 0.08)"
-            : "background.paper",
+          borderColor: state.usaEscudo ? "var(--ficha-accent, #bf8f00)" : "var(--ficha-accent-soft, rgba(191,143,0,0.24))",
+          bgcolor: "var(--ficha-surface, rgba(236,225,207,0.9))",
+          color: "var(--ficha-text, #2f2318)",
+          boxShadow: "0 10px 26px rgba(0,0,0,0.32)",
           transition: "background-color 0.2s, border-color 0.2s",
         }}
       >
-        <Typography variant="subtitle2">Classe de Armadura</Typography>
+        <Typography variant="subtitle2" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: "var(--ficha-text, #2f2318)" }}>Classe de Armadura</Typography>
 
         {/* CA total em destaque */}
         <Box sx={{ mt: 1 }}>
           <Typography variant="caption" sx={{ opacity: 0.75 }}>
             CA Total
           </Typography>
-          <Typography variant="h4" sx={{ fontWeight: 900, lineHeight: 1 }}>
+          <Typography variant="h4" sx={{ fontWeight: 900, lineHeight: 1, color: "var(--ficha-accent, #bf8f00)" }}>
             {totalCa}
           </Typography>
         </Box>
@@ -253,6 +254,7 @@ export default function FichaArmorPanel({ value, onSave, dexMod = 0 }) {
             value={state.base}
             onChange={handleBaseChange}
             inputProps={{ min: 0 }}
+            sx={{ "& .MuiInputBase-root": { color: "var(--ficha-text, #2f2318)" }, "& .MuiInputLabel-root": { color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" } }}
           />
         </Box>
 
@@ -277,7 +279,7 @@ export default function FichaArmorPanel({ value, onSave, dexMod = 0 }) {
         </Box>
 
         {/* Armadura selecionada + botão para trocar */}
-        <Divider sx={{ my: 1 }} />
+        <Divider sx={{ my: 1, borderColor: "var(--ficha-line, rgba(47,35,24,0.22))" }} />
 
         <Box sx={{ mb: 1 }}>
           <Typography variant="caption" sx={{ display: "block", mb: 0.5 }}>
@@ -289,11 +291,11 @@ export default function FichaArmorPanel({ value, onSave, dexMod = 0 }) {
               <Chip
                 label={`${selectedArmor.nome} (${selectedArmor.categoria})`}
                 size="small"
-                sx={{ mb: 0.5 }}
+                sx={{ mb: 0.5, bgcolor: "var(--ficha-surface-alt, rgba(225,211,189,0.86))", color: "var(--ficha-text, #2f2318)", border: "1px solid var(--ficha-line, rgba(47,35,24,0.22))" }}
               />
               <Typography
                 variant="caption"
-                sx={{ display: "block", opacity: 0.8 }}
+                sx={{ display: "block", color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" }}
               >
                 CA: {selectedArmor.caFormula} | Força:{" "}
                 {selectedArmor.forcaMin ?? "—"} | Furtividade:{" "}
@@ -301,13 +303,13 @@ export default function FichaArmorPanel({ value, onSave, dexMod = 0 }) {
               </Typography>
               <Typography
                 variant="caption"
-                sx={{ display: "block", mt: 0.25, opacity: 0.8 }}
+                sx={{ display: "block", mt: 0.25, color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" }}
               >
                 {selectedArmor.descricao}
               </Typography>
             </>
           ) : (
-            <Typography variant="caption" sx={{ opacity: 0.7 }}>
+            <Typography variant="caption" sx={{ color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" }}>
               Nenhuma armadura selecionada
             </Typography>
           )}
@@ -317,6 +319,7 @@ export default function FichaArmorPanel({ value, onSave, dexMod = 0 }) {
               size="small"
               variant="outlined"
               onClick={() => setModalOpen(true)}
+              sx={{ borderColor: "var(--ficha-line, rgba(47,35,24,0.22))", color: "var(--ficha-text, #2f2318)", fontWeight: 800 }}
             >
               Escolher armadura
             </Button>
@@ -425,6 +428,13 @@ export default function FichaArmorPanel({ value, onSave, dexMod = 0 }) {
         onClose={() => setModalOpen(false)}
         maxWidth="xs"
         fullWidth
+        PaperProps={{
+          sx: {
+            border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.24))",
+            backgroundColor: "var(--ficha-surface, rgba(236,225,207,0.9))",
+            color: "var(--ficha-text, #2f2318)",
+          },
+        }}
       >
         <DialogTitle>Selecionar Armadura</DialogTitle>
         <DialogContent dividers>

@@ -40,8 +40,8 @@ export default function FichaCoinsPanel({ value, onSave }) {
   };
 
   return (
-    <Paper elevation={3} sx={{ p: 2 }}>
-      <Typography variant="subtitle2">Riqueza</Typography>
+    <Paper elevation={0} sx={{ p: 2, borderRadius: 2.5, border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.25))", bgcolor: "var(--ficha-surface, rgba(236,225,207,0.9))", color: "var(--ficha-text, #2f2318)" }}>
+      <Typography variant="subtitle2" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: "var(--ficha-text, #2f2318)" }}>Riqueza</Typography>
 
       <Grid container spacing={1} sx={{ mt: 1 }}>
         <Grid item xs={4}>
@@ -53,6 +53,7 @@ export default function FichaCoinsPanel({ value, onSave }) {
             onChange={handleField("pc")}
             fullWidth
             inputProps={{ min: 0 }}
+            sx={{ "& .MuiInputBase-root": { color: "var(--ficha-text, #2f2318)" }, "& .MuiInputLabel-root": { color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" } }}
           />
         </Grid>
         <Grid item xs={4}>
@@ -64,6 +65,7 @@ export default function FichaCoinsPanel({ value, onSave }) {
             onChange={handleField("pp")}
             fullWidth
             inputProps={{ min: 0 }}
+            sx={{ "& .MuiInputBase-root": { color: "var(--ficha-text, #2f2318)" }, "& .MuiInputLabel-root": { color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" } }}
           />
         </Grid>
         <Grid item xs={4}>
@@ -75,6 +77,7 @@ export default function FichaCoinsPanel({ value, onSave }) {
             onChange={handleField("pe")}
             fullWidth
             inputProps={{ min: 0 }}
+            sx={{ "& .MuiInputBase-root": { color: "var(--ficha-text, #2f2318)" }, "& .MuiInputLabel-root": { color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" } }}
           />
         </Grid>
         <Grid item xs={6}>
@@ -86,6 +89,7 @@ export default function FichaCoinsPanel({ value, onSave }) {
             onChange={handleField("po")}
             fullWidth
             inputProps={{ min: 0 }}
+            sx={{ "& .MuiInputBase-root": { color: "var(--ficha-text, #2f2318)" }, "& .MuiInputLabel-root": { color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" } }}
           />
         </Grid>
         <Grid item xs={6}>
@@ -97,11 +101,12 @@ export default function FichaCoinsPanel({ value, onSave }) {
             onChange={handleField("pl")}
             fullWidth
             inputProps={{ min: 0 }}
+            sx={{ "& .MuiInputBase-root": { color: "var(--ficha-text, #2f2318)" }, "& .MuiInputLabel-root": { color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" } }}
           />
         </Grid>
       </Grid>
 
-      <Divider sx={{ my: 1 }} />
+      <Divider sx={{ my: 1, borderColor: "var(--ficha-line, rgba(47,35,24,0.22))" }} />
 
       <Box
         sx={{
@@ -111,7 +116,7 @@ export default function FichaCoinsPanel({ value, onSave }) {
           gap: 1,
         }}
       >
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" sx={{ color: "var(--ficha-text-muted, rgba(47,35,24,0.74))", fontWeight: 700 }}>
           Total aproximado: <strong>{totalEmPO.toFixed(2)} PO</strong>
         </Typography>
 
@@ -120,6 +125,7 @@ export default function FichaCoinsPanel({ value, onSave }) {
           variant="contained"
           onClick={handleSaveClick}
           disabled={!changed}
+          sx={{ bgcolor: "var(--ficha-accent, #bf8f00)", color: "var(--ficha-text, #2f2318)", fontWeight: 900, "&:hover": { filter: "brightness(0.94)" } }}
         >
           Salvar
         </Button>

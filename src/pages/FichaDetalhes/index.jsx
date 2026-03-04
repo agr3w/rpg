@@ -61,6 +61,157 @@ const DEFAULT_TRAINING = {
   ferramentas: "",
 };
 
+const CLASS_THEMES = {
+  barbaro: {
+    accent: "#b45309",
+    accentSoft: "rgba(180,83,9,0.2)",
+    accentDeep: "rgba(120,53,15,0.38)",
+    surface: "rgba(237,223,208,0.9)",
+    surfaceAlt: "rgba(228,210,192,0.86)",
+    text: "#332318",
+    textMuted: "rgba(51,35,24,0.74)",
+    line: "rgba(51,35,24,0.24)",
+  },
+  monge: {
+    accent: "#c18a2f",
+    accentSoft: "rgba(193,138,47,0.2)",
+    accentDeep: "rgba(129,88,24,0.38)",
+    surface: "rgba(236,225,206,0.9)",
+    surfaceAlt: "rgba(226,213,190,0.86)",
+    text: "#2f2318",
+    textMuted: "rgba(47,35,24,0.74)",
+    line: "rgba(47,35,24,0.24)",
+  },
+  bruxo: {
+    accent: "#8b5cf6",
+    accentSoft: "rgba(139,92,246,0.24)",
+    accentDeep: "rgba(56,34,93,0.44)",
+    surface: "rgba(206,195,227,0.9)",
+    surfaceAlt: "rgba(190,176,214,0.88)",
+    text: "#1d152b",
+    textMuted: "rgba(29,21,43,0.78)",
+    line: "rgba(29,21,43,0.28)",
+  },
+  druida: {
+    accent: "#2f855a",
+    accentSoft: "rgba(47,133,90,0.22)",
+    accentDeep: "rgba(29,78,52,0.4)",
+    surface: "rgba(206,225,203,0.9)",
+    surfaceAlt: "rgba(191,214,187,0.87)",
+    text: "#1b2f21",
+    textMuted: "rgba(27,47,33,0.78)",
+    line: "rgba(27,47,33,0.26)",
+  },
+  bardo: {
+    accent: "#7c3aed",
+    accentSoft: "rgba(124,58,237,0.2)",
+    accentDeep: "rgba(83,40,140,0.38)",
+    surface: "rgba(226,214,236,0.9)",
+    surfaceAlt: "rgba(214,198,228,0.86)",
+    text: "#2d1e37",
+    textMuted: "rgba(45,30,55,0.76)",
+    line: "rgba(45,30,55,0.24)",
+  },
+  clerigo: {
+    accent: "#2563eb",
+    accentSoft: "rgba(37,99,235,0.2)",
+    accentDeep: "rgba(30,64,175,0.38)",
+    surface: "rgba(216,226,241,0.9)",
+    surfaceAlt: "rgba(202,214,234,0.86)",
+    text: "#1c2a42",
+    textMuted: "rgba(28,42,66,0.76)",
+    line: "rgba(28,42,66,0.24)",
+  },
+  guerreiro: {
+    accent: "#3b82f6",
+    accentSoft: "rgba(59,130,246,0.2)",
+    accentDeep: "rgba(30,58,138,0.4)",
+    surface: "rgba(214,224,240,0.9)",
+    surfaceAlt: "rgba(199,212,234,0.86)",
+    text: "#1b2740",
+    textMuted: "rgba(27,39,64,0.76)",
+    line: "rgba(27,39,64,0.24)",
+  },
+  feiticeiro: {
+    accent: "#c026d3",
+    accentSoft: "rgba(192,38,211,0.2)",
+    accentDeep: "rgba(134,25,143,0.4)",
+    surface: "rgba(233,213,238,0.9)",
+    surfaceAlt: "rgba(224,199,231,0.86)",
+    text: "#321a3a",
+    textMuted: "rgba(50,26,58,0.76)",
+    line: "rgba(50,26,58,0.24)",
+  },
+  ladino: {
+    accent: "#334155",
+    accentSoft: "rgba(51,65,85,0.22)",
+    accentDeep: "rgba(15,23,42,0.44)",
+    surface: "rgba(211,216,224,0.9)",
+    surfaceAlt: "rgba(197,204,214,0.86)",
+    text: "#1d2430",
+    textMuted: "rgba(29,36,48,0.78)",
+    line: "rgba(29,36,48,0.26)",
+  },
+  mago: {
+    accent: "#4f46e5",
+    accentSoft: "rgba(79,70,229,0.2)",
+    accentDeep: "rgba(55,48,163,0.4)",
+    surface: "rgba(216,214,239,0.9)",
+    surfaceAlt: "rgba(201,198,232,0.86)",
+    text: "#232042",
+    textMuted: "rgba(35,32,66,0.76)",
+    line: "rgba(35,32,66,0.24)",
+  },
+  paladino: {
+    accent: "#ef4444",
+    accentSoft: "rgba(239,68,68,0.2)",
+    accentDeep: "rgba(127,29,29,0.4)",
+    surface: "rgba(241,219,216,0.9)",
+    surfaceAlt: "rgba(233,204,200,0.86)",
+    text: "#3a201d",
+    textMuted: "rgba(58,32,29,0.76)",
+    line: "rgba(58,32,29,0.24)",
+  },
+  patrulheiro: {
+    accent: "#16a34a",
+    accentSoft: "rgba(22,163,74,0.2)",
+    accentDeep: "rgba(20,83,45,0.4)",
+    surface: "rgba(214,232,211,0.9)",
+    surfaceAlt: "rgba(199,223,196,0.86)",
+    text: "#1b322b",
+    textMuted: "rgba(27,50,43,0.76)",
+    line: "rgba(27,50,43,0.24)",
+  },
+  default: {
+    accent: "#bf8f00",
+    accentSoft: "rgba(191,143,0,0.2)",
+    accentDeep: "rgba(131,60,11,0.38)",
+    surface: "rgba(232,220,201,0.9)",
+    surfaceAlt: "rgba(222,207,183,0.86)",
+    text: "#2f2318",
+    textMuted: "rgba(47,35,24,0.76)",
+    line: "rgba(47,35,24,0.24)",
+  },
+};
+
+function normalizeClassName(v) {
+  return String(v || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
+
+const PANEL_SX = {
+  p: 2,
+  borderRadius: 3,
+  border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.2))",
+  bgcolor: "var(--ficha-surface, rgba(236,225,207,0.9))",
+  color: "var(--ficha-text, #2f2318)",
+  boxShadow: "0 10px 26px rgba(0,0,0,0.32)",
+  backdropFilter: "blur(4px)",
+};
+
 const FichaDetalhes = () => {
   const { ID } = useParams();
   const [ficha, setFicha] = useState(null);
@@ -285,6 +436,9 @@ const FichaDetalhes = () => {
     ficha.tamanho ||
     DEFAULT_SIZES[fichaBase.raca] ||
     "Médio";
+
+  const classTheme =
+    CLASS_THEMES[normalizeClassName(fichaBase.classe)] || CLASS_THEMES.default;
 
   const atributos = ficha.DetalhesDaRaça?.Atributos || {};
   const bonusRaca = racaSelecionada.proficienciaHabilidadeBonus || {};
@@ -742,7 +896,19 @@ const FichaDetalhes = () => {
   const loadingBackpack = false;
 
   return (
-    <div className={`${getClasseBackground(fichaBase.classe)}`}>
+    <div
+      className={`${getClasseBackground(fichaBase.classe)}`}
+      style={{
+        "--ficha-accent": classTheme.accent,
+        "--ficha-accent-soft": classTheme.accentSoft,
+        "--ficha-accent-deep": classTheme.accentDeep,
+        "--ficha-surface": classTheme.surface,
+        "--ficha-surface-alt": classTheme.surfaceAlt,
+        "--ficha-text": classTheme.text,
+        "--ficha-text-muted": classTheme.textMuted,
+        "--ficha-line": classTheme.line,
+      }}
+    >
       <Box sx={{ py: 4, background: "transparent" }}>
         <Box
           sx={{
@@ -750,9 +916,22 @@ const FichaDetalhes = () => {
             mx: "auto",
             px: { xs: 2, md: 3 },
             py: 3,
-            bgcolor: "background.paper",
-            borderRadius: 2,
-            boxShadow: 3,
+            "--ficha-accent": classTheme.accent,
+            "--ficha-accent-soft": classTheme.accentSoft,
+            "--ficha-accent-deep": classTheme.accentDeep,
+            "--ficha-surface": classTheme.surface,
+            "--ficha-surface-alt": classTheme.surfaceAlt,
+            "--ficha-text": classTheme.text,
+            "--ficha-text-muted": classTheme.textMuted,
+            "--ficha-line": classTheme.line,
+            borderRadius: 4,
+            border: "1px solid var(--ficha-accent-soft)",
+            bgcolor: "rgba(22,15,11,0.76)",
+            color: "#f7eddc",
+            boxShadow: "0 24px 52px rgba(0,0,0,0.45)",
+            backdropFilter: "blur(4px)",
+            backgroundImage:
+              "radial-gradient(120% 140% at 0% 0%, var(--ficha-accent-soft) 0%, transparent 45%), radial-gradient(120% 140% at 100% 100%, rgba(131,60,11,0.22) 0%, transparent 55%)",
           }}
         >
           {/* TOP: info rápida da ficha */}
@@ -768,7 +947,7 @@ const FichaDetalhes = () => {
               sx={{ mb: 2 }}
             >
               <Grid item xs={12} md={5}>
-                <Paper elevation={3} sx={{ p: 2 }}>
+                <Paper elevation={0} sx={PANEL_SX}>
                   <Box
                     sx={{
                       display: "flex",
@@ -780,7 +959,9 @@ const FichaDetalhes = () => {
                       sx={{
                         width: 64,
                         height: 64,
-                        bgcolor: "rgba(255,255,255,0.06)",
+                        bgcolor: "var(--ficha-surface-alt)",
+                        color: "var(--ficha-text)",
+                        border: "1px solid var(--ficha-line)",
                       }}
                     >
                       {fichaBase.nome?.charAt(0)?.toUpperCase() || "?"}
@@ -793,6 +974,12 @@ const FichaDetalhes = () => {
                         fullWidth
                         value={editedName}
                         onChange={(e) => setEditedName(e.target.value)}
+                        sx={{
+                          "& .MuiInputBase-input": { color: "var(--ficha-text)", fontWeight: 800 },
+                          "& .MuiInputLabel-root": { color: "var(--ficha-text-muted)" },
+                          "& .MuiInput-underline:before": { borderBottomColor: "var(--ficha-line)" },
+                          "& .MuiInput-underline:after": { borderBottomColor: "var(--ficha-accent)" },
+                        }}
                       />
 
                       <Stack
@@ -804,22 +991,26 @@ const FichaDetalhes = () => {
                           label={fichaBase.classe || "—"}
                           icon={<AccountTreeIcon />}
                           size="small"
+                          sx={{ bgcolor: "var(--ficha-surface-alt)", color: "var(--ficha-text)", border: "1px solid var(--ficha-line)" }}
                         />
                         <Chip
                           label={fichaBase.raca || "—"}
                           icon={<InfoIcon />}
                           size="small"
+                          sx={{ bgcolor: "var(--ficha-surface-alt)", color: "var(--ficha-text)", border: "1px solid var(--ficha-line)" }}
                         />
                         {subRacaSelecionada && (
                           <Chip
                             label={subRacaSelecionada}
                             size="small"
+                            sx={{ bgcolor: "var(--ficha-surface-alt)", color: "var(--ficha-text)", border: "1px solid var(--ficha-line)" }}
                           />
                         )}
                         {subClasseSelecionada && (
                           <Chip
                             label={subClasseSelecionada}
                             size="small"
+                            sx={{ bgcolor: "var(--ficha-surface-alt)", color: "var(--ficha-text)", border: "1px solid var(--ficha-line)" }}
                           />
                         )}
                       </Stack>
@@ -832,10 +1023,12 @@ const FichaDetalhes = () => {
                         <Chip
                           label={`Nível ${fichaEstado.level}`}
                           size="small"
+                          sx={{ bgcolor: "var(--ficha-surface-alt)", color: "var(--ficha-text)", border: "1px solid var(--ficha-line)" }}
                         />
                         <Chip
                           label={`XP ${fichaEstado.xp}`}
                           size="small"
+                          sx={{ bgcolor: "var(--ficha-surface-alt)", color: "var(--ficha-text)", border: "1px solid var(--ficha-line)" }}
                         />
                       </Stack>
                     </Box>
@@ -846,6 +1039,7 @@ const FichaDetalhes = () => {
                         variant="contained"
                         onClick={handleNameSave}
                         disabled={!hasNameChange || savingName}
+                        sx={{ bgcolor: "var(--ficha-accent)", color: "var(--ficha-text)", fontWeight: 900, "&:hover": { filter: "brightness(0.94)" } }}
                       >
                         Salvar
                       </Button>
@@ -863,9 +1057,9 @@ const FichaDetalhes = () => {
 
               <Grid item xs={12} md={3}>
                 <Paper
-                  elevation={3}
+                  elevation={0}
                   sx={{
-                    p: 2,
+                    ...PANEL_SX,
                     textAlign: "center",
                     display: "flex",
                     flexDirection: "column",
@@ -902,7 +1096,10 @@ const FichaDetalhes = () => {
                         sx={{
                           width: 160,
                           height: 160,
-                          bgcolor: "rgba(0,0,0,0.10)",
+                          bgcolor: "var(--ficha-surface-alt)",
+                          color: "var(--ficha-text)",
+                          border: "2px solid var(--ficha-accent-soft)",
+                          boxShadow: "0 0 0 3px rgba(255,255,255,0.08)",
                           fontSize: 48,
                         }}
                       >
@@ -916,6 +1113,7 @@ const FichaDetalhes = () => {
                         variant="contained"
                         startIcon={<PhotoCameraIcon />}
                         disabled={uploadingPortrait}
+                        sx={{ bgcolor: "var(--ficha-accent)", color: "var(--ficha-text)", fontWeight: 900, "&:hover": { filter: "brightness(0.94)" } }}
                       >
                         {uploadingPortrait ? "Enviando..." : "Escolher imagem"}
                       </Button>
@@ -995,6 +1193,21 @@ const FichaDetalhes = () => {
               exclusive
               value={activeSide}
               onChange={(_, v) => v && setActiveSide(v)}
+              sx={{
+                bgcolor: "rgba(0,0,0,0.22)",
+                borderRadius: 2,
+                p: 0.4,
+                border: "1px solid var(--ficha-accent-soft)",
+                "& .MuiToggleButton-root": {
+                  color: "#f3e6cf",
+                  border: "none",
+                  fontWeight: 700,
+                  "&.Mui-selected": {
+                    color: "#2c1a10",
+                    bgcolor: "var(--ficha-accent)",
+                  },
+                },
+              }}
             >
               <ToggleButton value="estado">
                 Frente — Estado de jogo
@@ -1009,58 +1222,67 @@ const FichaDetalhes = () => {
           </Box>
 
           {/* Conteúdo da “página” */}
-          {activeSide === "estado" ? (
-            <FichaEstadoPanel
-              userID={userID}
-              fichaKey={fichaKey}
-              ficha={ficha}
-              fichaEstado={fichaEstado}
-              abilityMods={abilityMods}
-              atributosComBonus={atributosComBonus}
-              spellAttr={spellAttr}
-              onFichaChange={setFicha}
-              onChangeEquipped={handleEquippedChange}
-              onChangeBackpack={handleBackpackChange}
-              periciasAtivas={periciasAtivas}
-              onChangePericiasAtivas={handlePericiasAtivasChange}
-              savingThrowsAtivos={savingThrowsAtivos}
-              onChangeSavingThrowsAtivos={handleSavingThrowsAtivosChange}
-              habilidadesRaca={[...habilidadesRaca, ...habilidadesSubRaca]}
-              habilidadesClasse={habilidadesClasse}
-              classeImagens={ficha.DetalhesDaClasse?.imagens || []}
-              backgroundUrl={backgrounds[ficha.classe]}
-              deslocamento={deslocamentoBase}
-              tamanho={tamanhoBase}
-              deathSaves={deathSaves}
-              onChangeDeathSaves={handleDeathSavesChange}
-              sectionMotion={sectionMotion}
-              loadingEquipped={loadingEquipped}
-              loadingBackpack={loadingBackpack}
-            />
-          ) : activeSide === "origem" ? (
-            <FichaOrigemPanel
-              ficha={ficha}
-              story={ficha.historia || ""}
-              onStoryChange={handleStoryChange}
-              trainings={ficha.treinamentos || DEFAULT_TRAINING}
-              onTrainingsChange={handleTrainingsChange}
-              sectionMotion={sectionMotion}
-            />
-          ) : (
-            <FichaMagiasPanel
-              spellcasting={spellcasting}
-              abilityMods={abilityMods}
-              spellAttr={spellAttr}
-              profBonus={getProfBonus(fichaEstado.level || 1)}
-              classe={fichaBase.classe}
-              level={fichaEstado.level}
-              onChange={handleSpellcastingChange}
-            />
-          )}
+          <Box
+            sx={{
+              "& .MuiDialog-paper": {
+                borderRadius: 2,
+                border: "1px solid var(--ficha-accent-soft)",
+              },
+            }}
+          >
+            {activeSide === "estado" ? (
+              <FichaEstadoPanel
+                userID={userID}
+                fichaKey={fichaKey}
+                ficha={ficha}
+                fichaEstado={fichaEstado}
+                abilityMods={abilityMods}
+                atributosComBonus={atributosComBonus}
+                spellAttr={spellAttr}
+                onFichaChange={setFicha}
+                onChangeEquipped={handleEquippedChange}
+                onChangeBackpack={handleBackpackChange}
+                periciasAtivas={periciasAtivas}
+                onChangePericiasAtivas={handlePericiasAtivasChange}
+                savingThrowsAtivos={savingThrowsAtivos}
+                onChangeSavingThrowsAtivos={handleSavingThrowsAtivosChange}
+                habilidadesRaca={[...habilidadesRaca, ...habilidadesSubRaca]}
+                habilidadesClasse={habilidadesClasse}
+                classeImagens={ficha.DetalhesDaClasse?.imagens || []}
+                backgroundUrl={backgrounds[ficha.classe]}
+                deslocamento={deslocamentoBase}
+                tamanho={tamanhoBase}
+                deathSaves={deathSaves}
+                onChangeDeathSaves={handleDeathSavesChange}
+                sectionMotion={sectionMotion}
+                loadingEquipped={loadingEquipped}
+                loadingBackpack={loadingBackpack}
+              />
+            ) : activeSide === "origem" ? (
+              <FichaOrigemPanel
+                ficha={ficha}
+                story={ficha.historia || ""}
+                onStoryChange={handleStoryChange}
+                trainings={ficha.treinamentos || DEFAULT_TRAINING}
+                onTrainingsChange={handleTrainingsChange}
+                sectionMotion={sectionMotion}
+              />
+            ) : (
+              <FichaMagiasPanel
+                spellcasting={spellcasting}
+                abilityMods={abilityMods}
+                spellAttr={spellAttr}
+                profBonus={getProfBonus(fichaEstado.level || 1)}
+                classe={fichaBase.classe}
+                level={fichaEstado.level}
+                onChange={handleSpellcastingChange}
+              />
+            )}
+          </Box>
 
           {/* crédito de background (comum às duas páginas) */}
           <Box sx={{ mt: 3, textAlign: "center" }}>
-            <Typography sx={{ fontSize: 13.5, fontWeight: 600 }}>
+            <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: "#f0dfc3" }}>
               BackGround Art By:{" "}
               <Link
                 to={backgrounds[ficha.classe]}

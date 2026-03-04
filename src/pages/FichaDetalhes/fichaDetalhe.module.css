@@ -1,3 +1,29 @@
+.pageContainer {
+  min-height: 100vh;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.pageContainer::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(120% 130% at 0% 0%, var(--ficha-accent-soft, rgba(191, 143, 0, 0.18)) 0%, transparent 45%),
+    radial-gradient(120% 130% at 100% 100%, var(--ficha-accent-deep, rgba(131, 60, 11, 0.24)) 0%, transparent 52%),
+    linear-gradient(180deg, rgba(12, 10, 9, 0.58) 0%, rgba(12, 10, 9, 0.68) 100%);
+}
+
+.pageContainer > * {
+  position: relative;
+  z-index: 1;
+}
+
 .classeBardo {
   background-image: url(./backgounds/bard.jpg);
   background-position: top;

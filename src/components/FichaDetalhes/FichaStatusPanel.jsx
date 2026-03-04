@@ -50,8 +50,8 @@ export default function FichaStatusPanel({
             width: 16,
             height: 16,
             borderRadius: 0.5,
-            border: "1px solid rgba(0,0,0,0.7)",
-            bgcolor: i < filled ? "text.primary" : "transparent",
+            border: "1px solid var(--ficha-line, rgba(47,35,24,0.22))",
+            bgcolor: i < filled ? "var(--ficha-accent, #bf8f00)" : "transparent",
           }}
         />
       ))}
@@ -61,7 +61,7 @@ export default function FichaStatusPanel({
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} md={7}>
-        <Paper elevation={3} sx={{ p: 1.5 }}>
+        <Paper elevation={0} sx={{ p: 1.5, borderRadius: 2.5, border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.25))", bgcolor: "var(--ficha-surface, rgba(236,225,207,0.9))", color: "var(--ficha-text, #2f2318)" }}>
           <Grid container spacing={1}>
             {[
               {
@@ -74,10 +74,10 @@ export default function FichaStatusPanel({
             ].map((item) => (
               <Grid item xs={6} sm={3} key={item.label}>
                 <Box sx={{ textAlign: "center" }}>
-                  <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                  <Typography variant="caption" sx={{ fontWeight: 700, color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" }}>
                     {item.label}
                   </Typography>
-                  <Typography variant="subtitle1">
+                  <Typography variant="subtitle1" sx={{ color: "var(--ficha-text, #2f2318)", fontWeight: 700 }}>
                     {item.value}
                   </Typography>
                 </Box>
@@ -88,46 +88,50 @@ export default function FichaStatusPanel({
       </Grid>
 
       <Grid item xs={12} md={5}>
-        <Paper elevation={3} sx={{ p: 1.5 }}>
+        <Paper elevation={0} sx={{ p: 1.5, borderRadius: 2.5, border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.25))", bgcolor: "var(--ficha-surface, rgba(236,225,207,0.9))", color: "var(--ficha-text, #2f2318)" }}>
           <Typography
             variant="caption"
-            sx={{ fontWeight: 600, display: "block", mb: 0.5 }}
+            sx={{ fontWeight: 700, display: "block", mb: 0.5, color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" }}
           >
             Salvaguarda contra morte
           </Typography>
 
           <Grid container spacing={1}>
             <Grid item xs={6}>
-              <Typography variant="caption">Sucessos</Typography>
+              <Typography variant="caption" sx={{ color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" }}>Sucessos</Typography>
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                 {renderBoxes(deathSaves.successes || 0)}
                 <IconButton
                   size="small"
                   onClick={() => handleChange("successes", 1)}
+                  sx={{ color: "var(--ficha-accent, #bf8f00)" }}
                 >
                   <AddIcon fontSize="inherit" />
                 </IconButton>
                 <IconButton
                   size="small"
                   onClick={() => handleChange("successes", -1)}
+                  sx={{ color: "var(--ficha-accent, #bf8f00)" }}
                 >
                   <RemoveIcon fontSize="inherit" />
                 </IconButton>
               </Box>
             </Grid>
             <Grid item xs={6}>
-              <Typography variant="caption">Falhas</Typography>
+              <Typography variant="caption" sx={{ color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" }}>Falhas</Typography>
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                 {renderBoxes(deathSaves.failures || 0)}
                 <IconButton
                   size="small"
                   onClick={() => handleChange("failures", 1)}
+                  sx={{ color: "var(--ficha-accent-deep, rgba(131,60,11,0.34))" }}
                 >
                   <AddIcon fontSize="inherit" />
                 </IconButton>
                 <IconButton
                   size="small"
                   onClick={() => handleChange("failures", -1)}
+                  sx={{ color: "var(--ficha-accent-deep, rgba(131,60,11,0.34))" }}
                 >
                   <RemoveIcon fontSize="inherit" />
                 </IconButton>
@@ -144,6 +148,7 @@ export default function FichaStatusPanel({
                 (deathSaves.successes || 0) === 0 &&
                 (deathSaves.failures || 0) === 0
               }
+              sx={{ color: "var(--ficha-text-muted, rgba(47,35,24,0.74))", fontWeight: 700 }}
             >
               Limpar seleção
             </Button>

@@ -369,7 +369,41 @@ const FichaInventory = ({
   };
 
   return (
-    <>
+    <Box
+      sx={{
+        color: "var(--ficha-text, #2f2318)",
+        "& .MuiTypography-root": { color: "inherit" },
+        "& .MuiPaper-root": {
+          borderColor: "var(--ficha-accent-soft, rgba(191,143,0,0.24))",
+          backgroundColor: "var(--ficha-surface, rgba(236,225,207,0.9))",
+          color: "var(--ficha-text, #2f2318)",
+        },
+        "& .MuiAccordion-root": {
+          border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.24))",
+          backgroundColor: "var(--ficha-surface-alt, rgba(225,211,189,0.86))",
+          color: "var(--ficha-text, #2f2318)",
+        },
+        "& .MuiChip-root": {
+          backgroundColor: "var(--ficha-surface-alt, rgba(225,211,189,0.86))",
+          color: "var(--ficha-text, #2f2318)",
+          border: "1px solid var(--ficha-line, rgba(47,35,24,0.22))",
+        },
+        "& .MuiButton-contained": {
+          backgroundColor: "var(--ficha-accent, #bf8f00)",
+          color: "var(--ficha-text, #2f2318)",
+          fontWeight: 800,
+        },
+        "& .MuiButton-contained:hover": { filter: "brightness(0.94)" },
+        "& .MuiButton-outlined": {
+          borderColor: "var(--ficha-line, rgba(47,35,24,0.22))",
+          color: "var(--ficha-text, #2f2318)",
+        },
+        "& .MuiInputBase-root": { color: "var(--ficha-text, #2f2318)" },
+        "& .MuiInputLabel-root": { color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" },
+        "& .MuiOutlinedInput-notchedOutline": { borderColor: "var(--ficha-line, rgba(47,35,24,0.22))" },
+        "& .MuiCheckbox-root.Mui-checked": { color: "var(--ficha-accent, #bf8f00)" },
+      }}
+    >
       <Grid container spacing={2}>
         {/* Coluna esquerda: Equipados + painel de rolagem */}
         <Grid item xs={12} md={5}>
@@ -399,7 +433,7 @@ const FichaInventory = ({
           ) : (
             <Box
               sx={{
-                border: "1px solid rgba(0,0,0,0.25)",
+                border: "1px solid var(--ficha-line, rgba(47,35,24,0.22))",
                 borderRadius: 1,
                 overflow: "hidden",
                 fontSize: 13,
@@ -410,7 +444,7 @@ const FichaInventory = ({
                 sx={{
                   display: "grid",
                   gridTemplateColumns: "2.6fr 1.4fr 1.6fr 2.2fr 1.1fr",
-                  bgcolor: "rgba(0,0,0,0.04)",
+                  bgcolor: "var(--ficha-surface-alt, rgba(225,211,189,0.86))",
                   px: 1,
                   py: 0.5,
                 }}
@@ -495,9 +529,9 @@ const FichaInventory = ({
                       gridTemplateColumns: "2.6fr 1.4fr 1.6fr 2.2fr 1.1fr",
                       px: 1,
                       py: 0.5,
-                      borderTop: "1px solid rgba(0,0,0,0.12)",
+                      borderTop: "1px solid var(--ficha-line, rgba(47,35,24,0.22))",
                       bgcolor:
-                        idx % 2 === 0 ? "rgba(0,0,0,0.01)" : "transparent",
+                        idx % 2 === 0 ? "rgba(255,255,255,0.16)" : "transparent",
                       alignItems: "center",
                     }}
                   >
@@ -760,7 +794,19 @@ const FichaInventory = ({
       </Grid>
 
       {/* Modal de edição / novo equipamento ou item da mochila */}
-      <Dialog open={editOpen} onClose={closeEdit} maxWidth="sm" fullWidth>
+      <Dialog
+        open={editOpen}
+        onClose={closeEdit}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.24))",
+            backgroundColor: "var(--ficha-surface, rgba(236,225,207,0.9))",
+            color: "var(--ficha-text, #2f2318)",
+          },
+        }}
+      >
         <DialogTitle>
           {editCtx?.isNew ? "Novo equipamento" : "Editar item"}
         </DialogTitle>
@@ -1018,7 +1064,7 @@ const FichaInventory = ({
           </Button>
         </DialogActions>
       </Dialog>
-    </>
+    </Box>
   );
 };
 
