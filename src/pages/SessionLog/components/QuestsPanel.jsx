@@ -33,6 +33,7 @@ import QuestFlowPreview from "components/Quests/QuestFlowPreview";
 import { computeFlowProgress } from "components/Quests/questFlowUtils";
 import { RPG_TOKENS } from "theme/rpgTokens";
 import RpgSection from "components/RpgSection";
+import { buildCampaignQuery, getCampaignBasePath } from "service/campaignPath";
 
 function normalizeKey(name) {
   return String(name || "")
@@ -61,9 +62,10 @@ function statusColor(status) {
   }
 }
 
-function pushQuestTimelineEvent({ uid, campaignId, questId, session, type, status, note, title, milestoneId }) {
-  if (!uid || !campaignId || !questId) return Promise.resolve();
-  const timelineRef = database.ref(`users/${uid}/campaigns/${campaignId}/quests/${questId}/timeline`).push();
+function pushQuestTimelineEvent({ uid, campaignId, campaignMode, questId, session, type, status, note, title, milestoneId }) {
+  const basePath = getCampaignBasePath({ uid, campaignId, mode: campaignMode });
+  if (!basePath || !questId) return Promise.resolve();
+  const timelineRef = database.ref(`${basePath}/quests/${questId}/timeline`).push();
   const eventId = timelineRef.key;
 
   return timelineRef.set({
@@ -81,8 +83,12 @@ function pushQuestTimelineEvent({ uid, campaignId, questId, session, type, statu
   });
 }
 
-export default function QuestsPanel({ uid, campaignId, sessionRef, session, setStatus }) {
+export default function QuestsPanel({ uid, campaignId, campaignMode = "legacy", sessionRef, session, setStatus }) {
   const navigate = useNavigate();
+  const campaignBasePath = useMemo(
+    () => getCampaignBasePath({ uid, campaignId, mode: campaignMode }),
+    [uid, campaignId, campaignMode]
+  );
 
   const [options, setOptions] = useState([]); // array de strings (títulos)
   const [questTitle, setQuestTitle] = useState("");
@@ -116,9 +122,9 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
   }, [questsInSession, questMap]);
 
   useEffect(() => {
-    if (!uid || !campaignId) return;
+    if (!campaignBasePath) return;
 
-    const idxRef = database.ref(`users/${uid}/campaigns/${campaignId}/questIndex`);
+    const idxRef = database.ref(`${campaignBasePath}/questIndex`);
     const handle = (snap) => {
       const data = snap.val() || {};
       const arr = Object.values(data)
@@ -130,13 +136,13 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
 
     idxRef.on("value", handle);
     return () => idxRef.off("value", handle);
-  }, [uid, campaignId]);
+  }, [campaignBasePath]);
 
   // ✅ carrega quests master da campanha (uma vez, listener)
   useEffect(() => {
-    if (!uid || !campaignId) return;
+    if (!campaignBasePath) return;
 
-    const ref = database.ref(`users/${uid}/campaigns/${campaignId}/quests`);
+    const ref = database.ref(`${campaignBasePath}/quests`);
     const onValue = (snap) => {
       const data = snap.val() || {};
       setQuestMap(data);
@@ -144,11 +150,11 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
 
     ref.on("value", onValue);
     return () => ref.off("value", onValue);
-  }, [uid, campaignId]);
+  }, [campaignBasePath]);
 
   const openQuest = (questId) => {
     if (!questId) return;
-    navigate(`/quests/${encodeURIComponent(questId)}?c=${encodeURIComponent(campaignId)}`);
+    navigate(`/quests/${encodeURIComponent(questId)}?${buildCampaignQuery({ campaignId, mode: campaignMode })}`);
   };
 
   const toggleExpanded = (questId) => {
@@ -157,7 +163,7 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
   };
 
   const ensureMilestoneForObjectives = async (questId) => {
-    const qRef = database.ref(`users/${uid}/campaigns/${campaignId}/quests/${questId}`);
+    const qRef = database.ref(`${campaignBasePath}/quests/${questId}`);
     const flowSnap = await qRef.child("flow/milestones").once("value");
     const milestonesObj = flowSnap.val() || {};
     const milestones = Object.values(milestonesObj).filter(Boolean);
@@ -197,7 +203,7 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
 
   const createObjectiveTodo = async () => {
     setStatus?.({ type: "info", msg: "" });
-    if (!uid || !campaignId || !objectiveQuest?.questId) return;
+    if (!campaignBasePath || !objectiveQuest?.questId) return;
 
     const questId = objectiveQuest.questId;
     const text = String(objectiveText || "").trim();
@@ -213,7 +219,7 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
       }
 
       const todoRef = database
-        .ref(`users/${uid}/campaigns/${campaignId}/quests/${questId}/flow/milestones/${milestoneId}/todos`)
+        .ref(`${campaignBasePath}/quests/${questId}/flow/milestones/${milestoneId}/todos`)
         .push();
 
       await todoRef.set({
@@ -229,6 +235,7 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
       await pushQuestTimelineEvent({
         uid,
         campaignId,
+        campaignMode,
         questId,
         session,
         type: "objective",
@@ -249,12 +256,12 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
   };
 
   const toggleTodo = async (questId, milestoneId, todo) => {
-    if (!uid || !campaignId || !questId || !milestoneId || !todo?.id) return;
+    if (!campaignBasePath || !questId || !milestoneId || !todo?.id) return;
 
     try {
       const next = !Boolean(todo.done);
       await database
-        .ref(`users/${uid}/campaigns/${campaignId}/quests/${questId}/flow/milestones/${milestoneId}/todos/${todo.id}`)
+        .ref(`${campaignBasePath}/quests/${questId}/flow/milestones/${milestoneId}/todos/${todo.id}`)
         .update({
           done: next,
           doneAt: next ? firebase.database.ServerValue.TIMESTAMP : 0,
@@ -265,6 +272,7 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
       await pushQuestTimelineEvent({
         uid,
         campaignId,
+        campaignMode,
         questId,
         session,
         type: next ? "objective_done" : "objective_undo",
@@ -280,7 +288,7 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
 
   const addQuest = async () => {
     setStatus?.({ type: "info", msg: "" });
-    if (!uid || !campaignId || !sessionRef) return;
+    if (!campaignBasePath || !sessionRef) return;
 
     const title = String(questTitle || "").trim();
     const note = String(questNote || "").trim();
@@ -298,14 +306,14 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
     }
 
     try {
-      const idxRef = database.ref(`users/${uid}/campaigns/${campaignId}/questIndex/${key}`);
+      const idxRef = database.ref(`${campaignBasePath}/questIndex/${key}`);
       const idxSnap = await idxRef.once("value");
       const idx = idxSnap.val();
 
       let questId = idx?.questId;
 
       if (!questId) {
-        const questRef = database.ref(`users/${uid}/campaigns/${campaignId}/quests`).push();
+        const questRef = database.ref(`${campaignBasePath}/quests`).push();
         questId = questRef.key;
 
         await questRef.set({
@@ -334,7 +342,7 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
           updatedAt: firebase.database.ServerValue.TIMESTAMP,
         });
 
-        await database.ref(`users/${uid}/campaigns/${campaignId}/quests/${questId}`).update({
+        await database.ref(`${campaignBasePath}/quests/${questId}`).update({
           title,
           currentStatus: status,
           lastSeenNote: note || "",
@@ -367,6 +375,7 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
       await pushQuestTimelineEvent({
         uid,
         campaignId,
+        campaignMode,
         questId,
         session,
         type: "seen",
@@ -398,7 +407,7 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
 
   const updateQuestStatus = async (row, newStatus) => {
     setStatus?.({ type: "info", msg: "" });
-    if (!uid || !campaignId || !sessionRef || !row?.id) return;
+    if (!campaignBasePath || !sessionRef || !row?.id) return;
 
     try {
       await sessionRef.child(`quests/${row.id}`).update({
@@ -407,7 +416,7 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
       });
 
       if (row?.questId) {
-        await database.ref(`users/${uid}/campaigns/${campaignId}/quests/${row.questId}`).update({
+        await database.ref(`${campaignBasePath}/quests/${row.questId}`).update({
           currentStatus: newStatus,
           updatedAt: firebase.database.ServerValue.TIMESTAMP,
         });
@@ -416,6 +425,7 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
       await pushQuestTimelineEvent({
         uid,
         campaignId,
+        campaignMode,
         questId: row?.questId,
         session,
         type: "status",
@@ -430,7 +440,7 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
 
   const markConcluded = async (row) => {
     setStatus?.({ type: "info", msg: "" });
-    if (!uid || !campaignId || !sessionRef || !row?.id) return;
+    if (!campaignBasePath || !sessionRef || !row?.id) return;
 
     try {
       await sessionRef.child(`quests/${row.id}`).update({
@@ -439,7 +449,7 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
       });
 
       if (row?.questId) {
-        await database.ref(`users/${uid}/campaigns/${campaignId}/quests/${row.questId}`).update({
+        await database.ref(`${campaignBasePath}/quests/${row.questId}`).update({
           currentStatus: "concluida",
           updatedAt: firebase.database.ServerValue.TIMESTAMP,
         });
@@ -448,6 +458,7 @@ export default function QuestsPanel({ uid, campaignId, sessionRef, session, setS
       await pushQuestTimelineEvent({
         uid,
         campaignId,
+        campaignMode,
         questId: row?.questId,
         session,
         type: "concluded",

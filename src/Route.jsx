@@ -56,6 +56,10 @@ const AppRoutes = () => {
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/diario" element={<SessionLog />} />
             <Route path="/diario/:sessionId" element={<SessionLogDetail />} />
+            <Route path="/npcs" element={<NpcsPage />} />
+            <Route path="/npcs/:npcId" element={<NpcDetail />} />
+            <Route path="/quests" element={<QuestsPage />} />
+            <Route path="/quests/:questId" element={<QuestDetail />} />
             
             {/* ✅ Rota Secreta */}
             <Route path="/master-control" element={<AdminPage />} />

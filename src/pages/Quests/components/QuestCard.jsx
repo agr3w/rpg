@@ -14,10 +14,11 @@ import {
   Typography,
 } from "@mui/material";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
-import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import { Link } from "react-router-dom";
 import { database, firebase } from "APIs/firebaseConfig";
+import { buildCampaignQuery, getCampaignBasePath } from "service/campaignPath";
+import { motion } from "framer-motion";
 
 function snippet(text, max = 120) {
   const t = String(text || "").trim();
@@ -37,10 +38,14 @@ function statusMeta(status) {
   }
 }
 
-export default function QuestCard({ uid, campaignId, quest }) {
+export default function QuestCard({ uid, campaignId, campaignMode = "legacy", quest }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [marking, setMarking] = useState(false);
+  const campaignBasePath = useMemo(
+    () => getCampaignBasePath({ uid, campaignId, mode: campaignMode }),
+    [uid, campaignId, campaignMode]
+  );
 
   const tags = useMemo(() => (Array.isArray(quest?.tags) ? quest.tags : []), [quest]);
   const desc = useMemo(() => snippet(quest?.description, 100), [quest]);
@@ -49,10 +54,10 @@ export default function QuestCard({ uid, campaignId, quest }) {
   const markDone = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!uid || !campaignId || !quest?.id) return;
+    if (!campaignBasePath || !quest?.id) return;
     setMarking(true);
     try {
-      await database.ref(`users/${uid}/campaigns/${campaignId}/quests/${quest.id}`).update({
+      await database.ref(`${campaignBasePath}/quests/${quest.id}`).update({
         currentStatus: "concluida",
         updatedAt: firebase.database.ServerValue.TIMESTAMP,
       });
@@ -62,10 +67,10 @@ export default function QuestCard({ uid, campaignId, quest }) {
   };
 
   const deleteQuest = async () => {
-    if (!uid || !campaignId || !quest?.id) return;
+    if (!campaignBasePath || !quest?.id) return;
     setDeleting(true);
     try {
-      await database.ref(`users/${uid}/campaigns/${campaignId}/quests/${quest.id}`).remove();
+      await database.ref(`${campaignBasePath}/quests/${quest.id}`).remove();
       // Limpeza de índices omitida para brevidade, mas idealmente deve existir
       setConfirmOpen(false);
     } finally {
@@ -76,8 +81,10 @@ export default function QuestCard({ uid, campaignId, quest }) {
   return (
     <>
       <Paper
-        component={Link}
-        to={`/quests/${encodeURIComponent(quest.id)}?c=${encodeURIComponent(campaignId)}`}
+        component={motion.div}
+        whileHover={{ y: -4, scale: 1.01 }}
+        transition={{ type: "spring", stiffness: 280, damping: 22 }}
+        onClick={() => {}}
         elevation={0}
         sx={{
           textDecoration: "none",
@@ -99,6 +106,11 @@ export default function QuestCard({ uid, campaignId, quest }) {
           }
         }}
       >
+        <Box
+          component={Link}
+          to={`/quests/${encodeURIComponent(quest.id)}?${buildCampaignQuery({ campaignId, mode: campaignMode })}`}
+          sx={{ textDecoration: "none", color: "inherit", display: "block", height: "100%" }}
+        >
         {/* Faixa de Status Lateral */}
         <Box 
           sx={{ 
@@ -158,6 +170,24 @@ export default function QuestCard({ uid, campaignId, quest }) {
             {desc || <span style={{ opacity: 0.5, fontStyle: "italic" }}>Sem descrição disponível...</span>}
           </Typography>
 
+          {quest?.lastSeenNote ? (
+            <Paper
+              elevation={0}
+              sx={{
+                p: 1,
+                borderRadius: 2,
+                border: "1px dashed rgba(131,60,11,0.22)",
+                bgcolor: "rgba(191,143,0,0.06)",
+                mb: 1,
+              }}
+            >
+              <Typography variant="caption" sx={{ fontWeight: 900, opacity: 0.9 }}>Último andamento</Typography>
+              <Typography variant="caption" sx={{ display: "block", opacity: 0.85 }}>
+                {snippet(quest.lastSeenNote, 80)}
+              </Typography>
+            </Paper>
+          ) : null}
+
           <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mt: "auto", pt: 2, borderTop: "1px dashed rgba(92,64,51,0.1)" }}>
             <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
               {tags.slice(0, 3).map((t) => (
@@ -187,6 +217,7 @@ export default function QuestCard({ uid, campaignId, quest }) {
               </Tooltip>
             </Stack>
           </Stack>
+        </Box>
         </Box>
       </Paper>
 

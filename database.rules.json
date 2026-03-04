@@ -1,0 +1,74 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "userCampaigns": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "campaignMembers": {
+      "$campaignId": {
+        "$uid": {
+          ".read": "auth != null && (auth.uid === $uid || root.child('campaignMembers').child($campaignId).child(auth.uid).child('role').val() === 'dm' || root.child('campaignMembers').child($campaignId).child(auth.uid).child('role').val() === 'co-dm')",
+          ".write": "auth != null && ((!data.parent().exists() && auth.uid === $uid && newData.child('role').val() === 'dm') || root.child('campaignMembers').child($campaignId).child(auth.uid).child('role').val() === 'dm' || root.child('campaignMembers').child($campaignId).child(auth.uid).child('role').val() === 'co-dm')"
+        }
+      }
+    },
+
+    "campaigns": {
+      "$campaignId": {
+        ".read": "auth != null && root.child('campaignMembers').child($campaignId).child(auth.uid).exists()",
+
+        "meta": {
+          ".write": "auth != null && (root.child('campaignMembers').child($campaignId).child(auth.uid).child('role').val() === 'dm' || root.child('campaignMembers').child($campaignId).child(auth.uid).child('role').val() === 'co-dm')"
+        },
+
+        "sessionLogs": {
+          ".read": "auth != null && root.child('campaignMembers').child($campaignId).child(auth.uid).exists()",
+          "$sessionId": {
+            ".write": "auth != null && root.child('campaignMembers').child($campaignId).child(auth.uid).exists()"
+          }
+        },
+
+        "npcs": {
+          ".read": "auth != null && root.child('campaignMembers').child($campaignId).child(auth.uid).exists()",
+          "$npcId": {
+            ".write": "auth != null && root.child('campaignMembers').child($campaignId).child(auth.uid).exists()"
+          }
+        },
+
+        "npcIndex": {
+          ".read": "auth != null && root.child('campaignMembers').child($campaignId).child(auth.uid).exists()",
+          "$key": {
+            ".write": "auth != null && root.child('campaignMembers').child($campaignId).child(auth.uid).exists()"
+          }
+        },
+
+        "quests": {
+          ".read": "auth != null && root.child('campaignMembers').child($campaignId).child(auth.uid).exists()",
+          "$questId": {
+            ".write": "auth != null && root.child('campaignMembers').child($campaignId).child(auth.uid).exists()"
+          }
+        },
+
+        "questIndex": {
+          ".read": "auth != null && root.child('campaignMembers').child($campaignId).child(auth.uid).exists()",
+          "$key": {
+            ".write": "auth != null && root.child('campaignMembers').child($campaignId).child(auth.uid).exists()"
+          }
+        }
+      }
+    }
+  }
+}

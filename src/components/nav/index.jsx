@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   AppBar,
   Toolbar,
@@ -249,7 +249,6 @@ const Nav = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
   const location = useLocation();
-  const prefersReducedMotion = useReducedMotion();
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -323,6 +322,13 @@ const Nav = () => {
 
   const handleMenuOpen = useCallback((event) => setAnchorEl(event.currentTarget), []);
   const handleMenuClose = useCallback(() => setAnchorEl(null), []);
+
+  const closeAllMenus = useCallback(() => {
+    setAnchorEl(null);
+    setToolsAnchorEl(null);
+    setNotifAnchorEl(null);
+    setDrawerOpen(false);
+  }, []);
   
   // ✅ Handlers de Notificação
   const handleNotifOpen = useCallback((event) => {
@@ -355,45 +361,51 @@ const Nav = () => {
   }, [navigate]);
 
   useEffect(() => {
-    setDrawerOpen(false);
-    setToolsAnchorEl(null);
-    setAnchorEl(null);
-  }, [location.pathname]);
+    closeAllMenus();
+  }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    if (anchorEl && !document.body.contains(anchorEl)) setAnchorEl(null);
+    if (toolsAnchorEl && !document.body.contains(toolsAnchorEl)) setToolsAnchorEl(null);
+    if (notifAnchorEl && !document.body.contains(notifAnchorEl)) setNotifAnchorEl(null);
+  }, [anchorEl, toolsAnchorEl, notifAnchorEl]);
 
   // ✅ Estilo dinâmico para Menus e Drawers
   const dynamicPaperSx = useMemo(
     () => ({
-      backgroundColor: "var(--rpg-navBg)",
-      border: "1px solid var(--rpg-stroke)",
+      backgroundColor: "rgba(24,16,12,0.96)",
+      backgroundImage:
+        "linear-gradient(160deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 46%, rgba(0,0,0,0.12) 100%)",
+      border: "1px solid rgba(191,143,0,0.24)",
+      color: "#f7eddc",
       overflow: "hidden",
       isolation: "isolate",
       boxShadow: "0 14px 35px rgba(0,0,0,0.22)",
-      // Camada de Textura (Before)
+      backdropFilter: "blur(8px)",
       "&::before": {
         content: '""',
         position: "absolute",
         inset: 0,
         pointerEvents: "none",
         zIndex: 0,
-        opacity: "var(--rpg-woodOpacity)", // Controla intensidade via CSS var
-        backgroundImage: navVariant.before,
-        mixBlendMode: navVariant.mixBlendBefore,
-        transition: "background-image 0.5s ease",
+        opacity: 1,
+        backgroundImage:
+          "radial-gradient(120% 140% at 0% 0%, rgba(191,143,0,0.18) 0%, transparent 50%), radial-gradient(120% 140% at 100% 100%, rgba(131,60,11,0.22) 0%, transparent 56%)",
+        mixBlendMode: "screen",
       },
-      // Camada de Efeito/Brilho (After)
       "&::after": {
         content: '""',
         position: "absolute",
         inset: 0,
         pointerEvents: "none",
         zIndex: 0,
-        opacity: "var(--rpg-emberOpacity)",
-        backgroundImage: navVariant.after,
-        mixBlendMode: navVariant.mixBlendAfter,
-        transition: "background-image 0.5s ease",
+        opacity: 0.25,
+        backgroundImage:
+          "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 16%, transparent 82%, rgba(0,0,0,0.2) 100%)",
+        mixBlendMode: "overlay",
       },
     }),
-    [navVariant]
+    []
   );
 
   const toolsMenuPaperSx = useMemo(
@@ -403,6 +415,12 @@ const Nav = () => {
       borderRadius: 2,
       ...dynamicPaperSx,
       "& .MuiMenu-list": { position: "relative", zIndex: 1, py: 0.75 },
+      "& .MuiMenuItem-root": {
+        color: "#f7eddc",
+      },
+      "& .MuiListItemIcon-root": {
+        color: "#ffdf9e",
+      },
     }),
     [dynamicPaperSx]
   );
@@ -463,10 +481,10 @@ const Nav = () => {
             inset: 0,
             pointerEvents: "none",
             zIndex: 0,
-            opacity: "var(--rpg-woodOpacity)",
-            backgroundImage: navVariant.before,
-            mixBlendMode: navVariant.mixBlendBefore,
-            transition: "background-image 0.8s ease-in-out",
+            opacity: 1,
+            backgroundImage:
+              "radial-gradient(120% 150% at 0% 0%, rgba(255,255,255,0.09) 0%, transparent 40%), radial-gradient(120% 160% at 100% 100%, rgba(0,0,0,0.2) 0%, transparent 60%)",
+            mixBlendMode: "overlay",
           },
           
           // ✅ Efeitos de Luz/Brilho Dinâmicos
@@ -476,17 +494,28 @@ const Nav = () => {
             inset: 0,
             pointerEvents: "none",
             zIndex: 0,
-            opacity: "var(--rpg-emberOpacity)",
-            backgroundImage: navVariant.after,
-            mixBlendMode: navVariant.mixBlendAfter,
-            transition: "background-image 0.8s ease-in-out",
+            opacity: 0.8,
+            backgroundImage:
+              "linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 14%, transparent 82%, rgba(0,0,0,0.18) 100%)",
+            mixBlendMode: "screen",
           },
 
           // ADICIONAR will-change para evitar repaints
           willChange: "background-color",
         }}
       >
-        <Toolbar sx={{ gap: 1.5 }}>
+        <Toolbar
+          sx={{ gap: 1.5 }}
+          onClickCapture={(event) => {
+            const target = event.target;
+            if (!(target instanceof Element)) return;
+            if (target.closest('[role="menu"]')) return;
+            closeAllMenus();
+          }}
+          onKeyDownCapture={(event) => {
+            if (event.key === "Escape") closeAllMenus();
+          }}
+        >
           {isMobile && (
             <IconButton edge="start" color="inherit" aria-label="menu" onClick={handleOpenDrawer}>
               <MenuIcon />
@@ -614,6 +643,7 @@ const Nav = () => {
                 onClose={handleToolsMenuClose}
                 keepMounted
                 PaperProps={{ sx: toolsMenuPaperSx }}
+                disableScrollLock
               >
                 {toolsItems.map((item) => (
                   <MenuItem
@@ -623,14 +653,14 @@ const Nav = () => {
                       borderRadius: 1.5,
                       mx: 0.75,
                       my: 0.25,
-                      color: "inherit",
-                      "&:hover": { backgroundColor: alpha("#000", 0.06) },
+                      color: "#f7eddc",
+                      "&:hover": { backgroundColor: "rgba(255,255,255,0.06)" },
                     }}
                   >
-                    <ListItemIcon sx={{ minWidth: 38, color: "inherit", opacity: 0.9 }}>
+                    <ListItemIcon sx={{ minWidth: 38, color: "#ffdf9e", opacity: 0.95 }}>
                       {item.icon}
                     </ListItemIcon>
-                    <Typography sx={{ fontWeight: 800, color: "inherit" }}>{item.text}</Typography>
+                    <Typography sx={{ fontWeight: 800, color: "#f7eddc" }}>{item.text}</Typography>
                   </MenuItem>
                 ))}
               </Menu>
@@ -675,6 +705,7 @@ const Nav = () => {
               open={Boolean(notifAnchorEl)}
               onClose={handleNotifClose}
               PaperProps={{ sx: { ...toolsMenuPaperSx, maxWidth: 360, p: 0 } }}
+              disableScrollLock
             >
               <Box sx={{ p: 2, pb: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Typography variant="overline" sx={{ opacity: 0.7, fontWeight: 700 }}>
@@ -770,7 +801,7 @@ const Nav = () => {
               open={Boolean(anchorEl)}
               onClose={handleMenuClose}
               PaperProps={{ sx: toolsMenuPaperSx }}
-              sx={{ borderRadius: 1.5, mx: 0.75, my: 0.25, color: "inherit", "&:hover": { backgroundColor: alpha("#000", 0.06) } }}
+              disableScrollLock
             >
               {/* ✅ BOTÃO DE ADMIN (Só aparece para você) */}
               {isAdmin && (

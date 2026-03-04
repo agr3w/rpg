@@ -16,11 +16,23 @@ export function useSystem() {
     const handle = (snap) => {
       const data = snap.val();
       if (data) {
-        setVersionData({
+        const next = {
           number: data.version || APP_VERSION,
           codename: data.codename || CODENAME,
           build: data.build || BUILD_TYPE,
           announcement: data.announcement || null,
+        };
+
+        setVersionData((prev) => {
+          if (
+            prev.number === next.number &&
+            prev.codename === next.codename &&
+            prev.build === next.build &&
+            JSON.stringify(prev.announcement || null) === JSON.stringify(next.announcement || null)
+          ) {
+            return prev;
+          }
+          return next;
         });
       }
     };

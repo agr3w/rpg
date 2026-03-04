@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, Container, Divider, Paper, Stack, TextField, Typography } from "@mui/material";
+import { Alert, Box, Container, Divider, Paper, Stack, TextField, Typography, Chip } from "@mui/material";
 import { useSearchParams } from "react-router-dom";
 import { auth, database } from "APIs/firebaseConfig";
 import { T_IN } from "config/transitions";
@@ -14,11 +14,22 @@ export default function NpcsPage() {
 
   const [searchParams] = useSearchParams();
   const activeCampaignId = searchParams.get("c") || "all";
+  const campaignMode = searchParams.get("m") === "shared" ? "shared" : "legacy";
 
   const [status] = useState({ type: "info", msg: "" });
   const [loading, setLoading] = useState(true);
   const [campaigns, setCampaigns] = useState([]);
   const [q, setQ] = useState("");
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.05 } },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+  };
 
   useEffect(() => {
     if (!uid) {
@@ -26,10 +37,8 @@ export default function NpcsPage() {
       return;
     }
 
-    const ref = database.ref(`users/${uid}/campaigns`);
-    const handle = (snap) => {
-      const data = snap.val() || {};
-      const arr = Object.entries(data).map(([campaignId, c]) => {
+    const mapCampaigns = (data) => {
+      const arr = Object.entries(data || {}).map(([campaignId, c]) => {
         const name = c?.meta?.name || campaignId;
 
         const npcs = Object.values(c?.npcs || {})
@@ -40,13 +49,90 @@ export default function NpcsPage() {
       });
 
       arr.sort((a, b) => String(a.name).localeCompare(String(b.name), "pt-BR"));
-      setCampaigns(arr);
+      return arr;
+    };
+
+    if (campaignMode === "shared") {
+      const membershipsRef = database.ref(`userCampaigns/${uid}`);
+      let campaignUnsubs = [];
+
+      const clearCampaignListeners = () => {
+        campaignUnsubs.forEach((off) => off());
+        campaignUnsubs = [];
+      };
+
+      const onMemberships = (snap) => {
+        const memberships = snap.val() || {};
+        const allIds = Object.keys(memberships);
+        const ids =
+          activeCampaignId === "all"
+            ? allIds
+            : allIds.includes(activeCampaignId)
+            ? [activeCampaignId]
+            : [];
+
+        clearCampaignListeners();
+
+        if (!ids.length) {
+          setCampaigns([]);
+          setLoading(false);
+          return;
+        }
+
+        const campaignMap = {};
+        const pushState = () => {
+          const filtered = ids.reduce((acc, id) => {
+            if (campaignMap[id]) acc[id] = campaignMap[id];
+            return acc;
+          }, {});
+          setCampaigns(mapCampaigns(filtered));
+          setLoading(false);
+        };
+
+        ids.forEach((id) => {
+          const ref = database.ref(`campaigns/${id}`);
+          const onCampaign = (campaignSnap) => {
+            campaignMap[id] = campaignSnap.val() || null;
+            pushState();
+          };
+          ref.on("value", onCampaign);
+          campaignUnsubs.push(() => ref.off("value", onCampaign));
+        });
+      };
+
+      membershipsRef.on("value", onMemberships);
+      return () => {
+        membershipsRef.off("value", onMemberships);
+        clearCampaignListeners();
+      };
+    }
+
+    if (activeCampaignId !== "all") {
+      const ref = database.ref(`users/${uid}/campaigns/${activeCampaignId}`);
+      const handle = (snap) => {
+        const c = snap.val();
+        if (!c) {
+          setCampaigns([]);
+          setLoading(false);
+          return;
+        }
+        setCampaigns(mapCampaigns({ [activeCampaignId]: c }));
+        setLoading(false);
+      };
+      ref.on("value", handle);
+      return () => ref.off("value", handle);
+    }
+
+    const ref = database.ref(`users/${uid}/campaigns`);
+    const handle = (snap) => {
+      const data = snap.val() || {};
+      setCampaigns(mapCampaigns(data));
       setLoading(false);
     };
 
     ref.on("value", handle);
     return () => ref.off("value", handle);
-  }, [uid]);
+  }, [uid, activeCampaignId, campaignMode]);
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -72,29 +158,47 @@ export default function NpcsPage() {
   }, [campaigns, q, activeCampaignId]);
 
   return (
-    <Container maxWidth="md" sx={{ py: { xs: 2, md: 4 } }}>
+    <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { duration: T_IN * 0.18 } }}>
         <Stack spacing={2}>
-          <Paper elevation={0} sx={{ p: 2.25, borderRadius: 3, border: "1px solid rgba(0,0,0,0.10)", bgcolor: "rgba(223, 214, 205, 0.92)" }}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 2, md: 3 },
+              borderRadius: 3,
+              border: "1px solid rgba(191,143,0,0.35)",
+              bgcolor: "rgba(32, 18, 12, 0.78)",
+              color: "#f7eddc",
+              backgroundImage:
+                "radial-gradient(120% 140% at 0% 0%, rgba(191,143,0,0.18) 0%, transparent 45%), radial-gradient(130% 160% at 100% 100%, rgba(131,60,11,0.25) 0%, transparent 52%)",
+              backdropFilter: "blur(4px)",
+            }}
+          >
             <Stack spacing={0.75}>
-              <Typography variant="h4" sx={{ fontWeight: 1000, color: "#2c1a10" }}>
-                NPCs
-              </Typography>
+              <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
+                <Typography variant="h4" sx={{ fontWeight: 1000, color: "#ffcf70", fontFamily: "Cinzel" }}>
+                  Retratos de NPCs
+                </Typography>
+                <Chip size="small" label="Arquivo da campanha" sx={{ bgcolor: "rgba(191,143,0,0.2)", color: "#ffe1a4", border: "1px solid rgba(191,143,0,0.45)" }} />
+              </Stack>
 
-              <Typography sx={{ opacity: 0.85, color: "rgba(44,26,16,0.85)" }}>
-                Todos os NPCs por campanha (privado do usuário).
+              <Typography sx={{ opacity: 0.9, color: "rgba(255, 236, 203, 0.95)" }}>
+                Galeria dos personagens encontrados na jornada. Abra um retrato para ver voz, objetivo, atitude, segredo e notas práticas de sessão.
               </Typography>
 
               <TextField
                 label="Buscar NPC"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="nome, tag, descrição, nota rápida..."
+                placeholder="nome, facção, objetivo, nota rápida..."
                 fullWidth
-                sx={{ mt: 1 }}
+                sx={{
+                  mt: 1,
+                  "& .MuiOutlinedInput-root": { bgcolor: "rgba(255,255,255,0.9)" },
+                }}
               />
 
-              <Typography variant="caption" sx={{ opacity: 0.8 }}>
+              <Typography variant="caption" sx={{ opacity: 0.85 }}>
                 Dica: filtre por campanha com <code>?c=ID</code> (ou deixe <code>all</code>).
               </Typography>
             </Stack>
@@ -107,32 +211,44 @@ export default function NpcsPage() {
           ) : filtered.length === 0 ? (
             <Typography sx={{ opacity: 0.85 }}>Nenhum NPC encontrado.</Typography>
           ) : (
-            <Stack spacing={2}>
+            <Stack spacing={2} component={motion.div} variants={containerVariants} initial="hidden" animate="show">
               {filtered.map((c) => (
-                <Paper key={c.campaignId} elevation={0} sx={{ p: 2, borderRadius: 3, border: "1px solid rgba(0,0,0,0.10)" }}>
+                <Paper
+                  key={c.campaignId}
+                  component={motion.div}
+                  variants={itemVariants}
+                  elevation={0}
+                  sx={{
+                    p: 2,
+                    borderRadius: 3,
+                    border: "1px solid rgba(191,143,0,0.25)",
+                    bgcolor: "rgba(255, 248, 233, 0.95)",
+                    boxShadow: "0 16px 30px rgba(0,0,0,0.18)",
+                  }}
+                >
                   <Stack spacing={1}>
                     <Stack direction="row" justifyContent="space-between" alignItems="baseline" sx={{ gap: 1, flexWrap: "wrap" }}>
-                      <Typography variant="h6" sx={{ fontWeight: 950 }}>
+                      <Typography variant="h6" sx={{ fontWeight: 950, fontFamily: "Cinzel", color: "#482712" }}>
                         {c.name}
                       </Typography>
-                      <Typography variant="caption" sx={{ opacity: 0.75 }}>
+                      <Typography variant="caption" sx={{ opacity: 0.75, fontWeight: 700 }}>
                         {c.npcs.length} NPC(s)
                       </Typography>
                     </Stack>
 
                     <Divider />
 
-                    <Stack
+                    <Box
                       sx={{
                         display: "grid",
-                        gap: 1.25,
-                        gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                        gap: 2,
+                        gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "1fr 1fr 1fr" },
                       }}
                     >
                       {c.npcs.map((npc) => (
-                        <NpcCard key={npc.id} uid={uid} campaignId={c.campaignId} npc={npc} />
+                        <NpcCard key={npc.id} uid={uid} campaignId={c.campaignId} campaignMode={campaignMode} npc={npc} />
                       ))}
-                    </Stack>
+                    </Box>
                   </Stack>
                 </Paper>
               ))}

@@ -30,6 +30,7 @@ import { motion } from "framer-motion";
 import RpgSection from "components/RpgSection";
 import { RPG_TOKENS } from "theme/rpgTokens";
 import { createSessionLog, ensureCampaignMeta, listenSessionLogs } from "service/sessionLogService";
+import { buildCampaignQuery } from "service/campaignPath";
 
 // Ícones
 import SearchIcon from "@mui/icons-material/Search";
@@ -114,6 +115,7 @@ export default function SessionLog() {
 
   const [searchParams] = useSearchParams();
   const campaignId = searchParams.get("c") || DEFAULT_CAMPAIGN_ID;
+  const campaignMode = searchParams.get("m") === "shared" ? "shared" : "legacy";
 
   const [status, setStatus] = useState({ type: "info", msg: "" });
   const [logs, setLogs] = useState([]);
@@ -139,11 +141,13 @@ export default function SessionLog() {
     }
 
     setLoading(true);
-    ensureCampaignMeta({ uid, campaignId }).catch(() => {});
+    ensureCampaignMeta({ uid, campaignId, mode: campaignMode }).catch(() => {});
 
     const off = listenSessionLogs({
       uid,
       campaignId,
+      mode: campaignMode,
+      limit: onlyLast10 ? 60 : 250,
       onValue: (arr) => {
         setLogs(arr);
         setLoading(false);
@@ -151,7 +155,7 @@ export default function SessionLog() {
     });
 
     return () => off();
-  }, [uid, campaignId]);
+  }, [uid, campaignId, campaignMode, onlyLast10]);
 
   const applyTemplateIfEmpty = (nextTemplateId) => {
     const t = SESSION_TEMPLATES.find((x) => x.id === nextTemplateId) || SESSION_TEMPLATES[0];
@@ -211,6 +215,7 @@ export default function SessionLog() {
       await createSessionLog({
         uid,
         campaignId,
+        mode: campaignMode,
         title,
         summary,
         tags: parseTags(tagsRaw),
@@ -361,7 +366,7 @@ export default function SessionLog() {
                         <Paper
                           key={l.id}
                           component={Link}
-                          to={`/diario/${l.id}?c=${encodeURIComponent(campaignId)}`}
+                          to={`/diario/${l.id}?${buildCampaignQuery({ campaignId, mode: campaignMode })}`}
                           elevation={3}
                           sx={{
                             p: 2.5,

@@ -18,6 +18,7 @@ import { Link as RouterLink } from "react-router-dom";
 
 // ✅ IMPORTAR o novo Hook
 import { useSystem } from "hooks/useSystem";
+import { usePreferences } from "contexts/PreferencesContext";
 
 import bg from "./tumblr_okx6d5BR4K1rnbw6mo1_540.webp";
 import AppCard from "components/Cards/AppCard";
@@ -197,16 +198,16 @@ const Section = memo(function Section({
   chipLabel,
   accent = "primary",
   children,
-  prefersReducedMotion,
+  allowAnimate,
 }) {
   const theme = useTheme();
   const accentColor = theme.palette?.[accent]?.main || theme.palette.primary.main;
 
   // Wrapper condicional para evitar overhead de animação se o usuário preferir movimento reduzido
-  const CardWrapper = prefersReducedMotion ? Box : motion.div;
+  const CardWrapper = allowAnimate ? motion.div : Box;
 
   return (
-    <Box component={motion.div} variants={itemVariants} sx={{ mb: 4 }}>
+    <Box component={allowAnimate ? motion.div : "div"} variants={allowAnimate ? itemVariants : undefined} sx={{ mb: 4 }}>
       <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2, px: 1 }}>
         <Box
           sx={{
@@ -258,6 +259,8 @@ const Section = memo(function Section({
 export default function Inicio() {
   const prefersReducedMotion = useReducedMotion();
   const sections = HOME_SECTIONS;
+  const { prefs } = usePreferences();
+  const shouldAnimate = !prefersReducedMotion && Number(prefs?.visualQuality ?? 2) > 0;
   
   // ✅ Usar o hook aqui
   const system = useSystem();
@@ -268,11 +271,11 @@ export default function Inicio() {
         initial="hidden"
         animate="show"
         exit="exit" // ✅ Garante saída limpa para o DragonTransition
-        variants={prefersReducedMotion ? undefined : containerVariants}
+        variants={shouldAnimate ? containerVariants : undefined}
       >
         <Container maxWidth="lg">
           {/* Hero Section */}
-          <motion.div variants={itemVariants}>
+          <motion.div variants={shouldAnimate ? itemVariants : undefined}>
             <HeroBanner />
           </motion.div>
 
@@ -284,7 +287,7 @@ export default function Inicio() {
               subtitle={section.subtitle}
               chipLabel={section.chipLabel}
               accent={section.accent}
-              prefersReducedMotion={prefersReducedMotion}
+              allowAnimate={shouldAnimate}
             >
               {section.items.map((card) => (
                 <AppCard key={card.id} {...card} />

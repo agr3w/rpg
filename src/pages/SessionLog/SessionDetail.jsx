@@ -13,6 +13,7 @@ import QuestsPanel from "./components/QuestsPanel";
 import LootPanel from "./components/LootPanel";
 
 import RpgSection from "components/RpgSection";
+import { buildCampaignQuery, getCampaignBasePath } from "service/campaignPath";
 
 const DEFAULT_CAMPAIGN_ID = "default";
 
@@ -23,16 +24,21 @@ export default function SessionLogDetail() {
   const { sessionId } = useParams();
   const [searchParams] = useSearchParams();
   const campaignId = searchParams.get("c") || DEFAULT_CAMPAIGN_ID;
+  const campaignMode = searchParams.get("m") === "shared" ? "shared" : "legacy";
 
   const [status, setStatus] = useState({ type: "info", msg: "" });
   const [loading, setLoading] = useState(true);
 
   const [session, setSession] = useState(null);
+  const campaignBasePath = useMemo(
+    () => getCampaignBasePath({ uid, campaignId, mode: campaignMode }),
+    [uid, campaignId, campaignMode]
+  );
 
   const baseRef = useMemo(() => {
-    if (!uid || !campaignId || !sessionId) return null;
-    return database.ref(`users/${uid}/campaigns/${campaignId}`);
-  }, [uid, campaignId, sessionId]);
+    if (!campaignBasePath || !sessionId) return null;
+    return database.ref(campaignBasePath);
+  }, [campaignBasePath, sessionId]);
 
   const sessionRef = useMemo(() => {
     if (!baseRef) return null;
@@ -64,7 +70,7 @@ export default function SessionLogDetail() {
     };
     fichasRef.on("value", handleFichas);
 
-    const metaRef = database.ref(`users/${uid}/campaigns/${campaignId}/meta`);
+    const metaRef = baseRef.child("meta");
     const handleMeta = (snap) => {
       const v = snap.val();
       setLinkedFichaId(v?.linkedFichaId || "");
@@ -76,7 +82,7 @@ export default function SessionLogDetail() {
       fichasRef.off("value", handleFichas);
       metaRef.off("value", handleMeta);
     };
-  }, [uid, sessionRef, campaignId]);
+  }, [uid, sessionRef, campaignId, baseRef]);
 
   const updateSession = async (patch) => {
     if (!sessionRef) return;
@@ -88,9 +94,9 @@ export default function SessionLogDetail() {
 
   const saveLinkedFicha = async (newId) => {
     setStatus({ type: "info", msg: "" });
-    if (!uid) return;
+    if (!uid || !baseRef) return;
     try {
-      await database.ref(`users/${uid}/campaigns/${campaignId}/meta`).update({
+      await baseRef.child("meta").update({
         linkedFichaId: newId || "",
         updatedAt: firebase.database.ServerValue.TIMESTAMP,
       });
@@ -125,7 +131,7 @@ export default function SessionLogDetail() {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Alert severity="warning">Sessão não encontrada nos registros.</Alert>
-        <Button component={Link} to={`/diario?c=${encodeURIComponent(campaignId)}`} sx={{ mt: 2 }}>
+        <Button component={Link} to={`/diario?${buildCampaignQuery({ campaignId, mode: campaignMode })}`} sx={{ mt: 2 }}>
           Voltar ao Grimório
         </Button>
       </Container>
@@ -143,7 +149,7 @@ export default function SessionLogDetail() {
           <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
             <Button 
               component={Link} 
-              to={`/diario?c=${encodeURIComponent(campaignId)}`}
+              to={`/diario?${buildCampaignQuery({ campaignId, mode: campaignMode })}`}
               startIcon={<ArrowBackIcon />}
               sx={{ color: "#5c4033", fontFamily: "Cinzel", fontWeight: 700 }}
             >
@@ -216,6 +222,7 @@ export default function SessionLogDetail() {
               <QuestsPanel
                 uid={uid}
                 campaignId={campaignId}
+                campaignMode={campaignMode}
                 sessionRef={sessionRef}
                 session={session}
                 setStatus={setStatus}
@@ -245,6 +252,7 @@ export default function SessionLogDetail() {
               <NpcsSeenPanel
                 uid={uid}
                 campaignId={campaignId}
+                campaignMode={campaignMode}
                 sessionRef={sessionRef}
                 session={session}
                 setStatus={setStatus}

@@ -33,6 +33,7 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { auth, database, firebase } from "APIs/firebaseConfig";
 import { T_IN } from "config/transitions";
 import { motion } from "framer-motion";
+import { buildCampaignQuery, getCampaignBasePath } from "service/campaignPath";
 
 // Ícones das Abas
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -84,11 +85,16 @@ export default function QuestDetail() {
   const { questId } = useParams();
   const [searchParams] = useSearchParams();
   const campaignId = searchParams.get("c") || DEFAULT_CAMPAIGN_ID;
+  const campaignMode = searchParams.get("m") === "shared" ? "shared" : "legacy";
 
   const [status, setStatus] = useState({ type: "info", msg: "" });
   const [loading, setLoading] = useState(true);
   const [quest, setQuest] = useState(null);
   const [tabIndex, setTabIndex] = useState(0);
+  const campaignBasePath = useMemo(
+    () => getCampaignBasePath({ uid, campaignId, mode: campaignMode }),
+    [uid, campaignId, campaignMode]
+  );
 
   // Form States
   const [title, setTitle] = useState("");
@@ -115,9 +121,9 @@ export default function QuestDetail() {
   const [eventMilestoneId, setEventMilestoneId] = useState("");
 
   const questRef = useMemo(() => {
-    if (!uid || !campaignId || !questId) return null;
-    return database.ref(`users/${uid}/campaigns/${campaignId}/quests/${questId}`);
-  }, [uid, campaignId, questId]);
+    if (!campaignBasePath || !questId) return null;
+    return database.ref(`${campaignBasePath}/quests/${questId}`);
+  }, [campaignBasePath, questId]);
 
   // --- Effects ---
   useEffect(() => {
@@ -148,8 +154,8 @@ export default function QuestDetail() {
   }, [questRef]);
 
   useEffect(() => {
-    if (!uid || !campaignId || !questId) return;
-    const logsRef = database.ref(`users/${uid}/campaigns/${campaignId}/sessionLogs`);
+    if (!campaignBasePath || !questId) return;
+    const logsRef = database.ref(`${campaignBasePath}/sessionLogs`);
     const onLogs = (snap) => {
       const data = snap.val() || {};
       const found = Object.values(data).filter(s => {
@@ -165,11 +171,11 @@ export default function QuestDetail() {
     };
     logsRef.on("value", onLogs);
     return () => logsRef.off("value", onLogs);
-  }, [uid, campaignId, questId]);
+  }, [campaignBasePath, questId]);
 
   useEffect(() => {
-    if (!uid || !campaignId) return;
-    const idxRef = database.ref(`users/${uid}/campaigns/${campaignId}/questIndex`);
+    if (!campaignBasePath) return;
+    const idxRef = database.ref(`${campaignBasePath}/questIndex`);
     const onIdx = (snap) => {
       const data = snap.val() || {};
       const arr = Object.values(data)
@@ -180,7 +186,7 @@ export default function QuestDetail() {
     };
     idxRef.on("value", onIdx);
     return () => idxRef.off("value", onIdx);
-  }, [uid, campaignId]);
+  }, [campaignBasePath]);
 
   // --- Computed ---
   const milestones = useMemo(() => {
@@ -206,9 +212,9 @@ export default function QuestDetail() {
       const oldKey = quest?.indexKey || normalizeKey(quest?.title || "");
       
       if (oldKey && oldKey !== newKey) {
-        await database.ref(`users/${uid}/campaigns/${campaignId}/questIndex/${oldKey}`).remove();
+        await database.ref(`${campaignBasePath}/questIndex/${oldKey}`).remove();
       }
-      await database.ref(`users/${uid}/campaigns/${campaignId}/questIndex/${newKey}`).set({
+      await database.ref(`${campaignBasePath}/questIndex/${newKey}`).set({
         key: newKey, questId, title: newTitle, updatedAt: firebase.database.ServerValue.TIMESTAMP,
       });
 
@@ -439,7 +445,7 @@ export default function QuestDetail() {
 
   const migrateLegacyHooksToObjectives = async () => {
     setStatus({ type: "info", msg: "" });
-    if (!uid || !campaignId || !questRef || !legacyHookIds.length) return;
+    if (!campaignBasePath || !questRef || !legacyHookIds.length) return;
     if (migratingHooks) return;
 
     setMigratingHooks(true);
@@ -452,7 +458,7 @@ export default function QuestDetail() {
       let migratedCount = 0;
 
       for (const hookId of legacyHookIds) {
-        const hookRef = database.ref(`users/${uid}/campaigns/${campaignId}/hooks/${hookId}`);
+        const hookRef = database.ref(`${campaignBasePath}/hooks/${hookId}`);
         const hookSnap = await hookRef.once("value");
         const hook = hookSnap.val();
         if (!hook) continue;
@@ -520,7 +526,7 @@ export default function QuestDetail() {
     return (
       <Container maxWidth="md" sx={{ py: 4 }}>
         <Alert severity="warning">Quest não encontrada.</Alert>
-        <Button component={Link} to={`/quests?c=${encodeURIComponent(campaignId)}`} sx={{ mt: 2 }}>
+        <Button component={Link} to={`/quests?${buildCampaignQuery({ campaignId, mode: campaignMode })}`} sx={{ mt: 2 }}>
           Voltar
         </Button>
       </Container>
@@ -528,7 +534,7 @@ export default function QuestDetail() {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: { xs: 2, md: 4 } }}>
+    <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { duration: T_IN * 0.18 } }}>
         
         {/* Header Fixo */}
@@ -537,17 +543,20 @@ export default function QuestDetail() {
           sx={{ 
             p: 3, 
             mb: 3, 
-            borderRadius: 2, 
-            background: DND_THEME.paperBg,
-            border: "1px solid rgba(92, 64, 51, 0.3)",
+            borderRadius: 3, 
+            border: "1px solid rgba(191,143,0,0.38)",
+            bgcolor: "rgba(33,18,11,0.82)",
+            color: "#f7eddc",
+            backgroundImage:
+              "radial-gradient(120% 140% at 0% 0%, rgba(191,143,0,0.18) 0%, transparent 46%), radial-gradient(130% 160% at 100% 100%, rgba(131,60,11,0.24) 0%, transparent 56%)",
             position: "relative"
           }}
         >
           <Button 
             startIcon={<ArrowBackIcon />} 
             component={Link} 
-            to={`/quests?c=${encodeURIComponent(campaignId)}`}
-            sx={{ position: "absolute", top: 16, left: 16, color: DND_THEME.leather }}
+            to={`/quests?${buildCampaignQuery({ campaignId, mode: campaignMode })}`}
+            sx={{ position: "absolute", top: 16, left: 16, color: "#ffdf9e" }}
           >
             Voltar
           </Button>
@@ -559,7 +568,7 @@ export default function QuestDetail() {
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Título da Missão"
               fullWidth
-              inputProps={{ style: { textAlign: "center", fontFamily: "Cinzel", fontSize: "2rem", fontWeight: 900, color: DND_THEME.ink } }}
+              inputProps={{ style: { textAlign: "center", fontFamily: "Cinzel", fontSize: "2rem", fontWeight: 900, color: "#ffd37d" } }}
               InputProps={{ disableUnderline: true }}
             />
             
@@ -570,7 +579,7 @@ export default function QuestDetail() {
                 size="small"
                 variant="standard"
                 disableUnderline
-                sx={{ fontFamily: "Cinzel", fontWeight: 700, color: DND_THEME.leather, fontSize: "1.1rem" }}
+                sx={{ fontFamily: "Cinzel", fontWeight: 700, color: "#ffdeb0", fontSize: "1.1rem" }}
               >
                 {STATUS.map((s) => <MenuItem key={s.value} value={s.value}>{s.label}</MenuItem>)}
               </Select>
@@ -578,7 +587,7 @@ export default function QuestDetail() {
                 variant="contained" 
                 startIcon={<SaveIcon />} 
                 onClick={save}
-                sx={{ bgcolor: DND_THEME.leather, fontFamily: "Cinzel", fontWeight: 700 }}
+                sx={{ bgcolor: "#bf8f00", color: "#2c1a10", fontFamily: "Cinzel", fontWeight: 900 }}
               >
                 Salvar Alterações
               </Button>
@@ -589,14 +598,30 @@ export default function QuestDetail() {
         {status.msg && <Alert severity={status.type} sx={{ mb: 2 }}>{status.msg}</Alert>}
 
         {/* Navegação por Abas */}
-        <Paper elevation={0} sx={{ borderRadius: 2, overflow: "hidden", border: "1px solid rgba(0,0,0,0.1)" }}>
+        <Paper
+          elevation={0}
+          sx={{
+            borderRadius: 3,
+            overflow: "hidden",
+            border: "1px solid rgba(191,143,0,0.28)",
+            bgcolor: "rgba(255,251,240,0.94)",
+            boxShadow: "0 16px 30px rgba(0,0,0,0.2)",
+          }}
+        >
           <Tabs 
             value={tabIndex} 
             onChange={(_, v) => setTabIndex(v)} 
             variant="fullWidth"
             sx={{ 
-              bgcolor: "#f5f5f5", 
-              "& .MuiTab-root": { fontFamily: "Cinzel", fontWeight: 700, color: "#666" },
+              bgcolor: "rgba(44,26,16,0.06)",
+              borderBottom: "1px solid rgba(131,60,11,0.2)",
+              "& .MuiTabs-indicator": { backgroundColor: DND_THEME.gold, height: 3 },
+              "& .MuiTab-root": {
+                fontFamily: "Cinzel",
+                fontWeight: 800,
+                color: "rgba(44,26,16,0.7)",
+                minHeight: 56,
+              },
               "& .Mui-selected": { color: DND_THEME.leather }
             }}
           >
@@ -606,11 +631,18 @@ export default function QuestDetail() {
             <Tab icon={<LinkIcon />} label="Conexões" />
           </Tabs>
 
-          <Box sx={{ bgcolor: "#fff", minHeight: 400, p: 2 }}>
+          <Box
+            sx={{
+              minHeight: 400,
+              p: { xs: 1.5, md: 2.25 },
+              backgroundImage:
+                "linear-gradient(180deg, rgba(255,255,255,0.82) 0%, rgba(255,248,233,0.9) 100%)",
+            }}
+          >
             
             {/* ABA 1: GERAL */}
             <TabPanel value={tabIndex} index={0}>
-              <Stack spacing={3}>
+              <Stack spacing={2.2}>
                 <TextField
                   label="Descrição da Missão"
                   value={description}
@@ -631,11 +663,11 @@ export default function QuestDetail() {
                   helperText="Ex: principal, dungeon, investigação"
                 />
 
-                <Divider sx={{ borderColor: "rgba(0,0,0,0.1)" }} />
+                <Divider sx={{ borderColor: "rgba(131,60,11,0.18)", borderStyle: "dashed" }} />
 
-                <Box>
+                <Paper elevation={0} sx={{ p: 1.6, borderRadius: 2.2, border: "1px solid rgba(131,60,11,0.18)", bgcolor: "rgba(255,255,255,0.72)" }}>
                   <Typography variant="h6" sx={{ fontFamily: "Cinzel", color: DND_THEME.ink, mb: 2 }}>Subquests & Dependências</Typography>
-                  <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+                  <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ mb: 2 }}>
                     <Autocomplete
                       options={questOptions.filter((o) => o.questId !== questId)}
                       getOptionLabel={(o) => o?.title || ""}
@@ -644,36 +676,38 @@ export default function QuestDetail() {
                       renderInput={(params) => <TextField {...params} label="Vincular outra quest" size="small" />}
                       sx={{ flex: 1 }}
                     />
-                    <Button variant="outlined" onClick={addSubquest} disabled={!subquestTarget}>Adicionar</Button>
+                    <Button variant="outlined" onClick={addSubquest} disabled={!subquestTarget} sx={{ borderColor: "rgba(131,60,11,0.45)", color: DND_THEME.leather, fontWeight: 800 }}>
+                      Adicionar
+                    </Button>
                   </Stack>
                   
                   <Stack spacing={1}>
                     {subquests.map((sq) => (
-                      <Paper key={sq.questId} variant="outlined" sx={{ p: 1.5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <Paper key={sq.questId} variant="outlined" sx={{ p: 1.2, display: "flex", justifyContent: "space-between", alignItems: "center", borderColor: "rgba(131,60,11,0.2)", bgcolor: "rgba(255,251,240,0.7)" }}>
                         <Typography sx={{ fontWeight: 600 }}>{sq.title}</Typography>
                         <Stack direction="row">
-                          <IconButton size="small" component={Link} to={`/quests/${sq.questId}?c=${campaignId}`}><OpenInNewRoundedIcon /></IconButton>
-                          <IconButton size="small" onClick={() => removeSubquest(sq.questId)}><DeleteRoundedIcon /></IconButton>
+                          <IconButton size="small" component={Link} to={`/quests/${sq.questId}?${buildCampaignQuery({ campaignId, mode: campaignMode })}`} sx={{ color: DND_THEME.leather }}><OpenInNewRoundedIcon /></IconButton>
+                          <IconButton size="small" onClick={() => removeSubquest(sq.questId)} sx={{ color: "rgba(44,26,16,0.45)" }}><DeleteRoundedIcon /></IconButton>
                         </Stack>
                       </Paper>
                     ))}
                     {subquests.length === 0 && <Typography variant="caption" sx={{ fontStyle: "italic" }}>Nenhuma subquest vinculada.</Typography>}
                   </Stack>
-                </Box>
+                </Paper>
               </Stack>
             </TabPanel>
 
             {/* ABA 2: PLANO */}
             <TabPanel value={tabIndex} index={1}>
-              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2.2 }}>
                 <Typography variant="h6" sx={{ fontFamily: "Cinzel", color: DND_THEME.ink }}>Marcos & Objetivos</Typography>
-                <Button startIcon={<AddRoundedIcon />} variant="contained" onClick={() => setMilestoneOpen(true)} sx={{ bgcolor: DND_THEME.leather }}>
+                <Button startIcon={<AddRoundedIcon />} variant="contained" onClick={() => setMilestoneOpen(true)} sx={{ bgcolor: DND_THEME.leather, fontFamily: "Cinzel", fontWeight: 800 }}>
                   Novo Marco
                 </Button>
               </Stack>
 
               {milestones.length === 0 ? (
-                <Box sx={{ textAlign: "center", py: 4, opacity: 0.6 }}>
+                    <Box sx={{ textAlign: "center", py: 4, opacity: 0.65 }}>
                   <Typography>O plano está vazio. Adicione marcos importantes para organizar a missão.</Typography>
                 </Box>
               ) : (
@@ -684,13 +718,23 @@ export default function QuestDetail() {
                     const pct = todos.length ? (done / todos.length) * 100 : 0;
 
                     return (
-                      <Paper key={m.id} variant="outlined" sx={{ p: 2, borderRadius: 2, bgcolor: "#fafafa" }}>
+                      <Paper
+                        key={m.id}
+                        variant="outlined"
+                        sx={{
+                          p: 2,
+                          borderRadius: 2,
+                          bgcolor: "rgba(255,255,255,0.78)",
+                          borderColor: "rgba(131,60,11,0.24)",
+                          "&:hover .del-btn": { opacity: 1 },
+                        }}
+                      >
                         <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
                           <Box>
                             <Typography variant="subtitle1" sx={{ fontWeight: 800, color: DND_THEME.ink }}>{m.title}</Typography>
                             {m.note && <Typography variant="caption" sx={{ display: "block", mb: 1 }}>{m.note}</Typography>}
                           </Box>
-                          <IconButton size="small" onClick={() => removeMilestone(m.id)}><DeleteRoundedIcon /></IconButton>
+                          <IconButton size="small" onClick={() => removeMilestone(m.id)} sx={{ color: "rgba(44,26,16,0.45)" }}><DeleteRoundedIcon /></IconButton>
                         </Stack>
 
                         <LinearProgress variant="determinate" value={pct} sx={{ my: 1.5, height: 6, borderRadius: 3, bgcolor: "#e0e0e0", "& .MuiLinearProgress-bar": { bgcolor: DND_THEME.gold } }} />
@@ -700,7 +744,7 @@ export default function QuestDetail() {
                             <Box key={t.id} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                               <Checkbox checked={t.done} onChange={() => toggleTodo(m.id, t)} size="small" sx={{ color: DND_THEME.leather, '&.Mui-checked': { color: DND_THEME.leather } }} />
                               <Typography sx={{ textDecoration: t.done ? "line-through" : "none", opacity: t.done ? 0.6 : 1, fontSize: "0.9rem" }}>{t.text}</Typography>
-                              <IconButton size="small" onClick={() => removeTodo(m.id, t.id)} sx={{ ml: "auto", opacity: 0 }} className="del-btn"><DeleteRoundedIcon fontSize="small" /></IconButton>
+                              <IconButton size="small" onClick={() => removeTodo(m.id, t.id)} sx={{ ml: "auto", opacity: 0, color: "rgba(44,26,16,0.45)" }} className="del-btn"><DeleteRoundedIcon fontSize="small" /></IconButton>
                             </Box>
                           ))}
                         </Stack>
@@ -714,7 +758,7 @@ export default function QuestDetail() {
                             onChange={(e) => setTodoDraft(prev => ({...prev, [m.id]: e.target.value}))}
                             onKeyDown={(e) => e.key === 'Enter' && addTodo(m.id)}
                           />
-                          <Button variant="outlined" onClick={() => addTodo(m.id)}>Add</Button>
+                          <Button variant="outlined" onClick={() => addTodo(m.id)} sx={{ borderColor: "rgba(131,60,11,0.45)", color: DND_THEME.leather, fontWeight: 800 }}>Add</Button>
                         </Stack>
                       </Paper>
                     );
@@ -725,17 +769,19 @@ export default function QuestDetail() {
 
             {/* ABA 3: TIMELINE */}
             <TabPanel value={tabIndex} index={2}>
-              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2.2 }}>
                 <Typography variant="h6" sx={{ fontFamily: "Cinzel", color: DND_THEME.ink }}>Linha do Tempo</Typography>
-                <Button startIcon={<AddRoundedIcon />} variant="outlined" onClick={() => setEventOpen(true)}>Evento Manual</Button>
+                <Button startIcon={<AddRoundedIcon />} variant="outlined" onClick={() => setEventOpen(true)} sx={{ borderColor: "rgba(131,60,11,0.45)", color: DND_THEME.leather, fontWeight: 800 }}>
+                  Evento Manual
+                </Button>
               </Stack>
 
-              <Box sx={{ position: "relative", pl: 2, borderLeft: `2px solid ${DND_THEME.gold}` }}>
+              <Box sx={{ position: "relative", pl: 2.2, borderLeft: `2px solid ${DND_THEME.gold}` }}>
                 {timeline.map((ev) => (
                   <Box key={ev.id} sx={{ mb: 3, position: "relative" }}>
-                    <Box sx={{ position: "absolute", left: -21, top: 0, width: 10, height: 10, borderRadius: "50%", bgcolor: DND_THEME.gold, border: "2px solid #fff" }} />
-                    <Typography variant="caption" sx={{ color: "#999", fontWeight: 700 }}>{fmtDateTime(ev.occurredAt)}</Typography>
-                    <Paper elevation={0} sx={{ p: 1.5, mt: 0.5, bgcolor: "#f9f9f9", border: "1px solid #eee" }}>
+                    <Box sx={{ position: "absolute", left: -23, top: 0, width: 11, height: 11, borderRadius: "50%", bgcolor: DND_THEME.gold, border: "2px solid #fff8ea" }} />
+                    <Typography variant="caption" sx={{ color: "rgba(44,26,16,0.6)", fontWeight: 700 }}>{fmtDateTime(ev.occurredAt)}</Typography>
+                    <Paper elevation={0} sx={{ p: 1.5, mt: 0.5, bgcolor: "rgba(255,255,255,0.8)", border: "1px solid rgba(131,60,11,0.2)", borderRadius: 2 }}>
                       <Typography variant="subtitle2" sx={{ fontWeight: 700, color: DND_THEME.ink }}>{ev.title}</Typography>
                       {ev.note && <Typography variant="body2" sx={{ mt: 0.5 }}>{ev.note}</Typography>}
                       {ev.sessionTitle && (
@@ -743,9 +789,9 @@ export default function QuestDetail() {
                           label={`Sessão: ${ev.sessionTitle}`} 
                           size="small" 
                           component={Link} 
-                          to={`/diario/${ev.sessionId}?c=${campaignId}`}
+                          to={`/diario/${ev.sessionId}?${buildCampaignQuery({ campaignId, mode: campaignMode })}`}
                           clickable
-                          sx={{ mt: 1, cursor: "pointer" }} 
+                          sx={{ mt: 1, cursor: "pointer", bgcolor: "rgba(191,143,0,0.12)", border: "1px solid rgba(191,143,0,0.35)", color: DND_THEME.leather, fontWeight: 700 }} 
                         />
                       )}
                     </Paper>
@@ -760,12 +806,14 @@ export default function QuestDetail() {
               <Typography variant="h6" sx={{ fontFamily: "Cinzel", color: DND_THEME.ink, mb: 2 }}>Aparições em Sessões</Typography>
               <Stack spacing={1}>
                 {appearedIn.map((s) => (
-                  <Paper key={s.sessionId} variant="outlined" sx={{ p: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <Paper key={s.sessionId} variant="outlined" sx={{ p: 1.5, display: "flex", justifyContent: "space-between", alignItems: "center", borderColor: "rgba(131,60,11,0.2)", bgcolor: "rgba(255,255,255,0.8)", borderRadius: 2 }}>
                     <Box>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{s.title}</Typography>
-                      {s.note && <Typography variant="caption">Nota: {s.note}</Typography>}
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: DND_THEME.ink }}>{s.title}</Typography>
+                      {s.note && <Typography variant="caption" sx={{ opacity: 0.8 }}>Nota: {s.note}</Typography>}
                     </Box>
-                    <Button size="small" component={Link} to={`/diario/${s.sessionId}?c=${campaignId}`}>Ver Sessão</Button>
+                    <Button size="small" component={Link} to={`/diario/${s.sessionId}?${buildCampaignQuery({ campaignId, mode: campaignMode })}`} sx={{ borderColor: "rgba(131,60,11,0.45)", color: DND_THEME.leather, fontWeight: 800 }} variant="outlined">
+                      Ver Sessão
+                    </Button>
                   </Paper>
                 ))}
                 {appearedIn.length === 0 && <Typography sx={{ fontStyle: "italic", opacity: 0.6 }}>Esta quest ainda não foi citada em nenhuma sessão.</Typography>}

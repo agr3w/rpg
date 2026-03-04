@@ -70,3 +70,25 @@ Perguntas rápidas pra eu desenhar a estrutura certa
     -   `campaigns/{campaignId}` + `campaignMembers/{campaignId}/{uid}`\
         ou
     -   `users/{uid}/campaigns/{campaignId}` (mais simples, menos compartilhamento)?
+
+* * * * *
+
+Fase 1 aplicada (mar/2026)
+--------------------------
+
+-   **Infra colaborativa adicionada**
+    -   `campaigns/{campaignId}`
+    -   `campaignMembers/{campaignId}/{uid}`
+    -   `userCampaigns/{uid}/{campaignId}`
+-   **Serviços criados**
+    -   `src/service/campaignCollabService.js` (criar campanha, adicionar/remover membro, papel, migração legada)
+    -   `src/service/campaignPath.js` (resolver caminho legado x compartilhado)
+-   **Diário migrado de forma gradual**
+    -   `SessionLog` e `SessionDetail` aceitam modo compartilhado por querystring (`?c=<id>&m=shared`)
+    -   Painéis internos de NPCs/Quests do Diário já funcionam no mesmo modo
+-   **Otimização inicial**
+    -   Listener do Diário limitado (`limitToLast`) para reduzir carga
+    -   Páginas de NPCs e Quests deixam de carregar todas as campanhas quando `?c=<id>` está definido
+-   **Segurança**
+    -   Regras de Realtime Database adicionadas em `database.rules.json`
+    -   `firebase.json` atualizado para usar essas regras

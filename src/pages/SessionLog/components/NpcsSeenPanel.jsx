@@ -18,6 +18,7 @@ import { database, firebase } from "APIs/firebaseConfig";
 import { useNavigate } from "react-router-dom";
 import RpgSection from "components/RpgSection";
 import { RPG_TOKENS } from "theme/rpgTokens";
+import { buildCampaignQuery, getCampaignBasePath } from "service/campaignPath";
 
 function normalizeKey(name) {
   return String(name || "")
@@ -29,8 +30,12 @@ function normalizeKey(name) {
     .replace(/(^-|-$)/g, "");
 }
 
-export default function NpcsSeenPanel({ uid, campaignId, sessionRef, session, setStatus }) {
+export default function NpcsSeenPanel({ uid, campaignId, campaignMode = "legacy", sessionRef, session, setStatus }) {
   const navigate = useNavigate();
+  const campaignBasePath = useMemo(
+    () => getCampaignBasePath({ uid, campaignId, mode: campaignMode }),
+    [uid, campaignId, campaignMode]
+  );
   const [options, setOptions] = useState([]);
   const [npcName, setNpcName] = useState("");
   const [quickNote, setQuickNote] = useState("");
@@ -43,9 +48,9 @@ export default function NpcsSeenPanel({ uid, campaignId, sessionRef, session, se
   }, [session]);
 
   useEffect(() => {
-    if (!uid || !campaignId) return;
+    if (!campaignBasePath) return;
 
-    const idxRef = database.ref(`users/${uid}/campaigns/${campaignId}/npcIndex`);
+    const idxRef = database.ref(`${campaignBasePath}/npcIndex`);
 
     const handle = (snap) => {
       const data = snap.val();
@@ -56,11 +61,11 @@ export default function NpcsSeenPanel({ uid, campaignId, sessionRef, session, se
 
     idxRef.on("value", handle);
     return () => idxRef.off("value", handle);
-  }, [uid, campaignId]);
+  }, [campaignBasePath]);
 
   const addNpc = async () => {
     setStatus?.({ type: "info", msg: "" });
-    if (!uid || !campaignId || !sessionRef) return;
+    if (!campaignBasePath || !sessionRef) return;
 
     const name = String(npcName || "").trim();
     const note = String(quickNote || "").trim();
@@ -76,14 +81,14 @@ export default function NpcsSeenPanel({ uid, campaignId, sessionRef, session, se
     }
 
     try {
-      const idxRef = database.ref(`users/${uid}/campaigns/${campaignId}/npcIndex/${key}`);
+      const idxRef = database.ref(`${campaignBasePath}/npcIndex/${key}`);
       const idxSnap = await idxRef.once("value");
       const idx = idxSnap.val();
 
       let npcId = idx?.npcId;
 
       if (!npcId) {
-        const npcRef = database.ref(`users/${uid}/campaigns/${campaignId}/npcs`).push();
+        const npcRef = database.ref(`${campaignBasePath}/npcs`).push();
         npcId = npcRef.key;
 
         await npcRef.set({
@@ -113,7 +118,7 @@ export default function NpcsSeenPanel({ uid, campaignId, sessionRef, session, se
           updatedAt: firebase.database.ServerValue.TIMESTAMP,
         });
 
-        await database.ref(`users/${uid}/campaigns/${campaignId}/npcs/${npcId}`).update({
+        await database.ref(`${campaignBasePath}/npcs/${npcId}`).update({
           lastSeenNote: note || "",
           lastSeenAt: firebase.database.ServerValue.TIMESTAMP,
           lastSeenSessionId: session?.id || "",
@@ -160,7 +165,7 @@ export default function NpcsSeenPanel({ uid, campaignId, sessionRef, session, se
 
   const openNpc = (npc) => {
     if (!npc?.npcId) return;
-    navigate(`/npcs/${encodeURIComponent(npc.npcId)}?c=${encodeURIComponent(campaignId)}`);
+    navigate(`/npcs/${encodeURIComponent(npc.npcId)}?${buildCampaignQuery({ campaignId, mode: campaignMode })}`);
   };
 
   return (

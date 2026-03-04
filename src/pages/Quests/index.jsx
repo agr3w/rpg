@@ -42,6 +42,7 @@ export default function QuestsPage() {
 
   const [searchParams] = useSearchParams();
   const activeCampaignId = searchParams.get("c") || "all";
+  const campaignMode = searchParams.get("m") === "shared" ? "shared" : "legacy";
 
   const [loading, setLoading] = useState(true);
   const [campaigns, setCampaigns] = useState([]);
@@ -49,16 +50,24 @@ export default function QuestsPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [tagFilter, setTagFilter] = useState([]);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.05 } },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+  };
+
   useEffect(() => {
     if (!uid) {
       setLoading(false);
       return;
     }
 
-    const ref = database.ref(`users/${uid}/campaigns`);
-    const handle = (snap) => {
-      const data = snap.val() || {};
-      const arr = Object.entries(data).map(([campaignId, c]) => {
+    const mapCampaigns = (data) => {
+      const arr = Object.entries(data || {}).map(([campaignId, c]) => {
         const name = c?.meta?.name || campaignId;
 
         const quests = Object.values(c?.quests || {})
@@ -69,13 +78,90 @@ export default function QuestsPage() {
       });
 
       arr.sort((a, b) => String(a.name).localeCompare(String(b.name), "pt-BR"));
-      setCampaigns(arr);
+      return arr;
+    };
+
+    if (campaignMode === "shared") {
+      const membershipsRef = database.ref(`userCampaigns/${uid}`);
+      let campaignUnsubs = [];
+
+      const clearCampaignListeners = () => {
+        campaignUnsubs.forEach((off) => off());
+        campaignUnsubs = [];
+      };
+
+      const onMemberships = (snap) => {
+        const memberships = snap.val() || {};
+        const allIds = Object.keys(memberships);
+        const ids =
+          activeCampaignId === "all"
+            ? allIds
+            : allIds.includes(activeCampaignId)
+            ? [activeCampaignId]
+            : [];
+
+        clearCampaignListeners();
+
+        if (!ids.length) {
+          setCampaigns([]);
+          setLoading(false);
+          return;
+        }
+
+        const campaignMap = {};
+        const pushState = () => {
+          const filtered = ids.reduce((acc, id) => {
+            if (campaignMap[id]) acc[id] = campaignMap[id];
+            return acc;
+          }, {});
+          setCampaigns(mapCampaigns(filtered));
+          setLoading(false);
+        };
+
+        ids.forEach((id) => {
+          const ref = database.ref(`campaigns/${id}`);
+          const onCampaign = (campaignSnap) => {
+            campaignMap[id] = campaignSnap.val() || null;
+            pushState();
+          };
+          ref.on("value", onCampaign);
+          campaignUnsubs.push(() => ref.off("value", onCampaign));
+        });
+      };
+
+      membershipsRef.on("value", onMemberships);
+      return () => {
+        membershipsRef.off("value", onMemberships);
+        clearCampaignListeners();
+      };
+    }
+
+    if (activeCampaignId !== "all") {
+      const ref = database.ref(`users/${uid}/campaigns/${activeCampaignId}`);
+      const handle = (snap) => {
+        const c = snap.val();
+        if (!c) {
+          setCampaigns([]);
+          setLoading(false);
+          return;
+        }
+        setCampaigns(mapCampaigns({ [activeCampaignId]: c }));
+        setLoading(false);
+      };
+      ref.on("value", handle);
+      return () => ref.off("value", handle);
+    }
+
+    const ref = database.ref(`users/${uid}/campaigns`);
+    const handle = (snap) => {
+      const data = snap.val() || {};
+      setCampaigns(mapCampaigns(data));
       setLoading(false);
     };
 
     ref.on("value", handle);
     return () => ref.off("value", handle);
-  }, [uid]);
+  }, [uid, activeCampaignId, campaignMode]);
 
   const tagOptions = useMemo(() => {
     const set = new Set();
@@ -123,17 +209,21 @@ export default function QuestsPage() {
   }, [campaigns, q, activeCampaignId, statusFilter, tagFilter]);
 
   return (
-    <Container maxWidth="md" sx={{ py: { xs: 2, md: 4 } }}>
+    <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { duration: T_IN * 0.18 } }}>
         <Stack spacing={3}>
           {/* Header & Filtros (Estilo Índice de Livro) */}
           <Paper
             elevation={0}
             sx={{
-              p: 3,
-              borderRadius: 2,
-              border: "1px solid rgba(92, 64, 51, 0.3)",
-              background: DND_THEME.paperBg,
+              p: { xs: 2, md: 3 },
+              borderRadius: 3,
+              border: "1px solid rgba(191,143,0,0.35)",
+              bgcolor: "rgba(32, 18, 12, 0.78)",
+              color: "#f7eddc",
+              backgroundImage:
+                "radial-gradient(120% 140% at 0% 0%, rgba(191,143,0,0.18) 0%, transparent 45%), radial-gradient(130% 160% at 100% 100%, rgba(131,60,11,0.25) 0%, transparent 52%)",
+              backdropFilter: "blur(4px)",
               position: "relative",
               overflow: "hidden",
             }}
@@ -143,11 +233,11 @@ export default function QuestsPage() {
 
             <Stack spacing={2}>
               <Box>
-                <Typography variant="h4" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: DND_THEME.ink }}>
-                  Mural de Missões
+                <Typography variant="h4" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: "#ffcf70" }}>
+                  Contratos & Quests
                 </Typography>
-                <Typography variant="body2" sx={{ fontFamily: "Cinzel", color: "rgba(44,26,16,0.7)", mt: 0.5 }}>
-                  O registro de contratos, destinos e lendas a serem desbravadas.
+                <Typography variant="body2" sx={{ fontFamily: "Cinzel", color: "rgba(255, 236, 203, 0.95)", mt: 0.5 }}>
+                  Painel das missões ativas, pendentes e concluídas com foco narrativo para sessão.
                 </Typography>
               </Box>
 
@@ -160,7 +250,7 @@ export default function QuestsPage() {
                   fullWidth
                   InputProps={{
                     startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "#833c0b" }} /></InputAdornment>,
-                    sx: { bgcolor: "rgba(255,255,255,0.5)", fontFamily: "Cinzel" },
+                    sx: { bgcolor: "rgba(255,255,255,0.9)", fontFamily: "Cinzel" },
                   }}
                 />
 
@@ -168,7 +258,7 @@ export default function QuestsPage() {
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
                   size="small"
-                  sx={{ minWidth: 200, bgcolor: "rgba(255,255,255,0.5)", fontFamily: "Cinzel" }}
+                  sx={{ minWidth: 200, bgcolor: "rgba(255,255,255,0.9)", fontFamily: "Cinzel" }}
                   startAdornment={<InputAdornment position="start"><FilterListIcon sx={{ color: "#833c0b", fontSize: 20 }} /></InputAdornment>}
                 >
                   {STATUS_OPTIONS.map((s) => (
@@ -189,7 +279,7 @@ export default function QuestsPage() {
                   <TextField
                     {...params}
                     placeholder={tagFilter.length ? "" : "Filtrar por tags..."}
-                    sx={{ "& .MuiInputBase-root": { bgcolor: "rgba(255,255,255,0.5)" } }}
+                    sx={{ "& .MuiInputBase-root": { bgcolor: "rgba(255,255,255,0.9)" } }}
                   />
                 )}
                 renderTags={(value, getTagProps) =>
@@ -215,9 +305,9 @@ export default function QuestsPage() {
               <Typography sx={{ fontFamily: "Cinzel" }}>Nenhuma missão encontrada com estes critérios.</Typography>
             </Paper>
           ) : (
-            <Stack spacing={4}>
+            <Stack spacing={4} component={motion.div} variants={containerVariants} initial="hidden" animate="show">
               {filtered.map((c) => (
-                <Box key={c.campaignId}>
+                <Box key={c.campaignId} component={motion.div} variants={itemVariants}>
                   <Box sx={{ display: "flex", alignItems: "center", mb: 2, ml: 1 }}>
                     <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: DND_THEME.gold, mr: 1.5 }} />
                     <Typography variant="h5" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#fff", letterSpacing: 1 }}>
@@ -232,11 +322,11 @@ export default function QuestsPage() {
                     sx={{
                       display: "grid",
                       gap: 2,
-                      gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                      gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "1fr 1fr 1fr" },
                     }}
                   >
                     {c.quests.map((qt) => (
-                      <QuestCard key={qt.id} uid={uid} campaignId={c.campaignId} quest={qt} />
+                      <QuestCard key={qt.id} uid={uid} campaignId={c.campaignId} campaignMode={campaignMode} quest={qt} />
                     ))}
                   </Box>
                 </Box>

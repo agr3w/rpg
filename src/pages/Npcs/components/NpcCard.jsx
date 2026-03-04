@@ -17,6 +17,8 @@ import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 import { Link } from "react-router-dom";
 import { database } from "APIs/firebaseConfig";
+import { buildCampaignQuery, getCampaignBasePath } from "service/campaignPath";
+import { motion } from "framer-motion";
 
 function snippet(text, max = 110) {
   const t = String(text || "").trim();
@@ -33,26 +35,32 @@ function fmtDate(ms) {
   }
 }
 
-export default function NpcCard({ uid, campaignId, npc }) {
+export default function NpcCard({ uid, campaignId, campaignMode = "legacy", npc }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const campaignBasePath = useMemo(
+    () => getCampaignBasePath({ uid, campaignId, mode: campaignMode }),
+    [uid, campaignId, campaignMode]
+  );
 
   const tags = useMemo(() => (Array.isArray(npc?.tags) ? npc.tags : []), [npc]);
   const desc = useMemo(() => snippet(npc?.description, 120), [npc]);
   const note = useMemo(() => snippet(npc?.lastSeenNote, 90), [npc]);
+  const objective = useMemo(() => snippet(npc?.objective || npc?.goal, 80), [npc]);
+  const attitude = useMemo(() => snippet(npc?.attitude || "", 40), [npc]);
 
   const deleteNpc = async () => {
-    if (!uid || !campaignId || !npc?.id) return;
+    if (!campaignBasePath || !npc?.id) return;
 
     setDeleting(true);
     try {
       // remove NPC master
       await database
-        .ref(`users/${uid}/campaigns/${campaignId}/npcs/${npc.id}`)
+        .ref(`${campaignBasePath}/npcs/${npc.id}`)
         .remove();
 
       // remove índices que apontem para esse npcId (scan simples, ok p/ volume baixo)
-      const idxRef = database.ref(`users/${uid}/campaigns/${campaignId}/npcIndex`);
+      const idxRef = database.ref(`${campaignBasePath}/npcIndex`);
       const idxSnap = await idxRef.once("value");
       const idx = idxSnap.val() || {};
 
@@ -74,62 +82,65 @@ export default function NpcCard({ uid, campaignId, npc }) {
   return (
     <>
       <Paper
+        component={motion.div}
+        whileHover={{ y: -4, scale: 1.01 }}
+        transition={{ type: "spring", stiffness: 280, damping: 22 }}
         elevation={0}
         sx={{
           borderRadius: 3,
-          border: "1px solid rgba(0,0,0,0.10)",
+          border: "1px solid rgba(191,143,0,0.35)",
           overflow: "hidden",
-          background:
-            "linear-gradient(180deg, rgba(255,250,244,1) 0%, rgba(245,238,229,1) 100%)",
-          boxShadow: "0 10px 24px rgba(0,0,0,0.12)",
+          background: "linear-gradient(180deg, #fff8e8 0%, #f6ead8 100%)",
+          boxShadow: "0 10px 24px rgba(0,0,0,0.16)",
         }}
       >
-        {/* Header + imagem */}
-        <Box
-          sx={{
-            position: "relative",
-            height: 140,
-            bgcolor: "rgba(44,26,16,0.06)",
-          }}
-        >
-          {npc?.imageUrl ? (
-            <Box
-              component="img"
-              src={npc.imageUrl}
-              alt={npc?.name || "NPC"}
-              loading="lazy"
-              sx={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                display: "block",
-                filter: "saturate(1.05) contrast(1.02)",
-              }}
-            />
-          ) : (
+        <Box sx={{ p: 1.5, pt: 2 }}>
+          <Stack alignItems="center" spacing={1.2}>
             <Box
               sx={{
-                width: "100%",
-                height: "100%",
+                width: 116,
+                height: 116,
+                borderRadius: "50%",
+                border: "3px solid rgba(131,60,11,0.55)",
+                boxShadow: "0 0 0 4px rgba(191,143,0,0.22)",
+                overflow: "hidden",
+                bgcolor: "rgba(44,26,16,0.10)",
                 display: "grid",
                 placeItems: "center",
-                background:
-                  "radial-gradient(120% 120% at 20% 10%, rgba(131,60,11,0.25) 0%, rgba(0,0,0,0.02) 62%)",
               }}
             >
-              <Typography sx={{ fontWeight: 1000, color: "rgba(44,26,16,0.75)" }}>
-                {npc?.name ? npc.name.slice(0, 1).toUpperCase() : "?"}
-              </Typography>
+              {npc?.imageUrl ? (
+                <Box
+                  component="img"
+                  src={npc.imageUrl}
+                  alt={npc?.name || "NPC"}
+                  loading="lazy"
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    display: "block",
+                  }}
+                />
+              ) : (
+                <Typography sx={{ fontWeight: 1000, color: "rgba(44,26,16,0.75)", fontSize: 38 }}>
+                  {npc?.name ? npc.name.slice(0, 1).toUpperCase() : "?"}
+                </Typography>
+              )}
             </Box>
-          )}
 
-          {/* Ações rápidas flutuantes */}
+            <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap justifyContent="center">
+              {attitude ? <Chip label={`Atitude: ${attitude}`} size="small" sx={{ bgcolor: "rgba(131,60,11,0.1)" }} /> : null}
+              {npc?.faction ? <Chip label={`Facção: ${npc.faction}`} size="small" sx={{ bgcolor: "rgba(191,143,0,0.12)" }} /> : null}
+            </Stack>
+          </Stack>
+
           <Box sx={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 0.5 }}>
             <Tooltip title="Abrir NPC">
               <IconButton
                 size="small"
                 component={Link}
-                to={`/npcs/${encodeURIComponent(npc.id)}?c=${encodeURIComponent(campaignId)}`}
+                to={`/npcs/${encodeURIComponent(npc.id)}?${buildCampaignQuery({ campaignId, mode: campaignMode })}`}
                 sx={{
                   bgcolor: "rgba(255,255,255,0.78)",
                   border: "1px solid rgba(0,0,0,0.10)",
@@ -159,7 +170,7 @@ export default function NpcCard({ uid, campaignId, npc }) {
         {/* Conteúdo */}
         <Box sx={{ p: 1.5 }}>
           <Stack spacing={0.75}>
-            <Stack direction="row" justifyContent="space-between" alignItems="baseline" sx={{ gap: 1 }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="baseline" sx={{ gap: 1, mt: -0.5 }}>
               <Typography sx={{ fontWeight: 1000, color: "#2c1a10" }} noWrap title={npc?.name || ""}>
                 {npc?.name || "NPC"}
               </Typography>
@@ -180,6 +191,25 @@ export default function NpcCard({ uid, campaignId, npc }) {
                 (Sem descrição)
               </Typography>
             )}
+
+            {objective ? (
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 1,
+                  borderRadius: 2,
+                  border: "1px dashed rgba(131,60,11,0.25)",
+                  bgcolor: "rgba(191,143,0,0.07)",
+                }}
+              >
+                <Typography variant="caption" sx={{ fontWeight: 900, opacity: 0.9 }}>
+                  Objetivo em cena
+                </Typography>
+                <Typography variant="caption" sx={{ display: "block", opacity: 0.85 }}>
+                  {objective}
+                </Typography>
+              </Paper>
+            ) : null}
 
             {note ? (
               <Paper
@@ -213,8 +243,8 @@ export default function NpcCard({ uid, campaignId, npc }) {
               size="small"
               variant="outlined"
               component={Link}
-              to={`/npcs/${encodeURIComponent(npc.id)}?c=${encodeURIComponent(campaignId)}`}
-              sx={{ width: "fit-content", fontWeight: 900 }}
+              to={`/npcs/${encodeURIComponent(npc.id)}?${buildCampaignQuery({ campaignId, mode: campaignMode })}`}
+              sx={{ width: "fit-content", fontWeight: 900, borderColor: "rgba(131,60,11,0.35)", color: "#5a2811" }}
             >
               Abrir detalhes
             </Button>
