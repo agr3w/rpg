@@ -43,6 +43,7 @@ function AppCard({
         borderRadius: 3, // Bordas um pouco mais suaves
         overflow: "hidden",
         position: "relative",
+        contain: "layout paint style",
         cursor: isClickable ? "pointer" : "default",
         userSelect: "none",
         height: "100%", // Garante altura igual em grids
@@ -54,32 +55,32 @@ function AppCard({
         border: `1px solid ${alpha(accentColor, 0.2)}`,
         
         // Sombra inicial suave
-        boxShadow: "0 4px 12px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.4)",
+        boxShadow: "0 3px 8px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.35)",
 
-        transition: "all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
+        transition: "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease",
+        willChange: isClickable ? "transform" : "auto",
 
-        "&:hover": isClickable
-          ? {
-              transform: "translateY(-6px)", // Levita mais
-              // Brilho mágico na borda e sombra profunda
-              boxShadow: `0 12px 28px -4px rgba(0,0,0,0.25), 0 0 0 1px ${alpha(accentColor, 0.6)}`,
-              borderColor: "transparent",
-              "& .card-arrow": {
-                transform: "translateX(4px)", // Anima a seta
-                opacity: 1,
-                color: accentColor,
-              },
-              "& .card-icon-bg": {
-                bgcolor: alpha(accentColor, 0.2), // Intensifica o fundo do ícone
-                transform: "scale(1.1) rotate(-5deg)", // Movimento lúdico no ícone
+        "@media (hover: hover) and (pointer: fine)": {
+          "&:hover": isClickable
+            ? {
+                transform: "translateY(-2px)",
+                boxShadow: `0 8px 16px rgba(0,0,0,0.14), 0 0 0 1px ${alpha(accentColor, 0.45)}`,
+                borderColor: alpha(accentColor, 0.45),
+                "& .card-arrow": {
+                  transform: "translateX(2px)",
+                  opacity: 1,
+                  color: accentColor,
+                },
+                "& .card-icon-bg": {
+                  bgcolor: alpha(accentColor, 0.16),
+                },
               }
-            }
-          : undefined,
+            : undefined,
+        },
 
-        "&:active": isClickable ? { transform: "translateY(-2px)", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" } : undefined,
+        "&:active": isClickable ? { transform: "translateY(-1px)", boxShadow: "0 4px 10px rgba(0,0,0,0.12)" } : undefined,
 
         opacity: disabled ? 0.6 : 1,
-        filter: disabled ? "grayscale(0.8)" : "none",
       }}
     >
       <Box
@@ -106,7 +107,7 @@ function AppCard({
               bgcolor: alpha(accentColor, 0.1),
               color: accentColor,
               border: `1px solid ${alpha(accentColor, 0.2)}`,
-              transition: "all 0.3s ease",
+              transition: "background-color 180ms ease",
             }}
           >
             <Icon sx={{ fontSize: 26 }} />
@@ -182,11 +183,12 @@ function AppCard({
               width: "100%",
               height: "100%",
               objectFit: "cover",
-              filter: "sepia(0.2) contrast(1.1)", // Filtro vintage
-              transition: "transform 0.5s ease",
-              ".MuiPaper-root:hover &": {
-                transform: "scale(1.05)",
-              }
+              transition: "transform 180ms ease",
+              "@media (hover: hover) and (pointer: fine)": {
+                ".MuiPaper-root:hover &": {
+                  transform: "scale(1.015)",
+                },
+              },
             }}
           />
           {/* Gradiente para suavizar a transição da imagem para o texto */}
@@ -236,7 +238,7 @@ function AppCard({
             sx={{ 
               fontSize: 18, 
               color: alpha(inkColor, 0.4), 
-              transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              transition: "transform 180ms ease, opacity 180ms ease, color 180ms ease",
               opacity: 0.7
             }} 
           />

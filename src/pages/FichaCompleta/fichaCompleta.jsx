@@ -120,6 +120,9 @@ const FichasPage = () => {
 
   const getClassStyle = (classe) => classStyles[classe] || classStyles.default;
 
+  const CONTENT_TEXT = "#f8efe0";
+  const CONTENT_MUTED = "rgba(248,239,224,0.82)";
+
   return (
     <>
       <Box sx={{ p: 3 }}>
@@ -178,18 +181,18 @@ const FichasPage = () => {
                         display: "flex",
                         flexDirection: "column",
                         justifyContent: "space-between",
-                        borderRadius: 2,
+                        borderRadius: 3,
                         overflow: "hidden",
                         boxShadow: 6,
                         transition: "transform .18s ease, box-shadow .18s ease",
                         "&:hover": {
-                          transform: "translateY(-8px) scale(1.02)",
+                          transform: "translateY(-4px) scale(1.01)",
                           boxShadow:
-                            "0 22px 70px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,204,0,0.16), 0 0 22px rgba(255,120,0,0.18)",
+                            "0 14px 36px rgba(0,0,0,0.42), 0 0 0 1px rgba(255,204,0,0.18)",
                         },
 
                         // ✅ aumenta um pouco o “glow” das brasas no hover
-                        "&:hover::after": { opacity: 0.40 },
+                        "&:hover::after": { opacity: 0.2 },
 
                         // ✅ Base “carvão”
                         backgroundImage: `
@@ -211,7 +214,7 @@ const FichasPage = () => {
                           inset: 0,
                           pointerEvents: "none",
                           zIndex: 0, // ✅ atrás
-                          opacity: 0.42,
+                          opacity: 0.14,
                           backgroundImage: `
                             repeating-linear-gradient(
                               90deg,
@@ -232,7 +235,7 @@ const FichasPage = () => {
                           inset: 0,
                           pointerEvents: "none",
                           zIndex: 0, // ✅ atrás
-                          opacity: 0.28,
+                          opacity: 0.1,
                           backgroundImage: `
                             radial-gradient(1px 1px at 16% 22%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 60%),
                             radial-gradient(2px 2px at 72% 28%, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0) 60%),
@@ -249,6 +252,7 @@ const FichasPage = () => {
                       <Box
                         sx={{
                           p: 2,
+                          minHeight: 98,
                           background: style.bg,
                           color: style.color,
                           position: "relative",
@@ -293,12 +297,13 @@ const FichasPage = () => {
                             {ficha.nome ? ficha.nome.charAt(0).toUpperCase() : "?"}
                           </Avatar>
                           <Box sx={{ flex: 1 }}>
-                            <Typography sx={{ fontWeight: 800, textShadow: "0 2px 10px rgba(0,0,0,0.45)" }}>
+                            <Typography noWrap sx={{ fontWeight: 900, fontSize: "1.05rem", textShadow: "0 2px 10px rgba(0,0,0,0.45)" }}>
                               {ficha.nome || "Sem nome"}
                             </Typography>
                             <Typography
                               variant="caption"
-                              sx={{ opacity: 0.92, textShadow: "0 2px 10px rgba(0,0,0,0.45)" }}
+                              noWrap
+                              sx={{ opacity: 0.96, textShadow: "0 2px 10px rgba(0,0,0,0.45)", letterSpacing: 0.3 }}
                             >
                               {classeName} • {racaName}
                             </Typography>
@@ -314,24 +319,39 @@ const FichasPage = () => {
 
                       <CardContent
                         sx={{
-                          bgcolor: "var(--rpg-cardPanelBg)",
-                          borderTop: "1px solid rgba(255,255,255,0.08)",
+                          bgcolor: "rgba(16,12,12,0.78)",
+                          borderTop: "1px solid rgba(255,255,255,0.12)",
+                          minHeight: 176,
+                          flexGrow: 1,
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 0.75,
                         }}
                       >
                         <Typography
                           variant="body2"
-                          sx={{ mb: 1, color: "var(--rpg-cardTextMuted)" }}
+                          sx={{
+                            mb: 0.5,
+                            color: CONTENT_MUTED,
+                            lineHeight: 1.45,
+                            minHeight: 42,
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
                         >
                           {ficha.DetalhesDaClasse?.Equipamentos?.equipamentoObgt
                             ? `Equipamento inicial: ${ficha.DetalhesDaClasse.Equipamentos.equipamentoObgt}`
                             : "Equipamento inicial: —"}
                         </Typography>
 
-                        <Typography variant="body2" sx={{ color: "var(--rpg-cardTextMuted)" }}>
+                        <Typography variant="body2" sx={{ color: CONTENT_MUTED, fontWeight: 700 }}>
                           Riqueza: {ficha.riquezaInicial ?? (ficha.Valor ? ficha.Valor : "—")} PO
                         </Typography>
 
-                        <Box sx={{ mt: 1, display: "flex", gap: 1, flexWrap: "wrap" }}>
+                        <Box sx={{ mt: 1, display: "flex", gap: 1, flexWrap: "wrap", minHeight: 56, alignContent: "flex-start", overflow: "hidden" }}>
                           {(ficha.DetalhesDaClasse?.periciasClasseSelecionadas ||
                             ficha.periciasClasseSelecionadas ||
                             [])
@@ -343,7 +363,7 @@ const FichasPage = () => {
                                 size="small"
                                 sx={{
                                   bgcolor: "rgba(255,255,255,0.10)",
-                                  color: "var(--rpg-cardText)",
+                                  color: CONTENT_TEXT,
                                   border: "1px solid rgba(255,255,255,0.10)",
                                 }}
                               />
@@ -356,7 +376,9 @@ const FichasPage = () => {
                           justifyContent: "space-between",
                           px: 2,
                           pb: 2,
-                          bgcolor: "var(--rpg-cardPanelBg)",
+                          mt: "auto",
+                          bgcolor: "rgba(16,12,12,0.78)",
+                          borderTop: "1px solid rgba(255,255,255,0.08)",
                         }}
                       >
                         <Button
@@ -366,7 +388,7 @@ const FichasPage = () => {
                           to={`/ficha-completa/${id}`}
                           startIcon={<VisibilityIcon />}
                           sx={{
-                            color: "var(--rpg-cardText)",
+                            color: CONTENT_TEXT,
                             borderColor: "rgba(255,255,255,0.22)",
                             "&:hover": {
                               borderColor: "var(--rpg-accent2)",
