@@ -202,6 +202,61 @@ function normalizeClassName(v) {
     .trim();
 }
 
+function parseFeatureLevelFromKey(key) {
+  const normalized = String(key || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  const match = normalized.match(/nv\s*(\d+)|nivel\s*(\d+)|level\s*(\d+)/i);
+  return Number(match?.[1] || match?.[2] || match?.[3] || 1);
+}
+
+function extractClassProgressionFeatures(habilidadesClasseObj = {}, fallbackList = []) {
+  const fromObject = Object.entries(habilidadesClasseObj || {}).flatMap(([key, value]) => {
+    const level = parseFeatureLevelFromKey(key);
+    if (Array.isArray(value)) {
+      return value
+        .map((item) => String(item || "").trim())
+        .filter(Boolean)
+        .map((name, index) => ({
+          id: `class-${key}-${index}-${name}`,
+          name,
+          level,
+          source: "progression",
+        }));
+    }
+
+    const one = String(value || "").trim();
+    if (!one) return [];
+    return [
+      {
+        id: `class-${key}-${one}`,
+        name: one,
+        level,
+        source: "progression",
+      },
+    ];
+  });
+
+  const fromFallback = (fallbackList || [])
+    .map((item, index) => String(item || "").trim())
+    .filter(Boolean)
+    .map((name, index) => ({
+      id: `class-fallback-${index}-${name}`,
+      name,
+      level: 1,
+      source: "fallback",
+    }));
+
+  const dedup = new Set();
+  return [...fromObject, ...fromFallback].filter((item) => {
+    const key = `${item.level}::${item.name.toLowerCase()}`;
+    if (dedup.has(key)) return false;
+    dedup.add(key);
+    return true;
+  });
+}
+
 const PANEL_SX = {
   p: 2,
   borderRadius: 3,
@@ -562,10 +617,13 @@ const FichaDetalhes = () => {
   // 🔹 habilidades de raça / sub-raça / classe
   const habilidadesRaca = racaSelecionada.habilidades || [];
   const habilidadesSubRaca = subRacaDetalhes.habilidadesSubRaca || [];
-  const habilidadesClasse =
-    ficha.DetalhesDaClasse?.habilidades ||
-    classeSelecioanda?.habilidades ||
-    [];
+  const classFeaturesProgression = extractClassProgressionFeatures(
+    classeSelecioanda?.habilidadesClasse || {},
+    ficha.DetalhesDaClasse?.habilidades || classeSelecioanda?.habilidades || []
+  );
+  const customClassFeatures = Array.isArray(ficha.habilidadesClasseCustom)
+    ? ficha.habilidadesClasseCustom
+    : [];
 
   const getSpellAttributeForClass = (classe) => {
     if (!classe) return "Inteligência";
@@ -657,6 +715,32 @@ const FichaDetalhes = () => {
         .set(safe);
     } catch (e) {
       console.error("Erro ao salvar treinamentos:", e);
+    }
+  };
+
+  const handleCustomClassFeaturesChange = async (nextList) => {
+    const safe = Array.isArray(nextList)
+      ? nextList
+          .map((item) => ({
+            id: item?.id || String(Date.now()),
+            name: String(item?.name || "").trim(),
+            description: String(item?.description || "").trim(),
+            level: Math.max(1, Number(item?.level || 1)),
+            createdAt: Number(item?.createdAt || Date.now()),
+          }))
+          .filter((item) => !!item.name)
+      : [];
+
+    setFicha((prev) => ({ ...(prev || {}), habilidadesClasseCustom: safe }));
+
+    if (!userID || !fichaKey) return;
+    try {
+      await firebase
+        .database()
+        .ref(`fichas/${userID}/${fichaKey}/habilidadesClasseCustom`)
+        .set(safe);
+    } catch (e) {
+      console.error("Erro ao salvar habilidades de classe personalizadas:", e);
     }
   };
 
@@ -1247,9 +1331,12 @@ const FichaDetalhes = () => {
                 savingThrowsAtivos={savingThrowsAtivos}
                 onChangeSavingThrowsAtivos={handleSavingThrowsAtivosChange}
                 habilidadesRaca={[...habilidadesRaca, ...habilidadesSubRaca]}
-                habilidadesClasse={habilidadesClasse}
+                classFeaturesProgression={classFeaturesProgression}
+                customClassFeatures={customClassFeatures}
+                onChangeCustomClassFeatures={handleCustomClassFeaturesChange}
                 classeImagens={ficha.DetalhesDaClasse?.imagens || []}
                 backgroundUrl={backgrounds[ficha.classe]}
+                levelAtual={fichaEstado.level}
                 deslocamento={deslocamentoBase}
                 tamanho={tamanhoBase}
                 deathSaves={deathSaves}
