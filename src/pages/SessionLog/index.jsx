@@ -43,15 +43,6 @@ import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 
 const DEFAULT_CAMPAIGN_ID = "default";
 
-// --- Estilos Visuais D&D ---
-const DND_THEME = {
-  ink: "#2c1a10",
-  paperBg: "linear-gradient(135deg, #fffbf0 0%, #f3eacb 100%)",
-  paperBorder: "1px solid rgba(92, 64, 51, 0.3)",
-  goldAccent: "#bf8f00",
-  leatherBg: "#2c1a10",
-};
-
 const SESSION_TEMPLATES = [
   { id: "livre", label: "Livre (Página em Branco)", build: () => "" },
   {
@@ -100,53 +91,56 @@ export default function SessionLog() {
   const [tagFilter, setTagFilter] = useState([]);
   const [onlyLast10, setOnlyLast10] = useState(false);
 
-  const { logs, loading, createLog: createLogAction } = useSessionLogs(
-    uid,
-    campaignId,
-    campaignMode,
-    { limit: onlyLast10 ? 60 : 250 }
-  );
+  const {
+    logs,
+    loading,
+    createLog: createLogAction,
+  } = useSessionLogs(uid, campaignId, campaignMode);
 
-  const applyTemplateIfEmpty = (nextTemplateId) => {
-    const t = SESSION_TEMPLATES.find((x) => x.id === nextTemplateId) || SESSION_TEMPLATES[0];
-    if (!String(summary || "").trim()) setSummary(t.build());
+  const applyTemplateIfEmpty = (tid) => {
+    const t = SESSION_TEMPLATES.find((x) => x.id === tid);
+    if (!t) return;
+    if (!summary.trim()) {
+      setSummary(t.build());
+    }
   };
 
   const tagOptions = useMemo(() => {
     const set = new Set();
-    logs.forEach((l) => (Array.isArray(l?.tags) ? l.tags : []).forEach((t) => set.add(String(t))));
-    return Array.from(set)
-      .filter(Boolean)
-      .sort((a, b) => String(a).localeCompare(String(b), "pt-BR"));
+    logs.forEach((l) => {
+      (Array.isArray(l.tags) ? l.tags : []).forEach((t) => set.add(String(t)));
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "pt-BR"));
   }, [logs]);
 
   const filtered = useMemo(() => {
     const needle = debouncedQ.trim().toLowerCase();
-    const needTags = new Set(tagFilter.map((t) => String(t).toLowerCase()));
+    const tagsNeed = new Set(tagFilter.map((t) => String(t).toLowerCase()));
 
-    const hitText = (l) => {
-      if (!needle) return true;
-      const t = String(l?.title || "").toLowerCase();
-      const s = String(l?.summary || "").toLowerCase();
-      const tags = Array.isArray(l?.tags) ? l.tags.join(" ").toLowerCase() : "";
-      return t.includes(needle) || s.includes(needle) || tags.includes(needle);
-    };
+    const list = logs.filter((l) => {
+      const matchText =
+        !needle ||
+        String(l.title || "").toLowerCase().includes(needle) ||
+        String(l.summary || "").toLowerCase().includes(needle) ||
+        (Array.isArray(l.tags) ? l.tags.join(" ").toLowerCase() : "").includes(needle);
 
-    const hitTags = (l) => {
-      if (!needTags.size) return true;
-      const tags = new Set((Array.isArray(l?.tags) ? l.tags : []).map((t) => String(t).toLowerCase()));
-      for (const t of needTags) if (!tags.has(t)) return false;
-      return true;
-    };
+      const logTags = new Set((Array.isArray(l.tags) ? l.tags : []).map((t) => String(t).toLowerCase()));
+      const matchTags =
+        tagsNeed.size === 0 || Array.from(tagsNeed).every((t) => logTags.has(t));
 
-    const arr = logs.filter((l) => hitText(l) && hitTags(l));
-    return onlyLast10 ? arr.slice(0, 10) : arr;
+      return matchText && matchTags;
+    });
+
+    if (onlyLast10) {
+      return list.slice(0, 10);
+    }
+    return list;
   }, [logs, debouncedQ, tagFilter, onlyLast10]);
 
   const grouped = useMemo(() => {
     const map = new Map();
     filtered.forEach((l) => {
-      const label = fmtMonth(l?.createdAt);
+      const label = fmtMonth(l.createdAt);
       if (!map.has(label)) map.set(label, []);
       map.get(label).push(l);
     });
@@ -198,10 +192,10 @@ export default function SessionLog() {
               }}
               sx={{
                 fontWeight: 800,
-                bgcolor: DND_THEME.goldAccent,
+                bgcolor: "secondary.main",
                 color: "#2c1a10",
                 fontFamily: "Cinzel",
-                "&:hover": { bgcolor: "#a67c00" },
+                "&:hover": { bgcolor: "secondary.dark" },
               }}
             >
               Escrever Sessão
@@ -210,21 +204,21 @@ export default function SessionLog() {
         >
           {status.msg ? <Alert severity={status.type} sx={{ mb: 2 }}>{status.msg}</Alert> : null}
 
-          {/* ✅ Filtros Estilizados (Índice do Livro) */}
+          {/* Filtros Estilizados (Índice do Livro) */}
           <Paper
             elevation={0}
             sx={{
               p: 2,
               borderRadius: 2,
-              border: "1px solid rgba(92, 64, 51, 0.2)",
-              bgcolor: "rgba(255, 251, 240, 0.6)", // Translúcido
+              border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(92, 64, 51, 0.2)"}`,
+              bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(255, 251, 240, 0.6)"),
               mb: 3,
               position: "relative",
               overflow: "hidden",
             }}
           >
-            {/* Detalhe decorativo de "marcador de página" */}
-            <Box sx={{ position: "absolute", top: 0, left: 0, width: 4, height: "100%", bgcolor: DND_THEME.goldAccent }} />
+            {/* Detalhe decorativo de marcador */}
+            <Box sx={{ position: "absolute", top: 0, left: 0, width: 4, height: "100%", bgcolor: "secondary.main" }} />
 
             <Stack spacing={2}>
               <Stack direction={{ xs: "column", md: "row" }} spacing={2} alignItems={{ md: "center" }}>
@@ -237,10 +231,13 @@ export default function SessionLog() {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <SearchIcon sx={{ color: "rgba(44, 26, 16, 0.5)" }} />
+                        <SearchIcon sx={{ color: "text.secondary" }} />
                       </InputAdornment>
                     ),
-                    sx: { bgcolor: "rgba(255,255,255,0.5)", fontFamily: "Cinzel" }
+                    sx: {
+                      bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.5)"),
+                      fontFamily: "Cinzel",
+                    },
                   }}
                 />
 
@@ -249,7 +246,7 @@ export default function SessionLog() {
                     <Switch 
                       checked={onlyLast10} 
                       onChange={(e) => setOnlyLast10(e.target.checked)} 
-                      color="warning"
+                      color="secondary"
                     />
                   }
                   label={<Typography variant="body2" sx={{ fontFamily: "Cinzel", fontWeight: 700 }}>Últimas 10</Typography>}
@@ -267,7 +264,12 @@ export default function SessionLog() {
                     {...params} 
                     label="Filtrar por Tags" 
                     placeholder="Selecione..." 
-                    sx={{ "& .MuiInputLabel-root": { fontFamily: "Cinzel" } }}
+                    sx={{
+                      "& .MuiInputLabel-root": { fontFamily: "Cinzel" },
+                      "& .MuiInputBase-root": {
+                        bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.5)"),
+                      },
+                    }}
                   />
                 )}
                 renderTags={(value, getTagProps) =>
@@ -277,7 +279,7 @@ export default function SessionLog() {
                       label={option} 
                       size="small" 
                       {...getTagProps({ index })} 
-                      sx={{ bgcolor: "#e0d0b0", color: "#2c1a10", fontWeight: 600 }}
+                      sx={{ bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(229,179,36,0.15)" : "#e0d0b0"), fontWeight: 600 }}
                     />
                   ))
                 }
@@ -302,11 +304,11 @@ export default function SessionLog() {
                   <Box key={monthLabel}>
                     {/* Cabeçalho do Mês (Capítulo) */}
                     <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                      <BookmarkBorderIcon sx={{ color: DND_THEME.goldAccent, mr: 1 }} />
-                      <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: "#fff", letterSpacing: 1 }}>
+                      <BookmarkBorderIcon sx={{ color: "secondary.main", mr: 1 }} />
+                      <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: "text.primary", letterSpacing: 1 }}>
                         {monthLabel}
                       </Typography>
-                      <Divider sx={{ flexGrow: 1, ml: 2, borderColor: "rgba(255,255,255,0.1)" }} />
+                      <Divider sx={{ flexGrow: 1, ml: 2, borderColor: (t) => t.palette.rpg?.stroke || "rgba(255,255,255,0.1)" }} />
                     </Box>
 
                     <Stack spacing={2}>
@@ -315,20 +317,20 @@ export default function SessionLog() {
                           key={l.id}
                           component={Link}
                           to={`/diario/${l.id}?${buildCampaignQuery({ campaignId, mode: campaignMode })}`}
-                          elevation={3}
+                          elevation={2}
                           sx={{
                             p: 2.5,
-                            borderRadius: "2px 12px 12px 2px", // Canto arredondado estilo página
+                            borderRadius: "2px 12px 12px 2px",
                             textDecoration: "none",
-                            color: DND_THEME.ink,
-                            background: DND_THEME.paperBg,
-                            border: DND_THEME.paperBorder,
-                            borderLeft: `4px solid ${DND_THEME.goldAccent}`, // Lombada
+                            color: "text.primary",
+                            bgcolor: (t) => (t.palette.mode === "dark" ? "#1e1814" : "#fffbf0"),
+                            border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(92, 64, 51, 0.3)"}`,
+                            borderLeft: (t) => `4px solid ${t.palette.secondary.main}`,
                             transition: "transform 0.15s ease, box-shadow 0.15s ease",
                             position: "relative",
                             "&:hover": {
                               transform: "translateX(4px)",
-                              boxShadow: "0 8px 20px rgba(0,0,0,0.3)",
+                              boxShadow: (t) => (t.palette.mode === "dark" ? "0 8px 24px rgba(0,0,0,0.5)" : "0 8px 20px rgba(0,0,0,0.2)"),
                               "& .edit-icon": { opacity: 1 }
                             },
                           }}
@@ -339,11 +341,11 @@ export default function SessionLog() {
                                 <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 800, lineHeight: 1.2 }}>
                                   {l.title || "Sessão Sem Título"}
                                 </Typography>
-                                <Typography variant="caption" sx={{ color: "rgba(44, 26, 16, 0.6)", fontWeight: 600 }}>
+                                <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
                                   {fmtDate(l.createdAt)}
                                 </Typography>
                               </Box>
-                              <EditNoteIcon className="edit-icon" sx={{ opacity: 0, transition: "opacity 0.2s", color: "#833c0b" }} />
+                              <EditNoteIcon className="edit-icon" sx={{ opacity: 0, transition: "opacity 0.2s", color: "primary.main" }} />
                             </Stack>
 
                             {Array.isArray(l?.tags) && l.tags.length > 0 && (
@@ -356,23 +358,23 @@ export default function SessionLog() {
                                     sx={{ 
                                       height: 20, 
                                       fontSize: "0.65rem", 
-                                      bgcolor: "rgba(131, 60, 11, 0.1)", 
-                                      color: "#58180D",
-                                      border: "1px solid rgba(131, 60, 11, 0.2)"
+                                      bgcolor: (tTheme) => (tTheme.palette.mode === "dark" ? "rgba(212, 122, 55, 0.15)" : "rgba(131, 60, 11, 0.1)"), 
+                                      color: "primary.main",
+                                      border: (tTheme) => `1px solid ${tTheme.palette.rpg?.stroke || "rgba(131, 60, 11, 0.2)"}`
                                     }} 
                                   />
                                 ))}
                               </Stack>
                             )}
 
-                            <Divider sx={{ borderColor: "rgba(92, 64, 51, 0.15)" }} />
+                            <Divider sx={{ borderColor: (t) => t.palette.rpg?.stroke || "rgba(92, 64, 51, 0.15)" }} />
 
                             <Typography 
                               variant="body2" 
                               sx={{ 
                                 opacity: 0.85, 
                                 whiteSpace: "pre-wrap", 
-                                fontFamily: "'Merriweather', serif", // Fonte serifada para leitura
+                                fontFamily: "'Merriweather', serif",
                                 maxHeight: 60,
                                 overflow: "hidden",
                                 display: "-webkit-box",
@@ -394,7 +396,7 @@ export default function SessionLog() {
         </RpgSection>
       </motion.div>
 
-      {/* ✅ Dialog de Criação (Mesa de Escrita) */}
+      {/* Dialog de Criação (Mesa de Escrita) */}
       <Dialog 
         open={open} 
         onClose={() => setOpen(false)} 
@@ -402,14 +404,14 @@ export default function SessionLog() {
         fullWidth
         PaperProps={{
           sx: {
-            background: "#fdf6e3",
-            backgroundImage: `url("https://www.transparenttextures.com/patterns/aged-paper.png"), linear-gradient(to bottom, #fffbf0, #f3eacb)`,
-            border: "4px double #5c4033",
+            bgcolor: "background.paper",
+            backgroundImage: (t) => t.palette.rpg?.paperBg || "none",
+            border: (t) => `2px solid ${t.palette.rpg?.stroke || "#5c4033"}`,
             borderRadius: 2
           }
         }}
       >
-        <DialogTitle sx={{ fontFamily: "Cinzel", fontWeight: 900, color: "#58180D", textAlign: "center", borderBottom: "1px solid rgba(92,64,51,0.2)" }}>
+        <DialogTitle sx={{ fontFamily: "Cinzel", fontWeight: 900, color: "primary.main", textAlign: "center", borderBottom: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(92,64,51,0.2)"}` }}>
           Nova Crônica
         </DialogTitle>
         <DialogContent sx={{ mt: 2 }}>
@@ -442,7 +444,7 @@ export default function SessionLog() {
               placeholder="Ex: A Queda do Rei Louco"
               variant="outlined"
               sx={{
-                "& .MuiInputBase-root": { bgcolor: "rgba(255,255,255,0.5)" }
+                "& .MuiInputBase-root": { bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.5)") }
               }}
             />
 
@@ -458,7 +460,7 @@ export default function SessionLog() {
             {draftTags.length > 0 && (
               <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1 }}>
                 {draftTags.map((t) => (
-                  <Chip key={t} label={t} size="small" sx={{ bgcolor: "#e0d0b0" }} />
+                  <Chip key={t} label={t} size="small" sx={{ bgcolor: (tTheme) => (tTheme.palette.mode === "dark" ? "rgba(229,179,36,0.15)" : "#e0d0b0") }} />
                 ))}
               </Stack>
             )}
@@ -473,7 +475,7 @@ export default function SessionLog() {
               placeholder="Escreva aqui os feitos do grupo..."
               sx={{
                 "& .MuiInputBase-root": { 
-                  bgcolor: "rgba(255,255,255,0.3)",
+                  bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.3)"),
                   fontFamily: "'Merriweather', serif",
                   fontSize: "0.95rem",
                   lineHeight: 1.6
@@ -482,17 +484,15 @@ export default function SessionLog() {
             />
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 2, borderTop: "1px solid rgba(92,64,51,0.2)", bgcolor: "rgba(92,64,51,0.05)" }}>
-          <Button onClick={() => setOpen(false)} sx={{ color: "#5c4033" }}>Cancelar</Button>
+        <DialogActions sx={{ p: 2, borderTop: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(92,64,51,0.2)"}`, bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "rgba(92,64,51,0.05)") }}>
+          <Button onClick={() => setOpen(false)} sx={{ color: "text.secondary" }}>Cancelar</Button>
           <Button 
             variant="contained" 
             onClick={createLog} 
             disabled={saving}
             sx={{ 
-              bgcolor: "#833c0b", 
               fontFamily: "Cinzel", 
               fontWeight: 700,
-              "&:hover": { bgcolor: "#5e2708" },
             }}
           >
             {saving ? "Salvando..." : "Salvar"}

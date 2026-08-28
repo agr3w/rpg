@@ -113,14 +113,14 @@ export default function XpPanel({ uid, linkedFichaId, sessionRef, session, setSt
       sx={{ 
         p: 2, 
         borderRadius: 2, 
-        bgcolor: "#fdfbf7", 
-        border: "1px solid rgba(92, 64, 51, 0.2)",
+        bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "#fdfbf7"), 
+        border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(92, 64, 51, 0.2)"}`,
         position: "relative"
       }}
     >
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-        <AutoAwesomeIcon sx={{ color: "#bf8f00" }} />
-        <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#2c1a10" }}>
+        <AutoAwesomeIcon sx={{ color: "secondary.main" }} />
+        <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "text.primary" }}>
           Experiência (XP)
         </Typography>
       </Stack>
@@ -148,7 +148,7 @@ export default function XpPanel({ uid, linkedFichaId, sessionRef, session, setSt
           <Button 
             variant="contained" 
             onClick={addXpEntry}
-            sx={{ bgcolor: "#2c1a10", minWidth: 40, px: 0 }}
+            sx={{ minWidth: 40, px: 0 }}
           >
             +
           </Button>
@@ -160,14 +160,14 @@ export default function XpPanel({ uid, linkedFichaId, sessionRef, session, setSt
             elevation={0} 
             sx={{ 
               p: 1.5, 
-              bgcolor: "rgba(191, 143, 0, 0.1)", 
-              border: "1px dashed #bf8f00",
+              bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(229, 179, 36, 0.1)" : "rgba(191, 143, 0, 0.1)"), 
+              border: (t) => `1px dashed ${t.palette.secondary.main}`,
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between"
             }}
           >
-            <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#833c0b" }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "primary.main" }}>
               Total Pendente: {pendingXpDelta > 0 ? `+${pendingXpDelta}` : pendingXpDelta} XP
             </Typography>
             <Button 
@@ -175,7 +175,7 @@ export default function XpPanel({ uid, linkedFichaId, sessionRef, session, setSt
               variant="outlined" 
               onClick={applyPendingXpToFicha}
               disabled={!linkedFichaId}
-              sx={{ borderColor: "#833c0b", color: "#833c0b" }}
+              sx={{ borderColor: "primary.main", color: "primary.main" }}
             >
               Aplicar
             </Button>
@@ -190,18 +190,18 @@ export default function XpPanel({ uid, linkedFichaId, sessionRef, session, setSt
               sx={{
                 p: 1,
                 borderRadius: 1,
-                bgcolor: e.appliedToFichaAt ? "rgba(0,0,0,0.03)" : "#fff",
-                border: "1px solid rgba(0,0,0,0.08)",
+                bgcolor: (t) => (t.palette.mode === "dark" ? (e.appliedToFichaAt ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.06)") : (e.appliedToFichaAt ? "rgba(0,0,0,0.03)" : "#fff")),
+                border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(0,0,0,0.08)"}`,
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center"
               }}
             >
               <Box>
-                <Typography variant="body2" sx={{ fontWeight: 700, color: "#2c1a10" }}>
+                <Typography variant="body2" sx={{ fontWeight: 700, color: "text.primary" }}>
                   {Number(e.amount) >= 0 ? `+${e.amount}` : e.amount} XP
                 </Typography>
-                <Typography variant="caption" sx={{ color: "rgba(44, 26, 16, 0.6)" }}>
+                <Typography variant="caption" sx={{ color: "text.secondary" }}>
                   {e.reason || "Sem motivo"}
                 </Typography>
               </Box>

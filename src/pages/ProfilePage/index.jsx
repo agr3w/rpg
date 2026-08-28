@@ -55,131 +55,158 @@ export default function Perfil() {
 
   const current = sections.find((s) => s.id === active) || sections[0];
   const accentColor = theme.palette?.[current.accent]?.main || theme.palette.primary.main;
-
-  // Estilos Temáticos
-  const parchmentTexture = "url('https://www.transparenttextures.com/patterns/aged-paper.png')"; // Exemplo de textura leve
-  const inkColor = "#2c1a10";
-  const goldColor = "#bf8f00";
+  const isDark = theme.palette.mode === "dark";
 
   return (
-    <MotionConfig reducedMotion={prefs.reduceMotion ? "always" : "user"}>
-      <Box sx={{ py: 4, minHeight: "100vh", bgcolor: "#121212" }}>
-        <Container maxWidth="lg">
+    <Box sx={{ py: 4, minHeight: "100vh", bgcolor: "background.default" }}>
+      <Container maxWidth="lg">
+        {/* Header */}
+        <Box sx={{ mb: 4, textAlign: "center", position: "relative" }}>
+          <Typography
+            variant="h3"
+            sx={{
+              fontFamily: "Cinzel",
+              color: "secondary.main",
+              textShadow: isDark ? "0 2px 4px rgba(0,0,0,0.8)" : "none",
+            }}
+          >
+            Configurações do Reino
+          </Typography>
+          <Typography
+            variant="subtitle1"
+            sx={{ color: "text.secondary", fontStyle: "italic", fontFamily: "Merriweather" }}
+          >
+            Gerencie sua identidade e a magia que rege este sistema.
+          </Typography>
+          <Divider sx={{ mt: 2, borderColor: (t) => t.palette.rpg?.stroke || "rgba(0,0,0,0.12)", width: "50%", mx: "auto" }} />
+        </Box>
 
-          {/* Header */}
-          <Box sx={{ mb: 4, textAlign: "center", position: "relative" }}>
-            <Typography variant="h3" sx={{ fontFamily: "Cinzel", color: goldColor, textShadow: "0 2px 4px rgba(0,0,0,0.8)" }}>
-              Configurações do Reino
-            </Typography>
-            <Typography variant="subtitle1" sx={{ color: "#aaa", fontStyle: "italic", fontFamily: "Merriweather" }}>
-              Gerencie sua identidade e a magia que rege este sistema.
-            </Typography>
-            <Divider sx={{ mt: 2, borderColor: alpha(goldColor, 0.3), width: "50%", mx: "auto" }} />
-          </Box>
+        {status.msg && (
+          <Alert
+            severity={status.type}
+            onClose={() => setStatus({ ...status, msg: "" })}
+            sx={{
+              mb: 3,
+              border: `1px solid ${theme.palette[status.type].main}`,
+            }}
+          >
+            {status.msg}
+          </Alert>
+        )}
 
-          {status.msg && (
-            <Alert severity={status.type} onClose={() => setStatus({ ...status, msg: "" })} sx={{ mb: 3, bgcolor: "#1e1e1e", color: "#fff", border: `1px solid ${theme.palette[status.type].main}` }}>
-              {status.msg}
-            </Alert>
-          )}
-
-          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "280px 1fr" }, gap: 3 }}>
-
-            {/* SIDEBAR (Marcador de Livro) */}
-            <Paper
-              elevation={4}
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "280px 1fr" }, gap: 3 }}>
+          {/* SIDEBAR (Marcador de Livro) */}
+          <Paper
+            elevation={2}
+            sx={{
+              bgcolor: isDark ? "#181310" : "#f4ede3",
+              border: (t) => `1px solid ${t.palette.rpg?.stroke || alpha("#000", 0.12)}`,
+              borderRadius: "4px",
+              overflow: "hidden",
+            }}
+          >
+            <Box
               sx={{
-                bgcolor: "#1e1e1e",
-                backgroundImage: parchmentTexture,
-                border: `1px solid ${alpha(goldColor, 0.2)}`,
-                borderRadius: "4px",
-                overflow: "hidden"
+                p: 2,
+                bgcolor: (t) => alpha(t.palette.secondary.main, 0.08),
+                borderBottom: (t) => `1px solid ${t.palette.rpg?.stroke || alpha("#000", 0.1)}`,
               }}
             >
-              <Box sx={{ p: 2, bgcolor: alpha(goldColor, 0.05), borderBottom: `1px solid ${alpha(goldColor, 0.1)}` }}>
-                <Typography variant="overline" sx={{ color: goldColor, letterSpacing: 2, fontWeight: "bold" }}>
-                  Índice
+              <Typography variant="overline" sx={{ color: "secondary.main", letterSpacing: 2, fontWeight: "bold" }}>
+                Índice
+              </Typography>
+            </Box>
+            <List sx={{ p: 1 }}>
+              {sections.map((s) => {
+                const selected = active === s.id;
+                return (
+                  <ListItemButton
+                    key={s.id}
+                    selected={selected}
+                    onClick={() => setActive(s.id)}
+                    sx={{
+                      mb: 1,
+                      borderRadius: 1,
+                      borderLeft: selected ? `4px solid ${theme.palette[s.accent].main}` : "4px solid transparent",
+                      bgcolor: selected ? alpha(theme.palette[s.accent].main, 0.12) : "transparent",
+                      "&:hover": { bgcolor: alpha(theme.palette[s.accent].main, 0.08) },
+                    }}
+                  >
+                    <ListItemIcon sx={{ color: selected ? theme.palette[s.accent].main : "text.secondary", minWidth: 40 }}>
+                      {s.icon}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={s.label}
+                      primaryTypographyProps={{
+                        fontFamily: "Cinzel",
+                        fontWeight: selected ? 700 : 400,
+                        color: selected ? "text.primary" : "text.secondary",
+                      }}
+                    />
+                  </ListItemButton>
+                );
+              })}
+            </List>
+          </Paper>
+
+          {/* CONTEÚDO PRINCIPAL (Página do Livro) */}
+          <Paper
+            elevation={4}
+            sx={{
+              position: "relative",
+              minHeight: 500,
+              bgcolor: isDark ? "#1c1612" : "#fdf6e3",
+              color: "text.primary",
+              borderRadius: "2px 12px 12px 2px",
+              border: (t) => `1px solid ${t.palette.rpg?.stroke || "#dcd0c0"}`,
+              boxShadow: isDark ? "0 10px 30px rgba(0,0,0,0.5)" : "inset 20px 0 50px rgba(0,0,0,0.05), 5px 5px 15px rgba(0,0,0,0.15)",
+              p: { xs: 2, md: 5 },
+            }}
+          >
+            {/* Detalhe visual de canto */}
+            <Box
+              sx={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+                width: 60,
+                height: 60,
+                background: `linear-gradient(45deg, transparent 50%, ${alpha(accentColor, 0.8)} 50%)`,
+                opacity: 0.2,
+              }}
+            />
+
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={2}
+              sx={{ mb: 4, borderBottom: `2px solid ${alpha(accentColor, 0.3)}`, pb: 2 }}
+            >
+              <WaxSeal color={theme.palette[current.accent].dark} />
+              <Box>
+                <Typography variant="h4" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: "text.primary" }}>
+                  {current.label}
+                </Typography>
+                <Typography variant="caption" sx={{ fontFamily: "Merriweather", color: "text.secondary" }}>
+                  Capítulo {sections.findIndex((s) => s.id === active) + 1}
                 </Typography>
               </Box>
-              <List sx={{ p: 1 }}>
-                {sections.map((s) => {
-                  const selected = active === s.id;
-                  return (
-                    <ListItemButton
-                      key={s.id}
-                      selected={selected}
-                      onClick={() => setActive(s.id)}
-                      sx={{
-                        mb: 1, borderRadius: 1,
-                        borderLeft: selected ? `4px solid ${theme.palette[s.accent].main}` : "4px solid transparent",
-                        bgcolor: selected ? alpha(theme.palette[s.accent].main, 0.08) : "transparent",
-                        "&:hover": { bgcolor: alpha(theme.palette[s.accent].main, 0.05) },
-                        transition: "all 0.3s ease"
-                      }}
-                    >
-                      <ListItemIcon sx={{ color: selected ? theme.palette[s.accent].main : "#666", minWidth: 40 }}>
-                        {s.icon}
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={s.label}
-                        primaryTypographyProps={{
-                          fontFamily: "Cinzel",
-                          fontWeight: selected ? 700 : 400,
-                          color: selected ? "#e0e0e0" : "#888"
-                        }}
-                      />
-                    </ListItemButton>
-                  );
-                })}
-              </List>
-            </Paper>
+            </Stack>
 
-            {/* CONTEÚDO PRINCIPAL (Página do Livro) */}
-            <Paper
-              elevation={6}
-              sx={{
-                position: "relative",
-                minHeight: 500,
-                bgcolor: "#fdf6e3", // Cor de pergaminho claro
-                color: inkColor,
-                backgroundImage: parchmentTexture,
-                borderRadius: "2px 12px 12px 2px",
-                border: "1px solid #dcd0c0",
-                boxShadow: "inset 20px 0 50px rgba(0,0,0,0.05), 5px 5px 15px rgba(0,0,0,0.3)",
-                p: { xs: 2, md: 5 }
-              }}
-            >
-              {/* Detalhe visual de canto */}
-              <Box sx={{ position: "absolute", top: 0, right: 0, width: 60, height: 60, background: `linear-gradient(45deg, transparent 50%, ${alpha(accentColor, 0.8)} 50%)`, opacity: 0.2 }} />
-
-              <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 4, borderBottom: `2px solid ${alpha(accentColor, 0.3)}`, pb: 2 }}>
-                <WaxSeal color={theme.palette[current.accent].dark} />
-                <Box>
-                  <Typography variant="h4" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: inkColor }}>
-                    {current.label}
-                  </Typography>
-                  <Typography variant="caption" sx={{ fontFamily: "Merriweather", color: alpha(inkColor, 0.6) }}>
-                    Capítulo {sections.findIndex(s => s.id === active) + 1}
-                  </Typography>
-                </Box>
-              </Stack>
-
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={current.id}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {current.node}
-                </motion.div>
-              </AnimatePresence>
-
-            </Paper>
-          </Box>
-        </Container>
-      </Box>
-    </MotionConfig>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={current.id}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                {current.node}
+              </motion.div>
+            </AnimatePresence>
+          </Paper>
+        </Box>
+      </Container>
+    </Box>
   );
 }

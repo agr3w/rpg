@@ -4,32 +4,42 @@ import { createTheme, alpha } from "@mui/material/styles";
 export function createAppTheme({ mode = "dark", style = "parchment" } = {}) {
   const isDark = mode === "dark";
 
-  const backgroundDefault = isDark ? "#101210" : "#f4ede3";
-  const paperBase = isDark ? "#DFD6CD" : "#FFF6EA";
+  // Fundos e Papéis
+  const backgroundDefault = isDark ? "#0f0e0d" : "#f4ede3";
+  const paperBase = isDark ? "#1e1814" : "#FFF6EA";
+  const paperElevated = isDark ? "#28211b" : "#fdfbf7";
+
+  // Textos
+  const textPrimary = isDark ? "#f5ede0" : "#2c1a10";
+  const textSecondary = isDark ? "rgba(245, 237, 224, 0.7)" : "rgba(44, 26, 16, 0.75)";
 
   const paperBg =
     style === "parchment"
-      ? `linear-gradient(180deg, ${alpha("#fffaf2", 0.92)} 0%, ${alpha(paperBase, 0.94)} 100%)`
+      ? isDark
+        ? `linear-gradient(180deg, rgba(35, 28, 23, 0.96) 0%, rgba(26, 21, 17, 0.98) 100%)`
+        : `linear-gradient(180deg, ${alpha("#fffaf2", 0.92)} 0%, ${alpha(paperBase, 0.94)} 100%)`
       : "none";
 
   return createTheme({
     palette: {
       mode,
-      primary: { main: "#833c0b", contrastText: "#fff" },
-      secondary: { main: "#bf8f00" },
+      primary: { main: isDark ? "#d47a37" : "#833c0b", contrastText: "#fff" },
+      secondary: { main: isDark ? "#e5b324" : "#bf8f00" },
       background: {
         default: backgroundDefault,
         paper: paperBase,
       },
       text: {
-        primary: "#2c1a10",
-        secondary: alpha("#2c1a10", 0.78),
+        primary: textPrimary,
+        secondary: textSecondary,
       },
       rpg: {
-        style, // ✅ expõe o preset atual
-        leather: "#ba9173",
-        ink: "#2c1a10",
-        stroke: alpha("#000", 0.12),
+        style,
+        leather: isDark ? "#3d2d23" : "#ba9173",
+        ink: textPrimary,
+        stroke: isDark ? "rgba(212, 122, 55, 0.25)" : "rgba(92, 64, 51, 0.2)",
+        paperBg,
+        paperElevated,
       },
     },
 
@@ -37,8 +47,8 @@ export function createAppTheme({ mode = "dark", style = "parchment" } = {}) {
 
     typography: {
       fontFamily: `"Cinzel", "Roboto", Helvetica, Arial, sans-serif`,
-      h4: { fontWeight: 900, letterSpacing: 0.2, color: "#2c1a10" },
-      h6: { fontWeight: 800, color: "#2c1a10" },
+      h4: { fontWeight: 900, letterSpacing: 0.2, color: textPrimary },
+      h6: { fontWeight: 800, color: textPrimary },
       button: { fontWeight: 800, textTransform: "none" },
     },
 
@@ -68,9 +78,10 @@ export function createAppTheme({ mode = "dark", style = "parchment" } = {}) {
 
       MuiPaper: {
         styleOverrides: {
-          root: {
-            backgroundImage: paperBg,
-          },
+          root: ({ theme }) => ({
+            backgroundImage: theme.palette.rpg?.paperBg || "none",
+            color: theme.palette.text.primary,
+          }),
         },
       },
 

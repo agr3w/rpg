@@ -129,13 +129,13 @@ export default function LootPanel({
       sx={{
         p: 2,
         borderRadius: 2,
-        bgcolor: "#fdfbf7",
-        border: "1px solid rgba(92, 64, 51, 0.2)",
+        bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "#fdfbf7"),
+        border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(92, 64, 51, 0.2)"}`,
       }}
     >
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-        <Inventory2Icon sx={{ color: "#bf8f00" }} />
-        <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#2c1a10" }}>
+        <Inventory2Icon sx={{ color: "secondary.main" }} />
+        <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "text.primary" }}>
           Tesouros & Loot
         </Typography>
       </Stack>
@@ -178,14 +178,14 @@ export default function LootPanel({
               variant="contained"
               onClick={handleAddLoot}
               disabled={!itemName.trim() || !targetFichaId || saving}
-              sx={{ bgcolor: "#2c1a10", minWidth: 100 }}
+              sx={{ minWidth: 100 }}
             >
               Salvar
             </Button>
           </Stack>
         </Box>
 
-        <Divider />
+        <Divider sx={{ borderColor: (t) => t.palette.rpg?.stroke || "rgba(0,0,0,0.1)" }} />
 
         {loading ? (
           <CircularProgress size={20} sx={{ alignSelf: "center" }} />
@@ -202,13 +202,13 @@ export default function LootPanel({
                   display: "flex", 
                   justifyContent: "space-between", 
                   p: 0.5, 
-                  borderBottom: "1px dashed rgba(0,0,0,0.1)" 
+                  borderBottom: (t) => `1px dashed ${t.palette.rpg?.stroke || "rgba(0,0,0,0.1)"}` 
                 }}
               >
-                <Typography variant="body2" sx={{ fontWeight: 600, color: "#2c1a10" }}>
+                <Typography variant="body2" sx={{ fontWeight: 600, color: "text.primary" }}>
                   {l.qty}x {l.name}
                 </Typography>
-                <Typography variant="caption" sx={{ color: "#833c0b" }}>
+                <Typography variant="caption" sx={{ color: "primary.main" }}>
                   → {fichasById[l.targetFichaId]?.nome || "Desconhecido"}
                 </Typography>
               </Box>

@@ -479,21 +479,21 @@ export default function QuestsPanel({ uid, campaignId, campaignMode = "legacy", 
       sx={{
         p: 2.5,
         borderRadius: 2,
-        bgcolor: "#fffbf0",
-        border: "1px solid rgba(92, 64, 51, 0.2)",
+        bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "#fffbf0"),
+        border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(92, 64, 51, 0.2)"}`,
         position: "relative",
       }}
     >
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-        <MapIcon sx={{ color: "#833c0b" }} />
-        <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#2c1a10" }}>
+        <MapIcon sx={{ color: "primary.main" }} />
+        <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "text.primary" }}>
           Quests & Missões
         </Typography>
       </Stack>
 
       <Stack spacing={2}>
         {/* Form: adicionar quest */}
-        <Paper elevation={0} sx={{ p: 1.5, bgcolor: "rgba(0,0,0,0.03)", borderRadius: 1 }}>
+        <Paper elevation={0} sx={{ p: 1.5, bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)"), borderRadius: 1 }}>
           <Stack spacing={1}>
             <TextField
               size="small"
@@ -501,14 +501,14 @@ export default function QuestsPanel({ uid, campaignId, campaignMode = "legacy", 
               onChange={(e) => setQuestTitle(e.target.value)}
               placeholder="Nova Quest (Título)"
               fullWidth
-              sx={{ bgcolor: "#fff" }}
+              sx={{ bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "#fff") }}
             />
             <Stack direction="row" spacing={1}>
               <Select
                 value={questStatus}
                 onChange={(e) => setQuestStatus(e.target.value)}
                 size="small"
-                sx={{ minWidth: 100, bgcolor: "#fff" }}
+                sx={{ minWidth: 100, bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "#fff") }}
               >
                 {STATUS.map((s) => (
                   <MenuItem key={s.value} value={s.value}>
@@ -516,14 +516,14 @@ export default function QuestsPanel({ uid, campaignId, campaignMode = "legacy", 
                   </MenuItem>
                 ))}
               </Select>
-              <Button variant="contained" onClick={addQuest} sx={{ bgcolor: "#833c0b", flexGrow: 1 }}>
+              <Button variant="contained" onClick={addQuest} sx={{ flexGrow: 1 }}>
                 Adicionar
               </Button>
             </Stack>
           </Stack>
         </Paper>
 
-        <Divider sx={{ borderColor: "rgba(92, 64, 51, 0.1)" }} />
+        <Divider sx={{ borderColor: (t) => t.palette.rpg?.stroke || "rgba(92, 64, 51, 0.1)" }} />
 
         {/* Lista: quests na sessão + plano */}
         {questsWithMaster.length === 0 ? (
@@ -546,21 +546,21 @@ export default function QuestsPanel({ uid, campaignId, campaignMode = "legacy", 
                   sx={{
                     p: 2,
                     borderRadius: 1,
-                    bgcolor: "#fff",
-                    border: "1px solid rgba(92, 64, 51, 0.15)",
+                    bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "#fff"),
+                    border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(92, 64, 51, 0.15)"}`,
                     borderLeft: `4px solid ${q.status === 'concluida' ? '#2e7d32' : '#ed6c02'}`,
-                    transition: "transform 0.2s",
+                    transition: "transform 0.15s ease",
                     "&:hover": { transform: "translateX(2px)" }
                   }}
                 >
                   <Stack spacing={1}>
                     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                       <Box>
-                        <Typography variant="subtitle1" sx={{ fontFamily: "Cinzel", fontWeight: 700, color: "#2c1a10", lineHeight: 1.2 }}>
+                        <Typography variant="subtitle1" sx={{ fontFamily: "Cinzel", fontWeight: 700, color: "text.primary", lineHeight: 1.2 }}>
                           {q.title || "—"}
                         </Typography>
                         {q.note && (
-                          <Typography variant="caption" sx={{ color: "rgba(44, 26, 16, 0.7)", display: "block", mt: 0.5 }}>
+                          <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mt: 0.5 }}>
                             Nota: {q.note}
                           </Typography>
                         )}
@@ -578,7 +578,7 @@ export default function QuestsPanel({ uid, campaignId, campaignMode = "legacy", 
                     {qid && overall.total > 0 && (
                       <Box sx={{ mt: 1 }}>
                         <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
-                          <Typography variant="caption" sx={{ fontWeight: 700, color: "#833c0b" }}>Progresso</Typography>
+                          <Typography variant="caption" sx={{ fontWeight: 700, color: "primary.main" }}>Progresso</Typography>
                           <Typography variant="caption">{overall.done}/{overall.total}</Typography>
                         </Stack>
                         <LinearProgress 
@@ -587,14 +587,14 @@ export default function QuestsPanel({ uid, campaignId, campaignMode = "legacy", 
                           sx={{ 
                             height: 6, 
                             borderRadius: 3, 
-                            bgcolor: "rgba(0,0,0,0.1)",
-                            "& .MuiLinearProgress-bar": { bgcolor: "#833c0b" }
+                            bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"),
+                            "& .MuiLinearProgress-bar": { bgcolor: "primary.main" }
                           }} 
                         />
                       </Box>
                     )}
 
-                    <Divider sx={{ borderStyle: "dashed" }} />
+                    <Divider sx={{ borderStyle: "dashed", borderColor: (t) => t.palette.rpg?.stroke || "rgba(0,0,0,0.1)" }} />
 
                     {/* Ações Rápidas */}
                     <Stack direction="row" justifyContent="flex-end" spacing={0}>
@@ -615,7 +615,7 @@ export default function QuestsPanel({ uid, campaignId, campaignMode = "legacy", 
                     </Stack>
 
                     <Collapse in={isOpen} timeout="auto" unmountOnExit>
-                      <Box sx={{ mt: 1, p: 1, bgcolor: "rgba(0,0,0,0.02)", borderRadius: 1 }}>
+                      <Box sx={{ mt: 1, p: 1, bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)"), borderRadius: 1 }}>
                         <QuestFlowPreview
                           milestonesObj={milestonesObj}
                           previewMilestones={2}
@@ -637,9 +637,15 @@ export default function QuestsPanel({ uid, campaignId, campaignMode = "legacy", 
           onClose={() => setObjectiveOpen(false)} 
           maxWidth="sm" 
           fullWidth
-          PaperProps={{ sx: { bgcolor: "#fffbf0", border: "4px double #5c4033" } }}
+          PaperProps={{
+            sx: {
+              bgcolor: "background.paper",
+              backgroundImage: (t) => t.palette.rpg?.paperBg || "none",
+              border: (t) => `2px solid ${t.palette.rpg?.stroke || "#5c4033"}`
+            }
+          }}
         >
-          <DialogTitle sx={{ fontFamily: "Cinzel", color: "#58180D" }}>Novo Objetivo</DialogTitle>
+          <DialogTitle sx={{ fontFamily: "Cinzel", color: "primary.main" }}>Novo Objetivo</DialogTitle>
           <DialogContent>
             <Stack spacing={2} sx={{ mt: 1 }}>
               <Typography variant="body2">
@@ -652,13 +658,13 @@ export default function QuestsPanel({ uid, campaignId, campaignMode = "legacy", 
                 fullWidth
                 multiline
                 minRows={2}
-                sx={{ bgcolor: "#fff" }}
+                sx={{ bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "#fff") }}
               />
             </Stack>
           </DialogContent>
-          <DialogActions sx={{ bgcolor: "rgba(92,64,51,0.05)" }}>
-            <Button onClick={() => setObjectiveOpen(false)} sx={{ color: "#5c4033" }}>Cancelar</Button>
-            <Button variant="contained" onClick={createObjectiveTodo} sx={{ bgcolor: "#833c0b" }}>
+          <DialogActions sx={{ bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "rgba(92,64,51,0.05)") }}>
+            <Button onClick={() => setObjectiveOpen(false)} sx={{ color: "text.secondary" }}>Cancelar</Button>
+            <Button variant="contained" onClick={createObjectiveTodo}>
               Adicionar
             </Button>
           </DialogActions>

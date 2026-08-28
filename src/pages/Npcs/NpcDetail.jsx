@@ -251,7 +251,7 @@ export default function NpcDetail() {
                       {uploading ? "Enviando retrato..." : "Atualizar retrato"}
                       <input hidden type="file" accept="image/*" onChange={(e) => uploadImage(e.target.files?.[0])} />
                     </Button>
-                    <Button variant="contained" startIcon={<SaveRoundedIcon />} onClick={save} sx={{ bgcolor: "#bf8f00", color: "#2c1a10", fontWeight: 900 }}>
+                    <Button variant="contained" startIcon={<SaveRoundedIcon />} onClick={save} sx={{ bgcolor: "secondary.main", color: "#2c1a10", fontWeight: 900 }}>
                       Salvar NPC
                     </Button>
                   </Stack>
@@ -263,12 +263,12 @@ export default function NpcDetail() {
           {status.msg ? <Alert severity={status.type}>{status.msg}</Alert> : null}
 
           <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", lg: "1.15fr 0.85fr" } }}>
-            <Paper elevation={0} sx={{ p: 2.2, borderRadius: 3, border: "1px solid rgba(0,0,0,0.1)", bgcolor: "#fffaf0" }}>
+            <Paper elevation={0} sx={{ p: 2.2, borderRadius: 3, border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(0,0,0,0.1)"}`, bgcolor: "background.paper" }}>
               <Stack spacing={1.2}>
-                <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: "#4a2b16" }}>
+                <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: "primary.main" }}>
                   Ficha de sessão
                 </Typography>
-                <Divider />
+                <Divider sx={{ borderColor: (t) => t.palette.rpg?.stroke || "rgba(0,0,0,0.1)" }} />
 
                 <Box sx={{ display: "grid", gap: 1.2, gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" } }}>
                   <TextField label="Nome" value={name} onChange={(e) => setName(e.target.value)} fullWidth />
@@ -297,20 +297,20 @@ export default function NpcDetail() {
             </Paper>
 
             <Stack spacing={2}>
-              <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: "1px solid rgba(0,0,0,0.1)" }}>
+              <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(0,0,0,0.1)"}`, bgcolor: "background.paper" }}>
                 <Stack spacing={1}>
-                  <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: "#4a2b16" }}>
+                  <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: "primary.main" }}>
                     Apareceu em sessões
                   </Typography>
-                  <Divider />
+                  <Divider sx={{ borderColor: (t) => t.palette.rpg?.stroke || "rgba(0,0,0,0.1)" }} />
                   {appearedIn.length === 0 ? (
-                    <Typography sx={{ opacity: 0.75 }}>Ainda não citado nas sessões desta campanha.</Typography>
+                    <Typography sx={{ opacity: 0.75, color: "text.secondary" }}>Ainda não citado nas sessões desta campanha.</Typography>
                   ) : (
                     appearedIn.map((s) => (
-                      <Paper key={s.sessionId} elevation={0} sx={{ p: 1.1, borderRadius: 2, border: "1px solid rgba(0,0,0,0.1)", bgcolor: "rgba(0,0,0,0.02)" }}>
+                      <Paper key={s.sessionId} elevation={0} sx={{ p: 1.1, borderRadius: 2, border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(0,0,0,0.1)"}`, bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)") }}>
                         <Stack spacing={0.6}>
-                          <Typography sx={{ fontWeight: 900, color: "#2c1a10" }}>{s.title}</Typography>
-                          {s.note ? <Typography variant="caption">Nota: {s.note}</Typography> : null}
+                          <Typography sx={{ fontWeight: 900, color: "text.primary" }}>{s.title}</Typography>
+                          {s.note ? <Typography variant="caption" sx={{ color: "text.secondary" }}>Nota: {s.note}</Typography> : null}
                           <Button size="small" component={Link} to={`/diario/${encodeURIComponent(s.sessionId)}?${query}`} sx={{ width: "fit-content" }}>
                             Abrir sessão
                           </Button>
@@ -321,12 +321,12 @@ export default function NpcDetail() {
                 </Stack>
               </Paper>
 
-              <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: "1px solid rgba(0,0,0,0.1)" }}>
+              <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(0,0,0,0.1)"}`, bgcolor: "background.paper" }}>
                 <Stack spacing={1}>
-                  <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: "#4a2b16" }}>
+                  <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: "primary.main" }}>
                     Relacionamentos
                   </Typography>
-                  <Divider />
+                  <Divider sx={{ borderColor: (t) => t.palette.rpg?.stroke || "rgba(0,0,0,0.1)" }} />
 
                   <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
                     <Autocomplete

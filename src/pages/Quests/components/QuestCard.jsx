@@ -85,18 +85,18 @@ function QuestCard({ uid, campaignId, campaignMode = "legacy", quest }) {
           borderRadius: 2,
           overflow: "hidden",
           position: "relative",
-          background: "#fffbf0",
-          backgroundImage: `linear-gradient(to bottom right, #fffbf0, #f7f1e3)`,
-          border: "1px solid rgba(92, 64, 51, 0.2)",
+          bgcolor: (t) => (t.palette.mode === "dark" ? "#1e1814" : "#fffbf0"),
+          backgroundImage: (t) => t.palette.rpg?.paperBg || "none",
+          border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(92, 64, 51, 0.2)"}`,
           transition: "transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease",
           display: "flex",
           flexDirection: "column",
           height: "100%",
           "&:hover": {
             transform: "translateY(-3px)",
-            boxShadow: "0 8px 20px rgba(0,0,0,0.25)",
-            borderColor: "#bf8f00",
-            "& .quest-title": { color: "#bf8f00" },
+            boxShadow: (t) => (t.palette.mode === "dark" ? "0 8px 20px rgba(0,0,0,0.5)" : "0 8px 20px rgba(0,0,0,0.25)"),
+            borderColor: "secondary.main",
+            "& .quest-title": { color: "secondary.main" },
           },
         }}
       >
@@ -125,7 +125,7 @@ function QuestCard({ uid, campaignId, campaignMode = "legacy", quest }) {
                 sx={{
                   fontFamily: "Cinzel",
                   fontWeight: 800,
-                  color: "#2c1a10",
+                  color: "text.primary",
                   lineHeight: 1.2,
                   transition: "color 0.15s ease",
                 }}

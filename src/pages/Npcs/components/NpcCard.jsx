@@ -78,14 +78,16 @@ function NpcCard({ uid, campaignId, campaignMode = "legacy", npc }) {
           borderRadius: 3,
           border: "1px solid rgba(191,143,0,0.35)",
           overflow: "hidden",
-          background: "linear-gradient(180deg, #fff8e8 0%, #f6ead8 100%)",
-          boxShadow: "0 10px 24px rgba(0,0,0,0.16)",
+          bgcolor: (t) => (t.palette.mode === "dark" ? "#1e1814" : "#fff8e8"),
+          backgroundImage: (t) => t.palette.rpg?.paperBg || "none",
+          border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(191,143,0,0.22)"}`,
+          boxShadow: (t) => (t.palette.mode === "dark" ? "0 10px 24px rgba(0,0,0,0.5)" : "0 10px 24px rgba(0,0,0,0.16)"),
           transition: "transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease",
           position: "relative",
           "&:hover": {
             transform: "translateY(-3px)",
-            boxShadow: "0 14px 28px rgba(0,0,0,0.22)",
-            borderColor: "#bf8f00",
+            boxShadow: (t) => (t.palette.mode === "dark" ? "0 14px 28px rgba(0,0,0,0.7)" : "0 14px 28px rgba(0,0,0,0.22)"),
+            borderColor: "secondary.main",
           },
         }}
       >
@@ -96,10 +98,10 @@ function NpcCard({ uid, campaignId, campaignMode = "legacy", npc }) {
                 width: 116,
                 height: 116,
                 borderRadius: "50%",
-                border: "3px solid rgba(131,60,11,0.55)",
-                boxShadow: "0 0 0 4px rgba(191,143,0,0.22)",
+                border: (t) => `3px solid ${t.palette.rpg?.stroke || "rgba(131,60,11,0.55)"}`,
+                boxShadow: (t) => `0 0 0 4px ${t.palette.mode === "dark" ? "rgba(229,179,36,0.15)" : "rgba(191,143,0,0.22)"}`,
                 overflow: "hidden",
-                bgcolor: "rgba(44,26,16,0.10)",
+                bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(44,26,16,0.10)"),
                 display: "grid",
                 placeItems: "center",
               }}
@@ -118,15 +120,15 @@ function NpcCard({ uid, campaignId, campaignMode = "legacy", npc }) {
                   }}
                 />
               ) : (
-                <Typography sx={{ fontWeight: 1000, color: "rgba(44,26,16,0.75)", fontSize: 38 }}>
+                <Typography sx={{ fontWeight: 1000, color: "text.secondary", fontSize: 38 }}>
                   {npc?.name ? npc.name.slice(0, 1).toUpperCase() : "?"}
                 </Typography>
               )}
             </Box>
 
             <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap justifyContent="center">
-              {attitude ? <Chip label={`Atitude: ${attitude}`} size="small" sx={{ bgcolor: "rgba(131,60,11,0.1)" }} /> : null}
-              {npc?.faction ? <Chip label={`Facção: ${npc.faction}`} size="small" sx={{ bgcolor: "rgba(191,143,0,0.12)" }} /> : null}
+              {attitude ? <Chip label={`Atitude: ${attitude}`} size="small" sx={{ bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(212,122,55,0.15)" : "rgba(131,60,11,0.1)") }} /> : null}
+              {npc?.faction ? <Chip label={`Facção: ${npc.faction}`} size="small" sx={{ bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(229,179,36,0.15)" : "rgba(191,143,0,0.12)") }} /> : null}
             </Stack>
           </Stack>
 
@@ -137,9 +139,9 @@ function NpcCard({ uid, campaignId, campaignMode = "legacy", npc }) {
                 component={Link}
                 to={`/npcs/${encodeURIComponent(npc.id)}?${buildCampaignQuery({ campaignId, mode: campaignMode })}`}
                 sx={{
-                  bgcolor: "rgba(255,255,255,0.78)",
-                  border: "1px solid rgba(0,0,0,0.10)",
-                  "&:hover": { bgcolor: "rgba(255,255,255,0.92)" },
+                  bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.78)"),
+                  border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(0,0,0,0.10)"}`,
+                  "&:hover": { bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.92)") },
                 }}
               >
                 <OpenInNewRoundedIcon fontSize="small" />
@@ -151,9 +153,9 @@ function NpcCard({ uid, campaignId, campaignMode = "legacy", npc }) {
                 size="small"
                 onClick={() => setConfirmOpen(true)}
                 sx={{
-                  bgcolor: "rgba(255,255,255,0.78)",
-                  border: "1px solid rgba(0,0,0,0.10)",
-                  "&:hover": { bgcolor: "rgba(255,255,255,0.92)" },
+                  bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.78)"),
+                  border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(0,0,0,0.10)"}`,
+                  "&:hover": { bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.92)") },
                 }}
               >
                 <DeleteRoundedIcon fontSize="small" />
@@ -166,7 +168,7 @@ function NpcCard({ uid, campaignId, campaignMode = "legacy", npc }) {
         <Box sx={{ p: 1.5 }}>
           <Stack spacing={0.75}>
             <Stack direction="row" justifyContent="space-between" alignItems="baseline" sx={{ gap: 1, mt: -0.5 }}>
-              <Typography sx={{ fontWeight: 1000, color: "#2c1a10" }} noWrap title={npc?.name || ""}>
+              <Typography sx={{ fontWeight: 1000, color: "text.primary" }} noWrap title={npc?.name || ""}>
                 {npc?.name || "NPC"}
               </Typography>
 

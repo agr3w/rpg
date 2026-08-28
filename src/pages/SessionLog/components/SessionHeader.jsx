@@ -28,10 +28,10 @@ export default function SessionHeader({
       sx={{
         p: 3,
         borderRadius: 2,
-        bgcolor: "#fffbf0",
-        backgroundImage: `linear-gradient(to bottom right, #fffbf0, #f7f1e3)`,
-        border: "1px solid rgba(92, 64, 51, 0.2)",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+        bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "#fffbf0"),
+        backgroundImage: (t) => t.palette.rpg?.paperBg || "none",
+        border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(92, 64, 51, 0.2)"}`,
+        boxShadow: (t) => (t.palette.mode === "dark" ? "0 4px 20px rgba(0,0,0,0.3)" : "0 4px 20px rgba(0,0,0,0.05)"),
         position: "relative",
         overflow: "hidden"
       }}
@@ -45,13 +45,13 @@ export default function SessionHeader({
           width: 100, 
           height: 100, 
           borderRadius: "50%", 
-          bgcolor: "rgba(191, 143, 0, 0.05)", 
+          bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(229, 179, 36, 0.05)" : "rgba(191, 143, 0, 0.05)"), 
           zIndex: 0 
         }} 
       />
 
       <Stack spacing={2} sx={{ position: "relative", zIndex: 1 }}>
-        <Typography variant="overline" sx={{ color: "#833c0b", fontWeight: 800, letterSpacing: 1 }}>
+        <Typography variant="overline" sx={{ color: "primary.main", fontWeight: 800, letterSpacing: 1 }}>
           Crônica da Sessão
         </Typography>
 
@@ -67,13 +67,13 @@ export default function SessionHeader({
               fontFamily: "Cinzel",
               fontSize: "1.75rem",
               fontWeight: 900,
-              color: "#2c1a10",
+              color: "text.primary",
               "&::placeholder": { opacity: 0.4 }
             }
           }}
         />
 
-        <Divider sx={{ borderColor: "rgba(92, 64, 51, 0.1)" }} />
+        <Divider sx={{ borderColor: (t) => t.palette.rpg?.stroke || "rgba(92, 64, 51, 0.1)" }} />
 
         <TextField
           placeholder="Escreva aqui os feitos heroicos, tragédias e descobertas..."
@@ -89,21 +89,21 @@ export default function SessionHeader({
               fontFamily: "'Merriweather', serif",
               fontSize: "1rem",
               lineHeight: 1.8,
-              color: "#3d2b1f",
-              bgcolor: "rgba(255,255,255,0.4)",
+              color: "text.primary",
+              bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.4)"),
               p: 2,
               borderRadius: 1
             }
           }}
         />
 
-        <Box sx={{ mt: 2, pt: 2, borderTop: "1px dashed rgba(92, 64, 51, 0.2)" }}>
+        <Box sx={{ mt: 2, pt: 2, borderTop: (t) => `1px dashed ${t.palette.rpg?.stroke || "rgba(92, 64, 51, 0.2)"}` }}>
           <FormControl fullWidth size="small" variant="filled">
             <InputLabel sx={{ fontFamily: "Cinzel" }}>Vincular Jogador (Para XP/Loot)</InputLabel>
             <Select
               value={linkedFichaId}
               onChange={(e) => onLinkedFichaChange(e.target.value)}
-              sx={{ bgcolor: "rgba(0,0,0,0.02)" }}
+              sx={{ bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)") }}
             >
               <MenuItem value="">
                 <em>Nenhum vínculo</em>

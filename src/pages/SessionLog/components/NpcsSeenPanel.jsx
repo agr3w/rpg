@@ -174,13 +174,13 @@ export default function NpcsSeenPanel({ uid, campaignId, campaignMode = "legacy"
       sx={{
         p: 2,
         borderRadius: 2,
-        bgcolor: "#fdfbf7",
-        border: "1px solid rgba(92, 64, 51, 0.2)",
+        bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "#fdfbf7"),
+        border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(92, 64, 51, 0.2)"}`,
       }}
     >
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-        <PersonSearchIcon sx={{ color: "#bf8f00" }} />
-        <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#2c1a10" }}>
+        <PersonSearchIcon sx={{ color: "secondary.main" }} />
+        <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "text.primary" }}>
           NPCs Encontrados
         </Typography>
       </Stack>
@@ -199,7 +199,7 @@ export default function NpcsSeenPanel({ uid, campaignId, campaignMode = "legacy"
                 label="Nome do NPC" 
                 placeholder="Ex.: Mestre da Taverna" 
                 size="small"
-                sx={{ bgcolor: "#fff" }}
+                sx={{ bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "#fff") }}
               />
             )}
           />
@@ -211,7 +211,7 @@ export default function NpcsSeenPanel({ uid, campaignId, campaignMode = "legacy"
               placeholder='Ex.: "Suspeito..."'
               size="small"
               fullWidth
-              sx={{ bgcolor: "#fff" }}
+              sx={{ bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "#fff") }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
@@ -222,14 +222,14 @@ export default function NpcsSeenPanel({ uid, campaignId, campaignMode = "legacy"
             <Button 
               variant="contained" 
               onClick={addNpc}
-              sx={{ bgcolor: "#2c1a10", minWidth: 80 }}
+              sx={{ minWidth: 80 }}
             >
               Add
             </Button>
           </Stack>
         </Box>
 
-        <Divider sx={{ borderColor: "rgba(92, 64, 51, 0.1)" }} />
+        <Divider sx={{ borderColor: (t) => t.palette.rpg?.stroke || "rgba(92, 64, 51, 0.1)" }} />
 
         {/* Lista de NPCs */}
         {npcsSeen.length === 0 ? (
@@ -244,7 +244,7 @@ export default function NpcsSeenPanel({ uid, campaignId, campaignMode = "legacy"
                 sx={{
                   p: 1,
                   borderRadius: 1,
-                  borderBottom: "1px dashed rgba(92, 64, 51, 0.2)",
+                  borderBottom: (t) => `1px dashed ${t.palette.rpg?.stroke || "rgba(92, 64, 51, 0.2)"}`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
@@ -253,11 +253,11 @@ export default function NpcsSeenPanel({ uid, campaignId, campaignMode = "legacy"
                 }}
               >
                 <Box sx={{ minWidth: 0, flexGrow: 1 }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#2c1a10", lineHeight: 1.2 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "text.primary", lineHeight: 1.2 }}>
                     {n.name || "—"}
                   </Typography>
                   {n.note && (
-                    <Typography variant="caption" sx={{ color: "rgba(44, 26, 16, 0.7)", fontStyle: "italic" }}>
+                    <Typography variant="caption" sx={{ color: "text.secondary", fontStyle: "italic" }}>
                       "{n.note}"
                     </Typography>
                   )}
@@ -265,13 +265,13 @@ export default function NpcsSeenPanel({ uid, campaignId, campaignMode = "legacy"
 
                 <Stack direction="row" spacing={0}>
                   <Tooltip title="Ver Detalhes">
-                    <IconButton size="small" onClick={() => openNpc(n)} disabled={!n.npcId} sx={{ color: "#833c0b" }}>
+                    <IconButton size="small" onClick={() => openNpc(n)} disabled={!n.npcId} sx={{ color: "primary.main" }}>
                       <OpenInNewRoundedIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>
 
-                  <Tooltip title="Remover">
-                    <IconButton size="small" onClick={() => removeNpc(n.id)} sx={{ color: "rgba(44, 26, 16, 0.4)" }}>
+                  <Tooltip title="Remover da Sessão">
+                    <IconButton size="small" onClick={() => removeNpc(n.id)} sx={{ color: "rgba(0,0,0,0.3)", "&:hover": { color: "error.main" } }}>
                       <DeleteRoundedIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>

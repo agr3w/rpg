@@ -45,14 +45,6 @@ import LinkIcon from '@mui/icons-material/Link';
 
 const DEFAULT_CAMPAIGN_ID = "default";
 
-// --- Estilos D&D ---
-const DND_THEME = {
-  paperBg: "linear-gradient(135deg, #fffbf0 0%, #f3eacb 100%)",
-  ink: "#2c1a10",
-  gold: "#bf8f00",
-  leather: "#833c0b",
-};
-
 const STATUS = [
   { value: "ativa", label: "Ativa" },
   { value: "pendente", label: "Pendente" },
@@ -373,9 +365,9 @@ export default function QuestDetail() {
           sx={{
             borderRadius: 3,
             overflow: "hidden",
-            border: "1px solid rgba(191,143,0,0.28)",
-            bgcolor: "rgba(255,251,240,0.94)",
-            boxShadow: "0 16px 30px rgba(0,0,0,0.2)",
+            border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(191,143,0,0.28)"}`,
+            bgcolor: "background.paper",
+            boxShadow: (t) => (t.palette.mode === "dark" ? "0 16px 30px rgba(0,0,0,0.5)" : "0 16px 30px rgba(0,0,0,0.1)"),
           }}
         >
           <Tabs 
@@ -383,16 +375,16 @@ export default function QuestDetail() {
             onChange={(_, v) => setTabIndex(v)} 
             variant="fullWidth"
             sx={{ 
-              bgcolor: "rgba(44,26,16,0.06)",
-              borderBottom: "1px solid rgba(131,60,11,0.2)",
-              "& .MuiTabs-indicator": { backgroundColor: DND_THEME.gold, height: 3 },
+              bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "rgba(44,26,16,0.06)"),
+              borderBottom: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(131,60,11,0.2)"}`,
+              "& .MuiTabs-indicator": { backgroundColor: "secondary.main", height: 3 },
               "& .MuiTab-root": {
                 fontFamily: "Cinzel",
                 fontWeight: 800,
-                color: "rgba(44,26,16,0.7)",
+                color: "text.secondary",
                 minHeight: 56,
               },
-              "& .Mui-selected": { color: DND_THEME.leather }
+              "& .Mui-selected": { color: "primary.main" }
             }}
           >
             <Tab icon={<DescriptionIcon />} label="Geral" />
@@ -405,8 +397,6 @@ export default function QuestDetail() {
             sx={{
               minHeight: 400,
               p: { xs: 1.5, md: 2.25 },
-              backgroundImage:
-                "linear-gradient(180deg, rgba(255,255,255,0.82) 0%, rgba(255,248,233,0.9) 100%)",
             }}
           >
             
@@ -422,7 +412,7 @@ export default function QuestDetail() {
                   fullWidth
                   placeholder="Descreva o contrato, o cliente e os objetivos principais..."
                   variant="filled"
-                  sx={{ "& .MuiFilledInput-root": { bgcolor: "#fffbf0" } }}
+                  sx={{ "& .MuiFilledInput-root": { bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "#fffbf0") } }}
                 />
                 
                 <TextField
@@ -433,10 +423,10 @@ export default function QuestDetail() {
                   helperText="Ex: principal, dungeon, investigação"
                 />
 
-                <Divider sx={{ borderColor: "rgba(131,60,11,0.18)", borderStyle: "dashed" }} />
+                <Divider sx={{ borderColor: (t) => t.palette.rpg?.stroke || "rgba(131,60,11,0.18)", borderStyle: "dashed" }} />
 
-                <Paper elevation={0} sx={{ p: 1.6, borderRadius: 2.2, border: "1px solid rgba(131,60,11,0.18)", bgcolor: "rgba(255,255,255,0.72)" }}>
-                  <Typography variant="h6" sx={{ fontFamily: "Cinzel", color: DND_THEME.ink, mb: 2 }}>Subquests & Dependências</Typography>
+                <Paper elevation={0} sx={{ p: 1.6, borderRadius: 2.2, border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(131,60,11,0.18)"}`, bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.72)") }}>
+                  <Typography variant="h6" sx={{ fontFamily: "Cinzel", color: "text.primary", mb: 2 }}>Subquests & Dependências</Typography>
                   <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ mb: 2 }}>
                     <Autocomplete
                       options={questOptions.filter((o) => o.questId !== questId)}
@@ -446,22 +436,22 @@ export default function QuestDetail() {
                       renderInput={(params) => <TextField {...params} label="Vincular outra quest" size="small" />}
                       sx={{ flex: 1 }}
                     />
-                    <Button variant="outlined" onClick={addSubquest} disabled={!subquestTarget} sx={{ borderColor: "rgba(131,60,11,0.45)", color: DND_THEME.leather, fontWeight: 800 }}>
+                    <Button variant="outlined" onClick={addSubquest} disabled={!subquestTarget} sx={{ borderColor: (t) => t.palette.rpg?.stroke || "rgba(131,60,11,0.45)", color: "primary.main", fontWeight: 800 }}>
                       Adicionar
                     </Button>
                   </Stack>
                   
                   <Stack spacing={1}>
                     {subquests.map((sq) => (
-                      <Paper key={sq.questId} variant="outlined" sx={{ p: 1.2, display: "flex", justifyContent: "space-between", alignItems: "center", borderColor: "rgba(131,60,11,0.2)", bgcolor: "rgba(255,251,240,0.7)" }}>
-                        <Typography sx={{ fontWeight: 600 }}>{sq.title}</Typography>
+                      <Paper key={sq.questId} variant="outlined" sx={{ p: 1.2, display: "flex", justifyContent: "space-between", alignItems: "center", borderColor: (t) => t.palette.rpg?.stroke || "rgba(131,60,11,0.2)", bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(255,251,240,0.7)") }}>
+                        <Typography sx={{ fontWeight: 600, color: "text.primary" }}>{sq.title}</Typography>
                         <Stack direction="row">
-                          <IconButton size="small" component={Link} to={`/quests/${sq.questId}?${buildCampaignQuery({ campaignId, mode: campaignMode })}`} sx={{ color: DND_THEME.leather }}><OpenInNewRoundedIcon /></IconButton>
-                          <IconButton size="small" onClick={() => removeSubquest(sq.questId)} sx={{ color: "rgba(44,26,16,0.45)" }}><DeleteRoundedIcon /></IconButton>
+                          <IconButton size="small" component={Link} to={`/quests/${sq.questId}?${buildCampaignQuery({ campaignId, mode: campaignMode })}`} sx={{ color: "primary.main" }}><OpenInNewRoundedIcon /></IconButton>
+                          <IconButton size="small" onClick={() => removeSubquest(sq.questId)} sx={{ color: "text.secondary" }}><DeleteRoundedIcon /></IconButton>
                         </Stack>
                       </Paper>
                     ))}
-                    {subquests.length === 0 && <Typography variant="caption" sx={{ fontStyle: "italic" }}>Nenhuma subquest vinculada.</Typography>}
+                    {subquests.length === 0 && <Typography variant="caption" sx={{ fontStyle: "italic", color: "text.secondary" }}>Nenhuma subquest vinculada.</Typography>}
                   </Stack>
                 </Paper>
               </Stack>
@@ -470,14 +460,14 @@ export default function QuestDetail() {
             {/* ABA 2: PLANO */}
             <TabPanel value={tabIndex} index={1}>
               <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2.2 }}>
-                <Typography variant="h6" sx={{ fontFamily: "Cinzel", color: DND_THEME.ink }}>Marcos & Objetivos</Typography>
-                <Button startIcon={<AddRoundedIcon />} variant="contained" onClick={() => setMilestoneOpen(true)} sx={{ bgcolor: DND_THEME.leather, fontFamily: "Cinzel", fontWeight: 800 }}>
+                <Typography variant="h6" sx={{ fontFamily: "Cinzel", color: "text.primary" }}>Marcos & Objetivos</Typography>
+                <Button startIcon={<AddRoundedIcon />} variant="contained" onClick={() => setMilestoneOpen(true)} sx={{ fontFamily: "Cinzel", fontWeight: 800 }}>
                   Novo Marco
                 </Button>
               </Stack>
 
               {milestones.length === 0 ? (
-                    <Box sx={{ textAlign: "center", py: 4, opacity: 0.65 }}>
+                <Box sx={{ textAlign: "center", py: 4, opacity: 0.65 }}>
                   <Typography>O plano está vazio. Adicione marcos importantes para organizar a missão.</Typography>
                 </Box>
               ) : (
@@ -494,27 +484,27 @@ export default function QuestDetail() {
                         sx={{
                           p: 2,
                           borderRadius: 2,
-                          bgcolor: "rgba(255,255,255,0.78)",
-                          borderColor: "rgba(131,60,11,0.24)",
+                          bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.78)"),
+                          borderColor: (t) => t.palette.rpg?.stroke || "rgba(131,60,11,0.24)",
                           "&:hover .del-btn": { opacity: 1 },
                         }}
                       >
                         <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
                           <Box>
-                            <Typography variant="subtitle1" sx={{ fontWeight: 800, color: DND_THEME.ink }}>{m.title}</Typography>
-                            {m.note && <Typography variant="caption" sx={{ display: "block", mb: 1 }}>{m.note}</Typography>}
+                            <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "text.primary" }}>{m.title}</Typography>
+                            {m.note && <Typography variant="caption" sx={{ display: "block", mb: 1, color: "text.secondary" }}>{m.note}</Typography>}
                           </Box>
-                          <IconButton size="small" onClick={() => removeMilestone(m.id)} sx={{ color: "rgba(44,26,16,0.45)" }}><DeleteRoundedIcon /></IconButton>
+                          <IconButton size="small" onClick={() => removeMilestone(m.id)} sx={{ color: "text.secondary" }}><DeleteRoundedIcon /></IconButton>
                         </Stack>
 
-                        <LinearProgress variant="determinate" value={pct} sx={{ my: 1.5, height: 6, borderRadius: 3, bgcolor: "#e0e0e0", "& .MuiLinearProgress-bar": { bgcolor: DND_THEME.gold } }} />
+                        <LinearProgress variant="determinate" value={pct} sx={{ my: 1.5, height: 6, borderRadius: 3, bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "#e0e0e0"), "& .MuiLinearProgress-bar": { bgcolor: "secondary.main" } }} />
 
                         <Stack spacing={0.5}>
                           {todos.map(t => (
                             <Box key={t.id} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                              <Checkbox checked={t.done} onChange={() => toggleTodo(m.id, t)} size="small" sx={{ color: DND_THEME.leather, '&.Mui-checked': { color: DND_THEME.leather } }} />
-                              <Typography sx={{ textDecoration: t.done ? "line-through" : "none", opacity: t.done ? 0.6 : 1, fontSize: "0.9rem" }}>{t.text}</Typography>
-                              <IconButton size="small" onClick={() => removeTodo(m.id, t.id)} sx={{ ml: "auto", opacity: 0, color: "rgba(44,26,16,0.45)" }} className="del-btn"><DeleteRoundedIcon fontSize="small" /></IconButton>
+                              <Checkbox checked={t.done} onChange={() => toggleTodo(m.id, t)} size="small" sx={{ color: "primary.main", '&.Mui-checked': { color: "primary.main" } }} />
+                              <Typography sx={{ textDecoration: t.done ? "line-through" : "none", opacity: t.done ? 0.6 : 1, fontSize: "0.9rem", color: "text.primary" }}>{t.text}</Typography>
+                              <IconButton size="small" onClick={() => removeTodo(m.id, t.id)} sx={{ ml: "auto", opacity: 0, color: "text.secondary" }} className="del-btn"><DeleteRoundedIcon fontSize="small" /></IconButton>
                             </Box>
                           ))}
                         </Stack>
@@ -528,7 +518,7 @@ export default function QuestDetail() {
                             onChange={(e) => setTodoDraft(prev => ({...prev, [m.id]: e.target.value}))}
                             onKeyDown={(e) => e.key === 'Enter' && addTodo(m.id)}
                           />
-                          <Button variant="outlined" onClick={() => addTodo(m.id)} sx={{ borderColor: "rgba(131,60,11,0.45)", color: DND_THEME.leather, fontWeight: 800 }}>Add</Button>
+                          <Button variant="outlined" onClick={() => addTodo(m.id)} sx={{ borderColor: (t) => t.palette.rpg?.stroke || "rgba(131,60,11,0.45)", color: "primary.main", fontWeight: 800 }}>Add</Button>
                         </Stack>
                       </Paper>
                     );
@@ -540,20 +530,20 @@ export default function QuestDetail() {
             {/* ABA 3: TIMELINE */}
             <TabPanel value={tabIndex} index={2}>
               <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2.2 }}>
-                <Typography variant="h6" sx={{ fontFamily: "Cinzel", color: DND_THEME.ink }}>Linha do Tempo</Typography>
-                <Button startIcon={<AddRoundedIcon />} variant="outlined" onClick={() => setEventOpen(true)} sx={{ borderColor: "rgba(131,60,11,0.45)", color: DND_THEME.leather, fontWeight: 800 }}>
+                <Typography variant="h6" sx={{ fontFamily: "Cinzel", color: "text.primary" }}>Linha do Tempo</Typography>
+                <Button startIcon={<AddRoundedIcon />} variant="outlined" onClick={() => setEventOpen(true)} sx={{ borderColor: (t) => t.palette.rpg?.stroke || "rgba(131,60,11,0.45)", color: "primary.main", fontWeight: 800 }}>
                   Evento Manual
                 </Button>
               </Stack>
 
-              <Box sx={{ position: "relative", pl: 2.2, borderLeft: `2px solid ${DND_THEME.gold}` }}>
+              <Box sx={{ position: "relative", pl: 2.2, borderLeft: (t) => `2px solid ${t.palette.secondary.main}` }}>
                 {timeline.map((ev) => (
                   <Box key={ev.id} sx={{ mb: 3, position: "relative" }}>
-                    <Box sx={{ position: "absolute", left: -23, top: 0, width: 11, height: 11, borderRadius: "50%", bgcolor: DND_THEME.gold, border: "2px solid #fff8ea" }} />
-                    <Typography variant="caption" sx={{ color: "rgba(44,26,16,0.6)", fontWeight: 700 }}>{fmtDateTime(ev.occurredAt)}</Typography>
-                    <Paper elevation={0} sx={{ p: 1.5, mt: 0.5, bgcolor: "rgba(255,255,255,0.8)", border: "1px solid rgba(131,60,11,0.2)", borderRadius: 2 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: DND_THEME.ink }}>{ev.title}</Typography>
-                      {ev.note && <Typography variant="body2" sx={{ mt: 0.5 }}>{ev.note}</Typography>}
+                    <Box sx={{ position: "absolute", left: -23, top: 0, width: 11, height: 11, borderRadius: "50%", bgcolor: "secondary.main", border: "2px solid rgba(0,0,0,0.2)" }} />
+                    <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700 }}>{fmtDateTime(ev.occurredAt)}</Typography>
+                    <Paper elevation={0} sx={{ p: 1.5, mt: 0.5, bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.8)"), border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(131,60,11,0.2)"}`, borderRadius: 2 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "text.primary" }}>{ev.title}</Typography>
+                      {ev.note && <Typography variant="body2" sx={{ mt: 0.5, color: "text.secondary" }}>{ev.note}</Typography>}
                       {ev.sessionTitle && (
                         <Chip 
                           label={`Sessão: ${ev.sessionTitle}`} 
@@ -561,7 +551,7 @@ export default function QuestDetail() {
                           component={Link} 
                           to={`/diario/${ev.sessionId}?${buildCampaignQuery({ campaignId, mode: campaignMode })}`}
                           clickable
-                          sx={{ mt: 1, cursor: "pointer", bgcolor: "rgba(191,143,0,0.12)", border: "1px solid rgba(191,143,0,0.35)", color: DND_THEME.leather, fontWeight: 700 }} 
+                          sx={{ mt: 1, cursor: "pointer", bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(229,179,36,0.15)" : "rgba(191,143,0,0.12)"), border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(191,143,0,0.35)"}`, color: "primary.main", fontWeight: 700 }} 
                         />
                       )}
                     </Paper>
@@ -573,15 +563,15 @@ export default function QuestDetail() {
 
             {/* ABA 4: CONEXÕES */}
             <TabPanel value={tabIndex} index={3}>
-              <Typography variant="h6" sx={{ fontFamily: "Cinzel", color: DND_THEME.ink, mb: 2 }}>Aparições em Sessões</Typography>
+              <Typography variant="h6" sx={{ fontFamily: "Cinzel", color: "text.primary", mb: 2 }}>Aparições em Sessões</Typography>
               <Stack spacing={1}>
                 {appearedIn.map((s) => (
-                  <Paper key={s.sessionId} variant="outlined" sx={{ p: 1.5, display: "flex", justifyContent: "space-between", alignItems: "center", borderColor: "rgba(131,60,11,0.2)", bgcolor: "rgba(255,255,255,0.8)", borderRadius: 2 }}>
+                  <Paper key={s.sessionId} variant="outlined" sx={{ p: 1.5, display: "flex", justifyContent: "space-between", alignItems: "center", borderColor: (t) => t.palette.rpg?.stroke || "rgba(131,60,11,0.2)", bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.8)"), borderRadius: 2 }}>
                     <Box>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: DND_THEME.ink }}>{s.title}</Typography>
-                      {s.note && <Typography variant="caption" sx={{ opacity: 0.8 }}>Nota: {s.note}</Typography>}
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "text.primary" }}>{s.title}</Typography>
+                      {s.note && <Typography variant="caption" sx={{ opacity: 0.8, color: "text.secondary" }}>Nota: {s.note}</Typography>}
                     </Box>
-                    <Button size="small" component={Link} to={`/diario/${s.sessionId}?${buildCampaignQuery({ campaignId, mode: campaignMode })}`} sx={{ borderColor: "rgba(131,60,11,0.45)", color: DND_THEME.leather, fontWeight: 800 }} variant="outlined">
+                    <Button size="small" component={Link} to={`/diario/${s.sessionId}?${buildCampaignQuery({ campaignId, mode: campaignMode })}`} sx={{ borderColor: (t) => t.palette.rpg?.stroke || "rgba(131,60,11,0.45)", color: "primary.main", fontWeight: 800 }} variant="outlined">
                       Ver Sessão
                     </Button>
                   </Paper>

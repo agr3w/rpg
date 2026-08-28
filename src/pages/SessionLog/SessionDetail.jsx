@@ -94,7 +94,7 @@ export default function SessionLogDetail() {
               component={Link} 
               to={`/diario?${buildCampaignQuery({ campaignId, mode: campaignMode })}`}
               startIcon={<ArrowBackIcon />}
-              sx={{ color: "#5c4033", fontFamily: "Cinzel", fontWeight: 700 }}
+              sx={{ color: "text.primary", fontFamily: "Cinzel", fontWeight: 700 }}
             >
               Voltar ao Diário
             </Button>
@@ -105,24 +105,29 @@ export default function SessionLogDetail() {
             elevation={0}
             sx={{
               p: 2,
-              bgcolor: "#fffbf0",
-              border: "1px solid rgba(92, 64, 51, 0.2)",
-              borderLeft: "4px solid #bf8f00",
+              bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "#fffbf0"),
+              border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(92, 64, 51, 0.2)"}`,
+              borderLeft: (t) => `4px solid ${t.palette.secondary.main}`,
               borderRadius: 1
             }}
           >
             <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" useFlexGap>
-              <Typography variant="subtitle2" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: "#2c1a10" }}>
+              <Typography variant="subtitle2" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: "text.primary" }}>
                 RESUMO DA SESSÃO:
               </Typography>
               <Chip
                 label={`XP Pendente: ${overview.pendingXp >= 0 ? `+${overview.pendingXp}` : overview.pendingXp}`}
                 size="small"
-                sx={{ bgcolor: "rgba(191, 143, 0, 0.15)", color: "#58180D", fontWeight: 700, border: "1px solid rgba(191, 143, 0, 0.3)" }}
+                sx={{
+                  bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(229, 179, 36, 0.15)" : "rgba(191, 143, 0, 0.15)"),
+                  color: "primary.main",
+                  fontWeight: 700,
+                  border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(191, 143, 0, 0.3)"}`
+                }}
               />
-              <Chip label={`NPCs: ${overview.npcsCount}`} size="small" variant="outlined" sx={{ borderColor: "rgba(92, 64, 51, 0.3)" }} />
-              <Chip label={`Quests: ${overview.questsCount}`} size="small" variant="outlined" sx={{ borderColor: "rgba(92, 64, 51, 0.3)" }} />
-              <Chip label={`Loot: ${overview.lootCount}`} size="small" variant="outlined" sx={{ borderColor: "rgba(92, 64, 51, 0.3)" }} />
+              <Chip label={`NPCs: ${overview.npcsCount}`} size="small" variant="outlined" sx={{ borderColor: (t) => t.palette.rpg?.stroke || "rgba(92, 64, 51, 0.3)" }} />
+              <Chip label={`Quests: ${overview.questsCount}`} size="small" variant="outlined" sx={{ borderColor: (t) => t.palette.rpg?.stroke || "rgba(92, 64, 51, 0.3)" }} />
+              <Chip label={`Loot: ${overview.lootCount}`} size="small" variant="outlined" sx={{ borderColor: (t) => t.palette.rpg?.stroke || "rgba(92, 64, 51, 0.3)" }} />
               
               <Box sx={{ flexGrow: 1 }} />
               
@@ -130,8 +135,8 @@ export default function SessionLogDetail() {
                 label={linkedFichaId ? "Vínculo Ativo" : "Sem Vínculo"}
                 size="small"
                 sx={{ 
-                  bgcolor: linkedFichaId ? "#e8f5e9" : "#ffebee", 
-                  color: linkedFichaId ? "#1b5e20" : "#c62828",
+                  bgcolor: (t) => (linkedFichaId ? (t.palette.mode === "dark" ? "rgba(46, 125, 50, 0.2)" : "#e8f5e9") : (t.palette.mode === "dark" ? "rgba(198, 40, 40, 0.2)" : "#ffebee")), 
+                  color: linkedFichaId ? "#4caf50" : "#ef5350",
                   fontWeight: 700,
                   fontFamily: "Cinzel"
                 }}
