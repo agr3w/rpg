@@ -6,15 +6,9 @@ import { ThemeProvider, CssBaseline } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 import "./APIs/firebaseConfig";
-import { MusicProvider } from "APIs/MusicContext";
-import { NoteProvider } from "APIs/NoteContext";
-import { FolderProvider } from "APIs/FolderContext";
 import { AuthProvider } from "contexts/AuthContext";
-import { MapProvider } from "APIs/MapContext";
-import { AssetProvider } from "APIs/AssetContext";
-
-import { PreferencesProvider, usePreferences } from "contexts/PreferencesContext"; // ✅ add
-import { createAppTheme } from "./theme"; // ✅ add
+import { PreferencesProvider, usePreferences } from "contexts/PreferencesContext";
+import { createAppTheme } from "./theme";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -38,17 +32,7 @@ function AppWithTheme() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
-        <MapProvider>
-          <AssetProvider>
-            <MusicProvider>
-              <FolderProvider>
-                <NoteProvider>
-                  <Rout />
-                </NoteProvider>
-              </FolderProvider>
-            </MusicProvider>
-          </AssetProvider>
-        </MapProvider>
+        <Rout />
       </AuthProvider>
     </ThemeProvider>
   );

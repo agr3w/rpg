@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Alert, Button, Chip, Container, Stack, Typography, Box, Paper } from "@mui/material";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { auth, database, firebase } from "APIs/firebaseConfig";
+import { auth } from "APIs/firebaseConfig";
 import { T_IN } from "config/transitions";
 import { motion } from "framer-motion";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -13,7 +13,8 @@ import QuestsPanel from "./components/QuestsPanel";
 import LootPanel from "./components/LootPanel";
 
 import RpgSection from "components/RpgSection";
-import { buildCampaignQuery, getCampaignBasePath } from "service/campaignPath";
+import { buildCampaignQuery } from "service/campaignPath";
+import { useSessionDetail } from "hooks/useSessionDetail";
 
 const DEFAULT_CAMPAIGN_ID = "default";
 
@@ -27,79 +28,21 @@ export default function SessionLogDetail() {
   const campaignMode = searchParams.get("m") === "shared" ? "shared" : "legacy";
 
   const [status, setStatus] = useState({ type: "info", msg: "" });
-  const [loading, setLoading] = useState(true);
 
-  const [session, setSession] = useState(null);
-  const campaignBasePath = useMemo(
-    () => getCampaignBasePath({ uid, campaignId, mode: campaignMode }),
-    [uid, campaignId, campaignMode]
-  );
-
-  const baseRef = useMemo(() => {
-    if (!campaignBasePath || !sessionId) return null;
-    return database.ref(campaignBasePath);
-  }, [campaignBasePath, sessionId]);
-
-  const sessionRef = useMemo(() => {
-    if (!baseRef) return null;
-    return baseRef.child(`sessionLogs/${sessionId}`);
-  }, [baseRef, sessionId]);
-
-  const [fichas, setFichas] = useState([]);
-  const [linkedFichaId, setLinkedFichaId] = useState("");
-
-  useEffect(() => {
-    if (!uid || !sessionRef) {
-      setLoading(false);
-      return;
-    }
-
-    const handle = (snap) => {
-      setSession(snap.val() || null);
-      setLoading(false);
-    };
-
-    sessionRef.on("value", handle);
-
-    const fichasRef = database.ref(`fichas/${uid}`);
-    const handleFichas = (snap) => {
-      const data = snap.val();
-      const arr = data ? Object.values(data) : [];
-      arr.sort((a, b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"));
-      setFichas(arr);
-    };
-    fichasRef.on("value", handleFichas);
-
-    const metaRef = baseRef.child("meta");
-    const handleMeta = (snap) => {
-      const v = snap.val();
-      setLinkedFichaId(v?.linkedFichaId || "");
-    };
-    metaRef.on("value", handleMeta);
-
-    return () => {
-      sessionRef.off("value", handle);
-      fichasRef.off("value", handleFichas);
-      metaRef.off("value", handleMeta);
-    };
-  }, [uid, sessionRef, campaignId, baseRef]);
-
-  const updateSession = async (patch) => {
-    if (!sessionRef) return;
-    await sessionRef.update({
-      ...patch,
-      updatedAt: firebase.database.ServerValue.TIMESTAMP,
-    });
-  };
+  const {
+    session,
+    fichas,
+    linkedFichaId,
+    loading,
+    sessionRef,
+    updateSession,
+    saveLinkedFicha: saveLinkedFichaAction,
+  } = useSessionDetail(uid, campaignId, campaignMode, sessionId);
 
   const saveLinkedFicha = async (newId) => {
     setStatus({ type: "info", msg: "" });
-    if (!uid || !baseRef) return;
     try {
-      await baseRef.child("meta").update({
-        linkedFichaId: newId || "",
-        updatedAt: firebase.database.ServerValue.TIMESTAMP,
-      });
+      await saveLinkedFichaAction(newId);
       setStatus({ type: "success", msg: "Ficha da campanha vinculada." });
     } catch (e) {
       setStatus({ type: "error", msg: e?.message || "Erro ao vincular ficha." });

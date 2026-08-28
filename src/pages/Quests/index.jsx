@@ -13,12 +13,14 @@ import {
   InputAdornment,
 } from "@mui/material";
 import { useSearchParams } from "react-router-dom";
-import { auth, database } from "APIs/firebaseConfig";
+import { auth } from "APIs/firebaseConfig";
 import { T_IN } from "config/transitions";
 import { motion } from "framer-motion";
 import QuestCard from "./components/QuestCard";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
+import { useCampaigns } from "hooks/useCampaigns";
+import { useDebounce } from "hooks/useDebounce";
 
 const DEFAULT_CAMPAIGN_ID = "default";
 
@@ -44,9 +46,9 @@ export default function QuestsPage() {
   const activeCampaignId = searchParams.get("c") || "all";
   const campaignMode = searchParams.get("m") === "shared" ? "shared" : "legacy";
 
-  const [loading, setLoading] = useState(true);
-  const [campaigns, setCampaigns] = useState([]);
+  const { campaigns, loading } = useCampaigns(uid, campaignMode, activeCampaignId);
   const [q, setQ] = useState("");
+  const debouncedQ = useDebounce(q, 200);
   const [statusFilter, setStatusFilter] = useState("all");
   const [tagFilter, setTagFilter] = useState([]);
 
@@ -60,113 +62,10 @@ export default function QuestsPage() {
     show: { opacity: 1, y: 0, transition: { duration: 0.3 } },
   };
 
-  useEffect(() => {
-    if (!uid) {
-      setLoading(false);
-      return;
-    }
-
-    const mapCampaigns = (data) => {
-      const arr = Object.entries(data || {}).map(([campaignId, c]) => {
-        const name = c?.meta?.name || campaignId;
-
-        const quests = Object.values(c?.quests || {})
-          .filter((x) => x?.id && x?.title)
-          .sort((a, b) => String(a.title).localeCompare(String(b.title), "pt-BR"));
-
-        return { campaignId, name, quests };
-      });
-
-      arr.sort((a, b) => String(a.name).localeCompare(String(b.name), "pt-BR"));
-      return arr;
-    };
-
-    if (campaignMode === "shared") {
-      const membershipsRef = database.ref(`userCampaigns/${uid}`);
-      let campaignUnsubs = [];
-
-      const clearCampaignListeners = () => {
-        campaignUnsubs.forEach((off) => off());
-        campaignUnsubs = [];
-      };
-
-      const onMemberships = (snap) => {
-        const memberships = snap.val() || {};
-        const allIds = Object.keys(memberships);
-        const ids =
-          activeCampaignId === "all"
-            ? allIds
-            : allIds.includes(activeCampaignId)
-            ? [activeCampaignId]
-            : [];
-
-        clearCampaignListeners();
-
-        if (!ids.length) {
-          setCampaigns([]);
-          setLoading(false);
-          return;
-        }
-
-        const campaignMap = {};
-        const pushState = () => {
-          const filtered = ids.reduce((acc, id) => {
-            if (campaignMap[id]) acc[id] = campaignMap[id];
-            return acc;
-          }, {});
-          setCampaigns(mapCampaigns(filtered));
-          setLoading(false);
-        };
-
-        ids.forEach((id) => {
-          const ref = database.ref(`campaigns/${id}`);
-          const onCampaign = (campaignSnap) => {
-            campaignMap[id] = campaignSnap.val() || null;
-            pushState();
-          };
-          ref.on("value", onCampaign);
-          campaignUnsubs.push(() => ref.off("value", onCampaign));
-        });
-      };
-
-      membershipsRef.on("value", onMemberships);
-      return () => {
-        membershipsRef.off("value", onMemberships);
-        clearCampaignListeners();
-      };
-    }
-
-    if (activeCampaignId !== "all") {
-      const ref = database.ref(`users/${uid}/campaigns/${activeCampaignId}`);
-      const handle = (snap) => {
-        const c = snap.val();
-        if (!c) {
-          setCampaigns([]);
-          setLoading(false);
-          return;
-        }
-        setCampaigns(mapCampaigns({ [activeCampaignId]: c }));
-        setLoading(false);
-      };
-      ref.on("value", handle);
-      return () => ref.off("value", handle);
-    }
-
-    const ref = database.ref(`users/${uid}/campaigns`);
-    const handle = (snap) => {
-      const data = snap.val() || {};
-      setCampaigns(mapCampaigns(data));
-      setLoading(false);
-    };
-
-    ref.on("value", handle);
-    return () => ref.off("value", handle);
-  }, [uid, activeCampaignId, campaignMode]);
-
   const tagOptions = useMemo(() => {
     const set = new Set();
     campaigns.forEach((c) => {
-      c.quests.forEach((qt) => {
+      (c?.quests || []).forEach((qt) => {
         (Array.isArray(qt?.tags) ? qt.tags : []).forEach((t) => set.add(String(t)));
       });
     });
@@ -174,7 +73,7 @@ export default function QuestsPage() {
   }, [campaigns]);
 
   const filtered = useMemo(() => {
-    const needle = q.trim().toLowerCase();
+    const needle = debouncedQ.trim().toLowerCase();
     const tagsNeed = new Set(tagFilter.map((t) => String(t).toLowerCase()));
 
     const byCampaign =
@@ -203,10 +102,10 @@ export default function QuestsPage() {
     return byCampaign
       .map((c) => ({
         ...c,
-        quests: c.quests.filter((qt) => hitText(qt) && hitStatus(qt) && hitTags(qt)),
+        quests: (c?.quests || []).filter((qt) => hitText(qt) && hitStatus(qt) && hitTags(qt)),
       }))
       .filter((c) => c.quests.length > 0);
-  }, [campaigns, q, activeCampaignId, statusFilter, tagFilter]);
+  }, [campaigns, debouncedQ, activeCampaignId, statusFilter, tagFilter]);
 
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>

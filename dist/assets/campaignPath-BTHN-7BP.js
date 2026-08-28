@@ -1,0 +1,1 @@
+function t({uid:a,campaignId:e,mode:r="legacy"}){return e?r==="shared"?`campaigns/${e}`:a?`users/${a}/campaigns/${e}`:"":""}function s({campaignId:a,mode:e="legacy"}){const r=new URLSearchParams;return r.set("c",a||"default"),e==="shared"&&r.set("m","shared"),r.toString()}export{s as b,t as g};

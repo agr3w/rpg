@@ -29,8 +29,10 @@ import { T_IN } from "config/transitions";
 import { motion } from "framer-motion";
 import RpgSection from "components/RpgSection";
 import { RPG_TOKENS } from "theme/rpgTokens";
-import { createSessionLog, ensureCampaignMeta, listenSessionLogs } from "service/sessionLogService";
 import { buildCampaignQuery } from "service/campaignPath";
+import { useSessionLogs } from "hooks/useSessionLogs";
+import { useDebounce } from "hooks/useDebounce";
+import { fmtDate, fmtMonth, parseTags } from "Utils/textHelpers";
 
 // Ícones
 import SearchIcon from "@mui/icons-material/Search";
@@ -49,40 +51,6 @@ const DND_THEME = {
   goldAccent: "#bf8f00",
   leatherBg: "#2c1a10",
 };
-
-function fmtDate(ms) {
-  if (!ms) return "—";
-  try {
-    return new Date(ms).toLocaleString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return "—";
-  }
-}
-
-function fmtMonth(ms) {
-  if (!ms) return "Sem data";
-  try {
-    const d = new Date(ms);
-    const label = d.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
-    return label.charAt(0).toUpperCase() + label.slice(1);
-  } catch {
-    return "Sem data";
-  }
-}
-
-function parseTags(raw) {
-  return String(raw || "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .slice(0, 16);
-}
 
 const SESSION_TEMPLATES = [
   { id: "livre", label: "Livre (Página em Branco)", build: () => "" },
@@ -118,8 +86,6 @@ export default function SessionLog() {
   const campaignMode = searchParams.get("m") === "shared" ? "shared" : "legacy";
 
   const [status, setStatus] = useState({ type: "info", msg: "" });
-  const [logs, setLogs] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   const [open, setOpen] = useState(false);
   const [templateId, setTemplateId] = useState("dnd_padrao");
@@ -130,32 +96,16 @@ export default function SessionLog() {
 
   // Filtros
   const [q, setQ] = useState("");
+  const debouncedQ = useDebounce(q, 200);
   const [tagFilter, setTagFilter] = useState([]);
   const [onlyLast10, setOnlyLast10] = useState(false);
 
-  useEffect(() => {
-    if (!uid) {
-      setLogs([]);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    ensureCampaignMeta({ uid, campaignId, mode: campaignMode }).catch(() => {});
-
-    const off = listenSessionLogs({
-      uid,
-      campaignId,
-      mode: campaignMode,
-      limit: onlyLast10 ? 60 : 250,
-      onValue: (arr) => {
-        setLogs(arr);
-        setLoading(false);
-      },
-    });
-
-    return () => off();
-  }, [uid, campaignId, campaignMode, onlyLast10]);
+  const { logs, loading, createLog: createLogAction } = useSessionLogs(
+    uid,
+    campaignId,
+    campaignMode,
+    { limit: onlyLast10 ? 60 : 250 }
+  );
 
   const applyTemplateIfEmpty = (nextTemplateId) => {
     const t = SESSION_TEMPLATES.find((x) => x.id === nextTemplateId) || SESSION_TEMPLATES[0];
@@ -171,7 +121,7 @@ export default function SessionLog() {
   }, [logs]);
 
   const filtered = useMemo(() => {
-    const needle = q.trim().toLowerCase();
+    const needle = debouncedQ.trim().toLowerCase();
     const needTags = new Set(tagFilter.map((t) => String(t).toLowerCase()));
 
     const hitText = (l) => {
@@ -191,7 +141,7 @@ export default function SessionLog() {
 
     const arr = logs.filter((l) => hitText(l) && hitTags(l));
     return onlyLast10 ? arr.slice(0, 10) : arr;
-  }, [logs, q, tagFilter, onlyLast10]);
+  }, [logs, debouncedQ, tagFilter, onlyLast10]);
 
   const grouped = useMemo(() => {
     const map = new Map();
@@ -212,10 +162,7 @@ export default function SessionLog() {
 
     setSaving(true);
     try {
-      await createSessionLog({
-        uid,
-        campaignId,
-        mode: campaignMode,
+      await createLogAction({
         title,
         summary,
         tags: parseTags(tagsRaw),

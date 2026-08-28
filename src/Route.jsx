@@ -4,6 +4,9 @@ import { useAuth } from "contexts/AuthContext";
 import { Box, CircularProgress } from "@mui/material";
 
 import AppLayout from "layouts/AppLayout";
+import AudioLayout from "layouts/AudioLayout";
+import NotesLayout from "layouts/NotesLayout";
+import MapsLayout from "layouts/MapsLayout";
 
 // lazy-loaded pages
 const Inicio = lazy(() => import("pages/Inicio"));
@@ -45,14 +48,26 @@ const AppRoutes = () => {
           </>
         ) : (
           <>
-            <Route path="/Taverna-do-Bardo" element={<MusicasPage />} />
-            <Route path="/Biblioteca-Arcana" element={<NotePage />} />
-            <Route path="/folders/:folderId" element={<FolderPage />} />
+            {/* 🎵 Taverna / Músicas */}
+            <Route element={<AudioLayout />}>
+              <Route path="/Taverna-do-Bardo" element={<MusicasPage />} />
+            </Route>
+
+            {/* 📚 Biblioteca / Notas / Pastas */}
+            <Route element={<NotesLayout />}>
+              <Route path="/Biblioteca-Arcana" element={<NotePage />} />
+              <Route path="/folders/:folderId" element={<FolderPage />} />
+            </Route>
+
+            {/* 🗺️ Mapas / Editor */}
+            <Route element={<MapsLayout />}>
+              <Route path="/mapas" element={<MapasPage />} />
+              <Route path="/mapas/editor/:mapId" element={<MapEditor />} />
+            </Route>
+
             <Route path="/fichas" element={<FichaPage />} />
             <Route path="/criar-ficha" element={<FichaCriar />} />
             <Route path="/ficha-completa/:ID" element={<FichaDetalhes />} />
-            <Route path="/mapas" element={<MapasPage />} />
-            <Route path="/mapas/editor/:mapId" element={<MapEditor />} />
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/diario" element={<SessionLog />} />
             <Route path="/diario/:sessionId" element={<SessionLogDetail />} />

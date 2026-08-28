@@ -1,0 +1,1 @@
+const r={1:0,2:300,3:900,4:2700,5:6500,6:14e3,7:23e3,8:34e3,9:48e3,10:64e3,11:85e3,12:1e5,13:12e4,14:14e4,15:165e3,16:195e3,17:225e3,18:265e3,19:305e3,20:35e4};function o(t=0){const e=Number(t||0);for(let n=20;n>=1;n--)if(e>=(r[n]??0))return n;return 1}function u(t=1){const e=Number(t||1);return e>=20?r[20]:r[e+1]??r[20]}export{r as X,o as c,u as n};

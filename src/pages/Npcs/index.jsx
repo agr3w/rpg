@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Alert, Box, Container, Divider, Paper, Stack, TextField, Typography, Chip } from "@mui/material";
 import { useSearchParams } from "react-router-dom";
-import { auth, database } from "APIs/firebaseConfig";
+import { auth } from "APIs/firebaseConfig";
 import { T_IN } from "config/transitions";
 import { motion } from "framer-motion";
-import NpcCard from "./components/NpcCard"; // ✅ add
+import NpcCard from "./components/NpcCard";
+import { useCampaigns } from "hooks/useCampaigns";
+import { useDebounce } from "hooks/useDebounce";
 
 const DEFAULT_CAMPAIGN_ID = "default";
 
@@ -17,9 +19,9 @@ export default function NpcsPage() {
   const campaignMode = searchParams.get("m") === "shared" ? "shared" : "legacy";
 
   const [status] = useState({ type: "info", msg: "" });
-  const [loading, setLoading] = useState(true);
-  const [campaigns, setCampaigns] = useState([]);
+  const { campaigns, loading } = useCampaigns(uid, campaignMode, activeCampaignId);
   const [q, setQ] = useState("");
+  const debouncedQ = useDebounce(q, 200);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -31,111 +33,8 @@ export default function NpcsPage() {
     show: { opacity: 1, y: 0, transition: { duration: 0.3 } },
   };
 
-  useEffect(() => {
-    if (!uid) {
-      setLoading(false);
-      return;
-    }
-
-    const mapCampaigns = (data) => {
-      const arr = Object.entries(data || {}).map(([campaignId, c]) => {
-        const name = c?.meta?.name || campaignId;
-
-        const npcs = Object.values(c?.npcs || {})
-          .filter((n) => n?.id && n?.name)
-          .sort((a, b) => String(a.name).localeCompare(String(b.name), "pt-BR"));
-
-        return { campaignId, name, npcs };
-      });
-
-      arr.sort((a, b) => String(a.name).localeCompare(String(b.name), "pt-BR"));
-      return arr;
-    };
-
-    if (campaignMode === "shared") {
-      const membershipsRef = database.ref(`userCampaigns/${uid}`);
-      let campaignUnsubs = [];
-
-      const clearCampaignListeners = () => {
-        campaignUnsubs.forEach((off) => off());
-        campaignUnsubs = [];
-      };
-
-      const onMemberships = (snap) => {
-        const memberships = snap.val() || {};
-        const allIds = Object.keys(memberships);
-        const ids =
-          activeCampaignId === "all"
-            ? allIds
-            : allIds.includes(activeCampaignId)
-            ? [activeCampaignId]
-            : [];
-
-        clearCampaignListeners();
-
-        if (!ids.length) {
-          setCampaigns([]);
-          setLoading(false);
-          return;
-        }
-
-        const campaignMap = {};
-        const pushState = () => {
-          const filtered = ids.reduce((acc, id) => {
-            if (campaignMap[id]) acc[id] = campaignMap[id];
-            return acc;
-          }, {});
-          setCampaigns(mapCampaigns(filtered));
-          setLoading(false);
-        };
-
-        ids.forEach((id) => {
-          const ref = database.ref(`campaigns/${id}`);
-          const onCampaign = (campaignSnap) => {
-            campaignMap[id] = campaignSnap.val() || null;
-            pushState();
-          };
-          ref.on("value", onCampaign);
-          campaignUnsubs.push(() => ref.off("value", onCampaign));
-        });
-      };
-
-      membershipsRef.on("value", onMemberships);
-      return () => {
-        membershipsRef.off("value", onMemberships);
-        clearCampaignListeners();
-      };
-    }
-
-    if (activeCampaignId !== "all") {
-      const ref = database.ref(`users/${uid}/campaigns/${activeCampaignId}`);
-      const handle = (snap) => {
-        const c = snap.val();
-        if (!c) {
-          setCampaigns([]);
-          setLoading(false);
-          return;
-        }
-        setCampaigns(mapCampaigns({ [activeCampaignId]: c }));
-        setLoading(false);
-      };
-      ref.on("value", handle);
-      return () => ref.off("value", handle);
-    }
-
-    const ref = database.ref(`users/${uid}/campaigns`);
-    const handle = (snap) => {
-      const data = snap.val() || {};
-      setCampaigns(mapCampaigns(data));
-      setLoading(false);
-    };
-
-    ref.on("value", handle);
-    return () => ref.off("value", handle);
-  }, [uid, activeCampaignId, campaignMode]);
-
   const filtered = useMemo(() => {
-    const needle = q.trim().toLowerCase();
+    const needle = debouncedQ.trim().toLowerCase();
 
     const byCampaign =
       activeCampaignId === "all"
@@ -153,9 +52,9 @@ export default function NpcsPage() {
     };
 
     return byCampaign
-      .map((c) => ({ ...c, npcs: c.npcs.filter(hit) }))
+      .map((c) => ({ ...c, npcs: (c?.npcs || []).filter(hit) }))
       .filter((c) => c.npcs.length > 0);
-  }, [campaigns, q, activeCampaignId]);
+  }, [campaigns, debouncedQ, activeCampaignId]);
 
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>

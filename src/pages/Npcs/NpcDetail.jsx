@@ -19,40 +19,14 @@ import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { auth, database, firebase, storage } from "APIs/firebaseConfig";
+import { auth } from "APIs/firebaseConfig";
 import { motion } from "framer-motion";
 import { T_IN } from "config/transitions";
-import { buildCampaignQuery, getCampaignBasePath } from "service/campaignPath";
+import { buildCampaignQuery } from "service/campaignPath";
+import { useNpcDetail } from "hooks/useNpcDetail";
+import { parseTags } from "Utils/textHelpers";
 
 const DEFAULT_CAMPAIGN_ID = "default";
-
-function parseTags(raw) {
-  return String(raw || "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .slice(0, 24);
-}
-
-function coerceRelationshipsToArray(v) {
-  if (!v) return [];
-  if (Array.isArray(v)) {
-    return v
-      .map((r) => ({
-        npcId: r?.npcId || r?.id || "",
-        name: r?.name || "",
-        relation: r?.relation || "",
-      }))
-      .filter((r) => r.npcId && r.name);
-  }
-  return Object.values(v)
-    .map((r) => ({
-      npcId: r?.npcId || "",
-      name: r?.name || "",
-      relation: r?.relation || "",
-    }))
-    .filter((r) => r.npcId && r.name);
-}
 
 export default function NpcDetail() {
   const user = auth.currentUser;
@@ -64,18 +38,19 @@ export default function NpcDetail() {
   const campaignMode = searchParams.get("m") === "shared" ? "shared" : "legacy";
 
   const [status, setStatus] = useState({ type: "info", msg: "" });
-  const [loading, setLoading] = useState(true);
-  const [npc, setNpc] = useState(null);
 
-  const campaignBasePath = useMemo(
-    () => getCampaignBasePath({ uid, campaignId, mode: campaignMode }),
-    [uid, campaignId, campaignMode]
-  );
-
-  const npcRef = useMemo(() => {
-    if (!campaignBasePath || !npcId) return null;
-    return database.ref(`${campaignBasePath}/npcs/${npcId}`);
-  }, [campaignBasePath, npcId]);
+  const {
+    npc,
+    npcOptions,
+    appearedIn,
+    relationships,
+    loading,
+    uploading,
+    saveNpc,
+    uploadAvatar,
+    addRelationship: addRelationshipAction,
+    removeRelationship: removeRelationshipAction,
+  } = useNpcDetail(uid, campaignId, campaignMode, npcId);
 
   const [name, setName] = useState("");
   const [faction, setFaction] = useState("");
@@ -91,135 +66,60 @@ export default function NpcDetail() {
   const [lastSeenNote, setLastSeenNote] = useState("");
   const [description, setDescription] = useState("");
   const [tagsRaw, setTagsRaw] = useState("");
-  const [uploading, setUploading] = useState(false);
 
-  const [npcOptions, setNpcOptions] = useState([]);
   const [relTarget, setRelTarget] = useState(null);
   const [relText, setRelText] = useState("");
-  const [appearedIn, setAppearedIn] = useState([]);
 
   useEffect(() => {
-    if (!npcRef) {
-      setLoading(false);
-      return;
+    if (npc) {
+      setName(npc?.name || "");
+      setFaction(npc?.faction || "");
+      setRoleInScene(npc?.roleInScene || "");
+      setAttitude(npc?.attitude || "");
+      setDangerLevel(npc?.dangerLevel || "");
+      setLocation(npc?.location || "");
+      setVoice(npc?.voice || "");
+      setMannerism(npc?.mannerism || "");
+      setObjective(npc?.objective || npc?.goal || "");
+      setSecret(npc?.secret || "");
+      setHook(npc?.hook || "");
+      setLastSeenNote(npc?.lastSeenNote || "");
+      setDescription(npc?.description || "");
+      setTagsRaw(Array.isArray(npc?.tags) ? npc.tags.join(", ") : "");
     }
-
-    const handle = (snap) => {
-      const v = snap.val() || null;
-      setNpc(v);
-      setName(v?.name || "");
-      setFaction(v?.faction || "");
-      setRoleInScene(v?.roleInScene || "");
-      setAttitude(v?.attitude || "");
-      setDangerLevel(v?.dangerLevel || "");
-      setLocation(v?.location || "");
-      setVoice(v?.voice || "");
-      setMannerism(v?.mannerism || "");
-      setObjective(v?.objective || v?.goal || "");
-      setSecret(v?.secret || "");
-      setHook(v?.hook || "");
-      setLastSeenNote(v?.lastSeenNote || "");
-      setDescription(v?.description || "");
-      setTagsRaw(Array.isArray(v?.tags) ? v.tags.join(", ") : "");
-      setLoading(false);
-    };
-
-    npcRef.on("value", handle);
-    return () => npcRef.off("value", handle);
-  }, [npcRef]);
-
-  useEffect(() => {
-    if (!campaignBasePath) return;
-
-    const idxRef = database.ref(`${campaignBasePath}/npcIndex`);
-    const onIdx = (snap) => {
-      const data = snap.val() || {};
-      const arr = Object.values(data)
-        .map((x) => ({ npcId: x?.npcId, name: x?.name }))
-        .filter((x) => x.npcId && x.name && x.npcId !== npcId)
-        .sort((a, b) => String(a.name).localeCompare(String(b.name), "pt-BR"));
-      setNpcOptions(arr);
-    };
-
-    idxRef.on("value", onIdx);
-    return () => idxRef.off("value", onIdx);
-  }, [campaignBasePath, npcId]);
-
-  useEffect(() => {
-    if (!campaignBasePath || !npcId) return;
-
-    const logsRef = database.ref(`${campaignBasePath}/sessionLogs`);
-    const onLogs = (snap) => {
-      const data = snap.val() || {};
-      const sessions = Object.values(data);
-
-      const found = [];
-      for (const s of sessions) {
-        const npcsSeenObj = s?.npcsSeen || {};
-        const rows = Object.values(npcsSeenObj);
-        const row = rows.find((r) => r?.npcId === npcId);
-        if (row) {
-          found.push({
-            sessionId: s?.id,
-            title: s?.title || "Sessão",
-            createdAt: s?.createdAt || 0,
-            note: row?.note || "",
-          });
-        }
-      }
-
-      found.sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
-      setAppearedIn(found);
-    };
-
-    logsRef.on("value", onLogs);
-    return () => logsRef.off("value", onLogs);
-  }, [campaignBasePath, npcId]);
+  }, [npc]);
 
   const uploadImage = async (file) => {
     setStatus({ type: "info", msg: "" });
-    if (!uid || !campaignId || !npcId || !npcRef || !file) return;
+    if (!file) return;
 
-    setUploading(true);
     try {
-      const ref = storage.ref().child(`arquivos/npcs/${uid}/${campaignId}/${npcId}/${file.name}`);
-      await ref.put(file);
-      const url = await ref.getDownloadURL();
-
-      await npcRef.update({
-        imageUrl: url,
-        updatedAt: firebase.database.ServerValue.TIMESTAMP,
-      });
-
+      await uploadAvatar(file);
       setStatus({ type: "success", msg: "Retrato atualizado." });
     } catch (e) {
       setStatus({ type: "error", msg: e?.message || "Erro ao enviar imagem." });
-    } finally {
-      setUploading(false);
     }
   };
 
   const save = async () => {
     setStatus({ type: "info", msg: "" });
-    if (!npcRef) return;
 
     try {
-      await npcRef.update({
-        name: name.trim(),
-        faction: faction.trim(),
-        roleInScene: roleInScene.trim(),
-        attitude: attitude.trim(),
-        dangerLevel: dangerLevel.trim(),
-        location: location.trim(),
-        voice: voice.trim(),
-        mannerism: mannerism.trim(),
-        objective: objective.trim(),
-        secret: secret.trim(),
-        hook: hook.trim(),
-        lastSeenNote: lastSeenNote.trim(),
-        description: description.trim(),
-        tags: parseTags(tagsRaw),
-        updatedAt: firebase.database.ServerValue.TIMESTAMP,
+      await saveNpc({
+        name,
+        faction,
+        roleInScene,
+        attitude,
+        dangerLevel,
+        location,
+        voice,
+        mannerism,
+        objective,
+        secret,
+        hook,
+        lastSeenNote,
+        description,
+        tagsRaw,
       });
       setStatus({ type: "success", msg: "Ficha de NPC salva." });
     } catch (e) {
@@ -229,7 +129,6 @@ export default function NpcDetail() {
 
   const addOrUpdateRelationship = async () => {
     setStatus({ type: "info", msg: "" });
-    if (!npcRef) return;
 
     const target = relTarget;
     const relation = String(relText || "").trim();
@@ -240,14 +139,7 @@ export default function NpcDetail() {
     }
 
     try {
-      await npcRef.child(`relationships/${target.npcId}`).set({
-        npcId: target.npcId,
-        name: target.name,
-        relation,
-        updatedAt: firebase.database.ServerValue.TIMESTAMP,
-        createdAt: firebase.database.ServerValue.TIMESTAMP,
-      });
-
+      await addRelationshipAction(target, relation);
       setRelTarget(null);
       setRelText("");
       setStatus({ type: "success", msg: "Relacionamento salvo." });
@@ -258,23 +150,15 @@ export default function NpcDetail() {
 
   const removeRelationship = async (targetNpcId) => {
     setStatus({ type: "info", msg: "" });
-    if (!npcRef || !targetNpcId) return;
+    if (!targetNpcId) return;
 
     try {
-      await npcRef.child(`relationships/${targetNpcId}`).remove();
+      await removeRelationshipAction(targetNpcId);
       setStatus({ type: "success", msg: "Relacionamento removido." });
     } catch (e) {
       setStatus({ type: "error", msg: e?.message || "Erro ao remover relacionamento." });
     }
   };
-
-  const relationships = useMemo(
-    () =>
-      coerceRelationshipsToArray(npc?.relationships).sort((a, b) =>
-        String(a.name).localeCompare(String(b.name), "pt-BR")
-      ),
-    [npc?.relationships]
-  );
 
   if (loading) {
     return (

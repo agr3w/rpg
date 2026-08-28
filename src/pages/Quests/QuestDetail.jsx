@@ -30,10 +30,12 @@ import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SaveIcon from "@mui/icons-material/Save";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { auth, database, firebase } from "APIs/firebaseConfig";
+import { auth } from "APIs/firebaseConfig";
 import { T_IN } from "config/transitions";
 import { motion } from "framer-motion";
-import { buildCampaignQuery, getCampaignBasePath } from "service/campaignPath";
+import { buildCampaignQuery } from "service/campaignPath";
+import { useQuestDetail } from "hooks/useQuestDetail";
+import { fmtDateTime } from "Utils/textHelpers";
 
 // Ícones das Abas
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -51,24 +53,11 @@ const DND_THEME = {
   leather: "#833c0b",
 };
 
-function normalizeKey(name) {
-  return String(name || "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-}
-
-function parseTags(raw) {
-  return String(raw || "").split(",").map((s) => s.trim()).filter(Boolean).slice(0, 32);
-}
-
 const STATUS = [
   { value: "ativa", label: "Ativa" },
   { value: "pendente", label: "Pendente" },
   { value: "concluida", label: "Concluída" },
 ];
-
-function fmtDateTime(ms) {
-  if (!ms) return "";
-  try { return new Date(ms).toLocaleString("pt-BR"); } catch { return ""; }
-}
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -88,13 +77,26 @@ export default function QuestDetail() {
   const campaignMode = searchParams.get("m") === "shared" ? "shared" : "legacy";
 
   const [status, setStatus] = useState({ type: "info", msg: "" });
-  const [loading, setLoading] = useState(true);
-  const [quest, setQuest] = useState(null);
   const [tabIndex, setTabIndex] = useState(0);
-  const campaignBasePath = useMemo(
-    () => getCampaignBasePath({ uid, campaignId, mode: campaignMode }),
-    [uid, campaignId, campaignMode]
-  );
+
+  const {
+    quest,
+    timeline,
+    appearedIn,
+    questOptions,
+    milestones,
+    subquests,
+    loading,
+    saveQuest,
+    addMilestone: addMilestoneAction,
+    removeMilestone: removeMilestoneAction,
+    addTodo: addTodoAction,
+    toggleTodo: toggleTodoAction,
+    removeTodo: removeTodoAction,
+    addSubquest: addSubquestAction,
+    removeSubquest: removeSubquestAction,
+    addManualEvent: addManualEventAction,
+  } = useQuestDetail(uid, campaignId, campaignMode, questId);
 
   // Form States
   const [title, setTitle] = useState("");
@@ -102,10 +104,6 @@ export default function QuestDetail() {
   const [description, setDescription] = useState("");
   const [tagsRaw, setTagsRaw] = useState("");
 
-  // Data States
-  const [appearedIn, setAppearedIn] = useState([]);
-  const [timeline, setTimeline] = useState([]);
-  const [questOptions, setQuestOptions] = useState([]);
   const [subquestTarget, setSubquestTarget] = useState(null);
 
   // UI States
@@ -120,107 +118,28 @@ export default function QuestDetail() {
   const [eventNote, setEventNote] = useState("");
   const [eventMilestoneId, setEventMilestoneId] = useState("");
 
-  const questRef = useMemo(() => {
-    if (!campaignBasePath || !questId) return null;
-    return database.ref(`${campaignBasePath}/quests/${questId}`);
-  }, [campaignBasePath, questId]);
-
-  // --- Effects ---
   useEffect(() => {
-    if (!questRef) { setLoading(false); return; }
-    const onQuest = (snap) => {
-      const v = snap.val() || null;
-      setQuest(v);
-      setTitle(v?.title || "");
-      setCurrentStatus(v?.currentStatus || "pendente");
-      setDescription(v?.description || "");
-      setTagsRaw(Array.isArray(v?.tags) ? v.tags.join(", ") : "");
-      setLoading(false);
-    };
-    questRef.on("value", onQuest);
-    return () => questRef.off("value", onQuest);
-  }, [questRef]);
-
-  useEffect(() => {
-    if (!questRef) return;
-    const tlRef = questRef.child("timeline");
-    const onTl = (snap) => {
-      const data = snap.val() || {};
-      const arr = Object.values(data).sort((a, b) => Number(b.occurredAt || 0) - Number(a.occurredAt || 0));
-      setTimeline(arr);
-    };
-    tlRef.on("value", onTl);
-    return () => tlRef.off("value", onTl);
-  }, [questRef]);
-
-  useEffect(() => {
-    if (!campaignBasePath || !questId) return;
-    const logsRef = database.ref(`${campaignBasePath}/sessionLogs`);
-    const onLogs = (snap) => {
-      const data = snap.val() || {};
-      const found = Object.values(data).filter(s => {
-        const rows = Object.values(s?.quests || {});
-        return rows.some(r => r?.questId === questId);
-      }).map(s => ({
-        sessionId: s.id,
-        title: s.title || "Sessão",
-        createdAt: s.createdAt || 0,
-        note: Object.values(s.quests).find(r => r.questId === questId)?.note || ""
-      })).sort((a, b) => b.createdAt - a.createdAt);
-      setAppearedIn(found);
-    };
-    logsRef.on("value", onLogs);
-    return () => logsRef.off("value", onLogs);
-  }, [campaignBasePath, questId]);
-
-  useEffect(() => {
-    if (!campaignBasePath) return;
-    const idxRef = database.ref(`${campaignBasePath}/questIndex`);
-    const onIdx = (snap) => {
-      const data = snap.val() || {};
-      const arr = Object.values(data)
-        .map((x) => ({ questId: x?.questId, title: x?.title }))
-        .filter((x) => x.questId && x.title)
-        .sort((a, b) => String(a.title).localeCompare(String(b.title), "pt-BR"));
-      setQuestOptions(arr);
-    };
-    idxRef.on("value", onIdx);
-    return () => idxRef.off("value", onIdx);
-  }, [campaignBasePath]);
-
-  // --- Computed ---
-  const milestones = useMemo(() => {
-    const obj = quest?.flow?.milestones || {};
-    const arr = Object.values(obj).filter(Boolean).sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
-    return arr;
-  }, [quest?.flow?.milestones]);
-
-  const subquests = useMemo(() => {
-    const obj = quest?.links?.subquests || {};
-    return Object.values(obj).filter((x) => x?.questId && x?.title).sort((a, b) => String(a.title).localeCompare(String(b.title), "pt-BR"));
-  }, [quest?.links?.subquests]);
+    if (quest) {
+      setTitle(quest.title || "");
+      setCurrentStatus(quest.currentStatus || "pendente");
+      setDescription(quest.description || "");
+      setTagsRaw(Array.isArray(quest.tags) ? quest.tags.join(", ") : "");
+    }
+  }, [quest]);
 
   // --- Actions ---
   const save = async () => {
     setStatus({ type: "info", msg: "" });
-    if (!questRef || !uid) return;
+    if (!uid) return;
     const newTitle = title.trim();
     if (!newTitle) return setStatus({ type: "warning", msg: "Título é obrigatório." });
-    
-    try {
-      const newKey = normalizeKey(newTitle);
-      const oldKey = quest?.indexKey || normalizeKey(quest?.title || "");
-      
-      if (oldKey && oldKey !== newKey) {
-        await database.ref(`${campaignBasePath}/questIndex/${oldKey}`).remove();
-      }
-      await database.ref(`${campaignBasePath}/questIndex/${newKey}`).set({
-        key: newKey, questId, title: newTitle, updatedAt: firebase.database.ServerValue.TIMESTAMP,
-      });
 
-      await questRef.update({
-        title: newTitle, indexKey: newKey, currentStatus, description: description.trim(),
-        tags: parseTags(tagsRaw), updatedAt: firebase.database.ServerValue.TIMESTAMP,
+    try {
+      await saveQuest({
+        title: newTitle,
+        currentStatus,
+        description,
+        tags: tagsRaw,
       });
       setStatus({ type: "success", msg: "Quest salva." });
     } catch (e) {
@@ -231,8 +150,6 @@ export default function QuestDetail() {
   // ✅ adicionar marco (ponto principal)
   const addMilestone = async () => {
     setStatus({ type: "info", msg: "" });
-    if (!questRef) return;
-
     const t = String(milestoneTitle || "").trim();
     const n = String(milestoneNote || "").trim();
 
@@ -242,16 +159,7 @@ export default function QuestDetail() {
     }
 
     try {
-      const ref = questRef.child("flow/milestones").push();
-      await ref.set({
-        id: ref.key,
-        title: t,
-        note: n || "",
-        order: Date.now(),
-        createdAt: firebase.database.ServerValue.TIMESTAMP,
-        updatedAt: firebase.database.ServerValue.TIMESTAMP,
-      });
-
+      await addMilestoneAction({ title: t, note: n });
       setMilestoneOpen(false);
       setMilestoneTitle("");
       setMilestoneNote("");
@@ -263,10 +171,10 @@ export default function QuestDetail() {
 
   const removeMilestone = async (milestoneId) => {
     setStatus({ type: "info", msg: "" });
-    if (!questRef || !milestoneId) return;
+    if (!milestoneId) return;
 
     try {
-      await questRef.child(`flow/milestones/${milestoneId}`).remove();
+      await removeMilestoneAction(milestoneId);
       setStatus({ type: "success", msg: "Marco removido." });
     } catch (e) {
       setStatus({ type: "error", msg: e?.message || "Erro ao remover marco." });
@@ -276,7 +184,7 @@ export default function QuestDetail() {
   // ✅ adicionar item do checklist
   const addTodo = async (milestoneId) => {
     setStatus({ type: "info", msg: "" });
-    if (!questRef || !milestoneId) return;
+    if (!milestoneId) return;
 
     const text = String(todoDraft[milestoneId] || "").trim();
     if (!text) {
@@ -285,16 +193,7 @@ export default function QuestDetail() {
     }
 
     try {
-      const ref = questRef.child(`flow/milestones/${milestoneId}/todos`).push();
-      await ref.set({
-        id: ref.key,
-        text,
-        done: false,
-        doneAt: 0,
-        createdAt: firebase.database.ServerValue.TIMESTAMP,
-        updatedAt: firebase.database.ServerValue.TIMESTAMP,
-      });
-
+      await addTodoAction(milestoneId, text);
       setTodoDraft((m) => ({ ...m, [milestoneId]: "" }));
       setStatus({ type: "success", msg: "To-do adicionado." });
     } catch (e) {
@@ -303,24 +202,18 @@ export default function QuestDetail() {
   };
 
   const toggleTodo = async (milestoneId, todo) => {
-    if (!questRef || !milestoneId || !todo?.id) return;
-
+    if (!milestoneId || !todo?.id) return;
     try {
-      const next = !Boolean(todo.done);
-      await questRef.child(`flow/milestones/${milestoneId}/todos/${todo.id}`).update({
-        done: next,
-        doneAt: next ? firebase.database.ServerValue.TIMESTAMP : 0,
-        updatedAt: firebase.database.ServerValue.TIMESTAMP,
-      });
+      await toggleTodoAction(milestoneId, todo);
     } catch (e) {
       setStatus({ type: "error", msg: e?.message || "Erro ao marcar to-do." });
     }
   };
 
   const removeTodo = async (milestoneId, todoId) => {
-    if (!questRef || !milestoneId || !todoId) return;
+    if (!milestoneId || !todoId) return;
     try {
-      await questRef.child(`flow/milestones/${milestoneId}/todos/${todoId}`).remove();
+      await removeTodoAction(milestoneId, todoId);
     } catch (e) {
       setStatus({ type: "error", msg: e?.message || "Erro ao remover to-do." });
     }
@@ -329,18 +222,14 @@ export default function QuestDetail() {
   // ✅ adicionar subquest
   const addSubquest = async () => {
     setStatus({ type: "info", msg: "" });
-    if (!questRef || !subquestTarget?.questId) return;
+    if (!subquestTarget?.questId) return;
     if (subquestTarget.questId === questId) {
       setStatus({ type: "warning", msg: "Você não pode linkar a quest nela mesma." });
       return;
     }
 
     try {
-      await questRef.child(`links/subquests/${subquestTarget.questId}`).set({
-        questId: subquestTarget.questId,
-        title: subquestTarget.title || "Quest",
-        createdAt: firebase.database.ServerValue.TIMESTAMP,
-      });
+      await addSubquestAction(subquestTarget);
       setSubquestTarget(null);
       setStatus({ type: "success", msg: "Subquest adicionada." });
     } catch (e) {
@@ -350,9 +239,9 @@ export default function QuestDetail() {
 
   const removeSubquest = async (qid) => {
     setStatus({ type: "info", msg: "" });
-    if (!questRef || !qid) return;
+    if (!qid) return;
     try {
-      await questRef.child(`links/subquests/${qid}`).remove();
+      await removeSubquestAction(qid);
       setStatus({ type: "success", msg: "Subquest removida." });
     } catch (e) {
       setStatus({ type: "error", msg: e?.message || "Erro ao remover subquest." });
@@ -362,8 +251,6 @@ export default function QuestDetail() {
   // ✅ adicionar evento manual na timeline (com title + milestoneId)
   const addManualEvent = async () => {
     setStatus({ type: "info", msg: "" });
-    if (!questRef) return;
-
     const t = String(eventTitle || "").trim();
     const note = String(eventNote || "").trim();
 
@@ -377,19 +264,12 @@ export default function QuestDetail() {
     }
 
     try {
-      const ref = questRef.child("timeline").push();
-      await ref.set({
-        id: ref.key,
-        type: String(eventType || "manual"),
+      await addManualEventAction({
         title: t,
-        milestoneId: String(eventMilestoneId || ""),
-        questId,
-        sessionId: "",
-        sessionTitle: "",
-        status: String(eventStatus || currentStatus || ""),
         note,
-        occurredAt: firebase.database.ServerValue.TIMESTAMP,
-        createdAt: firebase.database.ServerValue.TIMESTAMP,
+        type: eventType,
+        status: eventStatus,
+        milestoneId: eventMilestoneId,
       });
 
       setEventOpen(false);
@@ -401,116 +281,6 @@ export default function QuestDetail() {
       setStatus({ type: "success", msg: "Evento adicionado na timeline." });
     } catch (e) {
       setStatus({ type: "error", msg: e?.message || "Erro ao adicionar evento." });
-    }
-  };
-
-  const ensureMilestoneByTitle = async (wantedTitle, note = "") => {
-    if (!questRef) return "";
-    const snap = await questRef.child("flow/milestones").once("value");
-    const obj = snap.val() || {};
-    const arr = Object.values(obj).filter(Boolean);
-
-    const found = arr.find((m) => String(m?.title || "").trim().toLowerCase() === String(wantedTitle).trim().toLowerCase());
-    if (found?.id) return found.id;
-
-    const ref = questRef.child("flow/milestones").push();
-    await ref.set({
-      id: ref.key,
-      title: wantedTitle,
-      note: note || "",
-      order: Date.now(),
-      createdAt: firebase.database.ServerValue.TIMESTAMP,
-      updatedAt: firebase.database.ServerValue.TIMESTAMP,
-    });
-    return ref.key;
-  };
-
-  const pushTimeline = async ({ type, title, note, milestoneId, status: st }) => {
-    if (!questRef) return;
-    const ref = questRef.child("timeline").push();
-    await ref.set({
-      id: ref.key,
-      type: type || "update",
-      title: title || "",
-      milestoneId: milestoneId || "",
-      questId,
-      sessionId: "",
-      sessionTitle: "",
-      status: st || "",
-      note: note || "",
-      occurredAt: firebase.database.ServerValue.TIMESTAMP,
-      createdAt: firebase.database.ServerValue.TIMESTAMP,
-    });
-  };
-
-  const migrateLegacyHooksToObjectives = async () => {
-    setStatus({ type: "info", msg: "" });
-    if (!campaignBasePath || !questRef || !legacyHookIds.length) return;
-    if (migratingHooks) return;
-
-    setMigratingHooks(true);
-    try {
-      const milestoneId = await ensureMilestoneByTitle(
-        "Follow-ups (migrado)",
-        "Hooks antigos migrados para objetivos do plano. Você pode mover/editar estes objetivos depois."
-      );
-
-      let migratedCount = 0;
-
-      for (const hookId of legacyHookIds) {
-        const hookRef = database.ref(`${campaignBasePath}/hooks/${hookId}`);
-        const hookSnap = await hookRef.once("value");
-        const hook = hookSnap.val();
-        if (!hook) continue;
-
-        const hookTitle = String(hook?.title || "Hook").trim();
-        const hookNote = String(hook?.note || "").trim();
-
-        const mergedText = hookNote ? `${hookTitle} — ${hookNote}` : hookTitle;
-
-        const isDone =
-          String(hook?.status || "").toLowerCase() === "concluido" ||
-          String(hook?.status || "").toLowerCase() === "concluida" ||
-          String(hook?.status || "").toLowerCase() === "concluída";
-
-        const todoRef = questRef.child(`flow/milestones/${milestoneId}/todos`).push();
-        await todoRef.set({
-          id: todoRef.key,
-          text: mergedText,
-          done: Boolean(isDone),
-          doneAt: isDone ? firebase.database.ServerValue.TIMESTAMP : 0,
-          createdAt: firebase.database.ServerValue.TIMESTAMP,
-          updatedAt: firebase.database.ServerValue.TIMESTAMP,
-          legacy: { hookId },
-        });
-
-        // marca hook como depreciado (não deleta por segurança)
-        await hookRef.update({
-          deprecated: true,
-          migratedToQuestId: questId,
-          migratedAt: firebase.database.ServerValue.TIMESTAMP,
-          updatedAt: firebase.database.ServerValue.TIMESTAMP,
-        });
-
-        migratedCount += 1;
-      }
-
-      // remove o mapa antigo da quest
-      await questRef.child("followUps").remove();
-
-      await pushTimeline({
-        type: "migration",
-        title: "Hooks migrados para objetivos",
-        note: `${migratedCount} hook(s) migrado(s) para o marco “Follow-ups (migrado)”.`,
-        milestoneId,
-        status: currentStatus || "",
-      });
-
-      setStatus({ type: "success", msg: "Migração concluída: hooks viraram objetivos + evento na timeline." });
-    } catch (e) {
-      setStatus({ type: "error", msg: e?.message || "Erro ao migrar hooks." });
-    } finally {
-      setMigratingHooks(false);
     }
   };
 
