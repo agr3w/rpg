@@ -6,14 +6,14 @@ import 'firebase/compat/storage';
 import 'firebase/compat/auth';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAvR0bpQQaKEkZXE2b3MBs_Kfq54ZugupA",
-  authDomain: "test-b6bc2.firebaseapp.com",
-  projectId: "test-b6bc2",
-  databaseURL: "https://test-b6bc2-default-rtdb.firebaseio.com/",
-  storageBucket: "gs://test-b6bc2.appspot.com",
-  messagingSenderId: "34622073568",	
-  appId: "1:34622073568:web:95f52bc1836c8add0a3e85",
-  measurementId: "G-F2HZG6P3MF",
+  apiKey: import.meta.env.VITE.REACT_APP_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE.REACT_APP_FIREBASE_PROJECT_ID,
+  databaseURL: import.meta.env.VITE.REACT_APP_FIREBASE_DATABASE_URL,
+  storageBucket: import.meta.env.VITE.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE.REACT_APP_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
 // evita duplicate-app: reutiliza app se já existir
