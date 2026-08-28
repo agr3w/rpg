@@ -269,7 +269,10 @@ const Nav = () => {
   const hasAnnouncement = announcement && announcement.message;
 
   // ✅ SEU UID DE ADMIN (Para mostrar o botão no perfil)
-  const MY_ADMIN_UID = import.meta.env.VITE.REACT_APP_ADMIN_UID || "";
+  const MY_ADMIN_UID =
+    import.meta.env?.VITE_REACT_APP_ADMIN_UID ||
+    import.meta.env?.VITE_ADMIN_UID ||
+    "";
   const isAdmin = auth.currentUser?.uid === MY_ADMIN_UID;
 
   // ✅ Alternância rápida de Tema

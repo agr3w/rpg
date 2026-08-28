@@ -127,8 +127,10 @@ export default function AdminPage() {
     }
   };
 
-  const MY_ADMIN_UID = "hKYEhI9JIEPOS2RSON7tsviLzjV2"; 
-  if (auth.currentUser?.uid !== MY_ADMIN_UID) {
+  const ADMIN_UID = import.meta.env.VITE_ADMIN_UID || import.meta.env.VITE_REACT_APP_ADMIN_UID;
+  const isAdmin = auth.currentUser?.uid && auth.currentUser.uid === ADMIN_UID;
+
+  if (!isAdmin) {
     return (
       <Box sx={{ height: "100vh", display: "grid", placeItems: "center", bgcolor: "#000", color: "#800" }}>
         <Stack alignItems="center" spacing={2}>

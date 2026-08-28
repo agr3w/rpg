@@ -26,4 +26,5 @@ export default defineConfig({
         port: 3000,
         open: true,
     },
+    envPrefix: ['VITE_', 'REACT_APP_'],
 })
