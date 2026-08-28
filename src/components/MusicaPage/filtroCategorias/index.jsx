@@ -2,17 +2,9 @@ import React, { useState } from "react";
 import { Tabs, Tab, Box } from "@mui/material";
 import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 import { useMusicContext } from "APIs/MusicContext";
-import styles from "./FiltroCategoria.module.css"; // Importe seus estilos CSS
 
 const FiltroCategoria = ({ onFiltroCategoriaChange, categoriaAtiva }) => {
   const { categorias } = useMusicContext();
-  const [categoriaSelecionada, setCategoriaSelecionada] = useState("");
-
-  const handleCategoriaChange = (event) => {
-    const novaCategoria = event.target.value;
-    setCategoriaSelecionada(novaCategoria);
-    onFiltroCategoriaChange(novaCategoria);
-  };
 
   const handleChange = (event, newValue) => {
     onFiltroCategoriaChange(newValue);
@@ -21,20 +13,31 @@ const FiltroCategoria = ({ onFiltroCategoriaChange, categoriaAtiva }) => {
   return (
     <Box sx={{ width: '100%' }}>
       <Tabs
-        value={categoriaAtiva || ""} // Se vazio, seleciona "Todos"
+        value={categoriaAtiva || ""}
         onChange={handleChange}
         variant="scrollable"
         scrollButtons="auto"
-        textColor="secondary"
-        indicatorColor="secondary"
         sx={{
           "& .MuiTab-root": {
             fontFamily: "Cinzel",
-            fontWeight: "bold",
-            color: "rgba(0, 0, 0, 0.5)",
-            "&.Mui-selected": { color: "#bf8f00" }
+            fontWeight: 700,
+            color: "text.secondary",
+            minHeight: 44,
+            px: 2,
+            mx: 0.5,
+            borderRadius: 1,
+            transition: "all 0.15s ease",
+            "&:hover": {
+              color: "text.primary",
+            },
+            "&.Mui-selected": {
+              color: "secondary.main",
+              fontWeight: 800,
+              bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(191,143,0,0.1)"),
+              border: (t) => (t.palette.mode === "dark" ? "1px solid rgba(212, 122, 55, 0.25)" : "1px solid rgba(191,143,0,0.2)"),
+            },
           },
-          "& .MuiTabs-indicator": { backgroundColor: "#bf8f00" }
+          "& .MuiTabs-indicator": { backgroundColor: "secondary.main", height: 3 }
         }}
       >
         <Tab 

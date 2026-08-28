@@ -38,6 +38,8 @@ import {
   Settings as SettingsIcon,
   Folder as FolderIcon,
   ExpandMore,
+  DarkMode as DarkModeIcon,
+  LightMode as LightModeIcon,
 } from "@mui/icons-material";
 
 import { auth } from "APIs/firebaseConfig";
@@ -56,6 +58,7 @@ import ReportProblemIcon from '@mui/icons-material/ReportProblem'; // Para Erros
 // ✅ Importamos a lógica para saber qual elemento estamos
 import { getElementFromPath } from "theme/elementTokens";
 import { useSystem } from "hooks/useSystem";
+import { usePreferences } from "contexts/PreferencesContext";
 
 // ✅ 1. CRIAR COMPONENTE ISOLADO DE PROGRESSO (Fora do Nav principal)
 // Isso evita que o Nav inteiro renderize a cada pixel de scroll
@@ -268,6 +271,13 @@ const Nav = () => {
   // ✅ SEU UID DE ADMIN (Para mostrar o botão no perfil)
   const MY_ADMIN_UID = "hKYEhI9JIEPOS2RSON7tsviLzjV2";
   const isAdmin = auth.currentUser?.uid === MY_ADMIN_UID;
+
+  // ✅ Alternância rápida de Tema
+  const { prefs, updatePrefs } = usePreferences();
+  const isDark = prefs?.themeMode === "dark";
+  const handleToggleTheme = () => {
+    updatePrefs({ themeMode: isDark ? "light" : "dark" });
+  };
 
   // --- CÓDIGO QUE FALTAVA ---
   
@@ -838,6 +848,21 @@ const Nav = () => {
                 Perfil
               </MenuItem>
 
+              <MenuItem
+                onClick={() => {
+                  handleToggleTheme();
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: 38, color: "inherit", opacity: 0.9 }}>
+                  {isDark ? (
+                    <LightModeIcon fontSize="small" sx={{ color: "secondary.main" }} />
+                  ) : (
+                    <DarkModeIcon fontSize="small" sx={{ color: "primary.main" }} />
+                  )}
+                </ListItemIcon>
+                {isDark ? "Modo Claro" : "Modo Escuro"}
+              </MenuItem>
+
               <Divider />
 
               <MenuItem onClick={handleLogout}>
@@ -981,6 +1006,24 @@ const Nav = () => {
               ))}
             </List>
           </Collapse>
+
+          <Divider sx={{ my: 1, borderColor: alpha("#000", 0.08) }} />
+
+          <ListItem disablePadding>
+            <ListItemButton onClick={handleToggleTheme}>
+              <ListItemIcon sx={{ minWidth: 40, color: theme.palette.primary.main }}>
+                {isDark ? (
+                  <LightModeIcon sx={{ color: "secondary.main" }} />
+                ) : (
+                  <DarkModeIcon sx={{ color: "primary.main" }} />
+                )}
+              </ListItemIcon>
+              <ListItemText
+                primary={isDark ? "Modo Claro (Dia)" : "Modo Escuro (Noite)"}
+                primaryTypographyProps={{ fontFamily: "Cinzel", fontWeight: 700 }}
+              />
+            </ListItemButton>
+          </ListItem>
         </List>
       </Drawer>
     </>

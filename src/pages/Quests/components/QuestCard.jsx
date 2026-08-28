@@ -154,7 +154,7 @@ function QuestCard({ uid, campaignId, campaignMode = "legacy", quest }) {
               sx={{
                 mt: 1.5,
                 mb: 2,
-                color: "rgba(44, 26, 16, 0.75)",
+                color: "text.secondary",
                 fontFamily: "'Merriweather', serif",
                 fontSize: "0.85rem",
                 lineHeight: 1.6,
@@ -170,15 +170,15 @@ function QuestCard({ uid, campaignId, campaignMode = "legacy", quest }) {
                 sx={{
                   p: 1,
                   borderRadius: 2,
-                  border: "1px dashed rgba(131,60,11,0.22)",
-                  bgcolor: "rgba(191,143,0,0.06)",
+                  border: (t) => `1px dashed ${t.palette.rpg?.stroke || "rgba(131,60,11,0.22)"}`,
+                  bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(229,179,36,0.06)" : "rgba(191,143,0,0.06)"),
                   mb: 1,
                 }}
               >
-                <Typography variant="caption" sx={{ fontWeight: 900, opacity: 0.9 }}>
+                <Typography variant="caption" sx={{ fontWeight: 900, opacity: 0.9, color: "secondary.main" }}>
                   Último andamento
                 </Typography>
-                <Typography variant="caption" sx={{ display: "block", opacity: 0.85 }}>
+                <Typography variant="caption" sx={{ display: "block", opacity: 0.85, color: "text.secondary" }}>
                   {snippet(quest.lastSeenNote, 80)}
                 </Typography>
               </Paper>
@@ -188,7 +188,7 @@ function QuestCard({ uid, campaignId, campaignMode = "legacy", quest }) {
               direction="row"
               alignItems="center"
               justifyContent="space-between"
-              sx={{ mt: "auto", pt: 2, borderTop: "1px dashed rgba(92,64,51,0.1)" }}
+              sx={{ mt: "auto", pt: 2, borderTop: (t) => `1px dashed ${t.palette.rpg?.stroke || "rgba(92,64,51,0.1)"}` }}
             >
               <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
                 {tags.slice(0, 3).map((t) => (
@@ -196,7 +196,12 @@ function QuestCard({ uid, campaignId, campaignMode = "legacy", quest }) {
                     key={t}
                     label={t}
                     size="small"
-                    sx={{ height: 20, fontSize: "0.65rem", bgcolor: "rgba(0,0,0,0.05)" }}
+                    sx={{
+                      height: 20,
+                      fontSize: "0.65rem",
+                      bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"),
+                      color: "text.secondary",
+                    }}
                   />
                 ))}
               </Box>
@@ -208,8 +213,9 @@ function QuestCard({ uid, campaignId, campaignMode = "legacy", quest }) {
                     onClick={markDone}
                     disabled={marking || quest?.currentStatus === "concluida"}
                     sx={{
-                      color: quest?.currentStatus === "concluida" ? "success.main" : "rgba(0,0,0,0.3)",
-                      "&:hover": { color: "success.main" },
+                      color: quest?.currentStatus === "concluida" ? "success.main" : "text.secondary",
+                      opacity: quest?.currentStatus === "concluida" ? 1 : 0.6,
+                      "&:hover": { color: "success.main", opacity: 1 },
                     }}
                   >
                     <CheckCircleRoundedIcon fontSize="small" />
@@ -223,7 +229,11 @@ function QuestCard({ uid, campaignId, campaignMode = "legacy", quest }) {
                       e.stopPropagation();
                       setConfirmOpen(true);
                     }}
-                    sx={{ color: "rgba(0,0,0,0.3)", "&:hover": { color: "error.main" } }}
+                    sx={{
+                      color: "text.secondary",
+                      opacity: 0.6,
+                      "&:hover": { color: "error.main", opacity: 1 },
+                    }}
                   >
                     <DeleteRoundedIcon fontSize="small" />
                   </IconButton>

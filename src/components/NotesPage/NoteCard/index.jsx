@@ -97,15 +97,15 @@ const NoteCard = ({ note }) => {
           display: "flex",
           flexDirection: "column",
           position: "relative",
-          transition: "all 0.3s ease",
-          bgcolor: "#fffaf0",
-          backgroundImage: `linear-gradient(135deg, ${alpha("#dcbfa6", 0.2)} 0%, transparent 100%)`,
-          border: "1px solid rgba(131, 60, 11, 0.3)",
-          boxShadow: "2px 4px 8px rgba(0,0,0,0.1)",
+          transition: "all 0.15s ease",
+          bgcolor: (t) => (t.palette.mode === "dark" ? "#1e1814" : "#fffaf0"),
+          backgroundImage: (t) => t.palette.rpg?.paperBg || "none",
+          border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(131, 60, 11, 0.3)"}`,
+          boxShadow: (t) => (t.palette.mode === "dark" ? "0 4px 12px rgba(0,0,0,0.5)" : "2px 4px 8px rgba(0,0,0,0.1)"),
           "&:hover": {
-            transform: "translateY(-4px) rotate(1deg)",
-            boxShadow: "4px 8px 12px rgba(0,0,0,0.2)",
-            borderColor: "#bf8f00",
+            transform: "translateY(-3px)",
+            boxShadow: (t) => (t.palette.mode === "dark" ? "0 8px 20px rgba(0,0,0,0.7)" : "4px 8px 12px rgba(0,0,0,0.2)"),
+            borderColor: "secondary.main",
           },
         }}
       >
@@ -116,11 +116,11 @@ const NoteCard = ({ note }) => {
           <CardContent sx={{ width: '100%', p: 2 }}>
             <Box display="flex" alignItems="center" gap={1} mb={1}>
               {isText ? (
-                <DescriptionIcon sx={{ color: "#833c0b" }} fontSize="small" />
+                <DescriptionIcon sx={{ color: "primary.main" }} fontSize="small" />
               ) : (
                 <LinkIcon color="secondary" fontSize="small" />
               )}
-              <Typography variant="subtitle1" sx={{ fontFamily: "Cinzel", fontWeight: 700, lineHeight: 1.2, color: "#2e1e14" }}>
+              <Typography variant="subtitle1" sx={{ fontFamily: "Cinzel", fontWeight: 700, lineHeight: 1.2, color: "text.primary" }}>
                 {note.title}
               </Typography>
             </Box>
@@ -137,7 +137,7 @@ const NoteCard = ({ note }) => {
                   WebkitBoxOrient: "vertical",
                   overflow: "hidden",
                   fontStyle: "italic",
-                  opacity: 0.8
+                  opacity: 0.85
                 }}
               >
                 "{note.content}"
@@ -145,7 +145,7 @@ const NoteCard = ({ note }) => {
             )}
             
             {!isText && (
-               <Typography variant="caption" color="text.disabled" sx={{ fontStyle: "italic" }}>
+               <Typography variant="caption" color="text.secondary" sx={{ fontStyle: "italic" }}>
                  Link externo: {new URL(note.url).hostname}
                </Typography>
             )}
@@ -162,7 +162,7 @@ const NoteCard = ({ note }) => {
             width: 8,
             height: 8,
             borderRadius: '50%',
-            bgcolor: '#5c4033',
+            bgcolor: (t) => (t.palette.mode === "dark" ? "#833c0b" : "#5c4033"),
             boxShadow: '0 1px 2px rgba(0,0,0,0.5)'
           }}
         />
@@ -171,20 +171,20 @@ const NoteCard = ({ note }) => {
       {/* --- MODAL DE LEITURA / EDIÇÃO --- */}
       <Dialog 
         open={open} 
-        onClose={handleClose}
+        onClose={handleClose} 
         fullWidth
         maxWidth="md"
         PaperProps={{
           sx: {
-            bgcolor: "#fdfbf7",
-            backgroundImage: `url("https://www.transparenttextures.com/patterns/paper.png")`, // Textura opcional
-            border: "4px solid #833c0b",
+            bgcolor: "background.paper",
+            backgroundImage: (t) => t.palette.rpg?.paperBg || "none",
+            border: (t) => `2px solid ${t.palette.rpg?.stroke || "#833c0b"}`,
             borderRadius: 2,
             minHeight: "400px"
           }
         }}
       >
-        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(0,0,0,0.1)", pb: 1 }}>
+        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(0,0,0,0.1)"}`, pb: 1 }}>
           {isEditing ? (
             <TextField 
               fullWidth 
@@ -192,10 +192,10 @@ const NoteCard = ({ note }) => {
               onChange={(e) => setEditTitle(e.target.value)} 
               variant="standard"
               placeholder="Título"
-              InputProps={{ style: { fontFamily: "Cinzel", fontSize: "1.5rem", fontWeight: "bold", color: "#833c0b" } }}
+              InputProps={{ style: { fontFamily: "Cinzel", fontSize: "1.5rem", fontWeight: "bold", color: "inherit" } }}
             />
           ) : (
-            <Typography variant="h5" sx={{ fontFamily: "Cinzel", fontWeight: "bold", color: "#833c0b" }}>
+            <Typography variant="h5" sx={{ fontFamily: "Cinzel", fontWeight: "bold", color: "primary.main" }}>
               {note.title}
             </Typography>
           )}

@@ -44,16 +44,17 @@ const NotePage = () => {
             severity="info" 
             icon={false}
             sx={{ 
-              bgcolor: "rgba(191, 143, 0, 0.1)", 
-              color: "#e0cda8", 
-              border: "1px solid rgba(191, 143, 0, 0.3)",
-              maxWidth: "800px"
+              bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(229, 179, 36, 0.08)" : "rgba(191, 143, 0, 0.1)"), 
+              color: "text.primary", 
+              border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(191, 143, 0, 0.3)"}`,
+              maxWidth: "800px",
+              "& strong": { color: "secondary.main" },
             }}
           >
-            <Typography variant="body1" sx={{ fontFamily: "Cinzel", fontWeight: 600, color: "#833c0b", mb: 1 }}>
+            <Typography variant="body1" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "primary.main", mb: 1 }}>
               Bem-vindo à sua mesa de estudos.
             </Typography>
-            <Typography variant="body2" sx={{ opacity: 0.8, mt: 0.5, color: "#2c1a10" }}>
+            <Typography variant="body2" sx={{ color: "text.primary", opacity: 0.9, mt: 0.5 }}>
               • Use as <strong>Gavetas (Esquerda)</strong> para organizar pastas com arquivos pesados, PDFs e links externos.
               <br />
               • Use a <strong>Mesa (Direita)</strong> para escrever notas rápidas, rascunhos e lembretes que precisam estar sempre à mão.
@@ -72,23 +73,23 @@ const NotePage = () => {
               sx={{ 
                 p: 3, 
                 height: "100%", 
-                bgcolor: "#2e1e14", // Madeira escura
-                color: "#e0cda8",
+                bgcolor: (t) => (t.palette.mode === "dark" ? "#1e1814" : "#2e1e14"), 
+                color: "text.primary",
                 borderRadius: 4,
-                border: "1px solid #5d4037",
+                border: (t) => `1px solid ${t.palette.rpg?.stroke || "#5d4037"}`,
                 backgroundImage: `url("https://www.transparenttextures.com/patterns/wood-pattern.png")`
               }}
             >
               <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
                 <Box display="flex" alignItems="center" gap={1}>
-                  <Inventory2Icon />
-                  <Typography variant="h5" sx={{ fontFamily: "Cinzel", fontWeight: 700 }}>
+                  <Inventory2Icon sx={{ color: "primary.main" }} />
+                  <Typography variant="h5" sx={{ fontFamily: "Cinzel", fontWeight: 700, color: "text.primary" }}>
                     Gavetas
                   </Typography>
                 </Box>
               </Box>
               
-              <Typography variant="caption" display="block" sx={{ mb: 3, opacity: 0.7, fontStyle: "italic" }}>
+              <Typography variant="caption" display="block" sx={{ mb: 3, opacity: 0.7, fontStyle: "italic", color: "text.secondary" }}>
                 Organize seus grimórios e documentos externos aqui.
               </Typography>
 
@@ -96,14 +97,14 @@ const NotePage = () => {
                 <FolderAdd />
               </Box>
 
-              <Divider sx={{ borderColor: "rgba(255,255,255,0.1)", mb: 3 }} />
+              <Divider sx={{ borderColor: (t) => t.palette.rpg?.stroke || "rgba(255,255,255,0.1)", mb: 3 }} />
 
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 {folders.map((folder) => (
                   <FoldersCard key={folder.id} folder={folder} />
                 ))}
                 {folders.length === 0 && (
-                  <Typography variant="body2" align="center" sx={{ opacity: 0.5, py: 4 }}>
+                  <Typography variant="body2" align="center" sx={{ opacity: 0.5, py: 4, color: "text.secondary" }}>
                     Nenhuma gaveta construída ainda.
                   </Typography>
                 )}
@@ -118,15 +119,16 @@ const NotePage = () => {
               sx={{ 
                 p: 4, 
                 minHeight: "60vh",
-                bgcolor: "#fdfbf7", // Papel claro
-                backgroundImage: `linear-gradient(135deg, ${alpha("#dcbfa6", 0.1)} 0%, transparent 100%)`,
+                bgcolor: "background.paper",
+                color: "text.primary",
+                backgroundImage: (t) => t.palette.rpg?.paperBg || "none",
                 borderRadius: 2,
-                border: "1px solid rgba(0,0,0,0.08)",
+                border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(0,0,0,0.08)"}`,
                 position: "relative"
               }}
             >
               {/* Efeito de "Folhas empilhadas" visual */}
-              <Box sx={{ position: "absolute", top: -10, left: 20, right: 20, height: 10, bgcolor: "#f4ede3", borderRadius: "8px 8px 0 0", zIndex: -1, border: "1px solid rgba(0,0,0,0.05)" }} />
+              <Box sx={{ position: "absolute", top: -10, left: 20, right: 20, height: 10, bgcolor: (t) => (t.palette.mode === "dark" ? "#14100d" : "#f4ede3"), borderRadius: "8px 8px 0 0", zIndex: -1, border: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(0,0,0,0.05)"}` }} />
 
               <Box display="flex" alignItems="center" justifyContent="space-between" mb={3} flexWrap="wrap" gap={2}>
                 <Box display="flex" alignItems="center" gap={1}>
@@ -138,7 +140,7 @@ const NotePage = () => {
                 <NoteAddGlobal onNoteAdded={addNote} />
               </Box>
 
-              <Divider sx={{ mb: 4 }} />
+              <Divider sx={{ mb: 4, borderColor: (t) => t.palette.rpg?.stroke || "rgba(0,0,0,0.08)" }} />
 
               <Box
                 sx={{
@@ -158,10 +160,10 @@ const NotePage = () => {
 
               {notes.length === 0 && (
                 <Box sx={{ textAlign: "center", py: 10, opacity: 0.6 }}>
-                  <Typography variant="h6" sx={{ fontFamily: "Cinzel" }}>
+                  <Typography variant="h6" sx={{ fontFamily: "Cinzel", color: "text.primary" }}>
                     Sua mesa está limpa.
                   </Typography>
-                  <Typography variant="body2">
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
                     Clique em "Nova Nota" para começar a escrever.
                   </Typography>
                 </Box>

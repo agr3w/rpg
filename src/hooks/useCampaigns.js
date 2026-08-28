@@ -3,7 +3,7 @@ import { database } from "APIs/firebaseConfig";
 
 const mapCampaigns = (data) => {
   const arr = Object.entries(data || {}).map(([campaignId, c]) => {
-    const name = c?.meta?.name || campaignId;
+    const name = c?.meta?.name || (campaignId === "default" ? "Diário de Campanha" : campaignId);
 
     const quests = Object.values(c?.quests || {})
       .filter((x) => x?.id && x?.title)

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Alert, Button, Chip, Container, Stack, Typography, Box, Paper } from "@mui/material";
+import { Alert, Button, Chip, Container, Stack, Typography, Box, Paper, Tooltip } from "@mui/material";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { auth } from "APIs/firebaseConfig";
 import { T_IN } from "config/transitions";
@@ -131,16 +131,19 @@ export default function SessionLogDetail() {
               
               <Box sx={{ flexGrow: 1 }} />
               
-              <Chip
-                label={linkedFichaId ? "Vínculo Ativo" : "Sem Vínculo"}
-                size="small"
-                sx={{ 
-                  bgcolor: (t) => (linkedFichaId ? (t.palette.mode === "dark" ? "rgba(46, 125, 50, 0.2)" : "#e8f5e9") : (t.palette.mode === "dark" ? "rgba(198, 40, 40, 0.2)" : "#ffebee")), 
-                  color: linkedFichaId ? "#4caf50" : "#ef5350",
-                  fontWeight: 700,
-                  fontFamily: "Cinzel"
-                }}
-              />
+              <Tooltip title={linkedFichaId ? "Esta sessão está vinculada a uma ficha de personagem para receber XP" : "Nenhuma ficha de personagem vinculada para distribuição direta de XP"}>
+                <Chip
+                  label={linkedFichaId ? "Ficha Vinculada" : "Sem Ficha Vinculada"}
+                  size="small"
+                  sx={{ 
+                    bgcolor: (t) => (linkedFichaId ? (t.palette.mode === "dark" ? "rgba(46, 125, 50, 0.2)" : "#e8f5e9") : (t.palette.mode === "dark" ? "rgba(229, 179, 36, 0.1)" : "rgba(0,0,0,0.06)")), 
+                    color: linkedFichaId ? "success.main" : "text.secondary",
+                    fontWeight: 700,
+                    fontFamily: "Cinzel",
+                    border: (t) => `1px solid ${linkedFichaId ? (t.palette.mode === "dark" ? "rgba(76,175,80,0.3)" : "#a5d6a7") : (t.palette.rpg?.stroke || "rgba(0,0,0,0.1)")}`
+                  }}
+                />
+              </Tooltip>
             </Stack>
           </Paper>
 

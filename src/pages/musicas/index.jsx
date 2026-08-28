@@ -72,8 +72,8 @@ const MusicasPage = () => {
           sx={{ 
             p: 2, 
             mb: 4, 
-            bgcolor: "#2e1e14", 
-            border: "1px solid #5d4037",
+            bgcolor: (t) => (t.palette.mode === "dark" ? "#1e1814" : "#2e1e14"), 
+            border: (t) => `1px solid ${t.palette.rpg?.stroke || "#5d4037"}`,
             borderRadius: 2,
             display: "flex",
             justifyContent: "center"
@@ -88,12 +88,12 @@ const MusicasPage = () => {
 
         {/* --- PALCO (LISTA DE MÚSICAS) --- */}
         {musicasFiltradas.length === 0 ? (
-          <Box sx={{ textAlign: "center", py: 10, opacity: 0.5 }}>
-            <MusicNoteIcon sx={{ fontSize: 60, mb: 2 }} />
-            <Typography variant="h5" sx={{ fontFamily: "Cinzel" }}>
+          <Box sx={{ textAlign: "center", py: 10 }}>
+            <MusicNoteIcon sx={{ fontSize: 60, mb: 2, color: "secondary.main", opacity: 0.8 }} />
+            <Typography variant="h5" sx={{ fontFamily: "Cinzel", color: (t) => (t.palette.mode === 'dark' ? '#f5ede0' : '#2c1a10'), fontWeight: 800 }}>
               O silêncio reina no salão...
             </Typography>
-            <Typography variant="body2">
+            <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
               Peça ao bardo para tocar algo novo.
             </Typography>
           </Box>
