@@ -1,1 +1,0 @@
-import{r as o,a as v,b as i,g as n}from"./index-DsU8QnRT.js";var e={},r;function s(){if(r)return e;r=1;var t=o();Object.defineProperty(e,"__esModule",{value:!0}),e.default=void 0;var a=t(v()),u=i(),d=(0,a.default)((0,u.jsx)("path",{d:"M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"}),"Add");return e.default=d,e}var f=s();const p=n(f);export{p as A};

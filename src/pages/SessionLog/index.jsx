@@ -184,7 +184,7 @@ export default function SessionLog() {
 
   return (
     <Container maxWidth="md" sx={{ py: { xs: 2, md: 4 } }}>
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { duration: T_IN * 0.18 } }}>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15 }}>
         <RpgSection
           title="Diário de Campanha"
           subtitle="As crônicas de suas aventuras, registradas para a posteridade."
@@ -273,6 +273,7 @@ export default function SessionLog() {
                 renderTags={(value, getTagProps) =>
                   value.map((option, index) => (
                     <Chip 
+                      key={option}
                       label={option} 
                       size="small" 
                       {...getTagProps({ index })} 
@@ -323,10 +324,10 @@ export default function SessionLog() {
                             background: DND_THEME.paperBg,
                             border: DND_THEME.paperBorder,
                             borderLeft: `4px solid ${DND_THEME.goldAccent}`, // Lombada
-                            transition: "all 0.3s ease",
+                            transition: "transform 0.15s ease, box-shadow 0.15s ease",
                             position: "relative",
                             "&:hover": {
-                              transform: "translateX(4px) scale(1.01)",
+                              transform: "translateX(4px)",
                               boxShadow: "0 8px 20px rgba(0,0,0,0.3)",
                               "& .edit-icon": { opacity: 1 }
                             },

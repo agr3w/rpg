@@ -18,7 +18,7 @@ import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 import { Link } from "react-router-dom";
 import { database } from "APIs/firebaseConfig";
 import { buildCampaignQuery, getCampaignBasePath } from "service/campaignPath";
-import { motion } from "framer-motion";
+import { fmtDate } from "Utils/textHelpers";
 
 function snippet(text, max = 110) {
   const t = String(text || "").trim();
@@ -26,16 +26,7 @@ function snippet(text, max = 110) {
   return t.length > max ? `${t.slice(0, max - 1)}…` : t;
 }
 
-function fmtDate(ms) {
-  if (!ms) return "";
-  try {
-    return new Date(ms).toLocaleDateString("pt-BR");
-  } catch {
-    return "";
-  }
-}
-
-export default function NpcCard({ uid, campaignId, campaignMode = "legacy", npc }) {
+function NpcCard({ uid, campaignId, campaignMode = "legacy", npc }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const campaignBasePath = useMemo(
@@ -82,9 +73,6 @@ export default function NpcCard({ uid, campaignId, campaignMode = "legacy", npc 
   return (
     <>
       <Paper
-        component={motion.div}
-        whileHover={{ y: -4, scale: 1.01 }}
-        transition={{ type: "spring", stiffness: 280, damping: 22 }}
         elevation={0}
         sx={{
           borderRadius: 3,
@@ -92,6 +80,13 @@ export default function NpcCard({ uid, campaignId, campaignMode = "legacy", npc 
           overflow: "hidden",
           background: "linear-gradient(180deg, #fff8e8 0%, #f6ead8 100%)",
           boxShadow: "0 10px 24px rgba(0,0,0,0.16)",
+          transition: "transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease",
+          position: "relative",
+          "&:hover": {
+            transform: "translateY(-3px)",
+            boxShadow: "0 14px 28px rgba(0,0,0,0.22)",
+            borderColor: "#bf8f00",
+          },
         }}
       >
         <Box sx={{ p: 1.5, pt: 2 }}>
@@ -269,3 +264,5 @@ export default function NpcCard({ uid, campaignId, campaignMode = "legacy", npc 
     </>
   );
 }
+
+export default React.memo(NpcCard);

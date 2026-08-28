@@ -52,16 +52,6 @@ export default function QuestsPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [tagFilter, setTagFilter] = useState([]);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.05 } },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-  };
-
   const tagOptions = useMemo(() => {
     const set = new Set();
     campaigns.forEach((c) => {
@@ -109,7 +99,7 @@ export default function QuestsPage() {
 
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { duration: T_IN * 0.18 } }}>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15 }}>
         <Stack spacing={3}>
           {/* Header & Filtros (Estilo Índice de Livro) */}
           <Paper
@@ -184,6 +174,7 @@ export default function QuestsPage() {
                 renderTags={(value, getTagProps) =>
                   value.map((option, index) => (
                     <Chip
+                      key={option}
                       label={option}
                       size="small"
                       {...getTagProps({ index })}
@@ -204,9 +195,9 @@ export default function QuestsPage() {
               <Typography sx={{ fontFamily: "Cinzel" }}>Nenhuma missão encontrada com estes critérios.</Typography>
             </Paper>
           ) : (
-            <Stack spacing={4} component={motion.div} variants={containerVariants} initial="hidden" animate="show">
+            <Stack spacing={4}>
               {filtered.map((c) => (
-                <Box key={c.campaignId} component={motion.div} variants={itemVariants}>
+                <Box key={c.campaignId}>
                   <Box sx={{ display: "flex", alignItems: "center", mb: 2, ml: 1 }}>
                     <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: DND_THEME.gold, mr: 1.5 }} />
                     <Typography variant="h5" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#fff", letterSpacing: 1 }}>

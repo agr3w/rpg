@@ -23,16 +23,6 @@ export default function NpcsPage() {
   const [q, setQ] = useState("");
   const debouncedQ = useDebounce(q, 200);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.05 } },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-  };
-
   const filtered = useMemo(() => {
     const needle = debouncedQ.trim().toLowerCase();
 
@@ -58,7 +48,7 @@ export default function NpcsPage() {
 
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { duration: T_IN * 0.18 } }}>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15 }}>
         <Stack spacing={2}>
           <Paper
             elevation={0}
@@ -110,12 +100,10 @@ export default function NpcsPage() {
           ) : filtered.length === 0 ? (
             <Typography sx={{ opacity: 0.85 }}>Nenhum NPC encontrado.</Typography>
           ) : (
-            <Stack spacing={2} component={motion.div} variants={containerVariants} initial="hidden" animate="show">
+            <Stack spacing={2}>
               {filtered.map((c) => (
                 <Paper
                   key={c.campaignId}
-                  component={motion.div}
-                  variants={itemVariants}
                   elevation={0}
                   sx={{
                     p: 2,

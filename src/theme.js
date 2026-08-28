@@ -59,6 +59,13 @@ export function createAppTheme({ mode = "dark", style = "parchment" } = {}) {
         },
       },
 
+      MuiButtonBase: {
+        defaultProps: {
+          disableRipple: true,
+          disableTouchRipple: true,
+        },
+      },
+
       MuiPaper: {
         styleOverrides: {
           root: {
@@ -124,11 +131,15 @@ export function createAppTheme({ mode = "dark", style = "parchment" } = {}) {
       },
 
       MuiListItemButton: {
+        defaultProps: {
+          disableRipple: true,
+        },
         styleOverrides: {
           root: ({ theme }) => ({
             borderRadius: 12,
             marginInline: theme.spacing(1),
             marginBlock: theme.spacing(0.5),
+            transition: "background-color 150ms ease, color 150ms ease",
             "&:hover": {
               backgroundColor: alpha(theme.palette.primary.main, 0.08),
             },
@@ -152,10 +163,13 @@ export function createAppTheme({ mode = "dark", style = "parchment" } = {}) {
       },
 
       MuiCardActionArea: {
+        defaultProps: {
+          disableRipple: true,
+        },
         styleOverrides: {
           root: ({ theme }) => ({
             borderRadius: theme.shape.borderRadius,
-            transition: "transform 220ms ease",
+            transition: "transform 150ms ease",
             "&:hover": { transform: "translateY(-2px)" },
             "& .MuiCardActionArea-focusHighlight": {
               backgroundColor: alpha(theme.palette.primary.main, 0.10),
@@ -165,11 +179,39 @@ export function createAppTheme({ mode = "dark", style = "parchment" } = {}) {
       },
 
       MuiButton: {
+        defaultProps: {
+          disableRipple: true,
+          disableElevation: true,
+        },
         styleOverrides: {
           root: ({ theme }) => ({
             borderRadius: 12,
             paddingInline: theme.spacing(2),
+            transition: "background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease",
+            "&:active": {
+              transform: "scale(0.98)",
+            },
           }),
+        },
+      },
+
+      MuiIconButton: {
+        defaultProps: {
+          disableRipple: true,
+        },
+        styleOverrides: {
+          root: {
+            transition: "background-color 150ms ease, color 150ms ease, transform 150ms ease",
+            "&:active": {
+              transform: "scale(0.96)",
+            },
+          },
+        },
+      },
+
+      MuiDialog: {
+        defaultProps: {
+          transitionDuration: 150,
         },
       },
     },
