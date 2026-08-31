@@ -45,7 +45,6 @@ import FichaCoinsPanel from "components/FichaDetalhes/FichaCoinsPanel";
 import FichaArmorPanel from "components/FichaDetalhes/FichaArmorPanel";
 import FichaHpPanel from "components/FichaDetalhes/FichaHpPanel"; 
 import FichaStatusPanel from "components/FichaDetalhes/FichaStatusPanel";
-import FichaMagiasPanel from "components/FichaDetalhes/FichaMagiasPanel";
 
 const sectionMotion = {
   initial: { opacity: 0, y: 8 },
@@ -1156,9 +1155,6 @@ const FichaDetalhes = () => {
               <ToggleButton value="origem">
                 Verso — História & Antecedente
               </ToggleButton>
-              <ToggleButton value="magias">
-                Grimório / Magias
-              </ToggleButton>
             </ToggleButtonGroup>
           </Box>
 
@@ -1171,7 +1167,16 @@ const FichaDetalhes = () => {
               },
             }}
           >
-            {activeSide === "estado" ? (
+            {activeSide === "origem" ? (
+              <FichaOrigemPanel
+                ficha={ficha}
+                story={ficha.historia || ""}
+                onStoryChange={handleStoryChange}
+                trainings={ficha.treinamentos || DEFAULT_TRAINING}
+                onTrainingsChange={handleTrainingsChange}
+                sectionMotion={sectionMotion}
+              />
+            ) : (
               <FichaEstadoPanel
                 userID={userID}
                 fichaKey={fichaKey}
@@ -1205,25 +1210,6 @@ const FichaDetalhes = () => {
                 sectionMotion={sectionMotion}
                 loadingEquipped={loadingEquipped}
                 loadingBackpack={loadingBackpack}
-              />
-            ) : activeSide === "origem" ? (
-              <FichaOrigemPanel
-                ficha={ficha}
-                story={ficha.historia || ""}
-                onStoryChange={handleStoryChange}
-                trainings={ficha.treinamentos || DEFAULT_TRAINING}
-                onTrainingsChange={handleTrainingsChange}
-                sectionMotion={sectionMotion}
-              />
-            ) : (
-              <FichaMagiasPanel
-                spellcasting={spellcasting}
-                abilityMods={abilityMods}
-                spellAttr={spellAttr}
-                profBonus={getProfBonus(fichaEstado.level || 1)}
-                classe={fichaBase.classe}
-                level={fichaEstado.level}
-                onChange={handleSpellcastingChange}
               />
             )}
           </Box>
