@@ -192,17 +192,7 @@ const profBonus =
         "& .MuiCheckbox-root.Mui-checked": { color: "var(--ficha-accent, #bf8f00)" },
       }}
     >
-      {/* 1) XP / Nível */}
-      <motion.div {...sectionMotion}>
-        <Box sx={{ mb: 3 }}>
-          <FichaXpPanel
-            userID={userID}
-            fichaKey={fichaKey}
-            ficha={ficha}
-            onFichaChange={onFichaChange}
-          />
-        </Box>
-      </motion.div>
+
 
       {/* 2) Atributos + Salvaguardas + Perícias (estilo ficha oficial) */}
       <motion.div {...sectionMotion}>

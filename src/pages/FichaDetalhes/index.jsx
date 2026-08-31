@@ -33,6 +33,10 @@ import { backgrounds } from "./backgounds/arrayLinksBackgrounds";
 import { getClassBackgroundUrl } from "./backgounds/classBackgrounds";
 import { motion } from "framer-motion";
 import { auth } from "APIs/firebaseConfig";
+import { computeLevelFromXp } from "Utils/xpTable";
+import FichaIdentityHeader from "components/FichaDetalhes/FichaIdentityHeader";
+import FichaCombatHud from "components/FichaDetalhes/FichaCombatHud";
+import FichaSurvivalResources from "components/FichaDetalhes/FichaSurvivalResources";
 import FichaInventory from "components/FichaDetalhes/FichaInventory";
 import FichaXpPanel from "components/FichaDetalhes/FichaXpPanel";
 import FichaOrigemPanel from "components/FichaDetalhes/FichaOrigemPanel";
@@ -41,7 +45,7 @@ import FichaCoinsPanel from "components/FichaDetalhes/FichaCoinsPanel";
 import FichaArmorPanel from "components/FichaDetalhes/FichaArmorPanel";
 import FichaHpPanel from "components/FichaDetalhes/FichaHpPanel"; 
 import FichaStatusPanel from "components/FichaDetalhes/FichaStatusPanel";
-import FichaMagiasPanel from "components/FichaDetalhes/FichaMagiasPanel"; // ✅ novo
+import FichaMagiasPanel from "components/FichaDetalhes/FichaMagiasPanel";
 
 const sectionMotion = {
   initial: { opacity: 0, y: 8 },
@@ -636,11 +640,12 @@ const FichaDetalhes = () => {
   const spellAttr = getSpellAttributeForClass(ficha?.classe);
 
   // 🔹 salvar nome do personagem
-  const handleNameSave = async () => {
-    const name = (editedName || "").trim();
+  const handleNameSave = async (customName) => {
+    const name = (typeof customName === "string" ? customName : editedName || "").trim();
     if (!name || name === fichaBase.nome) return;
 
     setFicha((prev) => ({ ...(prev || {}), nome: name }));
+    setEditedName(name);
 
     if (!userID || !fichaKey) return;
     try {
@@ -653,6 +658,42 @@ const FichaDetalhes = () => {
       console.error("Erro ao salvar nome da ficha:", e);
     } finally {
       setSavingName(false);
+    }
+  };
+
+  // 🔹 salvar XP e nível do personagem
+  const handleXpSave = async (newXp) => {
+    const parsed = parseInt(newXp || "0", 10);
+    if (Number.isNaN(parsed) || parsed < 0) return;
+    const newLevel = computeLevelFromXp(parsed);
+
+    setFicha((prev) => ({ ...(prev || {}), xp: parsed, level: newLevel }));
+
+    if (!userID || !fichaKey) return;
+    try {
+      await firebase.database().ref(`fichas/${userID}/${fichaKey}`).update({
+        xp: parsed,
+        level: newLevel,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP,
+      });
+    } catch (e) {
+      console.error("Erro ao salvar XP:", e);
+    }
+  };
+
+  // 🔹 salvar dados de vida gastos
+  const handleHitDiceSpentChange = async (spent) => {
+    const val = Math.max(0, Number(spent || 0));
+    setFicha((prev) => ({ ...(prev || {}), hitDiceSpent: val }));
+
+    if (!userID || !fichaKey) return;
+    try {
+      await firebase
+        .database()
+        .ref(`fichas/${userID}/${fichaKey}/hitDiceSpent`)
+        .set(val);
+    } catch (e) {
+      console.error("Erro ao salvar dados de vida gastos:", e);
     }
   };
 
@@ -1018,249 +1059,65 @@ const FichaDetalhes = () => {
               "radial-gradient(120% 140% at 0% 0%, var(--ficha-accent-soft) 0%, transparent 45%), radial-gradient(120% 140% at 100% 100%, rgba(131,60,11,0.22) 0%, transparent 55%)",
           }}
         >
-          {/* TOP: info rápida da ficha */}
-          <motion.div
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.32 }}
-          >
-            <Grid
-              container
-              spacing={2}
-              alignItems="center"
-              sx={{ mb: 2 }}
-            >
-              <Grid item xs={12} md={5}>
-                <Paper elevation={0} sx={PANEL_SX}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      gap: 2,
-                    }}
-                  >
-                    <Avatar
-                      sx={{
-                        width: 64,
-                        height: 64,
-                        bgcolor: "var(--ficha-surface-alt)",
-                        color: "var(--ficha-text)",
-                        border: "1px solid var(--ficha-line)",
-                      }}
-                    >
-                      {fichaBase.nome?.charAt(0)?.toUpperCase() || "?"}
-                    </Avatar>
-
-                    <Box sx={{ flex: 1 }}>
-                      <TextField
-                        label="Nome do personagem"
-                        variant="standard"
-                        fullWidth
-                        value={editedName}
-                        onChange={(e) => setEditedName(e.target.value)}
-                        sx={{
-                          "& .MuiInputBase-input": { color: "var(--ficha-text)", fontWeight: 800 },
-                          "& .MuiInputLabel-root": { color: "var(--ficha-text-muted)" },
-                          "& .MuiInput-underline:before": { borderBottomColor: "var(--ficha-line)" },
-                          "& .MuiInput-underline:after": { borderBottomColor: "var(--ficha-accent)" },
-                        }}
-                      />
-
-                      <Stack
-                        direction="row"
-                        spacing={1}
-                        sx={{ mt: 1, flexWrap: "wrap" }}
-                      >
-                        <Chip
-                          label={fichaBase.classe || "—"}
-                          icon={<AccountTreeIcon />}
-                          size="small"
-                          sx={{ bgcolor: "var(--ficha-surface-alt)", color: "var(--ficha-text)", border: "1px solid var(--ficha-line)" }}
-                        />
-                        <Chip
-                          label={fichaBase.raca || "—"}
-                          icon={<InfoIcon />}
-                          size="small"
-                          sx={{ bgcolor: "var(--ficha-surface-alt)", color: "var(--ficha-text)", border: "1px solid var(--ficha-line)" }}
-                        />
-                        {subRacaSelecionada && (
-                          <Chip
-                            label={subRacaSelecionada}
-                            size="small"
-                            sx={{ bgcolor: "var(--ficha-surface-alt)", color: "var(--ficha-text)", border: "1px solid var(--ficha-line)" }}
-                          />
-                        )}
-                        {subClasseSelecionada && (
-                          <Chip
-                            label={subClasseSelecionada}
-                            size="small"
-                            sx={{ bgcolor: "var(--ficha-surface-alt)", color: "var(--ficha-text)", border: "1px solid var(--ficha-line)" }}
-                          />
-                        )}
-                      </Stack>
-
-                      <Stack
-                        direction="row"
-                        spacing={1}
-                        sx={{ mt: 1, flexWrap: "wrap" }}
-                      >
-                        <Chip
-                          label={`Nível ${fichaEstado.level}`}
-                          size="small"
-                          sx={{ bgcolor: "var(--ficha-surface-alt)", color: "var(--ficha-text)", border: "1px solid var(--ficha-line)" }}
-                        />
-                        <Chip
-                          label={`XP ${fichaEstado.xp}`}
-                          size="small"
-                          sx={{ bgcolor: "var(--ficha-surface-alt)", color: "var(--ficha-text)", border: "1px solid var(--ficha-line)" }}
-                        />
-                      </Stack>
-                    </Box>
-
-                    <Box>
-                      <Button
-                        size="small"
-                        variant="contained"
-                        onClick={handleNameSave}
-                        disabled={!hasNameChange || savingName}
-                        sx={{ bgcolor: "var(--ficha-accent)", color: "var(--ficha-text)", fontWeight: 900, "&:hover": { filter: "brightness(0.94)" } }}
-                      >
-                        Salvar
-                      </Button>
-                    </Box>
-                  </Box>
-                </Paper>
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <FichaCoinsPanel
-                  value={fichaEstado.riquezaMoedas}
-                  onSave={handleMoedasChange}
-                />
-              </Grid>
-
-              <Grid item xs={12} md={3}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    ...PANEL_SX,
-                    textAlign: "center",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    minHeight: 220,
-                  }}
-                >
-                  {/* input escondido para upload */}
-                  <input
-                    id="portrait-upload-input"
-                    type="file"
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    onChange={handlePortraitUpload}
-                  />
-
-                  <label
-                    htmlFor="portrait-upload-input"
-                    style={{ cursor: "pointer", width: "100%" }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 1.5,
-                      }}
-                    >
-                      <Avatar
-                        src={ficha.portraitUrl || ""}
-                        alt={fichaBase.nome || "Personagem"}
-                        sx={{
-                          width: 160,
-                          height: 160,
-                          bgcolor: "var(--ficha-surface-alt)",
-                          color: "var(--ficha-text)",
-                          border: "2px solid var(--ficha-accent-soft)",
-                          boxShadow: "0 0 0 3px rgba(255,255,255,0.08)",
-                          fontSize: 48,
-                        }}
-                      >
-                        {!ficha.portraitUrl &&
-                          (fichaBase.nome?.charAt(0)?.toUpperCase() || "?")}
-                      </Avatar>
-
-                      <Button
-                        component="span"
-                        size="small"
-                        variant="contained"
-                        startIcon={<PhotoCameraIcon />}
-                        disabled={uploadingPortrait}
-                        sx={{ bgcolor: "var(--ficha-accent)", color: "var(--ficha-text)", fontWeight: 900, "&:hover": { filter: "brightness(0.94)" } }}
-                      >
-                        {uploadingPortrait ? "Enviando..." : "Escolher imagem"}
-                      </Button>
-                    </Box>
-                  </label>
-                </Paper>
-              </Grid>
-            </Grid>
+          {/* BLOCO A: Banner de Identidade & Retrato (Topo) */}
+          <motion.div {...sectionMotion}>
+            <FichaIdentityHeader
+              ficha={ficha}
+              fichaBase={fichaBase}
+              subClasse={subClasseSelecionada}
+              subRaca={subRacaSelecionada}
+              antecedente={ficha.antecedenteDetalhes}
+              level={fichaEstado.level}
+              xp={fichaEstado.xp}
+              portraitUrl={ficha.portraitUrl}
+              uploadingPortrait={uploadingPortrait}
+              onPortraitUpload={handlePortraitUpload}
+              onNameSave={handleNameSave}
+              onXpSave={handleXpSave}
+            />
           </motion.div>
 
-          {/* Status principais + salvaguarda contra morte */}
-          <motion.div
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.32, delay: 0.02 }}
-          >
-            <Box sx={{ mb: 2 }}>
-              <FichaStatusPanel
-                dexMod={abilityMods.Destreza || 0}
-                deslocamento={deslocamentoBase}
-                tamanho={tamanhoBase}
-                passivePerception={passivePerception}
-                deathSaves={deathSaves}
-                onChangeDeathSaves={handleDeathSavesChange}
-              />
-            </Box>
+          {/* BLOCO B: Combat HUD (Cards de Ação Rápida) */}
+          <motion.div {...sectionMotion}>
+            <FichaCombatHud
+              caState={
+                fichaEstado.caDetalhes || {
+                  base: fichaEstado.ca,
+                  usaEscudo: false,
+                  armorId: null,
+                  armorNome: "",
+                  total: fichaEstado.ca,
+                }
+              }
+              hpState={fichaEstado.hp}
+              dexMod={abilityMods.Destreza || 0}
+              conMod={abilityMods.Constituição || 0}
+              hitDie={hitDie}
+              pendingLevels={pendingHpLevels}
+              canRollLevelHp={fichaEstado.level >= 2}
+              deslocamento={deslocamentoBase}
+              profBonus={profBonus}
+              passivePerception={passivePerception}
+              onArmorChange={handleArmorChange}
+              onHpChange={handleHpChange}
+            />
           </motion.div>
 
-          {/* TOP 2: CA e Pontos de Vida */}
-          <motion.div
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.32, delay: 0.05 }}
-          >
-            <Grid container spacing={2} sx={{ mb: 2 }}>
-              <Grid item xs={12} md={4}>
-                <FichaArmorPanel
-                  value={
-                    fichaEstado.caDetalhes || {
-                      base: fichaEstado.ca,
-                      usaEscudo: false,
-                      bonusTexto: "",
-                      armorId: null,
-                      armorNome: "",
-                      total: fichaEstado.ca,
-                      propriedades: [],
-                    }
-                  }
-                  onSave={handleArmorChange}
-                  dexMod={abilityMods.Destreza || 0}
-                />
-              </Grid>
-              <Grid item xs={12} md={8}>
-                <FichaHpPanel
-                  value={fichaEstado.hp}
-                  onSave={handleHpChange}
-                  hitDie={classeSelecioanda?.dadoDeVidaFaces || 8}
-                  conMod={abilityMods.Constituição || 0}
-                  pendingLevels={pendingHpLevels}
-                  canRollLevelHp={fichaEstado.level >= 2}
-                />
-              </Grid>
-            </Grid>
+          {/* BLOCO C: Módulo de Sobrevivência & Recursos */}
+          <motion.div {...sectionMotion}>
+            <FichaSurvivalResources
+              deathSaves={deathSaves}
+              hitDie={hitDie}
+              level={fichaEstado.level}
+              hitDiceSpent={ficha.hitDiceSpent || 0}
+              conMod={abilityMods.Constituição || 0}
+              hpState={fichaEstado.hp}
+              moedas={fichaEstado.riquezaMoedas}
+              onChangeDeathSaves={handleDeathSavesChange}
+              onChangeHitDiceSpent={handleHitDiceSpentChange}
+              onHpChange={handleHpChange}
+              onSaveMoedas={handleMoedasChange}
+            />
           </motion.div>
 
           {/* Seletor frente/verso */}

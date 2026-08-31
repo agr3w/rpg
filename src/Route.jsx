@@ -28,7 +28,6 @@ const NpcDetail = lazy(() => import("pages/Npcs/NpcDetail"));
 const QuestsPage = lazy(() => import("pages/Quests"));
 const QuestDetail = lazy(() => import("pages/Quests/QuestDetail"));
 const MapEditor = lazy(() => import("pages/MapEditor"));
-// ✅ Importar Admin
 const AdminPage = lazy(() => import("pages/Admin"));
 
 const AppRoutes = () => {

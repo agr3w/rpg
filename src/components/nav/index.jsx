@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState, useEffect } from "react";
+import React, { useCallback, useMemo, useState, useEffect, useRef } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -333,15 +333,62 @@ const Nav = () => {
 
   const title = useMemo(() => getTitleFromPath(location.pathname), [location.pathname]);
 
-  const handleMenuOpen = useCallback((event) => setAnchorEl(event.currentTarget), []);
-  const handleMenuClose = useCallback(() => setAnchorEl(null), []);
+  const profileTimerRef = useRef(null);
+  const toolsTimerRef = useRef(null);
+
+  // ✅ Profile Hover Handlers
+  const handleProfileMouseEnter = useCallback((event) => {
+    if (profileTimerRef.current) clearTimeout(profileTimerRef.current);
+    setAnchorEl(event.currentTarget);
+  }, []);
+
+  const handleProfileMouseLeave = useCallback(() => {
+    if (profileTimerRef.current) clearTimeout(profileTimerRef.current);
+    profileTimerRef.current = setTimeout(() => {
+      setAnchorEl(null);
+    }, 180);
+  }, []);
+
+  const handleProfileMenuClose = useCallback(() => {
+    if (profileTimerRef.current) clearTimeout(profileTimerRef.current);
+    setAnchorEl(null);
+  }, []);
+
+  // ✅ Tools Hover Handlers
+  const handleToolsMouseEnter = useCallback((event) => {
+    if (toolsTimerRef.current) clearTimeout(toolsTimerRef.current);
+    setToolsAnchorEl(event.currentTarget);
+  }, []);
+
+  const handleToolsMouseLeave = useCallback(() => {
+    if (toolsTimerRef.current) clearTimeout(toolsTimerRef.current);
+    toolsTimerRef.current = setTimeout(() => {
+      setToolsAnchorEl(null);
+    }, 180);
+  }, []);
+
+  const handleToolsMenuClose = useCallback(() => {
+    if (toolsTimerRef.current) clearTimeout(toolsTimerRef.current);
+    setToolsAnchorEl(null);
+  }, []);
 
   const closeAllMenus = useCallback(() => {
+    if (profileTimerRef.current) clearTimeout(profileTimerRef.current);
+    if (toolsTimerRef.current) clearTimeout(toolsTimerRef.current);
     setAnchorEl(null);
     setToolsAnchorEl(null);
     setNotifAnchorEl(null);
     setDrawerOpen(false);
   }, []);
+
+  // ✅ Navegação com fechamento imediato de todos os menus
+  const handleNavClick = useCallback(
+    (path) => {
+      closeAllMenus();
+      navigate(path);
+    },
+    [closeAllMenus, navigate]
+  );
   
   // ✅ Handlers de Notificação
   const handleNotifOpen = useCallback((event) => {
@@ -356,8 +403,6 @@ const Nav = () => {
 
   const handleOpenDrawer = useCallback(() => setDrawerOpen(true), []);
   const handleCloseDrawer = useCallback(() => setDrawerOpen(false), []);
-  const handleToolsMenuOpen = useCallback((event) => setToolsAnchorEl(event.currentTarget), []);
-  const handleToolsMenuClose = useCallback(() => setToolsAnchorEl(null), []);
 
   const toggleToolsOpen = useCallback((e) => {
     if (e) e.stopPropagation();
@@ -366,22 +411,32 @@ const Nav = () => {
 
   const handleLogout = useCallback(async () => {
     try {
+      closeAllMenus();
       await signOut(auth);
       navigate("/login");
     } catch (e) {
       console.error("Erro ao sair:", e);
     }
-  }, [navigate]);
+  }, [closeAllMenus, navigate]);
 
   useEffect(() => {
     closeAllMenus();
-  }, [location.pathname, location.search]);
+  }, [location.pathname, location.search, closeAllMenus]);
 
   useEffect(() => {
-    if (anchorEl && !document.body.contains(anchorEl)) setAnchorEl(null);
-    if (toolsAnchorEl && !document.body.contains(toolsAnchorEl)) setToolsAnchorEl(null);
-    if (notifAnchorEl && !document.body.contains(notifAnchorEl)) setNotifAnchorEl(null);
-  }, [anchorEl, toolsAnchorEl, notifAnchorEl]);
+    const handlePointerDownOutside = (e) => {
+      const isInsideMenu = e.target && e.target.closest && e.target.closest(".MuiPaper-root");
+      if (!isInsideMenu && (anchorEl || toolsAnchorEl || notifAnchorEl)) {
+        closeAllMenus();
+      }
+    };
+    window.addEventListener("pointerdown", handlePointerDownOutside);
+    return () => {
+      window.removeEventListener("pointerdown", handlePointerDownOutside);
+      if (profileTimerRef.current) clearTimeout(profileTimerRef.current);
+      if (toolsTimerRef.current) clearTimeout(toolsTimerRef.current);
+    };
+  }, [anchorEl, toolsAnchorEl, notifAnchorEl, closeAllMenus]);
 
   // ✅ Estilo dinâmico para Menus e Drawers
   const dynamicPaperSx = useMemo(
@@ -430,6 +485,11 @@ const Nav = () => {
       "& .MuiMenu-list": { position: "relative", zIndex: 1, py: 0.75 },
       "& .MuiMenuItem-root": {
         color: "#f7eddc",
+        transition: "background-color 0.15s ease, color 0.15s ease",
+        "&:hover": {
+          backgroundColor: "rgba(229,179,36,0.15)",
+          color: "secondary.main",
+        },
       },
       "& .MuiListItemIcon-root": {
         color: "#ffdf9e",
@@ -438,33 +498,37 @@ const Nav = () => {
     [dynamicPaperSx]
   );
 
-  const handleToolsNavigate = useCallback(
-    (path) => {
-      handleToolsMenuClose();
-      navigate(path);
-    },
-    [handleToolsMenuClose, navigate]
-  );
-
-  const bookmarkSx = useMemo(
+  // ✅ Feedback visual de Hover sofisticado para os botões do Navbar
+  const navItemSx = useMemo(
     () => ({
       position: "relative",
-      "&.active": {
-        color: "var(--rpg-accent)",
-        backgroundColor: "rgba(0,0,0,0.06)",
+      fontFamily: "Cinzel",
+      fontWeight: 800,
+      fontSize: "0.85rem",
+      letterSpacing: "0.5px",
+      borderRadius: 2,
+      px: 1.5,
+      py: 0.7,
+      color: "var(--rpg-navText, inherit)",
+      transition: "all 0.18s cubic-bezier(0.4, 0, 0.2, 1)",
+      "&:hover": {
+        backgroundColor: "rgba(229, 179, 36, 0.12)",
+        color: "secondary.main",
+        transform: "translateY(-1.5px)",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+        "& .MuiSvgIcon-root": {
+          color: "secondary.main",
+          transform: "scale(1.1)",
+        },
       },
-      "&.active::after": {
-        content: '""',
-        position: "absolute",
-        right: 10,
-        top: "50%",
-        width: 10,
-        height: 18,
-        transform: "translateY(-50%)",
-        background: "linear-gradient(180deg, var(--rpg-accent2), var(--rpg-accent))",
-        clipPath: "polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%)",
-        borderRadius: 2,
-        opacity: 0.9,
+      "& .MuiSvgIcon-root": {
+        transition: "color 0.18s ease, transform 0.18s ease",
+      },
+      "&.active": {
+        color: "secondary.main",
+        backgroundColor: "rgba(229, 179, 36, 0.16)",
+        fontWeight: 900,
+        boxShadow: "inset 0 -2px 0 var(--rpg-accent, #e5b324)",
       },
     }),
     []
@@ -630,53 +694,81 @@ const Nav = () => {
                   to={item.path}
                   end={item.path === "/"}
                   startIcon={item.icon}
-                  sx={{
-                    borderRadius: 2,
-                    px: 1.25,
-                    "&:hover": { backgroundColor: alpha("#000", 0.04) },
-                    ...bookmarkSx,
-                  }}
+                  sx={navItemSx}
                 >
                   {item.text}
                 </Button>
               ))}
 
-              <Button
-                color="inherit"
-                startIcon={<FolderIcon />}
-                onClick={handleToolsMenuOpen}
-                sx={{ borderRadius: 2, px: 1.25, "&:hover": { backgroundColor: alpha("#000", 0.04) } }}
+              <Box
+                onMouseEnter={handleToolsMouseEnter}
+                onMouseLeave={handleToolsMouseLeave}
+                sx={{ display: "inline-flex" }}
               >
-                Ferramentas
-              </Button>
+                <Button
+                  color="inherit"
+                  startIcon={<FolderIcon />}
+                  onClick={handleToolsMouseEnter}
+                  sx={{
+                    ...navItemSx,
+                    ...(Boolean(toolsAnchorEl)
+                      ? {
+                          backgroundColor: "rgba(229, 179, 36, 0.16)",
+                          color: "secondary.main",
+                          boxShadow: "inset 0 -2px 0 var(--rpg-accent, #e5b324)",
+                        }
+                      : {}),
+                  }}
+                >
+                  Ferramentas
+                </Button>
 
-              <Menu
-                anchorEl={toolsAnchorEl}
-                open={toolsMenuOpen}
-                onClose={handleToolsMenuClose}
-                keepMounted
-                PaperProps={{ sx: toolsMenuPaperSx }}
-                disableScrollLock
-              >
-                {toolsItems.map((item) => (
-                  <MenuItem
-                    key={item.text}
-                    onClick={() => handleToolsNavigate(item.path)}
-                    sx={{
-                      borderRadius: 1.5,
-                      mx: 0.75,
-                      my: 0.25,
-                      color: "#f7eddc",
-                      "&:hover": { backgroundColor: "rgba(255,255,255,0.06)" },
-                    }}
-                  >
-                    <ListItemIcon sx={{ minWidth: 38, color: "#ffdf9e", opacity: 0.95 }}>
-                      {item.icon}
-                    </ListItemIcon>
-                    <Typography sx={{ fontWeight: 800, color: "#f7eddc" }}>{item.text}</Typography>
-                  </MenuItem>
-                ))}
-              </Menu>
+                <Menu
+                  anchorEl={toolsAnchorEl}
+                  open={Boolean(toolsAnchorEl)}
+                  onClose={handleToolsMenuClose}
+                  hideBackdrop
+                  disableRestoreFocus
+                  MenuListProps={{
+                    onMouseEnter: () => {
+                      if (toolsTimerRef.current) clearTimeout(toolsTimerRef.current);
+                    },
+                    onMouseLeave: handleToolsMouseLeave,
+                  }}
+                  sx={{
+                    pointerEvents: "none",
+                  }}
+                  anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                  transformOrigin={{ vertical: "top", horizontal: "left" }}
+                  PaperProps={{
+                    sx: {
+                      pointerEvents: "auto",
+                      ...toolsMenuPaperSx,
+                    },
+                  }}
+                  transitionDuration={120}
+                  disableScrollLock
+                >
+                  {toolsItems.map((item) => (
+                    <MenuItem
+                      key={item.text}
+                      onClick={() => handleNavClick(item.path)}
+                      sx={{
+                        borderRadius: 1.5,
+                        mx: 0.75,
+                        my: 0.25,
+                        color: "#f7eddc",
+                        "&:hover": { backgroundColor: "rgba(255,255,255,0.06)" },
+                      }}
+                    >
+                      <ListItemIcon sx={{ minWidth: 38, color: "#ffdf9e", opacity: 0.95 }}>
+                        {item.icon}
+                      </ListItemIcon>
+                      <Typography sx={{ fontWeight: 800, color: "#f7eddc" }}>{item.text}</Typography>
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </Box>
             </Box>
           )}
 
@@ -797,84 +889,123 @@ const Nav = () => {
               )}
             </Menu>
 
-            <Tooltip title="Conta">
-              <IconButton onClick={handleMenuOpen} sx={{ p: 0, ml: 0.5 }}>
-                <Avatar
-                  alt="Avatar"
-                  src={auth.currentUser?.photoURL || undefined}
-                  sx={{ bgcolor: theme.palette.secondary.main, width: 36, height: 36 }}
-                >
-                  {auth.currentUser?.displayName?.[0] || "U"}
-                </Avatar>
-              </IconButton>
-            </Tooltip>
-
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              PaperProps={{ sx: toolsMenuPaperSx }}
-              disableScrollLock
+            <Box
+              onMouseEnter={handleProfileMouseEnter}
+              onMouseLeave={handleProfileMouseLeave}
+              sx={{ display: "inline-flex" }}
             >
-              {/* ✅ BOTÃO DE ADMIN (Só aparece para você) */}
-              {isAdmin && (
+              <Tooltip title="Conta">
+                <IconButton
+                  onClick={handleProfileMouseEnter}
+                  sx={{
+                    p: 0.3,
+                    ml: 0.5,
+                    transition: "all 0.18s cubic-bezier(0.4, 0, 0.2, 1)",
+                    border: "2px solid transparent",
+                    ...(Boolean(anchorEl)
+                      ? {
+                          borderColor: "secondary.main",
+                          boxShadow: (t) => `0 0 10px ${t.palette.secondary.main}`,
+                          transform: "scale(1.06)",
+                        }
+                      : {}),
+                    "&:hover": {
+                      borderColor: "secondary.main",
+                      boxShadow: (t) => `0 0 10px ${t.palette.secondary.main}`,
+                      transform: "scale(1.08)",
+                    },
+                  }}
+                >
+                  <Avatar
+                    alt="Avatar"
+                    src={auth.currentUser?.photoURL || undefined}
+                    sx={{ bgcolor: theme.palette.secondary.main, width: 34, height: 34, fontWeight: "bold" }}
+                  >
+                    {auth.currentUser?.displayName?.[0] || "U"}
+                  </Avatar>
+                </IconButton>
+              </Tooltip>
+
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleProfileMenuClose}
+                hideBackdrop
+                disableRestoreFocus
+                MenuListProps={{
+                  onMouseEnter: () => {
+                    if (profileTimerRef.current) clearTimeout(profileTimerRef.current);
+                  },
+                  onMouseLeave: handleProfileMouseLeave,
+                }}
+                sx={{
+                  pointerEvents: "none",
+                }}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                PaperProps={{
+                  sx: {
+                    pointerEvents: "auto",
+                    ...toolsMenuPaperSx,
+                  },
+                }}
+                transitionDuration={120}
+                disableScrollLock
+              >
+                {/* ✅ BOTÃO DE ADMIN (Só aparece para você) */}
+                {isAdmin && (
+                  <MenuItem
+                    onClick={() => handleNavClick("/master-control")}
+                    sx={{ 
+                      color: "#ff4500", 
+                      fontWeight: "bold",
+                      bgcolor: alpha("#ff4500", 0.05),
+                      "&:hover": { bgcolor: alpha("#ff4500", 0.15) }
+                    }}
+                  >
+                    <ListItemIcon sx={{ minWidth: 38, color: "inherit" }}>
+                      <SecurityIcon fontSize="small" />
+                    </ListItemIcon>
+                    Painel do Mestre
+                  </MenuItem>
+                )}
+
+                {isAdmin && <Divider sx={{ borderColor: "rgba(255,69,0,0.2)" }} />}
+
+                <MenuItem
+                  onClick={() => handleNavClick("/perfil")}
+                >
+                  <ListItemIcon sx={{ minWidth: 38, color: "inherit", opacity: 0.9 }}>
+                    <SettingsIcon fontSize="small" />
+                  </ListItemIcon>
+                  Perfil
+                </MenuItem>
+
                 <MenuItem
                   onClick={() => {
-                    handleMenuClose();
-                    navigate("/master-control");
-                  }}
-                  sx={{ 
-                    color: "#ff4500", 
-                    fontWeight: "bold",
-                    bgcolor: alpha("#ff4500", 0.05),
-                    "&:hover": { bgcolor: alpha("#ff4500", 0.15) }
+                    handleToggleTheme();
                   }}
                 >
-                  <ListItemIcon sx={{ minWidth: 38, color: "inherit" }}>
-                    <SecurityIcon fontSize="small" />
+                  <ListItemIcon sx={{ minWidth: 38, color: "inherit", opacity: 0.9 }}>
+                    {isDark ? (
+                      <LightModeIcon fontSize="small" sx={{ color: "secondary.main" }} />
+                    ) : (
+                      <DarkModeIcon fontSize="small" sx={{ color: "primary.main" }} />
+                    )}
                   </ListItemIcon>
-                  Painel do Mestre
+                  {isDark ? "Modo Claro" : "Modo Escuro"}
                 </MenuItem>
-              )}
 
-              {isAdmin && <Divider sx={{ borderColor: "rgba(255,69,0,0.2)" }} />}
+                <Divider />
 
-              <MenuItem
-                onClick={() => {
-                  handleMenuClose();
-                  navigate("/perfil");
-                }}
-              >
-                <ListItemIcon sx={{ minWidth: 38, color: "inherit", opacity: 0.9 }}>
-                  <SettingsIcon fontSize="small" />
-                </ListItemIcon>
-                Perfil
-              </MenuItem>
-
-              <MenuItem
-                onClick={() => {
-                  handleToggleTheme();
-                }}
-              >
-                <ListItemIcon sx={{ minWidth: 38, color: "inherit", opacity: 0.9 }}>
-                  {isDark ? (
-                    <LightModeIcon fontSize="small" sx={{ color: "secondary.main" }} />
-                  ) : (
-                    <DarkModeIcon fontSize="small" sx={{ color: "primary.main" }} />
-                  )}
-                </ListItemIcon>
-                {isDark ? "Modo Claro" : "Modo Escuro"}
-              </MenuItem>
-
-              <Divider />
-
-              <MenuItem onClick={handleLogout}>
-                <ListItemIcon sx={{ minWidth: 38, color: "inherit", opacity: 0.9 }}>
-                  <LogoutIcon fontSize="small" />
-                </ListItemIcon>
-                Sair
-              </MenuItem>
-            </Menu>
+                <MenuItem onClick={handleLogout}>
+                  <ListItemIcon sx={{ minWidth: 38, color: "inherit", opacity: 0.9 }}>
+                    <LogoutIcon fontSize="small" />
+                  </ListItemIcon>
+                  Sair
+                </MenuItem>
+              </Menu>
+            </Box>
           </Box>
         </Toolbar>
 
@@ -958,8 +1089,14 @@ const Nav = () => {
                 end={item.path === "/"}
                 onClick={handleCloseDrawer}
                 sx={{
-                  "&.active": { color: theme.palette.primary.main },
-                  ...bookmarkSx,
+                  borderRadius: 1.5,
+                  mx: 1,
+                  my: 0.25,
+                  "&.active": {
+                    color: "secondary.main",
+                    bgcolor: "rgba(229, 179, 36, 0.12)",
+                    fontWeight: "bold",
+                  },
                 }}
               >
                 <ListItemIcon sx={{ minWidth: 40, color: theme.palette.primary.main }}>
@@ -971,7 +1108,7 @@ const Nav = () => {
           ))}
 
           <ListItem disablePadding>
-            <ListItemButton onClick={toggleToolsOpen}>
+            <ListItemButton onClick={toggleToolsOpen} sx={{ borderRadius: 1.5, mx: 1, my: 0.25 }}>
               <ListItemIcon sx={{ minWidth: 40, color: theme.palette.primary.main }}>
                 <FolderIcon />
               </ListItemIcon>
@@ -996,8 +1133,14 @@ const Nav = () => {
                     onClick={handleCloseDrawer}
                     sx={{
                       pl: 4,
-                      "&.active": { color: theme.palette.primary.main },
-                      ...bookmarkSx,
+                      borderRadius: 1.5,
+                      mx: 1,
+                      my: 0.25,
+                      "&.active": {
+                        color: "secondary.main",
+                        bgcolor: "rgba(229, 179, 36, 0.12)",
+                        fontWeight: "bold",
+                      },
                     }}
                   >
                     <ListItemIcon sx={{ minWidth: 40, color: theme.palette.primary.main }}>
