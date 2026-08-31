@@ -21,8 +21,7 @@ import {
 import Inventory2Icon from "@mui/icons-material/Inventory2";
 import InfoIcon from "@mui/icons-material/Info";
 import { motion } from "framer-motion";
-import FichaXpPanel from "./FichaXpPanel";
-import FichaInventory from "./FichaInventory";
+import FichaTacticalEquipmentHub from "./FichaTacticalEquipmentHub";
 import BotaoPainelHabilidade from "components/FichaPage/BotãoPainelHabilidade";
 
 // grupos exatamente como na ficha: 1 card por atributo
@@ -84,6 +83,10 @@ export default function FichaEstadoPanel({
   abilityMods = {},
   atributosComBonus = {},
   spellAttr,
+  spellcasting = {},
+  onChangeSpellcasting,
+  profBonus: profBonusProp,
+  classe,
   onFichaChange,
   onChangeEquipped,
   onChangeBackpack,
@@ -102,7 +105,6 @@ export default function FichaEstadoPanel({
   loadingEquipped,
   loadingBackpack,
 }) {
-  const [inventoryOpen, setInventoryOpen] = useState(false);
   const [featureDialogOpen, setFeatureDialogOpen] = useState(false);
   const [newFeature, setNewFeature] = useState({
     name: "",
@@ -110,8 +112,8 @@ export default function FichaEstadoPanel({
     level: Number(levelAtual || 1),
   });
 
-const profBonus =
-+    2 + Math.floor(Math.max((fichaEstado.level || 1) - 1, 0) / 4);
+  const profBonus =
+    profBonusProp || 2 + Math.floor(Math.max((fichaEstado.level || 1) - 1, 0) / 4);
 
   const periciasSet = new Set(periciasAtivas || []);
   const savesSet = new Set(savingThrowsAtivos || []);
@@ -358,66 +360,21 @@ const profBonus =
         </Paper>
       </motion.div>
 
-      {/* 3) Inventário / Equipamentos */}
+      {/* 3) Hub Tático: Arsenal, Grimório & Mochila */}
       <motion.div {...sectionMotion}>
-        <Paper elevation={3} sx={{ p: 2, mb: 3 }}>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              mb: 1,
-              justifyContent: "space-between",
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Inventory2Icon
-                fontSize="small"
-                style={{ marginRight: 8 }}
-              />
-              <Typography variant="h6">Inventário & Equipamentos</Typography>
-            </Box>
-
-            <Button size="small" onClick={() => setInventoryOpen(true)}>
-              Tela cheia
-            </Button>
-          </Box>
-
-          <FichaInventory
-            inventory={fichaEstado.inventory}
-            abilityMods={abilityMods}
-            level={fichaEstado.level}
-            spellAttr={spellAttr}
-            onChangeEquipped={onChangeEquipped}
-            onChangeBackpack={onChangeBackpack}
-          />
-        </Paper>
+        <FichaTacticalEquipmentHub
+          inventory={fichaEstado.inventory || {}}
+          spellcasting={spellcasting || ficha?.spellcasting || {}}
+          abilityMods={abilityMods}
+          spellAttr={spellAttr}
+          profBonus={profBonus || getProfBonus(levelAtual)}
+          classe={classe || ficha?.classe || "Aventureiro"}
+          level={fichaEstado.level || levelAtual}
+          onChangeEquipped={onChangeEquipped}
+          onChangeBackpack={onChangeBackpack}
+          onChangeSpellcasting={onChangeSpellcasting}
+        />
       </motion.div>
-
-      <Dialog
-        open={inventoryOpen}
-        onClose={() => setInventoryOpen(false)}
-        maxWidth="md"
-        fullWidth
-        PaperProps={{
-          sx: {
-            border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.2))",
-            backgroundColor: "var(--ficha-surface, rgba(236,225,207,0.9))",
-            color: "var(--ficha-text, #2f2318)",
-          },
-        }}
-      >
-        <DialogTitle>Inventário</DialogTitle>
-        <DialogContent dividers>
-          <FichaInventory
-            inventory={fichaEstado.inventory}
-            abilityMods={abilityMods}
-            level={fichaEstado.level}
-            spellAttr={spellAttr}
-            onChangeEquipped={onChangeEquipped}
-            onChangeBackpack={onChangeBackpack}
-          />
-        </DialogContent>
-      </Dialog>
 
       {/* 4) Habilidades de Raça e de Classe */}
       <motion.div {...sectionMotion}>

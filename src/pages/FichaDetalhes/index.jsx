@@ -1180,6 +1180,10 @@ const FichaDetalhes = () => {
                 abilityMods={abilityMods}
                 atributosComBonus={atributosComBonus}
                 spellAttr={spellAttr}
+                spellcasting={spellcasting}
+                onChangeSpellcasting={handleSpellcastingChange}
+                profBonus={profBonus}
+                classe={fichaBase.classe}
                 onFichaChange={setFicha}
                 onChangeEquipped={handleEquippedChange}
                 onChangeBackpack={handleBackpackChange}

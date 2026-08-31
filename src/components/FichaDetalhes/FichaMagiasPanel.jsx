@@ -1,956 +1,928 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Box,
-  Grid,
   Paper,
   Typography,
-  TextField,
+  Grid,
   Button,
   IconButton,
-  Checkbox,
+  Tooltip,
+  Chip,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  FormControlLabel,
-  FormGroup,
-  Divider,
+  TextField,
+  MenuItem,
   Stack,
-  Chip,
+  alpha,
+  useTheme,
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
+  FormControlLabel,
+  Switch,
+  Checkbox,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
+import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import EditIcon from "@mui/icons-material/Edit";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import HotelIcon from "@mui/icons-material/Hotel";
+import FlareIcon from "@mui/icons-material/Flare";
+import PsychologyIcon from "@mui/icons-material/Psychology";
+import AutoStoriesIcon from "@mui/icons-material/AutoStories";
+
 import { getSpellSlots } from "Array/SpellSlots";
 
-const LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-
-const EMPTY = {
-  slots: {},
-  spells: {}, // id -> Spell
-};
-
-const formatBonus = (v = 0) => (v >= 0 ? `+${v}` : `${v}`);
-
-// presets (para padronizar e facilitar filtro)
-const CASTING_TIME_PRESETS = [
-  "Ação",
-  "Ação bônus",
-  "Reação",
-  "1 minuto",
-  "10 minutos",
-  "1 hora",
-  "8 horas",
+const MAGIC_SCHOOLS = [
+  "Abjuração",
+  "Adivinhação",
+  "Conjuração",
+  "Encantamento",
+  "Evocação",
+  "Ilusão",
+  "Necromancia",
+  "Transmutação",
 ];
 
-const makeBlankSpell = () => ({
-  name: "",
-  level: 0, // 0 = truque
-  castingTime: "",
-  range: "",
-  duration: "",
-  components: { v: false, s: false, m: false },
-  material: "",
-  ritual: false,
-  concentration: false,
-  prepared: false,
-  description: "",
-  higherLevels: "",
-});
+const CASTING_TIMES = [
+  "1 Ação",
+  "1 Ação Bônus",
+  "1 Reação",
+  "1 Minuto",
+  "10 Minutos",
+  "1 Hora",
+  "8 Horas",
+];
 
-// migra dados antigos para o novo formato sem quebrar fichas já salvas
-function normalizeSpell(spell) {
-  const s = spell || {};
-  const components =
-    s.components && typeof s.components === "object"
-      ? {
-          v: !!s.components.v,
-          s: !!s.components.s,
-          m: !!s.components.m,
-        }
-      : {
-          v: !!s.v,
-          s: !!s.s,
-          m: !!s.material, // antigo "material" boolean
-        };
-
-  return {
-    ...makeBlankSpell(),
-    name: s.name ?? "",
-    level: typeof s.level === "number" ? s.level : Number(s.level || 0),
-    castingTime: s.castingTime ?? s.time ?? "",
-    range: s.range ?? "",
-    duration: s.duration ?? "",
-    ritual: !!(s.ritual ?? false),
-    concentration: !!(s.concentration ?? s.conc ?? false),
-    prepared: !!(s.prepared ?? false),
-    components,
-    material: s.materialText ?? (typeof s.material === "string" ? s.material : "") ?? "",
-    description: s.description ?? s.notes ?? "",
-    higherLevels: s.higherLevels ?? "",
-  };
-}
-
-function formatComponents(components, materialText) {
-  const parts = [];
-  if (components?.v) parts.push("V");
-  if (components?.s) parts.push("S");
-  if (components?.m) parts.push(materialText?.trim() ? `M (${materialText.trim()})` : "M");
-  return parts.length ? parts.join(", ") : "—";
-}
-
-// tabela de magias conhecidas (Bardo / Bruxo / Feiticeiro) por nível 1–20
-const KNOWN_SPELLS_TABLE = {
-  Bardo: [0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 15, 16, 18, 19, 19, 20, 22, 22, 22],
-  Bruxo: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15],
-  Feiticeiro: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 12, 13, 13, 14, 14, 15, 15, 15, 15],
-};
-
-function getKnownSpellsMax(classe, level) {
-  const arr = KNOWN_SPELLS_TABLE[classe] || null;
-  if (!arr) return null;
-  const lvl = Math.max(1, Math.min(20, Number(level) || 1));
-  return arr[lvl] ?? null;
-}
-
-// magias preparadas por classe (5e)
-function getPreparedSpellsMax(classe, level, abilityMods) {
-  const lvl = Math.max(1, Number(level) || 1);
-
-  switch (classe) {
-    case "Clérigo": {
-      const mod = Number(abilityMods.Sabedoria || 0);
-      return Math.max(1, mod + lvl);
-    }
-    case "Druida": {
-      const mod = Number(abilityMods.Sabedoria || 0);
-      return Math.max(1, mod + lvl);
-    }
-    case "Paladino": {
-      const mod = Number(abilityMods.Carisma || 0);
-      return Math.max(1, mod + Math.floor(lvl / 2));
-    }
-    case "Patrulheiro": {
-      const mod = Number(abilityMods.Sabedoria || 0);
-      return Math.max(1, mod + Math.floor(lvl / 2));
-    }
-    case "Mago": {
-      const mod = Number(abilityMods.Inteligência || 0);
-      return Math.max(1, mod + lvl);
-    }
-    default:
-      return null;
-  }
-}
+const SPELL_CIRCLES = [
+  { level: 0, label: "Truques (Nível 0)" },
+  { level: 1, label: "1º Círculo" },
+  { level: 2, label: "2º Círculo" },
+  { level: 3, label: "3º Círculo" },
+  { level: 4, label: "4º Círculo" },
+  { level: 5, label: "5º Círculo" },
+  { level: 6, label: "6º Círculo" },
+  { level: 7, label: "7º Círculo" },
+  { level: 8, label: "8º Círculo" },
+  { level: 9, label: "9º Círculo" },
+];
 
 export default function FichaMagiasPanel({
-  spellcasting,
+  spellcasting = { slots: {}, spells: {} },
   abilityMods = {},
-  spellAttr = "Inteligência",
+  spellAttr = "Carisma",
   profBonus = 2,
-  classe = "",
+  classe = "Mago",
   level = 1,
   onChange,
 }) {
-  const [local, setLocal] = useState(EMPTY);
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
 
-  // modal
-  const [spellModalOpen, setSpellModalOpen] = useState(false);
+  const arcanaColor = isDark ? "#ba68c8" : "#8e24aa";
+  const arcanaBorder = isDark ? "rgba(186, 104, 200, 0.3)" : "rgba(142, 36, 170, 0.25)";
+  const strokeColor = isDark ? "rgba(229,179,36,0.2)" : "rgba(131,60,11,0.2)";
+  const cardBg = isDark ? "rgba(24, 16, 28, 0.88)" : "rgba(255, 252, 246, 0.94)";
+
+  const keyAttr = spellAttr || "Carisma";
+  const spellMod = Number(abilityMods[keyAttr] || 0);
+  const spellDc = 8 + profBonus + spellMod;
+  const spellAttackBonus = profBonus + spellMod;
+
+  const defaultSlots = useMemo(() => {
+    return getSpellSlots(classe, level) || {};
+  }, [classe, level]);
+
+  const slotsState = spellcasting?.slots || {};
+  const spellsObj = spellcasting?.spells || {};
+  const spellsList = useMemo(() => Object.entries(spellsObj).map(([id, s]) => ({ id, ...s })), [spellsObj]);
+
+  const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [draft, setDraft] = useState(makeBlankSpell());
+  const [spellForm, setSpellForm] = useState({
+    name: "",
+    level: 0,
+    school: "Evocação",
+    castingTime: "1 Ação",
+    range: "18m (60ft)",
+    duration: "Instantânea",
+    components: { v: true, s: true, m: false },
+    materialText: "",
+    concentration: false,
+    ritual: false,
+    prepared: false,
+    description: "",
+    higherLevels: "",
+  });
 
-  // busca/filtros
-  const [q, setQ] = useState("");
-  const [levelFilter, setLevelFilter] = useState("all");
-  const [timeFilter, setTimeFilter] = useState("all");
-  const [preparedOnly, setPreparedOnly] = useState(false);
-
-  // evita persistir quando estamos só “hidratando” do props
-  const isHydratingRef = useRef(false);
-
-  // controle de “pendência” apenas para ESPAÇOS (slots)
-  const [slotsDirty, setSlotsDirty] = useState(false);
-
-  const persist = (nextState) => {
-    if (!onChange) return;
-    if (isHydratingRef.current) return;
-    onChange({
-      slots: nextState?.slots || {},
-      spells: nextState?.spells || {},
+  const handleOpenAddModal = (presetLevel = 0) => {
+    setEditingId(null);
+    setSpellForm({
+      name: "",
+      level: presetLevel,
+      school: "Evocação",
+      castingTime: "1 Ação",
+      range: "18m (60ft)",
+      duration: "Instantânea",
+      components: { v: true, s: true, m: false },
+      materialText: "",
+      concentration: false,
+      ritual: false,
+      prepared: presetLevel === 0,
+      description: "",
+      higherLevels: "",
     });
+    setModalOpen(true);
   };
 
-  useEffect(() => {
-    const base = spellcasting || {};
-    const slots = { ...(base.slots || {}) };
-
-    const autoSlots = getSpellSlots(classe, level);
-    const hasAutoSlotsLocal = Array.isArray(autoSlots);
-
-    LEVELS.forEach((lvl) => {
-      const index = lvl - 1;
-      const autoTotal = hasAutoSlotsLocal && autoSlots[index] != null ? autoSlots[index] : null;
-      const prev = slots[lvl] || { total: 0, used: 0 };
-
-      slots[lvl] = {
-        total: autoTotal != null ? autoTotal : prev.total || 0,
-        used: autoTotal != null && prev.used > autoTotal ? autoTotal : prev.used || 0,
-      };
+  const handleOpenEditModal = (spell) => {
+    setEditingId(spell.id);
+    setSpellForm({
+      name: spell.name || "",
+      level: Number(spell.level || 0),
+      school: spell.school || "Evocação",
+      castingTime: spell.castingTime || "1 Ação",
+      range: spell.range || "18m (60ft)",
+      duration: spell.duration || "Instantânea",
+      components: {
+        v: !!spell.components?.v,
+        s: !!spell.components?.s,
+        m: !!spell.components?.m,
+      },
+      materialText: spell.materialText || spell.material || "",
+      concentration: !!spell.concentration,
+      ritual: !!spell.ritual,
+      prepared: !!spell.prepared,
+      description: spell.description || "",
+      higherLevels: spell.higherLevels || "",
     });
-
-    const spells = {};
-    const baseSpells = base.spells || {};
-    Object.entries(baseSpells).forEach(([id, sp]) => {
-      spells[id] = normalizeSpell(sp);
-    });
-
-    isHydratingRef.current = true;
-    setLocal({ slots, spells });
-    setSlotsDirty(false);
-    // libera persist no próximo tick (evita salvar durante hidratação)
-    queueMicrotask(() => {
-      isHydratingRef.current = false;
-    });
-  }, [spellcasting, classe, level]);
-
-  const attrMod = Number(abilityMods[spellAttr] || 0);
-  const dc = 8 + profBonus + attrMod;
-  const atkBonus = profBonus + attrMod;
-
-  const preparedMax = useMemo(
-    () => getPreparedSpellsMax(classe, level, abilityMods),
-    [classe, level, abilityMods]
-  );
-  const knownMax = useMemo(() => getKnownSpellsMax(classe, level), [classe, level]);
-
-  const autoSlotsRender = getSpellSlots(classe, level);
-  const hasAutoSlots = Array.isArray(autoSlotsRender);
-
-  const spellsArray = useMemo(() => {
-    const entries = Object.entries(local.spells || {});
-    return entries.sort((a, b) => {
-      const la = Number(a[1]?.level || 0);
-      const lb = Number(b[1]?.level || 0);
-      if (la !== lb) return la - lb;
-      return String(a[1]?.name || "").localeCompare(String(b[1]?.name || ""));
-    });
-  }, [local.spells]);
-
-  const filteredSpells = useMemo(() => {
-    const query = q.trim().toLowerCase();
-
-    return spellsArray.filter(([_, raw]) => {
-      const sp = normalizeSpell(raw);
-
-      if (preparedOnly && !sp.prepared) return false;
-
-      if (levelFilter !== "all") {
-        const wanted = Number(levelFilter);
-        if (Number(sp.level) !== wanted) return false;
-      }
-
-      if (timeFilter !== "all") {
-        const ct = String(sp.castingTime || "").toLowerCase();
-        const wanted = String(timeFilter).toLowerCase();
-        // usa includes pra tolerar textos antigos
-        if (!ct.includes(wanted)) return false;
-      }
-
-      if (!query) return true;
-
-      const hay = [
-        sp.name,
-        sp.description,
-        sp.higherLevels,
-        sp.range,
-        sp.duration,
-        sp.castingTime,
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-
-      return hay.includes(query);
-    });
-  }, [spellsArray, q, preparedOnly, levelFilter, timeFilter]);
-
-  const updateSlotsField = (levelCircle, field, value) => {
-    const num = Math.max(0, Number(value || 0));
-    setLocal((prev) => {
-      const prevRow = prev.slots?.[levelCircle] || { total: 0, used: 0 };
-      let nextRow = { ...prevRow };
-
-      if (field === "total") {
-        nextRow.total = num;
-        if (nextRow.used > num) nextRow.used = num;
-      } else if (field === "used") {
-        nextRow.used = Math.min(num, prevRow.total);
-      }
-
-      const next = {
-        ...prev,
-        slots: {
-          ...prev.slots,
-          [levelCircle]: nextRow,
-        },
-      };
-      setSlotsDirty(true);
-      return next;
-    });
+    setModalOpen(true);
   };
 
-  const handleLongRest = () => {
-    setLocal((prev) => {
-      const nextSlots = { ...(prev.slots || {}) };
-      LEVELS.forEach((lvlCircle) => {
-        const row = nextSlots[lvlCircle] || { total: 0, used: 0 };
-        nextSlots[lvlCircle] = { ...row, used: 0 };
-      });
-      const next = { ...prev, slots: nextSlots };
-      setSlotsDirty(true);
-      return next;
-    });
-  };
+  const handleSaveSpell = () => {
+    const name = spellForm.name.trim();
+    if (!name) return;
 
-  const handleSaveSlots = () => {
-    persist(local);
-    setSlotsDirty(false);
+    const id = editingId || `spell_${Date.now()}`;
+    const nextSpells = {
+      ...spellsObj,
+      [id]: {
+        id,
+        name,
+        level: Number(spellForm.level || 0),
+        school: spellForm.school,
+        castingTime: spellForm.castingTime,
+        range: spellForm.range,
+        duration: spellForm.duration,
+        components: spellForm.components,
+        materialText: spellForm.materialText,
+        concentration: spellForm.concentration,
+        ritual: spellForm.ritual,
+        prepared: spellForm.prepared,
+        description: spellForm.description,
+        higherLevels: spellForm.higherLevels,
+        createdAt: editingId ? (spellsObj[editingId]?.createdAt || Date.now()) : Date.now(),
+      },
+    };
+
+    onChange?.({
+      ...spellcasting,
+      spells: nextSpells,
+    });
+    setModalOpen(false);
   };
 
   const handleDeleteSpell = (id) => {
-    setLocal((prev) => {
-      const nextSpells = { ...(prev.spells || {}) };
-      delete nextSpells[id];
-      const next = { ...prev, spells: nextSpells };
-      persist(next);
-      return next;
+    const nextSpells = { ...spellsObj };
+    delete nextSpells[id];
+    onChange?.({
+      ...spellcasting,
+      spells: nextSpells,
     });
   };
 
   const handleTogglePrepared = (id) => {
-    setLocal((prev) => ({
-      ...(() => {
-        const next = {
-          ...prev,
-          spells: {
-            ...(prev.spells || {}),
-            [id]: {
-              ...normalizeSpell(prev.spells?.[id]),
-              prepared: !prev.spells?.[id]?.prepared,
-            },
+    const current = spellsObj[id];
+    if (!current) return;
+    onChange?.({
+      ...spellcasting,
+      spells: {
+        ...spellsObj,
+        [id]: {
+          ...current,
+          prepared: !current.prepared,
+        },
+      },
+    });
+  };
+
+  const handleToggleSlotUsed = (lvl, slotIndex, maxSlots) => {
+    const currentUsed = Number(slotsState[lvl]?.used || 0);
+    const newUsed = currentUsed === maxSlots - slotIndex ? currentUsed - 1 : maxSlots - slotIndex;
+    const safeUsed = Math.max(0, Math.min(maxSlots, newUsed));
+
+    onChange?.({
+      ...spellcasting,
+      slots: {
+        ...slotsState,
+        [lvl]: {
+          total: maxSlots,
+          used: safeUsed,
+        },
+      },
+    });
+  };
+
+  const handleRestoreAllSlots = () => {
+    const nextSlots = {};
+    Object.keys(defaultSlots).forEach((lvl) => {
+      nextSlots[lvl] = {
+        total: defaultSlots[lvl],
+        used: 0,
+      };
+    });
+    onChange?.({
+      ...spellcasting,
+      slots: nextSlots,
+    });
+  };
+
+  const handleCastSpell = (spell) => {
+    const lvl = Number(spell.level || 0);
+    if (lvl === 0) return;
+
+    const maxSlots = defaultSlots[lvl] || slotsState[lvl]?.total || 0;
+    const currentUsed = Number(slotsState[lvl]?.used || 0);
+    if (currentUsed < maxSlots) {
+      onChange?.({
+        ...spellcasting,
+        slots: {
+          ...slotsState,
+          [lvl]: {
+            total: maxSlots,
+            used: currentUsed + 1,
           },
-        };
-        persist(next);
-        return next;
-      })(),
-    }));
+        },
+      });
+    }
   };
 
-  const handleOpenNewSpell = () => {
-    setEditingId(null);
-    setDraft(makeBlankSpell());
-    setSpellModalOpen(true);
-  };
-
-  const handleOpenEditSpell = (id) => {
-    const sp = normalizeSpell(local.spells?.[id]);
-    setEditingId(id);
-    setDraft(sp);
-    setSpellModalOpen(true);
-  };
-
-  const handleCloseSpellModal = () => {
-    setSpellModalOpen(false);
-    setEditingId(null);
-  };
-
-  const handleSaveDraft = () => {
-    const cleaned = normalizeSpell(draft);
-    if (!cleaned.name.trim()) return;
-
-    const id = editingId || String(Date.now());
-
-    setLocal((prev) => ({
-      ...(() => {
-        const next = {
-          ...prev,
-          spells: {
-            ...(prev.spells || {}),
-            [id]: cleaned,
-          },
-        };
-        // salvamento explícito ao clicar "Salvar" no modal
-        persist(next);
-        return next;
-      })(),
-    }));
-
-    setSpellModalOpen(false);
-    setEditingId(null);
-  };
-
-  const castingTimeSelectValue = useMemo(() => {
-    const v = String(draft.castingTime || "").trim();
-    if (!v) return "__custom__";
-    return CASTING_TIME_PRESETS.includes(v) ? v : "__custom__";
-  }, [draft.castingTime]);
+  const spellsByCircle = useMemo(() => {
+    const map = {};
+    SPELL_CIRCLES.forEach((c) => {
+      map[c.level] = [];
+    });
+    spellsList.forEach((s) => {
+      const lvl = Math.max(0, Math.min(9, Number(s.level || 0)));
+      if (!map[lvl]) map[lvl] = [];
+      map[lvl].push(s);
+    });
+    return map;
+  }, [spellsList]);
 
   return (
-    <Box
-      sx={{
-        "& .MuiPaper-root": {
-          border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.2))",
-          bgcolor: "var(--ficha-surface, rgba(236,225,207,0.9))",
-          color: "var(--ficha-text, #2f2318)",
-          borderRadius: 2,
-        },
-        "& .MuiAccordion-root": {
-          border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.2))",
-          backgroundColor: "rgba(255,251,242,0.98)",
-          color: "#2c1a10",
-        },
-        "& .MuiAccordion-root:before": { display: "none" },
-        "& .MuiTypography-root": { color: "inherit" },
-        "& .MuiChip-root": {
-          borderColor: "var(--ficha-line, rgba(47,35,24,0.22))",
-          color: "var(--ficha-text, #2f2318)",
-        },
-        "& .MuiChip-filled": {
-          backgroundColor: "var(--ficha-accent-soft, rgba(191,143,0,0.16))",
-        },
-        "& .MuiCheckbox-root.Mui-checked": { color: "var(--ficha-accent, #bf8f00)" },
-        "& .MuiFormLabel-root": { color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" },
-        "& .MuiInputLabel-root": { color: "var(--ficha-text-muted, rgba(47,35,24,0.74))" },
-        "& .MuiInputLabel-root.Mui-focused": { color: "var(--ficha-accent, #bf8f00)" },
-        "& .MuiInputBase-input": { color: "var(--ficha-text, #2f2318)" },
-        "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
-          borderColor: "var(--ficha-line, rgba(47,35,24,0.22))",
-        },
-        "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
-          borderColor: "var(--ficha-accent, #bf8f00)",
-        },
-        "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
-          borderColor: "var(--ficha-accent, #bf8f00)",
-        },
-        "& .MuiDialog-paper": {
-          border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.2))",
-          backgroundColor: "var(--ficha-surface, rgba(236,225,207,0.9))",
-          color: "var(--ficha-text, #2f2318)",
-        },
-      }}
-    >
-      <Grid container spacing={2} sx={{ mb: 2 }}>
-        {/* Atributo de conjuração */}
-        <Grid item xs={12} md={4}>
-          <Paper elevation={3} sx={{ p: 2, height: "100%" }}>
-            <Typography variant="h6" sx={{ mb: 1 }}>
-              Magia — Atributo de Conjuração
-            </Typography>
-
-            <Typography variant="subtitle2">Atributo</Typography>
-            <Typography sx={{ mb: 1.5 }}>{spellAttr}</Typography>
-
-            <Typography variant="subtitle2">Modificador de conjuração</Typography>
-            <Typography sx={{ mb: 1.5 }}>{formatBonus(attrMod)}</Typography>
-
-            <Typography variant="subtitle2">CD para resistir às suas magias</Typography>
-            <Typography sx={{ mb: 1.5 }}>8 + prof + mod = {dc}</Typography>
-
-            <Typography variant="subtitle2">Modificador de ataque mágico</Typography>
-            <Typography sx={{ mb: 1.5 }}>{formatBonus(atkBonus)}</Typography>
-
-            {preparedMax != null && (
-              <>
-                <Box sx={{ mt: 1.5 }} />
-                <Typography variant="subtitle2">Magias preparadas (máx.)</Typography>
-                <Typography>{preparedMax} magias preparadas por dia</Typography>
-              </>
-            )}
-
-            {knownMax != null && (
-              <>
-                <Box sx={{ mt: 1.5 }} />
-                <Typography variant="subtitle2">Magias conhecidas (referência)</Typography>
-                <Typography>{knownMax} magias conhecidas no nível atual</Typography>
-              </>
-            )}
-          </Paper>
-        </Grid>
-
-        {/* Espaços de magias por círculo */}
-        <Grid item xs={12} md={8}>
-          <Paper elevation={3} sx={{ p: 2, height: "100%" }}>
-            <Box
-              sx={{
-                mb: 1,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 1,
-              }}
-            >
-              <Box>
-                <Typography variant="h6">Espaços de Magia</Typography>
-                {slotsDirty && (
-                  <Typography variant="caption" sx={{ opacity: 0.7 }}>
-                    Alterações pendentes (clique em “Salvar espaços”)
-                  </Typography>
-                )}
+    <Box>
+      {/* 1. Header de Conjuração */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          borderRadius: 3,
+          border: `1px solid ${arcanaBorder}`,
+          bgcolor: cardBg,
+          backdropFilter: "blur(6px)",
+          mb: 2.5,
+        }}
+      >
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={6} sm={3}>
+            <Box sx={{ textAlign: "center" }}>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5, mb: 0.25 }}>
+                <PsychologyIcon sx={{ color: arcanaColor, fontSize: 18 }} />
+                <Typography variant="caption" sx={{ fontWeight: 900, color: "text.secondary", fontSize: "0.7rem", letterSpacing: 0.5 }}>
+                  ATRIBUTO-CHAVE
+                </Typography>
               </Box>
-
-              <Box sx={{ display: "flex", gap: 1 }}>
-                <Button size="small" variant="outlined" onClick={handleLongRest}>
-                  Descanso longo
-                </Button>
-                <Button
-                  size="small"
-                  variant="contained"
-                  onClick={handleSaveSlots}
-                  disabled={!slotsDirty}
-                >
-                  Salvar espaços
-                </Button>
-              </Box>
+              <Typography variant="h5" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: isDark ? "#fff" : "#2c1a10" }}>
+                {keyAttr} ({spellMod >= 0 ? `+${spellMod}` : spellMod})
+              </Typography>
             </Box>
+          </Grid>
 
-            <Grid container spacing={1}>
-              {LEVELS.map((lvlCircle) => {
-                const row = local.slots?.[lvlCircle] || { total: 0, used: 0 };
-                return (
-                  <Grid key={lvlCircle} item xs={12} sm={6} md={4}>
-                    <Box
-                      sx={{
-                        border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.2))",
-                        backgroundColor: "rgba(255,251,242,0.98)",
-                        borderRadius: 1.5,
-                        p: 1,
-                      }}
-                    >
-                      <Typography variant="subtitle2">{lvlCircle}º círculo</Typography>
-                      <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
-                        <TextField
-                          label="Total"
-                          type="number"
-                          size="small"
-                          value={row.total}
-                          onChange={(e) =>
-                            !hasAutoSlots && updateSlotsField(lvlCircle, "total", e.target.value)
-                          }
-                          sx={{ flex: 1 }}
-                          inputProps={{ min: 0, readOnly: hasAutoSlots }}
-                        />
-                        <TextField
-                          label="Gastos"
-                          type="number"
-                          size="small"
-                          value={row.used}
-                          onChange={(e) => updateSlotsField(lvlCircle, "used", e.target.value)}
-                          sx={{ flex: 1 }}
-                          inputProps={{ min: 0, max: row.total }}
-                        />
-                      </Box>
-                    </Box>
-                  </Grid>
-                );
-              })}
-            </Grid>
-          </Paper>
+          <Grid item xs={6} sm={3}>
+            <Box sx={{ textAlign: "center" }}>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5, mb: 0.25 }}>
+                <FlareIcon sx={{ color: arcanaColor, fontSize: 18 }} />
+                <Typography variant="caption" sx={{ fontWeight: 900, color: "text.secondary", fontSize: "0.7rem", letterSpacing: 0.5 }}>
+                  CD RESISTÊNCIA
+                </Typography>
+              </Box>
+              <Typography variant="h4" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: arcanaColor, lineHeight: 1 }}>
+                CD {spellDc}
+              </Typography>
+            </Box>
+          </Grid>
+
+          <Grid item xs={6} sm={3}>
+            <Box sx={{ textAlign: "center" }}>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5, mb: 0.25 }}>
+                <AutoFixHighIcon sx={{ color: arcanaColor, fontSize: 18 }} />
+                <Typography variant="caption" sx={{ fontWeight: 900, color: "text.secondary", fontSize: "0.7rem", letterSpacing: 0.5 }}>
+                  ATAQUE MÁGICO
+                </Typography>
+              </Box>
+              <Typography variant="h4" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: arcanaColor, lineHeight: 1 }}>
+                +{spellAttackBonus}
+              </Typography>
+            </Box>
+          </Grid>
+
+          <Grid item xs={6} sm={3} sx={{ textAlign: "center" }}>
+            <Tooltip title="Recupera todos os espaços de magia gastos">
+              <Button
+                fullWidth
+                size="small"
+                variant="outlined"
+                startIcon={<HotelIcon />}
+                onClick={handleRestoreAllSlots}
+                sx={{
+                  borderColor: arcanaBorder,
+                  color: arcanaColor,
+                  fontWeight: 800,
+                  fontSize: "0.75rem",
+                  py: 0.75,
+                  "&:hover": { borderColor: arcanaColor, bgcolor: alpha(arcanaColor, 0.1) },
+                }}
+              >
+                Restaurar Slots
+              </Button>
+            </Tooltip>
+          </Grid>
         </Grid>
-      </Grid>
+      </Paper>
 
-      {/* Grimório */}
-      <Paper elevation={3} sx={{ p: 2 }}>
-        <Box
-          sx={{
-            mb: 1,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 1,
-          }}
-        >
-          <Typography variant="h6">Truques e Magias do Grimório</Typography>
-          <Button size="small" variant="contained" onClick={handleOpenNewSpell}>
-            Adicionar magia
-          </Button>
+      {/* 2. Gerenciador de Spell Slots */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          borderRadius: 3,
+          border: `1px solid ${arcanaBorder}`,
+          bgcolor: cardBg,
+          backdropFilter: "blur(6px)",
+          mb: 2.5,
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <AutoStoriesIcon sx={{ color: arcanaColor, fontSize: 20 }} />
+            <Typography variant="subtitle1" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: isDark ? "#fff" : "#2c1a10" }}>
+              Espaços de Magia (Spell Slots)
+            </Typography>
+          </Box>
+          <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700 }}>
+            Clique no círculo para gastar ou recuperar
+          </Typography>
         </Box>
 
-        {/* Barra de busca/filtros */}
-        <Grid container spacing={1} sx={{ mb: 1 }}>
-          <Grid item xs={12} md={5}>
+        <Grid container spacing={1.5}>
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((lvl) => {
+            const maxSlots = defaultSlots[lvl] || slotsState[lvl]?.total || 0;
+            if (maxSlots <= 0) return null;
+
+            const usedSlots = Number(slotsState[lvl]?.used || 0);
+            const availableSlots = Math.max(0, maxSlots - usedSlots);
+
+            return (
+              <Grid item xs={12} sm={6} md={4} key={`slots-lvl-${lvl}`}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 1.25,
+                    borderRadius: 2,
+                    border: `1px solid ${strokeColor}`,
+                    bgcolor: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Box>
+                    <Typography variant="caption" sx={{ fontWeight: 900, color: isDark ? "#fff" : "#2c1a10", display: "block" }}>
+                      {lvl}º Círculo
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: "text.secondary", fontSize: "0.68rem" }}>
+                      {availableSlots} de {maxSlots} disp.
+                    </Typography>
+                  </Box>
+
+                  <Stack direction="row" spacing={0.75}>
+                    {Array.from({ length: maxSlots }).map((_, i) => {
+                      const isAvailable = i < availableSlots;
+                      return (
+                        <Box
+                          key={`slot-${lvl}-${i}`}
+                          onClick={() => handleToggleSlotUsed(lvl, i, maxSlots)}
+                          sx={{
+                            width: 22,
+                            height: 22,
+                            borderRadius: "50%",
+                            border: `2px solid ${isAvailable ? arcanaColor : strokeColor}`,
+                            bgcolor: isAvailable ? arcanaColor : "transparent",
+                            boxShadow: isAvailable ? `0 0 8px ${alpha(arcanaColor, 0.6)}` : "none",
+                            cursor: "pointer",
+                            transition: "all 0.18s ease",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            "&:hover": {
+                              transform: "scale(1.15)",
+                              borderColor: arcanaColor,
+                            },
+                          }}
+                        />
+                      );
+                    })}
+                  </Stack>
+                </Paper>
+              </Grid>
+            );
+          })}
+        </Grid>
+      </Paper>
+
+      {/* 3. Lista de Magias */}
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+        <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: isDark ? "#fff" : "#2c1a10" }}>
+          Grimório de Magias
+        </Typography>
+
+        <Button
+          size="small"
+          variant="contained"
+          startIcon={<AddCircleOutlineIcon />}
+          onClick={() => handleOpenAddModal(0)}
+          sx={{
+            bgcolor: arcanaColor,
+            color: "#fff",
+            fontWeight: 800,
+            fontSize: "0.78rem",
+            px: 1.5,
+            py: 0.5,
+            "&:hover": { filter: "brightness(0.92)", bgcolor: arcanaColor },
+          }}
+        >
+          Nova Magia
+        </Button>
+      </Box>
+
+      <Stack spacing={1.5}>
+        {SPELL_CIRCLES.map((circle) => {
+          const list = spellsByCircle[circle.level] || [];
+          if (list.length === 0 && circle.level > 0 && !(defaultSlots[circle.level] > 0)) {
+            return null;
+          }
+
+          return (
+            <Accordion
+              key={`circle-acc-${circle.level}`}
+              defaultExpanded={circle.level <= 2}
+              sx={{
+                borderRadius: "12px !important",
+                border: `1px solid ${arcanaBorder}`,
+                bgcolor: cardBg,
+                backdropFilter: "blur(6px)",
+                "&:before": { display: "none" },
+                overflow: "hidden",
+              }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon sx={{ color: arcanaColor }} />}
+                sx={{
+                  bgcolor: isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+                  borderBottom: `1px solid ${strokeColor}`,
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", pr: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Typography variant="subtitle1" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: isDark ? "#fff" : "#2c1a10" }}>
+                      {circle.label}
+                    </Typography>
+                    <Chip
+                      label={`${list.length} ${list.length === 1 ? "magia" : "magias"}`}
+                      size="small"
+                      sx={{ height: 20, fontSize: "0.7rem", fontWeight: 800, bgcolor: alpha(arcanaColor, 0.12), color: arcanaColor }}
+                    />
+                  </Box>
+
+                  <Button
+                    size="small"
+                    variant="text"
+                    startIcon={<AddCircleOutlineIcon />}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpenAddModal(circle.level);
+                    }}
+                    sx={{ fontSize: "0.72rem", color: arcanaColor, fontWeight: 800 }}
+                  >
+                    Adicionar
+                  </Button>
+                </Box>
+              </AccordionSummary>
+
+              <AccordionDetails sx={{ p: 2 }}>
+                {list.length === 0 ? (
+                  <Typography variant="caption" sx={{ color: "text.secondary", fontStyle: "italic", textAlign: "center", display: "block", py: 1 }}>
+                    Nenhuma magia cadastrada neste círculo.
+                  </Typography>
+                ) : (
+                  <Grid container spacing={1.5}>
+                    {list.map((spell) => {
+                      const compParts = [];
+                      if (spell.components?.v) compParts.push("V");
+                      if (spell.components?.s) compParts.push("S");
+                      if (spell.components?.m) compParts.push(spell.materialText ? `M (${spell.materialText})` : "M");
+
+                      return (
+                        <Grid item xs={12} md={6} key={spell.id}>
+                          <Paper
+                            elevation={0}
+                            sx={{
+                              p: 1.75,
+                              borderRadius: 2.5,
+                              border: `1px solid ${strokeColor}`,
+                              bgcolor: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "space-between",
+                              height: "100%",
+                              transition: "all 0.18s ease",
+                              "&:hover": {
+                                borderColor: arcanaColor,
+                                boxShadow: isDark ? "0 6px 20px rgba(0,0,0,0.4)" : "0 4px 14px rgba(0,0,0,0.06)",
+                              },
+                            }}
+                          >
+                            <Box>
+                              <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", mb: 0.75 }}>
+                                <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, flexWrap: "wrap" }}>
+                                  <Typography variant="subtitle1" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: isDark ? "#fff" : "#2c1a10", lineHeight: 1.1 }}>
+                                    {spell.name}
+                                  </Typography>
+                                  {spell.school && (
+                                    <Chip
+                                      label={spell.school}
+                                      size="small"
+                                      sx={{ height: 18, fontSize: "0.65rem", fontWeight: 700 }}
+                                    />
+                                  )}
+                                </Box>
+
+                                <Box sx={{ display: "flex", alignItems: "center", gap: 0.25 }}>
+                                  <Tooltip title="Editar Magia">
+                                    <IconButton size="small" onClick={() => handleOpenEditModal(spell)}>
+                                      <EditIcon fontSize="small" sx={{ color: "text.secondary" }} />
+                                    </IconButton>
+                                  </Tooltip>
+                                  <Tooltip title="Remover Magia">
+                                    <IconButton size="small" onClick={() => handleDeleteSpell(spell.id)}>
+                                      <DeleteOutlineIcon fontSize="small" color="error" />
+                                    </IconButton>
+                                  </Tooltip>
+                                </Box>
+                              </Box>
+
+                              <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap sx={{ mb: 1 }}>
+                                <Chip
+                                  label={spell.castingTime || "1 Ação"}
+                                  size="small"
+                                  sx={{ height: 20, fontSize: "0.68rem", fontWeight: 700, bgcolor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)" }}
+                                />
+                                <Chip
+                                  label={spell.range || "18m"}
+                                  size="small"
+                                  sx={{ height: 20, fontSize: "0.68rem", fontWeight: 700, bgcolor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)" }}
+                                />
+                                <Chip
+                                  label={spell.duration || "Instantânea"}
+                                  size="small"
+                                  sx={{ height: 20, fontSize: "0.68rem", fontWeight: 700, bgcolor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)" }}
+                                />
+                                {compParts.length > 0 && (
+                                  <Chip
+                                    label={`Comp: ${compParts.join(", ")}`}
+                                    size="small"
+                                    sx={{ height: 20, fontSize: "0.68rem", fontWeight: 700 }}
+                                  />
+                                )}
+                                {spell.concentration && (
+                                  <Chip
+                                    label="Concentração"
+                                    size="small"
+                                    sx={{ height: 20, fontSize: "0.68rem", fontWeight: 900, bgcolor: "rgba(255, 152, 0, 0.15)", color: "#ff9800", border: "1px solid rgba(255, 152, 0, 0.4)" }}
+                                  />
+                                )}
+                                {spell.ritual && (
+                                  <Chip
+                                    label="Ritual"
+                                    size="small"
+                                    sx={{ height: 20, fontSize: "0.68rem", fontWeight: 900, bgcolor: "rgba(33, 150, 243, 0.15)", color: "#2196f3", border: "1px solid rgba(33, 150, 243, 0.4)" }}
+                                  />
+                                )}
+                              </Stack>
+
+                              {spell.description && (
+                                <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mb: 1, whiteSpace: "pre-line" }}>
+                                  {spell.description}
+                                </Typography>
+                              )}
+                              {spell.higherLevels && (
+                                <Typography variant="caption" sx={{ color: arcanaColor, fontWeight: 700, display: "block", mb: 1 }}>
+                                  Em Níveis Superiores: {spell.higherLevels}
+                                </Typography>
+                              )}
+                            </Box>
+
+                            <Box sx={{ pt: 1, borderTop: `1px solid ${strokeColor}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                              {circle.level > 0 ? (
+                                <FormControlLabel
+                                  control={
+                                    <Checkbox
+                                      size="small"
+                                      checked={!!spell.prepared}
+                                      onChange={() => handleTogglePrepared(spell.id)}
+                                      sx={{ p: 0.5, color: arcanaColor, "&.Mui-checked": { color: arcanaColor } }}
+                                    />
+                                  }
+                                  label={
+                                    <Typography variant="caption" sx={{ fontWeight: 800, fontSize: "0.72rem" }}>
+                                      Preparada
+                                    </Typography>
+                                  }
+                                  sx={{ m: 0 }}
+                                />
+                              ) : (
+                                <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary" }}>
+                                  Truque Ilimitado
+                                </Typography>
+                              )}
+
+                              {circle.level > 0 && (
+                                <Button
+                                  size="small"
+                                  variant="outlined"
+                                  startIcon={<AutoFixHighIcon fontSize="small" />}
+                                  onClick={() => handleCastSpell(spell)}
+                                  sx={{
+                                    fontSize: "0.7rem",
+                                    py: 0.2,
+                                    px: 1,
+                                    borderColor: arcanaBorder,
+                                    color: arcanaColor,
+                                    fontWeight: 800,
+                                    "&:hover": { borderColor: arcanaColor, bgcolor: alpha(arcanaColor, 0.1) },
+                                  }}
+                                >
+                                  Gastar Slot & Conjurar
+                                </Button>
+                              )}
+                            </Box>
+                          </Paper>
+                        </Grid>
+                      );
+                    })}
+                  </Grid>
+                )}
+              </AccordionDetails>
+            </Accordion>
+          );
+        })}
+      </Stack>
+
+      {/* Modal de Criação / Edição de Magia */}
+      <Dialog
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            border: `1px solid ${arcanaBorder}`,
+            bgcolor: isDark ? "#1c1410" : "#fffcf6",
+          },
+        }}
+      >
+        <DialogTitle sx={{ fontFamily: "Cinzel", fontWeight: 900, color: arcanaColor }}>
+          {editingId ? "Editar Magia" : "Nova Magia no Grimório"}
+        </DialogTitle>
+        <DialogContent dividers>
+          <Stack spacing={2} sx={{ pt: 1 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={7}>
+                <TextField
+                  label="Nome da Magia"
+                  placeholder="ex: Bola de Fogo, Escudo Arcano, Curar Ferimentos"
+                  value={spellForm.name}
+                  onChange={(e) => setSpellForm((p) => ({ ...p, name: e.target.value }))}
+                  fullWidth
+                  size="small"
+                  autoFocus
+                />
+              </Grid>
+              <Grid item xs={6} sm={5}>
+                <TextField
+                  select
+                  label="Círculo de Magia"
+                  value={spellForm.level}
+                  onChange={(e) => setSpellForm((p) => ({ ...p, level: Number(e.target.value) }))}
+                  fullWidth
+                  size="small"
+                >
+                  {SPELL_CIRCLES.map((c) => (
+                    <MenuItem key={c.level} value={c.level}>
+                      {c.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+            </Grid>
+
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  select
+                  label="Escola de Magia"
+                  value={spellForm.school}
+                  onChange={(e) => setSpellForm((p) => ({ ...p, school: e.target.value }))}
+                  fullWidth
+                  size="small"
+                >
+                  {MAGIC_SCHOOLS.map((s) => (
+                    <MenuItem key={s} value={s}>
+                      {s}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  select
+                  label="Tempo de Conjuração"
+                  value={spellForm.castingTime}
+                  onChange={(e) => setSpellForm((p) => ({ ...p, castingTime: e.target.value }))}
+                  fullWidth
+                  size="small"
+                >
+                  {CASTING_TIMES.map((t) => (
+                    <MenuItem key={t} value={t}>
+                      {t}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+            </Grid>
+
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <TextField
+                  label="Alcance"
+                  placeholder="ex: 18m (60ft), Toque, Pessoal"
+                  value={spellForm.range}
+                  onChange={(e) => setSpellForm((p) => ({ ...p, range: e.target.value }))}
+                  fullWidth
+                  size="small"
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Duração"
+                  placeholder="ex: Instantânea, 1 minuto, 1 hora"
+                  value={spellForm.duration}
+                  onChange={(e) => setSpellForm((p) => ({ ...p, duration: e.target.value }))}
+                  fullWidth
+                  size="small"
+                />
+              </Grid>
+            </Grid>
+
+            {/* Switches de Concentração e Ritual */}
+            <Paper
+              elevation={0}
+              sx={{
+                p: 1.5,
+                borderRadius: 2,
+                border: `1px solid ${strokeColor}`,
+                bgcolor: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                display: "flex",
+                justifyContent: "space-around",
+              }}
+            >
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={spellForm.concentration}
+                    onChange={(e) => setSpellForm((p) => ({ ...p, concentration: e.target.checked }))}
+                    color="secondary"
+                  />
+                }
+                label={<Typography variant="body2" sx={{ fontWeight: 800 }}>Exige Concentração</Typography>}
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={spellForm.ritual}
+                    onChange={(e) => setSpellForm((p) => ({ ...p, ritual: e.target.checked }))}
+                    color="primary"
+                  />
+                }
+                label={<Typography variant="body2" sx={{ fontWeight: 800 }}>Pode ser Ritual</Typography>}
+              />
+            </Paper>
+
+            {/* Componentes */}
+            <Box>
+              <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", display: "block", mb: 0.5 }}>
+                COMPONENTES:
+              </Typography>
+              <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={spellForm.components.v}
+                      onChange={(e) => setSpellForm((p) => ({ ...p, components: { ...p.components, v: e.target.checked } }))}
+                    />
+                  }
+                  label="Verbal (V)"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={spellForm.components.s}
+                      onChange={(e) => setSpellForm((p) => ({ ...p, components: { ...p.components, s: e.target.checked } }))}
+                    />
+                  }
+                  label="Somático (S)"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={spellForm.components.m}
+                      onChange={(e) => setSpellForm((p) => ({ ...p, components: { ...p.components, m: e.target.checked } }))}
+                    />
+                  }
+                  label="Material (M)"
+                />
+              </Stack>
+
+              {spellForm.components.m && (
+                <TextField
+                  label="Descrição dos Materiais"
+                  placeholder="ex: Uma pitada de enxofre e guano de morcego"
+                  value={spellForm.materialText}
+                  onChange={(e) => setSpellForm((p) => ({ ...p, materialText: e.target.value }))}
+                  fullWidth
+                  size="small"
+                />
+              )}
+            </Box>
+
             <TextField
-              label="Buscar (nome/descrição...)"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
+              label="Descrição / Efeito da Magia"
+              placeholder="Descreva o que a magia faz, testes de resistência, dano, etc."
+              value={spellForm.description}
+              onChange={(e) => setSpellForm((p) => ({ ...p, description: e.target.value }))}
+              fullWidth
+              multiline
+              minRows={3}
+              size="small"
+            />
+
+            <TextField
+              label="Em Níveis Superiores (Opcional)"
+              placeholder="ex: Quando conjurada com espaço de 4º nível ou superior, o dano aumenta em +1d6 para cada nível."
+              value={spellForm.higherLevels}
+              onChange={(e) => setSpellForm((p) => ({ ...p, higherLevels: e.target.value }))}
               fullWidth
               size="small"
             />
-          </Grid>
-
-          <Grid item xs={6} md={2}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Nível</InputLabel>
-              <Select
-                label="Nível"
-                value={levelFilter}
-                onChange={(e) => setLevelFilter(e.target.value)}
-              >
-                <MenuItem value="all">Todos</MenuItem>
-                <MenuItem value="0">Truques</MenuItem>
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
-                  <MenuItem key={n} value={String(n)}>
-                    {n}º
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid item xs={6} md={3}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Tempo</InputLabel>
-              <Select
-                label="Tempo"
-                value={timeFilter}
-                onChange={(e) => setTimeFilter(e.target.value)}
-              >
-                <MenuItem value="all">Todos</MenuItem>
-                {CASTING_TIME_PRESETS.map((t) => (
-                  <MenuItem key={t} value={t}>
-                    {t}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid item xs={12} md={2} sx={{ display: "flex", alignItems: "center" }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={preparedOnly}
-                  onChange={(e) => setPreparedOnly(e.target.checked)}
-                />
-              }
-              label="Só preparadas"
-            />
-          </Grid>
-        </Grid>
-
-        <Typography variant="caption" sx={{ opacity: 0.7 }}>
-          {filteredSpells.length} resultado(s)
-        </Typography>
-
-        {filteredSpells.length === 0 ? (
-          <Typography variant="caption" sx={{ display: "block", mt: 1, opacity: 0.7 }}>
-            Nenhuma magia encontrada com os filtros atuais.
-          </Typography>
-        ) : (
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mt: 1 }}>
-            {filteredSpells.map(([id, spellRaw]) => {
-              const spell = normalizeSpell(spellRaw);
-              const levelLabel = spell.level === 0 ? "Truque" : `${spell.level}º círculo`;
-
-              return (
-                <Accordion key={id} disableGutters>
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Stack direction="row" spacing={1} alignItems="center" sx={{ width: "100%", pr: 1 }}>
-                      <FormControlLabel
-                        onClick={(e) => e.stopPropagation()}
-                        onFocus={(e) => e.stopPropagation()}
-                        control={
-                          <Checkbox
-                            size="small"
-                            checked={!!spell.prepared}
-                            onChange={() => handleTogglePrepared(id)}
-                          />
-                        }
-                        label="Preparada"
-                        sx={{ mr: 1 }}
-                      />
-
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography sx={{ fontWeight: 600 }} noWrap>
-                          {spell.name || "(Sem nome)"}
-                        </Typography>
-                        <Stack direction="row" spacing={1} sx={{ mt: 0.5, flexWrap: "wrap" }}>
-                          <Chip size="small" label={levelLabel} />
-                          <Chip size="small" variant="outlined" label={`Tempo: ${spell.castingTime || "—"}`} />
-                          <Chip size="small" variant="outlined" label={`Alcance: ${spell.range || "—"}`} />
-                          <Chip size="small" variant="outlined" label={`Duração: ${spell.duration || "—"}`} />
-                          <Chip
-                            size="small"
-                            variant="outlined"
-                            label={`Comp.: ${formatComponents(spell.components, spell.material)}`}
-                          />
-                          {spell.concentration && <Chip size="small" color="warning" label="Concentração" />}
-                          {spell.ritual && <Chip size="small" color="info" label="Ritual" />}
-                        </Stack>
-                      </Box>
-
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenEditSpell(id);
-                        }}
-                      >
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-
-                      <IconButton
-                        size="small"
-                        color="error"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteSpell(id);
-                        }}
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Stack>
-                  </AccordionSummary>
-
-                  <AccordionDetails>
-                    <Stack spacing={1}>
-                      <Typography variant="subtitle2">Descrição</Typography>
-                      <Typography sx={{ whiteSpace: "pre-wrap" }}>
-                        {spell.description?.trim() ? spell.description.trim() : "—"}
-                      </Typography>
-
-                      {spell.higherLevels?.trim() ? (
-                        <>
-                          <Divider />
-                          <Typography variant="subtitle2">Em níveis superiores</Typography>
-                          <Typography sx={{ whiteSpace: "pre-wrap" }}>
-                            {spell.higherLevels.trim()}
-                          </Typography>
-                        </>
-                      ) : null}
-                    </Stack>
-                  </AccordionDetails>
-                </Accordion>
-              );
-            })}
-          </Box>
-        )}
-      </Paper>
-
-      {/* Modal de criação/edição de magia */}
-      <Dialog open={spellModalOpen} onClose={handleCloseSpellModal} fullWidth maxWidth="md">
-        <DialogTitle>{editingId ? "Editar magia" : "Adicionar magia"}</DialogTitle>
-
-        <DialogContent dividers>
-          <Stack spacing={2}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={7}>
-                <TextField
-                  label="Nome"
-                  value={draft.name}
-                  onChange={(e) => setDraft((p) => ({ ...p, name: e.target.value }))}
-                  fullWidth
-                />
-              </Grid>
-
-              <Grid item xs={12} md={5}>
-                <FormControl fullWidth>
-                  <InputLabel>Nível</InputLabel>
-                  <Select
-                    label="Nível"
-                    value={draft.level}
-                    onChange={(e) => setDraft((p) => ({ ...p, level: Number(e.target.value) }))}
-                  >
-                    <MenuItem value={0}>Truque (0)</MenuItem>
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
-                      <MenuItem key={n} value={n}>
-                        {n}º círculo
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <FormControl fullWidth>
-                  <InputLabel>Tempo de conjuração</InputLabel>
-                  <Select
-                    label="Tempo de conjuração"
-                    value={castingTimeSelectValue}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      if (v === "__custom__") {
-                        setDraft((p) => ({ ...p, castingTime: "" }));
-                        return;
-                      }
-                      setDraft((p) => ({ ...p, castingTime: String(v) }));
-                    }}
-                  >
-                    {CASTING_TIME_PRESETS.map((t) => (
-                      <MenuItem key={t} value={t}>
-                        {t}
-                      </MenuItem>
-                    ))}
-                    <MenuItem value="__custom__">Outro…</MenuItem>
-                  </Select>
-                </FormControl>
-
-                {castingTimeSelectValue === "__custom__" && (
-                  <TextField
-                    label="Tempo (personalizado)"
-                    value={draft.castingTime}
-                    onChange={(e) => setDraft((p) => ({ ...p, castingTime: e.target.value }))}
-                    fullWidth
-                    sx={{ mt: 1 }}
-                  />
-                )}
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <TextField
-                  label="Alcance"
-                  value={draft.range}
-                  onChange={(e) => setDraft((p) => ({ ...p, range: e.target.value }))}
-                  fullWidth
-                />
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <TextField
-                  label="Duração"
-                  value={draft.duration}
-                  onChange={(e) => setDraft((p) => ({ ...p, duration: e.target.value }))}
-                  fullWidth
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                  Componentes
-                </Typography>
-                <FormGroup row>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={!!draft.components.v}
-                        onChange={(e) =>
-                          setDraft((p) => ({
-                            ...p,
-                            components: { ...p.components, v: e.target.checked },
-                          }))
-                        }
-                      />
-                    }
-                    label="V"
-                  />
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={!!draft.components.s}
-                        onChange={(e) =>
-                          setDraft((p) => ({
-                            ...p,
-                            components: { ...p.components, s: e.target.checked },
-                          }))
-                        }
-                      />
-                    }
-                    label="S"
-                  />
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={!!draft.components.m}
-                        onChange={(e) =>
-                          setDraft((p) => ({
-                            ...p,
-                            components: { ...p.components, m: e.target.checked },
-                          }))
-                        }
-                      />
-                    }
-                    label="M"
-                  />
-                </FormGroup>
-
-                {draft.components.m && (
-                  <TextField
-                    label="Materiais (se houver)"
-                    value={draft.material}
-                    onChange={(e) => setDraft((p) => ({ ...p, material: e.target.value }))}
-                    fullWidth
-                    sx={{ mt: 1 }}
-                  />
-                )}
-              </Grid>
-
-              <Grid item xs={12}>
-                <FormGroup row>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={!!draft.concentration}
-                        onChange={(e) => setDraft((p) => ({ ...p, concentration: e.target.checked }))}
-                      />
-                    }
-                    label="Concentração"
-                  />
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={!!draft.ritual}
-                        onChange={(e) => setDraft((p) => ({ ...p, ritual: e.target.checked }))}
-                      />
-                    }
-                    label="Ritual"
-                  />
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={!!draft.prepared}
-                        onChange={(e) => setDraft((p) => ({ ...p, prepared: e.target.checked }))}
-                      />
-                    }
-                    label="Preparada"
-                  />
-                </FormGroup>
-              </Grid>
-
-              <Grid item xs={12}>
-                <TextField
-                  label="Descrição"
-                  value={draft.description}
-                  onChange={(e) => setDraft((p) => ({ ...p, description: e.target.value }))}
-                  fullWidth
-                  multiline
-                  minRows={5}
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <TextField
-                  label="Em níveis superiores (opcional)"
-                  value={draft.higherLevels}
-                  onChange={(e) => setDraft((p) => ({ ...p, higherLevels: e.target.value }))}
-                  fullWidth
-                  multiline
-                  minRows={3}
-                />
-              </Grid>
-            </Grid>
           </Stack>
         </DialogContent>
-
-        <DialogActions>
-          <Button onClick={handleCloseSpellModal}>Cancelar</Button>
-          <Button variant="contained" onClick={handleSaveDraft} disabled={!draft.name.trim()}>
-            Salvar
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setModalOpen(false)} sx={{ color: "text.secondary" }}>
+            Cancelar
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleSaveSpell}
+            disabled={!spellForm.name.trim()}
+            sx={{ bgcolor: arcanaColor, color: "#fff", fontWeight: 800, "&:hover": { bgcolor: arcanaColor, filter: "brightness(0.92)" } }}
+          >
+            Salvar Magia
           </Button>
         </DialogActions>
       </Dialog>
