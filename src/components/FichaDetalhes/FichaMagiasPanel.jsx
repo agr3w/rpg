@@ -365,7 +365,15 @@ export default function FichaMagiasPanel({
           <Alert
             severity={castFeedback.type || "info"}
             action={
-              <IconButton size="small" onClick={() => setCastFeedback(null)}>
+              <IconButton
+                type="button"
+                size="small"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setCastFeedback(null);
+                }}
+              >
                 <CloseIcon fontSize="small" />
               </IconButton>
             }
@@ -408,10 +416,15 @@ export default function FichaMagiasPanel({
         />
 
         <Button
+          type="button"
           size="small"
           variant="contained"
           startIcon={<AddCircleOutlineIcon />}
-          onClick={() => handleOpenAddModal(0)}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleOpenAddModal(0);
+          }}
           sx={{
             bgcolor: arcanaColor,
             color: "#fff",
@@ -515,10 +528,12 @@ export default function FichaMagiasPanel({
                   </Box>
 
                   <Button
+                    type="button"
                     size="small"
                     variant="text"
                     startIcon={<AddCircleOutlineIcon />}
                     onClick={(e) => {
+                      e.preventDefault();
                       e.stopPropagation();
                       handleOpenAddModal(circle.level);
                     }}

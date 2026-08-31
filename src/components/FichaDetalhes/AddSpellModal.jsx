@@ -147,7 +147,11 @@ export default function AddSpellModal({
     }
   }, [editingSpell, presetCircle, open]);
 
-  const handleConfirmSave = () => {
+  const handleConfirmSave = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     const name = spellForm.name.trim();
     if (!name) return;
 
@@ -425,10 +429,11 @@ export default function AddSpellModal({
         </Stack>
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
-        <Button onClick={onClose} sx={{ color: "text.secondary" }}>
+        <Button type="button" onClick={onClose} sx={{ color: "text.secondary" }}>
           Cancelar
         </Button>
         <Button
+          type="button"
           variant="contained"
           onClick={handleConfirmSave}
           disabled={!spellForm.name.trim()}

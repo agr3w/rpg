@@ -153,12 +153,28 @@ export default function SpellCard({
           {/* Botões Editar / Deletar */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.25 }}>
             <Tooltip title="Editar Magia">
-              <IconButton size="small" onClick={() => onEdit?.(spell)}>
+              <IconButton
+                type="button"
+                size="small"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onEdit?.(spell);
+                }}
+              >
                 <EditIcon fontSize="small" sx={{ color: "text.secondary" }} />
               </IconButton>
             </Tooltip>
             <Tooltip title="Remover Magia">
-              <IconButton size="small" onClick={() => onDelete?.(spell.id)}>
+              <IconButton
+                type="button"
+                size="small"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onDelete?.(spell.id);
+                }}
+              >
                 <DeleteOutlineIcon fontSize="small" color="error" />
               </IconButton>
             </Tooltip>
@@ -375,10 +391,15 @@ export default function SpellCard({
           {/* Botão de Conjuração Padrão */}
           {isCantrip ? (
             <Button
+              type="button"
               size="small"
               variant="contained"
               startIcon={<AutoFixHighIcon />}
-              onClick={() => onCast?.(spell, 0)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onCast?.(spell, 0);
+              }}
               sx={{
                 bgcolor: arcanaColor,
                 color: "#fff",
@@ -404,11 +425,16 @@ export default function SpellCard({
             >
               <span>
                 <Button
+                  type="button"
                   size="small"
                   variant="contained"
                   disabled={!hasSlots}
                   startIcon={<BoltIcon />}
-                  onClick={() => onCast?.(spell, Number(spell.level || 1))}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onCast?.(spell, Number(spell.level || 1));
+                  }}
                   sx={{
                     bgcolor: arcanaColor,
                     color: "#fff",
@@ -433,8 +459,13 @@ export default function SpellCard({
             <>
               <Tooltip title="Conjurar usando um espaço de círculo superior (Upcast)">
                 <IconButton
+                  type="button"
                   size="small"
-                  onClick={handleOpenUpcastMenu}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleOpenUpcastMenu(e);
+                  }}
                   sx={{
                     border: `1px solid ${arcanaBorder}`,
                     color: arcanaColor,

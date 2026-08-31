@@ -274,7 +274,7 @@ const FichaDetalhes = () => {
   const { ID } = useParams();
   const [ficha, setFicha] = useState(null);
   const [fichaKey, setFichaKey] = useState(null);
-  const [loadingFicha, setLoadingFicha] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [bgLoaded, setBgLoaded] = useState(false);
 
   // frente/verso da ficha
@@ -288,10 +288,10 @@ const FichaDetalhes = () => {
   const user = auth.currentUser;
   const userID = user?.uid;
 
-  // carrega ficha
+  // carrega ficha (apenas inicial)
   useEffect(() => {
     if (!userID || !ID) return;
-    setLoadingFicha(true);
+    setIsInitialLoading(true);
     const databaseRef = firebase.database().ref(`fichas/${userID}`);
     databaseRef
       .orderByChild("id")
@@ -315,15 +315,18 @@ const FichaDetalhes = () => {
         setFichaKey(null);
       })
       .finally(() => {
-        setLoadingFicha(false);
+        setIsInitialLoading(false);
       });
   }, [ID, userID]);
 
-  // carrega background
+  // carrega background (apenas quando a classe muda)
+  const fichaClasse = ficha?.classe;
   useEffect(() => {
-    setBgLoaded(false);
-    if (!ficha) return;
-    const url = getClassBackgroundUrl(ficha.classe); // ✅ imagem local da classe
+    if (!fichaClasse) {
+      setBgLoaded(true);
+      return;
+    }
+    const url = getClassBackgroundUrl(fichaClasse);
     if (!url) {
       setBgLoaded(true);
       return;
@@ -336,7 +339,7 @@ const FichaDetalhes = () => {
       img.onload = null;
       img.onerror = null;
     };
-  }, [ficha]);
+  }, [fichaClasse]);
 
   // sincroniza níveis de HP pendentes vindos do banco
   useEffect(() => {
@@ -389,11 +392,9 @@ const FichaDetalhes = () => {
   useEffect(() => {
     if (!ficha) return;
     setEditedName(ficha.nome || "");
-  }, [ficha]);
+  }, [ficha?.nome]);
 
-  const loading = loadingFicha || !bgLoaded;
-
-  if (loading) {
+  if (isInitialLoading && !ficha) {
     return (
       <>
         <Box sx={{ p: 3, display: "flex", justifyContent: "center" }}>

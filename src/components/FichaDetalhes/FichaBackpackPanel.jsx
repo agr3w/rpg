@@ -105,7 +105,11 @@ export default function FichaBackpackPanel({
     setModalOpen(true);
   };
 
-  const handleSaveItem = () => {
+  const handleSaveItem = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     const name = itemForm.name.trim();
     if (!name) return;
 
@@ -193,10 +197,15 @@ export default function FichaBackpackPanel({
         </Box>
 
         <Button
+          type="button"
           size="small"
           variant="contained"
           startIcon={<AddCircleOutlineIcon />}
-          onClick={handleOpenAddModal}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleOpenAddModal();
+          }}
           sx={{
             bgcolor: itemColor,
             color: "#000",
@@ -231,10 +240,15 @@ export default function FichaBackpackPanel({
             Adicione poções, pergaminhos, itens de exploração e tesouros.
           </Typography>
           <Button
+            type="button"
             size="small"
             variant="outlined"
             startIcon={<AddCircleOutlineIcon />}
-            onClick={handleOpenAddModal}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleOpenAddModal();
+            }}
             sx={{ borderColor: itemColor, color: itemColor, fontWeight: 800 }}
           >
             Adicionar Primeiro Item
@@ -304,12 +318,28 @@ export default function FichaBackpackPanel({
                       {/* Botões de Ação */}
                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.25 }}>
                         <Tooltip title="Editar Item">
-                          <IconButton size="small" onClick={() => handleOpenEditModal(item)}>
+                          <IconButton
+                            type="button"
+                            size="small"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleOpenEditModal(item);
+                            }}
+                          >
                             <EditIcon fontSize="small" sx={{ color: "text.secondary" }} />
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Remover Item">
-                          <IconButton size="small" onClick={() => handleDeleteItem(item.id)}>
+                          <IconButton
+                            type="button"
+                            size="small"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleDeleteItem(item.id);
+                            }}
+                          >
                             <DeleteOutlineIcon fontSize="small" color="error" />
                           </IconButton>
                         </Tooltip>
@@ -330,8 +360,13 @@ export default function FichaBackpackPanel({
                       {/* Controle de Quantidade [-] Qtd [+] */}
                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, bgcolor: isDark ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.04)", borderRadius: 2, p: 0.25 }}>
                         <IconButton
+                          type="button"
                           size="small"
-                          onClick={() => handleDeltaQty(item.id, -1)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDeltaQty(item.id, -1);
+                          }}
                           sx={{ p: 0.3, color: "text.secondary" }}
                         >
                           <RemoveIcon sx={{ fontSize: 16 }} />
@@ -340,8 +375,13 @@ export default function FichaBackpackPanel({
                           {item.qty || 0}
                         </Typography>
                         <IconButton
+                          type="button"
                           size="small"
-                          onClick={() => handleDeltaQty(item.id, 1)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDeltaQty(item.id, 1);
+                          }}
                           sx={{ p: 0.3, color: itemColor }}
                         >
                           <AddIcon sx={{ fontSize: 16 }} />
@@ -358,8 +398,13 @@ export default function FichaBackpackPanel({
 
                         <Tooltip title={item.equipped ? "Item equipado" : "Equipar item"}>
                           <IconButton
+                            type="button"
                             size="small"
-                            onClick={() => handleToggleEquipped(item.id)}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleToggleEquipped(item.id);
+                            }}
                             sx={{
                               color: item.equipped ? "#4caf50" : "text.secondary",
                               bgcolor: item.equipped ? "rgba(76, 175, 80, 0.1)" : "transparent",
@@ -474,10 +519,11 @@ export default function FichaBackpackPanel({
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setModalOpen(false)} sx={{ color: "text.secondary" }}>
+          <Button type="button" onClick={() => setModalOpen(false)} sx={{ color: "text.secondary" }}>
             Cancelar
           </Button>
           <Button
+            type="button"
             variant="contained"
             onClick={handleSaveItem}
             disabled={!itemForm.name.trim()}

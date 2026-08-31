@@ -77,10 +77,15 @@ export default function SpellSlotsTracker({
         </Box>
 
         <Button
+          type="button"
           size="small"
           variant="outlined"
           startIcon={<BedtimeIcon />}
-          onClick={onLongRest}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onLongRest?.();
+          }}
           sx={{
             fontFamily: "Cinzel",
             fontWeight: 800,
@@ -160,13 +165,16 @@ export default function SpellSlotsTracker({
                         }
                       >
                         <IconButton
+                          type="button"
                           size="small"
-                          onClick={() =>
-                            onToggleSlot(
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            onToggleSlot?.(
                               circulo,
                               isAvailable ? gastos + 1 : Math.max(0, gastos - 1)
-                            )
-                          }
+                            );
+                          }}
                           sx={{
                             p: 0.25,
                             color: isAvailable ? arcanaColor : "text.secondary",

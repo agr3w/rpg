@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Box,
   Paper,
@@ -204,7 +204,11 @@ export default function FichaArsenalPanel({
     }));
   };
 
-  const handleSaveWeapon = () => {
+  const handleSaveWeapon = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     const name = weaponForm.name.trim();
     if (!name) return;
 
@@ -295,10 +299,15 @@ export default function FichaArsenalPanel({
         </Box>
 
         <Button
+          type="button"
           size="small"
           variant="contained"
           startIcon={<AddCircleOutlineIcon />}
-          onClick={handleOpenAddModal}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleOpenAddModal();
+          }}
           sx={{
             bgcolor: combatColor,
             color: "#fff",
@@ -328,8 +337,13 @@ export default function FichaArsenalPanel({
           }}
         >
           <IconButton
+            type="button"
             size="small"
-            onClick={() => setRollResult(null)}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setRollResult(null);
+            }}
             sx={{ position: "absolute", top: 8, right: 8, color: "text.secondary" }}
           >
             <CloseIcon fontSize="small" />
@@ -400,10 +414,15 @@ export default function FichaArsenalPanel({
             Cadastre suas armas para rolar ataques e calcular danos com 1 clique.
           </Typography>
           <Button
+            type="button"
             size="small"
             variant="outlined"
             startIcon={<AddCircleOutlineIcon />}
-            onClick={handleOpenAddModal}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleOpenAddModal();
+            }}
             sx={{ borderColor: combatColor, color: combatColor, fontWeight: 800 }}
           >
             Adicionar Primeira Arma
@@ -458,12 +477,28 @@ export default function FichaArsenalPanel({
                     {/* Botões de Ação */}
                     <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                       <Tooltip title="Editar Arma">
-                        <IconButton size="small" onClick={() => handleOpenEditModal(weapon)}>
+                        <IconButton
+                          type="button"
+                          size="small"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleOpenEditModal(weapon);
+                          }}
+                        >
                           <EditIcon fontSize="small" sx={{ color: "text.secondary" }} />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Remover Arma">
-                        <IconButton size="small" onClick={() => handleDeleteWeapon(weapon.slotKey)}>
+                        <IconButton
+                          type="button"
+                          size="small"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDeleteWeapon(weapon.slotKey);
+                          }}
+                        >
                           <DeleteOutlineIcon fontSize="small" color="error" />
                         </IconButton>
                       </Tooltip>
@@ -548,11 +583,16 @@ export default function FichaArsenalPanel({
 
                   {/* Botão de Rolagem Rápida */}
                   <Button
+                    type="button"
                     fullWidth
                     size="small"
                     variant="contained"
                     startIcon={<CasinoIcon />}
-                    onClick={() => handleRollWeapon(weapon)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleRollWeapon(weapon);
+                    }}
                     sx={{
                       mt: 1,
                       bgcolor: combatColor,
@@ -747,10 +787,11 @@ export default function FichaArsenalPanel({
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setModalOpen(false)} sx={{ color: "text.secondary" }}>
+          <Button type="button" onClick={() => setModalOpen(false)} sx={{ color: "text.secondary" }}>
             Cancelar
           </Button>
           <Button
+            type="button"
             variant="contained"
             onClick={handleSaveWeapon}
             disabled={!weaponForm.name.trim()}

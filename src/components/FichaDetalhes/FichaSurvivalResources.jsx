@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Paper,
@@ -107,7 +107,11 @@ export default function FichaSurvivalResources({
     Number(moedas.po || 0) +
     (Number(moedas.pl || 0) * 10);
 
-  const handleSaveCoinsModal = () => {
+  const handleSaveCoinsModal = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     onSaveMoedas?.(editCoins);
     setCoinsModalOpen(false);
   };
@@ -142,8 +146,13 @@ export default function FichaSurvivalResources({
 
                 <Tooltip title="Resetar / Estabilizado">
                   <IconButton
+                    type="button"
                     size="small"
-                    onClick={handleResetDeathSaves}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleResetDeathSaves();
+                    }}
                     disabled={!deathSaves.successes && !deathSaves.failures}
                     sx={{ p: 0.4 }}
                   >
@@ -234,9 +243,14 @@ export default function FichaSurvivalResources({
                 3 Sucessos = Estável | 3 Falhas = Morte
               </Typography>
               <Button
+                type="button"
                 size="small"
                 variant="text"
-                onClick={handleResetDeathSaves}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleResetDeathSaves();
+                }}
                 disabled={!deathSaves.successes && !deathSaves.failures}
                 sx={{ fontSize: "0.72rem", p: 0, minWidth: "auto", color: accentColor, fontWeight: 700 }}
               >
@@ -276,10 +290,15 @@ export default function FichaSurvivalResources({
 
             <Box sx={{ pt: 1, borderTop: `1px solid ${strokeColor}`, display: "flex", gap: 1 }}>
               <Button
+                type="button"
                 fullWidth
                 size="small"
                 variant="outlined"
-                onClick={handleShortRestSpend}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleShortRestSpend();
+                }}
                 disabled={availableHitDice <= 0}
                 sx={{
                   fontSize: "0.75rem",
@@ -294,11 +313,16 @@ export default function FichaSurvivalResources({
 
               <Tooltip title="Recupera vida e metade dos dados de vida">
                 <Button
+                  type="button"
                   fullWidth
                   size="small"
                   variant="outlined"
                   startIcon={<HotelIcon fontSize="small" />}
-                  onClick={handleLongRest}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleLongRest();
+                  }}
                   sx={{
                     fontSize: "0.75rem",
                     fontWeight: 800,
@@ -328,8 +352,11 @@ export default function FichaSurvivalResources({
                 </Box>
                 <Tooltip title="Editar Moedas">
                   <IconButton
+                    type="button"
                     size="small"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                       setEditCoins(moedas);
                       setCoinsModalOpen(true);
                     }}
@@ -375,9 +402,12 @@ export default function FichaSurvivalResources({
                 Total: <strong style={{ color: "#ffd700" }}>{totalEmPO.toFixed(2)} PO</strong>
               </Typography>
               <Button
+                type="button"
                 size="small"
                 variant="text"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   setEditCoins(moedas);
                   setCoinsModalOpen(true);
                 }}
@@ -462,10 +492,11 @@ export default function FichaSurvivalResources({
           </Grid>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setCoinsModalOpen(false)} sx={{ color: "text.secondary" }}>
+          <Button type="button" onClick={() => setCoinsModalOpen(false)} sx={{ color: "text.secondary" }}>
             Cancelar
           </Button>
           <Button
+            type="button"
             variant="contained"
             onClick={handleSaveCoinsModal}
             sx={{ bgcolor: accentColor, color: "#000", fontWeight: 800, "&:hover": { filter: "brightness(0.95)" } }}

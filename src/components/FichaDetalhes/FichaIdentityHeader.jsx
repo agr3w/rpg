@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Box,
   Paper,
@@ -86,7 +86,11 @@ export default function FichaIdentityHeader({
     setIsEditingName(false);
   };
 
-  const handleConfirmSaveName = async () => {
+  const handleConfirmSaveName = async (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     const trimmed = nameValue.trim();
     if (!trimmed || trimmed === fichaBase.nome) {
       setIsEditingName(false);
@@ -98,8 +102,8 @@ export default function FichaIdentityHeader({
         await onNameSave(trimmed);
       }
       setIsEditingName(false);
-    } catch (e) {
-      console.error("Erro ao salvar nome:", e);
+    } catch (err) {
+      console.error("Erro ao salvar nome:", err);
     } finally {
       setSavingName(false);
     }
@@ -115,7 +119,11 @@ export default function FichaIdentityHeader({
     setXpInput(String(next));
   };
 
-  const handleConfirmSaveXp = async () => {
+  const handleConfirmSaveXp = async (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     const parsed = parseInt(xpInput || "0", 10);
     if (Number.isNaN(parsed) || parsed < 0) return;
     setSavingXp(true);
@@ -124,8 +132,8 @@ export default function FichaIdentityHeader({
         await onXpSave(parsed);
       }
       setXpDialogOpen(false);
-    } catch (e) {
-      console.error("Erro ao salvar XP:", e);
+    } catch (err) {
+      console.error("Erro ao salvar XP:", err);
     } finally {
       setSavingXp(false);
     }
@@ -246,6 +254,7 @@ export default function FichaIdentityHeader({
                 }}
               />
               <IconButton
+                type="button"
                 size="small"
                 color="primary"
                 onClick={handleConfirmSaveName}
@@ -254,7 +263,16 @@ export default function FichaIdentityHeader({
               >
                 <CheckIcon fontSize="small" />
               </IconButton>
-              <IconButton size="small" onClick={handleCancelEditName} sx={{ bgcolor: "action.hover" }}>
+              <IconButton
+                type="button"
+                size="small"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleCancelEditName();
+                }}
+                sx={{ bgcolor: "action.hover" }}
+              >
                 <CloseIcon fontSize="small" />
               </IconButton>
             </Box>
@@ -282,8 +300,13 @@ export default function FichaIdentityHeader({
               </Typography>
               <Tooltip title="Editar nome">
                 <IconButton
+                  type="button"
                   size="small"
-                  onClick={handleStartEditName}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleStartEditName();
+                  }}
                   sx={{
                     opacity: 0.65,
                     "&:hover": { opacity: 1, color: accentColor },
@@ -402,10 +425,15 @@ export default function FichaIdentityHeader({
             </Typography>
             <Tooltip title="Gerenciar XP">
               <Button
+                type="button"
                 size="small"
                 variant="outlined"
                 startIcon={<AddCircleOutlineIcon />}
-                onClick={handleOpenXpDialog}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleOpenXpDialog();
+                }}
                 sx={{
                   py: 0.2,
                   px: 1,
@@ -476,10 +504,15 @@ export default function FichaIdentityHeader({
               <Stack direction="row" spacing={1} flexWrap="wrap">
                 {[50, 100, 250, 500, 1000].map((amt) => (
                   <Button
+                    type="button"
                     key={amt}
                     size="small"
                     variant="outlined"
-                    onClick={() => handleQuickAddXp(amt)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleQuickAddXp(amt);
+                    }}
                     sx={{ borderColor: strokeColor, fontWeight: 800 }}
                   >
                     +{amt}
@@ -506,10 +539,11 @@ export default function FichaIdentityHeader({
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setXpDialogOpen(false)} sx={{ color: "text.secondary" }}>
+          <Button type="button" onClick={() => setXpDialogOpen(false)} sx={{ color: "text.secondary" }}>
             Cancelar
           </Button>
           <Button
+            type="button"
             variant="contained"
             onClick={handleConfirmSaveXp}
             disabled={savingXp}

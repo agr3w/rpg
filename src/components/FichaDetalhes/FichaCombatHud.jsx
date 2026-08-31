@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Box,
   Paper,
@@ -235,7 +235,16 @@ export default function FichaCombatHud({
                   </Typography>
                 </Box>
                 <Tooltip title="Alterar Armadura">
-                  <IconButton size="small" onClick={() => setArmorModalOpen(true)} sx={{ p: 0.2 }}>
+                  <IconButton
+                    type="button"
+                    size="small"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setArmorModalOpen(true);
+                    }}
+                    sx={{ p: 0.2 }}
+                  >
                     <SettingsIcon sx={{ fontSize: 16, color: "text.secondary" }} />
                   </IconButton>
                 </Tooltip>
@@ -289,9 +298,14 @@ export default function FichaCombatHud({
                 sx={{ m: 0 }}
               />
               <Button
+                type="button"
                 size="small"
                 variant="text"
-                onClick={() => setArmorModalOpen(true)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setArmorModalOpen(true);
+                }}
                 sx={{ fontSize: "0.68rem", p: 0, minWidth: "auto", color: accentColor, fontWeight: 700 }}
               >
                 Trocar
@@ -313,8 +327,11 @@ export default function FichaCombatHud({
                 </Box>
                 <Tooltip title="Editar Vida Máxima e Temporária">
                   <IconButton
+                    type="button"
                     size="small"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                       setEditHp({ max: hpMax, atual: hpAtual, temp: hpTemp });
                       setHpModalOpen(true);
                     }}
@@ -374,11 +391,16 @@ export default function FichaCombatHud({
             <Box sx={{ pt: 0.75, borderTop: `1px solid ${strokeColor}` }}>
               {pendingLevels > 0 && canRollLevelHp ? (
                 <Button
+                  type="button"
                   fullWidth
                   size="small"
                   variant="contained"
                   startIcon={<CasinoIcon />}
-                  onClick={handleRollLevelUpHp}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleRollLevelUpHp();
+                  }}
                   sx={{
                     bgcolor: accentColor,
                     color: "#000",
@@ -397,10 +419,15 @@ export default function FichaCombatHud({
                   <Stack direction="row" spacing={0.3}>
                     {[-5, -1, 1, 5].map((amt) => (
                       <Button
+                        type="button"
                         key={amt}
                         size="small"
                         variant="outlined"
-                        onClick={() => handleQuickHpDelta(amt)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleQuickHpDelta(amt);
+                        }}
                         sx={{
                           minWidth: 26,
                           px: 0.4,
@@ -427,20 +454,30 @@ export default function FichaCombatHud({
                       inputProps={{ min: 1, style: { padding: "2px 4px", fontSize: "0.75rem", width: 32, textAlign: "center" } }}
                     />
                     <Button
+                      type="button"
                       size="small"
                       variant="contained"
                       color="error"
-                      onClick={() => handleApplyDamageOrHeal(false)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleApplyDamageOrHeal(false);
+                      }}
                       disabled={!quickAmount}
                       sx={{ minWidth: 26, px: 0.6, py: 0.2, fontSize: "0.68rem", fontWeight: 800 }}
                     >
                       Dano
                     </Button>
                     <Button
+                      type="button"
                       size="small"
                       variant="contained"
                       color="success"
-                      onClick={() => handleApplyDamageOrHeal(true)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleApplyDamageOrHeal(true);
+                      }}
                       disabled={!quickAmount}
                       sx={{ minWidth: 26, px: 0.6, py: 0.2, fontSize: "0.68rem", fontWeight: 800 }}
                     >
@@ -595,7 +632,7 @@ export default function FichaCombatHud({
           </List>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setArmorModalOpen(false)} sx={{ color: "text.secondary" }}>
+          <Button type="button" onClick={() => setArmorModalOpen(false)} sx={{ color: "text.secondary" }}>
             Fechar
           </Button>
         </DialogActions>
@@ -647,10 +684,11 @@ export default function FichaCombatHud({
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setHpModalOpen(false)} sx={{ color: "text.secondary" }}>
+          <Button type="button" onClick={() => setHpModalOpen(false)} sx={{ color: "text.secondary" }}>
             Cancelar
           </Button>
           <Button
+            type="button"
             variant="contained"
             onClick={handleSaveHpManual}
             sx={{ bgcolor: accentColor, color: "#000", fontWeight: 800, "&:hover": { filter: "brightness(0.95)" } }}
