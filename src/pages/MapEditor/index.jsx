@@ -8,12 +8,18 @@ import EditorToolbar from "components/MapEditor/EditorToolbar";
 import LayersPanel from "components/MapEditor/LayersPanel";
 import MapSettingsDialog from "components/MapEditor/MapSettingsDialog";
 
+import { snapToGrid, pointToCell } from "Utils/gridUtils";
+import { calculateDistance, formatDistance } from "Utils/rulerUtils";
+import { createFogCanvas, revealFogCircle, hideFogCircle, fillFog, clearFog } from "Utils/fogUtils";
+import { exportMapImage, exportUniversalVTT } from "Utils/vttExporter";
+
 const MapEditor = () => {
   const { mapId } = useParams();
   const { userMaps, saveMapState, updateMapSettings, loading } = useMapContext();
   const currentMap = userMaps.find(m => m.id === mapId);
   const stageRef = useRef(null);
   const transformerRef = useRef(null);
+  const fogLayerRef = useRef(null);
 
   // --- ESTADOS ---
   const [tool, setTool] = useState("select");
@@ -33,6 +39,14 @@ const MapEditor = () => {
   const [textInput, setTextInput] = useState("");
   const [textPos, setTextPos] = useState({ x: 0, y: 0 });
 
+  // --- VTT, GRID & FOG ESTADOS ---
+  const [snapMode, setSnapMode] = useState("center"); // "center" | "vertex" | "off"
+  const [rulerVariant, setRulerVariant] = useState("5e-standard"); // "5e-standard" | "5-10-5" | "euclidean"
+  const [rulerUnit, setRulerUnit] = useState("all"); // "all" | "ft" | "m"
+  const [fogMode, setFogMode] = useState("reveal-brush"); // "reveal-brush" | "hide-brush"
+  const [fogBrushRadius, setFogBrushRadius] = useState(60);
+  const [fogCanvas, setFogCanvas] = useState(null);
+
   // Feedback visual para atalhos
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState("");
@@ -48,10 +62,73 @@ const MapEditor = () => {
     }
   }, [currentMap]);
 
+  // --- HELPERS DE DIMENSÃO DO GRID ---
+  const mapWidth = currentMap?.gridConfig?.width || 20;
+  const mapHeight = currentMap?.gridConfig?.height || 15;
+  const cellSize = currentMap?.gridConfig?.cellSize || 50;
+  const showGrid = currentMap?.gridConfig?.showGrid !== false;
+  const themeColors = currentMap ?
+    (currentMap.theme === "stone" ? { bg: "#2b2b2b", grid: "#424242" } :
+      currentMap.theme === "grass" ? { bg: "#2e7d32", grid: "#1b5e20" } :
+        currentMap.theme === "water" ? { bg: "#0288d1", grid: "#01579b" } :
+          currentMap.theme === "void" ? { bg: "#121212", grid: "#333" } :
+            { bg: "#e3e3e3", grid: "#a5c9ea" }) : { bg: "#e3e3e3", grid: "#a5c9ea" };
+
+  // Inicialização e atualização da Névoa de Guerra
+  useEffect(() => {
+    if (mapWidth && mapHeight && cellSize) {
+      const widthPx = mapWidth * cellSize;
+      const heightPx = mapHeight * cellSize;
+      const canvas = createFogCanvas(widthPx, heightPx);
+      setFogCanvas(canvas);
+    }
+  }, [mapWidth, mapHeight, cellSize]);
+
+  const paintFog = (rawX, rawY) => {
+    if (!fogCanvas) return;
+    const ctx = fogCanvas.getContext("2d");
+    if (fogMode === "reveal-brush") {
+      revealFogCircle(ctx, rawX, rawY, fogBrushRadius);
+    } else {
+      hideFogCircle(ctx, rawX, rawY, fogBrushRadius);
+    }
+    if (fogLayerRef.current) {
+      fogLayerRef.current.batchDraw();
+    }
+  };
+
+  const handleFogClearAll = () => {
+    if (!fogCanvas) return;
+    const ctx = fogCanvas.getContext("2d");
+    clearFog(ctx, mapWidth * cellSize, mapHeight * cellSize);
+    if (fogLayerRef.current) fogLayerRef.current.batchDraw();
+    showMsg("Névoa revelada em todo o mapa");
+  };
+
+  const handleFogFillAll = () => {
+    if (!fogCanvas) return;
+    const ctx = fogCanvas.getContext("2d");
+    fillFog(ctx, mapWidth * cellSize, mapHeight * cellSize);
+    if (fogLayerRef.current) fogLayerRef.current.batchDraw();
+    showMsg("Névoa cobriu todo o mapa");
+  };
+
+  const handleExportImage = (format = "png") => {
+    if (!stageRef.current) return;
+    exportMapImage(stageRef.current, currentMap?.name || "mapa", format, 2);
+    showMsg(`Mapa exportado em ${format.toUpperCase()} (HD)`);
+  };
+
+  const handleExportUniversalVTT = () => {
+    if (!stageRef.current) return;
+    const backgroundBase64 = currentMap?.backgroundImage || stageRef.current.toDataURL({ pixelRatio: 1 });
+    exportUniversalVTT(currentMap || {}, backgroundBase64);
+    showMsg("Mapa exportado como Universal VTT (.dd2vtt)");
+  };
+
   // --- ATALHOS DE TECLADO ---
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Ignora se estiver digitando em um input
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
       switch (e.key.toLowerCase()) {
@@ -62,6 +139,8 @@ const MapEditor = () => {
         case 'r': setTool("rect"); showMsg("Ferramenta: Retângulo"); break;
         case 'c': setTool("circle"); showMsg("Ferramenta: Círculo"); break;
         case 't': setTool("text"); showMsg("Ferramenta: Texto"); break;
+        case 'f': setTool("fog"); showMsg("Ferramenta: Névoa de Guerra"); break;
+        case 'm': setTool("ruler"); showMsg("Ferramenta: Régua Tática 5e"); break;
         case 'z':
           if (e.ctrlKey || e.metaKey) {
             e.preventDefault();
@@ -82,7 +161,7 @@ const MapEditor = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedId, elements]); // Dependências para garantir que delete/undo funcionem com estado atual
+  }, [selectedId, elements]);
 
   const showMsg = (msg) => {
     setSnackbarMsg(msg);
@@ -117,7 +196,7 @@ const MapEditor = () => {
     }
   };
 
-  // --- MANIPULAÇÃO DE CAMADAS (NOVA FUNÇÃO PARA DRAG AND DROP) ---
+  // --- MANIPULAÇÃO DE CAMADAS ---
   const handleReorderElements = (newElementsOrder) => {
     setElements(newElementsOrder);
     saveMapState(mapId, newElementsOrder);
@@ -126,13 +205,24 @@ const MapEditor = () => {
   const handleTransformEnd = (e) => {
     const node = e.target;
     const id = node.id();
+    const safeCellSize = cellSize || 50;
+
+    let targetX = node.x();
+    let targetY = node.y();
+
+    if (snapMode !== "off") {
+      const snapped = snapToGrid(targetX, targetY, safeCellSize, snapMode);
+      targetX = snapped.x;
+      targetY = snapped.y;
+      node.position({ x: targetX, y: targetY });
+    }
 
     const newElements = elements.map(el => {
       if (el.id.toString() === id) {
         return {
           ...el,
-          x: node.x(),
-          y: node.y(),
+          x: targetX,
+          y: targetY,
           rotation: node.rotation(),
           scaleX: node.scaleX(),
           scaleY: node.scaleY(),
@@ -166,18 +256,6 @@ const MapEditor = () => {
     saveMapState(mapId, newElements);
   };
 
-  // --- HELPERS ---
-  const mapWidth = currentMap?.gridConfig?.width || 20;
-  const mapHeight = currentMap?.gridConfig?.height || 15;
-  const cellSize = currentMap?.gridConfig?.cellSize || 50;
-  const showGrid = currentMap?.gridConfig?.showGrid !== false;
-  const themeColors = currentMap ?
-    (currentMap.theme === "stone" ? { bg: "#2b2b2b", grid: "#424242" } :
-      currentMap.theme === "grass" ? { bg: "#2e7d32", grid: "#1b5e20" } :
-        currentMap.theme === "water" ? { bg: "#0288d1", grid: "#01579b" } :
-          currentMap.theme === "void" ? { bg: "#121212", grid: "#333" } :
-            { bg: "#e3e3e3", grid: "#a5c9ea" }) : { bg: "#e3e3e3", grid: "#a5c9ea" };
-
   const handleWheel = (e) => {
     e.evt.preventDefault();
     const scaleBy = 1.1;
@@ -195,28 +273,37 @@ const MapEditor = () => {
     const transform = stage.getAbsoluteTransform().copy();
     transform.invert();
     const pos = transform.point(stage.getPointerPosition());
-    const snap = tool !== "text" && tool !== "ruler" && tool !== "select" && tool !== "brush";
     const safeCellSize = cellSize || 50;
-    const x = snap ? Math.round(pos.x / (safeCellSize / 2)) * (safeCellSize / 2) : pos.x;
-    const y = snap ? Math.round(pos.y / (safeCellSize / 2)) * (safeCellSize / 2) : pos.y;
-    return { x, y, rawX: pos.x, rawY: pos.y };
+
+    const snap = snapMode !== "off" && tool !== "text" && tool !== "brush" && tool !== "fog";
+    if (snap) {
+      const snapped = snapToGrid(pos.x, pos.y, safeCellSize, snapMode);
+      return { x: snapped.x, y: snapped.y, rawX: pos.x, rawY: pos.y, col: snapped.col, row: snapped.row };
+    }
+
+    const cell = pointToCell(pos.x, pos.y, safeCellSize);
+    return { x: pos.x, y: pos.y, rawX: pos.x, rawY: pos.y, col: cell.col, row: cell.row };
   };
 
   // --- HANDLERS DE DESENHO ---
   const handleMouseDown = (e) => {
     // Se clicar com botão do meio ou direito, ou ferramenta Pan
     if (tool === "pan" || e.evt.button !== 0) {
-      return; // Deixa o Stage lidar com o drag
+      return;
     }
 
-    // Se clicar em um elemento existente com Select, o evento do elemento lida com isso.
-    // Aqui lidamos com cliques no VAZIO ou início de desenho.
     if (tool === "select") {
       checkDeselect(e);
       return;
     }
 
     const { x, y, rawX, rawY } = getPointerPos(e.target.getStage());
+
+    if (tool === "fog") {
+      setIsDrawing(true);
+      paintFog(rawX, rawY);
+      return;
+    }
 
     if (tool === "text") {
       setTextPos({ x, y });
@@ -256,6 +343,13 @@ const MapEditor = () => {
     if (!isDrawing || tool === "pan" || tool === "select") return;
     const { x, y, rawX, rawY } = getPointerPos(e.target.getStage());
 
+    if (tool === "fog") {
+      paintFog(rawX, rawY);
+      return;
+    }
+
+    if (!currentElement) return;
+
     const relX = (tool === "brush" ? rawX : x) - currentElement.x;
     const relY = (tool === "brush" ? rawY : y) - currentElement.y;
 
@@ -274,6 +368,11 @@ const MapEditor = () => {
   };
 
   const handleMouseUp = () => {
+    if (tool === "fog") {
+      setIsDrawing(false);
+      return;
+    }
+
     if (isDrawing && currentElement) {
       setIsDrawing(false);
       if (tool === "ruler" || tool === "line") {
@@ -369,9 +468,6 @@ const MapEditor = () => {
       stroke: el.stroke,
       strokeWidth: el.strokeWidth,
       draggable: tool === "select",
-
-      // CORREÇÃO DO BUG DA CÂMERA:
-      // Impede que o clique no elemento propague para o Stage (que tenta fazer Pan ou Deselect)
       onMouseDown: (e) => {
         e.cancelBubble = true;
         handleSelect(el.id);
@@ -380,7 +476,6 @@ const MapEditor = () => {
         e.cancelBubble = true;
         handleSelect(el.id);
       },
-
       onDragEnd: handleDragEnd,
       onTransformEnd: handleTransformEnd,
       x: el.x,
@@ -402,18 +497,22 @@ const MapEditor = () => {
       if (!el.points || el.points.length < 4) return null;
       const x2 = el.points[2];
       const y2 = el.points[3];
-      const distancePx = Math.sqrt(x2 * x2 + y2 * y2);
-      const cells = distancePx / (cellSize || 50);
-      const meters = (cells * 1.5).toFixed(1);
+      const safeCellSize = cellSize || 50;
+
+      const startCell = pointToCell(el.x, el.y, safeCellSize);
+      const endCell = pointToCell(el.x + x2, el.y + y2, safeCellSize);
+      const distanceFeet = calculateDistance(startCell.col, startCell.row, endCell.col, endCell.row, 5, rulerVariant);
+      const labelText = formatDistance(distanceFeet, rulerUnit);
+
       return (
         <Group {...commonProps}>
-          <Line points={[0, 0, x2, y2]} stroke={el.stroke} strokeWidth={2} dash={[10, 5]} />
+          <Line points={[0, 0, x2, y2]} stroke={el.stroke || "#e5b324"} strokeWidth={3} dash={[10, 5]} />
           <Label x={x2 / 2} y={y2 / 2}>
-            <Tag fill="rgba(0,0,0,0.7)" cornerRadius={5} />
-            <Text text={`${meters}m`} fill="white" padding={5} fontSize={14} />
+            <Tag fill="rgba(24,20,18,0.92)" cornerRadius={6} stroke="rgba(212,175,55,0.4)" strokeWidth={1} />
+            <Text text={labelText} fill="#e5b324" padding={6} fontSize={13} fontFamily="Cinzel" fontStyle="bold" />
           </Label>
-          <Circle x={0} y={0} radius={3} fill={el.stroke} />
-          <Circle x={x2} y={y2} radius={3} fill={el.stroke} />
+          <Circle x={0} y={0} radius={4} fill={el.stroke || "#e5b324"} />
+          <Circle x={x2} y={y2} radius={4} fill={el.stroke || "#e5b324"} />
         </Group>
       );
     } else if (el.tool === "image") {
@@ -446,6 +545,13 @@ const MapEditor = () => {
         strokeWidth={strokeWidth} setStrokeWidth={setStrokeWidth}
         onUndo={handleUndo}
         onOpenSettings={() => setSettingsOpen(true)}
+        snapMode={snapMode} setSnapMode={setSnapMode}
+        rulerVariant={rulerVariant} setRulerVariant={setRulerVariant}
+        rulerUnit={rulerUnit} setRulerUnit={setRulerUnit}
+        fogMode={fogMode} setFogMode={setFogMode}
+        fogBrushRadius={fogBrushRadius} setFogBrushRadius={setFogBrushRadius}
+        onFogFillAll={handleFogFillAll} onFogClearAll={handleFogClearAll}
+        onExportImage={handleExportImage} onExportUniversalVTT={handleExportUniversalVTT}
       />
 
       <LayersPanel
@@ -487,13 +593,12 @@ const MapEditor = () => {
         onMousemove={handleMouseMove}
         onMouseup={handleMouseUp}
         onWheel={handleWheel}
-        draggable={tool === "pan"} // Stage só é arrastável se a ferramenta for PAN
+        draggable={tool === "pan"}
         scaleX={stageScale}
         scaleY={stageScale}
         x={stagePos.x}
         y={stagePos.y}
         onDragEnd={(e) => {
-          // Garante que é o Stage que está sendo arrastado e não um elemento
           if (e.target === stageRef.current) {
             setStagePos({ x: e.target.x(), y: e.target.y() });
           }
@@ -522,6 +627,21 @@ const MapEditor = () => {
             anchorFill="#fff"
           />
         </Layer>
+
+        {/* Camada de Névoa de Guerra (Fog of War) */}
+        {fogCanvas && (
+          <Layer ref={fogLayerRef} listening={false}>
+            <KonvaImage
+              image={fogCanvas}
+              x={0}
+              y={0}
+              width={mapWidth * cellSize}
+              height={mapHeight * cellSize}
+              opacity={0.94}
+              listening={false}
+            />
+          </Layer>
+        )}
       </Stage>
     </Box>
   );
