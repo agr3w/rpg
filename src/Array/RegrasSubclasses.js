@@ -63,7 +63,11 @@ export const SUBCLASSES_POR_CLASSE = {
   ],
   "Monge": ["Caminho da Mão Aberta", "Caminho da Sombra", "Caminho dos Quatro Elementos"],
   "Paladino": ["Juramento de Devoção", "Juramento dos Anciões", "Juramento de Vingança"],
-  "Patrulheiro": ["Caçador", "Mestre das Bestas"],
+  "Patrulheiro": [
+    "Conclave do Caçador",
+    "Conclave da Besta",
+    "Conclave do Rastreador Subterrâneo",
+  ],
 };
 
 /**

@@ -95,11 +95,20 @@ export default function FeaturesCompendiumModal({
       if (categoryTab === "raca") {
         matchAba = cat === "raca" || cat === "subraca" || orig === "raca";
       } else if (categoryTab === "classe") {
-        matchAba = cat === "classe" || cat === "subclasse" || orig === "classe";
+        matchAba =
+          cat === "classe" ||
+          cat === "subclasse" ||
+          cat === "estilo_luta" ||
+          cat === "disciplina_elemental" ||
+          orig === "classe";
       } else if (categoryTab === "invocacao" || categoryTab === "invocacoes") {
         matchAba = cat === "invocacao";
       } else if (categoryTab === "metamagica" || categoryTab === "metamagicas") {
         matchAba = cat === "metamagica";
+      } else if (categoryTab === "manobra" || categoryTab === "manobras") {
+        matchAba = cat === "manobra";
+      } else if (categoryTab === "disciplina_elemental" || categoryTab === "disciplinas") {
+        matchAba = cat === "disciplina_elemental";
       } else if (categoryTab === "livres" || categoryTab === "talentos") {
         matchAba = cat === "talento" || cat === "livre" || orig === "talento" || orig === "livre";
       }
@@ -275,6 +284,12 @@ export default function FeaturesCompendiumModal({
             {features.some((f) => f.categoria === "metamagica") && (
               <Tab label="Metamágica" value="metamagica" />
             )}
+            {features.some((f) => f.categoria === "manobra") && (
+              <Tab label="Manobras" value="manobra" />
+            )}
+            {features.some((f) => f.categoria === "disciplina_elemental") && (
+              <Tab label="Disciplinas" value="disciplina_elemental" />
+            )}
             <Tab label="Talentos" value="livres" />
           </Tabs>
 
@@ -383,7 +398,13 @@ export default function FeaturesCompendiumModal({
 
                       <Typography variant="caption" sx={{ fontSize: "0.68rem", color: "text.secondary" }}>
                         {feat.origemLabel ||
-                          (feat.categoria === "metamagica"
+                          (feat.categoria === "disciplina_elemental"
+                            ? `Disciplina Elemental (Nível ${feat.nivel || 3})`
+                            : feat.categoria === "manobra"
+                            ? `Manobra (Nível ${feat.nivel || 3})`
+                            : feat.categoria === "estilo_luta"
+                            ? `Estilo de Luta`
+                            : feat.categoria === "metamagica"
                             ? `Metamágica (Nível ${feat.nivel || 3})`
                             : feat.categoria === "invocacao"
                             ? `Invocação Mística (Nível ${feat.nivel || 2})`
