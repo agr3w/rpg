@@ -60,8 +60,10 @@ export default function FeaturesCompendiumModal({
   // Helper para verificar se o personagem possui / desbloqueou a habilidade
   const isFeatureUnlocked = (feat) => {
     if (!feat) return false;
-    if (feat.origem === "raca" || feat.origem === "talento" || feat.origem === "livre") return true;
+    if (feat.adquirida !== undefined) return Boolean(feat.adquirida);
     if (feat.desbloqueado !== undefined) return Boolean(feat.desbloqueado);
+    const cat = String(feat.categoria || feat.origem || "").toLowerCase().trim();
+    if (cat === "raca" || cat === "subraca" || cat === "talento" || cat === "livre") return true;
     const featLvl = Number(feat.nivel || 1);
     return featLvl <= Number(level || 1);
   };
@@ -85,16 +87,26 @@ export default function FeaturesCompendiumModal({
   const filteredFeatures = useMemo(() => {
     const term = searchTerm.toLowerCase().trim();
     return features.filter((feat) => {
+      const cat = String(feat.categoria || feat.origem || "").toLowerCase().trim();
+      const orig = String(feat.origem || "").toLowerCase().trim();
+
       // Filtro de Categoria
-      if (categoryTab === "raca" && feat.origem !== "raca") return false;
-      if (categoryTab === "classe" && feat.origem !== "classe") return false;
-      if (categoryTab === "livres" && feat.origem !== "talento" && feat.origem !== "livre") return false;
+      let matchAba = true;
+      if (categoryTab === "raca") {
+        matchAba = cat === "raca" || cat === "subraca" || orig === "raca";
+      } else if (categoryTab === "classe") {
+        matchAba = cat === "classe" || cat === "subclasse" || orig === "classe";
+      } else if (categoryTab === "livres" || categoryTab === "talentos") {
+        matchAba = cat === "talento" || cat === "livre" || orig === "talento" || orig === "livre";
+      }
+
+      if (!matchAba) return false;
 
       // Filtro de Busca
       if (term) {
         const matchName = String(feat.nome || feat.name || "").toLowerCase().includes(term);
         const matchDesc = String(feat.descricao || feat.description || "").toLowerCase().includes(term);
-        const matchSub = String(feat.subOrigem || "").toLowerCase().includes(term);
+        const matchSub = String(feat.subOrigem || feat.origemLabel || feat.vinculo || "").toLowerCase().includes(term);
         return matchName || matchDesc || matchSub;
       }
       return true;
@@ -358,11 +370,12 @@ export default function FeaturesCompendiumModal({
                       )}
 
                       <Typography variant="caption" sx={{ fontSize: "0.68rem", color: "text.secondary" }}>
-                        {feat.origem === "raca"
-                          ? "Traço Racial"
-                          : feat.origem === "classe"
-                          ? "Recurso de Classe"
-                          : "Talento / Livre"}
+                        {feat.origemLabel ||
+                          (feat.categoria === "classe" || feat.categoria === "subclasse" || feat.origem === "classe"
+                            ? `${feat.vinculo || "Classe"} (Nível ${feat.nivel || 1})`
+                            : feat.categoria === "raca" || feat.categoria === "subraca" || feat.origem === "raca"
+                            ? `Raça (${feat.vinculo || "Geral"})`
+                            : "Talento / Livre")}
                       </Typography>
                     </Stack>
                   </Paper>
@@ -451,13 +464,13 @@ export default function FeaturesCompendiumModal({
 
                   <Chip
                     label={
-                      selectedFeature.subOrigem
-                        ? `${selectedFeature.subOrigem}`
-                        : selectedFeature.origem === "raca"
-                        ? "Traço Racial"
-                        : selectedFeature.origem === "classe"
-                        ? "Recurso de Classe"
-                        : "Talento / Livre"
+                      selectedFeature.origemLabel ||
+                      selectedFeature.subOrigem ||
+                      (selectedFeature.categoria === "classe" || selectedFeature.categoria === "subclasse" || selectedFeature.origem === "classe"
+                        ? `${selectedFeature.vinculo || "Classe"} (Nível ${selectedFeature.nivel || 1})`
+                        : selectedFeature.categoria === "raca" || selectedFeature.categoria === "subraca" || selectedFeature.origem === "raca"
+                        ? `Raça (${selectedFeature.vinculo || "Geral"})`
+                        : "Talento / Livre")
                     }
                     sx={{
                       fontWeight: 700,

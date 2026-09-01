@@ -20,9 +20,9 @@ import FeatureCardItem from "./FeatureCardItem";
 import FeaturesCompendiumModal from "./FeaturesCompendiumModal";
 import AddFeatureModal from "./AddFeatureModal";
 import {
-  getHabilidadesPersonagem,
+  getHabilidadesAtivas,
+  getCompendioProgressao,
   calcularUsosMaximos,
-  getCompendioCompleto,
 } from "../../Array/HabilidadesDB";
 
 export default function FichaHabilidadesPanel({
@@ -65,9 +65,9 @@ export default function FichaHabilidadesPanel({
     };
   }, [ficha, racaNome, subRacaNome, classeNome, levelAtual, abilityMods, customClassFeatures]);
 
-  // 2. Obtenção das habilidades automáticas do personagem (desbloqueadas para o nível atual)
-  const todasHabilidadesAuto = useMemo(() => {
-    const list = getHabilidadesPersonagem(fichaCompleta);
+  // 2. Obtenção das habilidades ATIVAS no nível atual do personagem
+  const habilidadesAtivas = useMemo(() => {
+    const list = getHabilidadesAtivas(fichaCompleta);
     return list.map((h) => {
       const calcMax = calcularUsosMaximos(h, fichaCompleta);
       return {
@@ -81,47 +81,34 @@ export default function FichaHabilidadesPanel({
 
   // 3. Coluna 1 — Traços Raciais
   const habilidadesRaciais = useMemo(() => {
-    return todasHabilidadesAuto.filter(
+    return habilidadesAtivas.filter(
       (h) => h.categoria === "raca" || h.categoria === "subraca" || h.origem === "raca"
     );
-  }, [todasHabilidadesAuto]);
+  }, [habilidadesAtivas]);
 
   // 4. Coluna 2 — Recursos de Classe & Talentos / Habilidades Livres
   const habilidadesClasseELivres = useMemo(() => {
-    const deClasse = todasHabilidadesAuto.filter(
-      (h) => h.categoria === "classe" || h.categoria === "subclasse" || h.origem === "classe"
+    return habilidadesAtivas.filter(
+      (h) =>
+        h.categoria === "classe" ||
+        h.categoria === "subclasse" ||
+        h.categoria === "livre" ||
+        h.categoria === "talento" ||
+        h.origem === "classe" ||
+        h.origem === "talento" ||
+        h.origem === "livre"
     );
-    const livres = (fichaCompleta.habilidadesLivres || []).map((h) => {
-      const calcMax = calcularUsosMaximos(h, fichaCompleta);
-      return {
-        ...h,
-        categoria: "livre",
-        origem: "livre",
-        subOrigem: h.subOrigem || h.vinculo || "Talento / Livre",
-        nivel: Number(h.nivel || h.level || 1),
-        usosMax: calcMax !== null ? calcMax : h.usosMax || null,
-        temUsos: calcMax !== null || Boolean(h.usosMax),
-        desbloqueado: true,
-      };
-    });
-    return [...deClasse, ...livres];
-  }, [todasHabilidadesAuto, fichaCompleta]);
+  }, [habilidadesAtivas]);
 
-  // 5. Lista unificada completa para o Compêndio
+  // 5. Lista completa de progressão (1 ao 20) para o Compêndio
   const allFeaturesForCompendium = useMemo(() => {
-    const list = getCompendioCompleto(fichaCompleta);
+    const list = getCompendioProgressao(fichaCompleta);
     return list.map((h) => {
       const calcMax = calcularUsosMaximos(h, fichaCompleta);
-      const isUnlocked =
-        h.categoria === "raca" ||
-        h.categoria === "subraca" ||
-        h.categoria === "livre" ||
-        Number(h.nivel || 1) <= fichaCompleta.nivel;
       return {
         ...h,
         usosMax: calcMax !== null ? calcMax : h.usosMax,
         temUsos: calcMax !== null || Boolean(h.usosMax),
-        desbloqueado: isUnlocked,
       };
     });
   }, [fichaCompleta]);

@@ -1614,57 +1614,84 @@ export const HABILIDADES_CLASSES = [
 // ==========================================
 
 /**
- * Retorna todas as habilidades que o personagem possui com base na ficha.
+ * Retorna TODAS as habilidades da raça e TODA a árvore da classe (Níveis 1 a 20) para o Compêndio
  */
-export function getHabilidadesPersonagem(ficha, incluirFuturas = false) {
+export function getCompendioProgressao(ficha) {
   if (!ficha) return [];
 
   const racaNorm = normalizeString(ficha.raca);
-  const subracaNorm = normalizeString(ficha.subraca);
+  const subracaNorm = normalizeString(ficha.subraca || ficha.DetalhesDaRaça?.SubRaca);
   const classeNorm = normalizeString(ficha.classe);
   const subclasseNorm = normalizeString(ficha.subclasse);
-  const nivel = Number(ficha.nivel) || 1;
+  const nivelAtual = Number(ficha.nivel || ficha.level) || 1;
 
-  // Filtra traços raciais
+  // Filtra e enriquece traços raciais
   const raciais = HABILIDADES_RACIAIS.filter((h) => {
-    const vinculoNorm = normalizeString(h.vinculo);
-    if (!vinculoNorm) return false;
-
-    const matchRaca = racaNorm && (racaNorm.includes(vinculoNorm) || vinculoNorm.includes(racaNorm));
-    const matchSubraca = subracaNorm && (subracaNorm.includes(vinculoNorm) || vinculoNorm.includes(subracaNorm));
+    const v = normalizeString(h.vinculo);
+    if (!v) return false;
+    const matchRaca = racaNorm && (racaNorm.includes(v) || v.includes(racaNorm));
+    const matchSubraca = subracaNorm && (subracaNorm.includes(v) || v.includes(subracaNorm));
     return matchRaca || matchSubraca;
-  });
+  }).map((h) => ({
+    ...h,
+    categoria: h.categoria || "raca",
+    origem: "raca",
+    adquirida: true,
+    desbloqueado: true,
+    origemLabel: `Raça (${h.vinculo})`,
+    subOrigem: h.vinculo || "Raça",
+  }));
 
-  // Filtra habilidades de classe
+  // Filtra e enriquece recursos de classe (Níveis 1 ao 20)
   const deClasse = HABILIDADES_CLASSES.filter((h) => {
-    const vinculoNorm = normalizeString(h.vinculo);
-    if (!vinculoNorm) return false;
-
-    const matchClasse = classeNorm && (classeNorm.includes(vinculoNorm) || vinculoNorm.includes(classeNorm));
-    const matchSubclasse = subclasseNorm && (subclasseNorm.includes(vinculoNorm) || vinculoNorm.includes(subclasseNorm));
-
-    if (!matchClasse && !matchSubclasse) return false;
-    if (incluirFuturas) return true;
-    return Number(h.nivel || 1) <= nivel;
+    const v = normalizeString(h.vinculo);
+    if (!v) return false;
+    const matchClasse = classeNorm && (classeNorm.includes(v) || v.includes(classeNorm));
+    const matchSubclasse = subclasseNorm && (subclasseNorm.includes(v) || v.includes(subclasseNorm));
+    return matchClasse || matchSubclasse;
+  }).map((h) => {
+    const isAdquirida = Number(h.nivel || 1) <= nivelAtual;
+    return {
+      ...h,
+      categoria: h.categoria || "classe",
+      origem: "classe",
+      adquirida: isAdquirida,
+      desbloqueado: isAdquirida,
+      origemLabel: `${h.vinculo} (Nível ${h.nivel})`,
+      subOrigem: `${h.vinculo} (Nvl ${h.nivel})`,
+    };
   });
 
-  return [...raciais, ...deClasse];
+  // Habilidades personalizadas / livres / talentos
+  const livres = (ficha.habilidadesLivres || []).map((h) => ({
+    ...h,
+    categoria: "livre",
+    origem: "talento",
+    adquirida: true,
+    desbloqueado: true,
+    origemLabel: "Talento / Livre",
+    subOrigem: h.subOrigem || h.vinculo || "Talento / Livre",
+    nivel: Number(h.nivel || h.level || 1),
+    tipoAcao: h.tipoAcao || "Passiva",
+  }));
+
+  return [...raciais, ...deClasse, ...livres];
 }
 
 /**
- * Retorna todas as habilidades de compêndio para uma raça e classe específica
- * (incluindo níveis futuros 1 a 20 e talentos livres cadastrados).
+ * Retorna apenas as habilidades ativas/desbloqueadas no nível atual do personagem
  */
-export function getCompendioCompleto(ficha) {
+export function getHabilidadesAtivas(ficha) {
   if (!ficha) return [];
-  const auto = getHabilidadesPersonagem(ficha, true);
-  const livres = (ficha.habilidadesLivres || []).map((h) => ({
-    ...h,
-    categoria: h.categoria || "livre",
-    origem: h.origem || "talento",
-  }));
-  return [...auto, ...livres];
+  const full = getCompendioProgressao(ficha);
+  return full.filter((h) => h.adquirida);
 }
+
+// Aliases para retrocompatibilidade
+export const getHabilidadesPersonagem = (ficha, incluirFuturas = false) => {
+  return incluirFuturas ? getCompendioProgressao(ficha) : getHabilidadesAtivas(ficha);
+};
+export const getCompendioCompleto = (ficha) => getCompendioProgressao(ficha);
 
 /**
  * Calcula o valor numérico de usos máximos para rastreadores de combate
