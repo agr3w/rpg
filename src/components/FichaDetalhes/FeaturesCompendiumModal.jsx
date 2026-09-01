@@ -96,6 +96,8 @@ export default function FeaturesCompendiumModal({
         matchAba = cat === "raca" || cat === "subraca" || orig === "raca";
       } else if (categoryTab === "classe") {
         matchAba = cat === "classe" || cat === "subclasse" || orig === "classe";
+      } else if (categoryTab === "invocacao" || categoryTab === "invocacoes") {
+        matchAba = cat === "invocacao";
       } else if (categoryTab === "livres" || categoryTab === "talentos") {
         matchAba = cat === "talento" || cat === "livre" || orig === "talento" || orig === "livre";
       }
@@ -247,22 +249,27 @@ export default function FeaturesCompendiumModal({
           <Tabs
             value={categoryTab}
             onChange={(_, val) => setCategoryTab(val)}
-            variant="fullWidth"
+            variant="scrollable"
+            scrollButtons="auto"
             sx={{
               minHeight: 38,
               borderBottom: `1px solid ${strokeColor}`,
               "& .MuiTab-root": {
                 fontFamily: "Cinzel",
                 fontWeight: 800,
-                fontSize: "0.74rem",
+                fontSize: "0.72rem",
                 minHeight: 38,
                 py: 0.5,
+                px: 1.2,
               },
             }}
           >
             <Tab label="Todas" value="todas" />
             <Tab label="Raça" value="raca" />
             <Tab label="Classe" value="classe" />
+            {features.some((f) => f.categoria === "invocacao") && (
+              <Tab label="Invocações" value="invocacao" />
+            )}
             <Tab label="Talentos" value="livres" />
           </Tabs>
 
