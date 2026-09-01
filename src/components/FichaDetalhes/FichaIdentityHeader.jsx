@@ -27,8 +27,13 @@ import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import InfoIcon from "@mui/icons-material/Info";
 import AutoStoriesIcon from "@mui/icons-material/AutoStories";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import BoltIcon from "@mui/icons-material/Bolt";
+import PsychologyIcon from "@mui/icons-material/Psychology";
 
 import { XP_TABLE, computeLevelFromXp, nextLevelXp } from "Utils/xpTable";
+import { checarPendenciasSubclasse, checarPendenciasSubraca } from "../../Array/RegrasSubclasses";
+import SelectSubclasseModal from "./SelectSubclasseModal";
+import SelectSubracaModal from "./SelectSubracaModal";
 
 export default function FichaIdentityHeader({
   ficha,
@@ -43,6 +48,8 @@ export default function FichaIdentityHeader({
   onPortraitUpload,
   onNameSave,
   onXpSave,
+  onSubclasseSave,
+  onSubracaSave,
 }) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
@@ -52,10 +59,28 @@ export default function FichaIdentityHeader({
   const [nameValue, setNameValue] = useState(fichaBase.nome || "");
   const [savingName, setSavingName] = useState(false);
 
+  // Estado dos modais de Subclasse e Sub-raça
+  const [subclasseModalOpen, setSubclasseModalOpen] = useState(false);
+  const [subracaModalOpen, setSubracaModalOpen] = useState(false);
+
   // Estado do diálogo de XP
   const [xpDialogOpen, setXpDialogOpen] = useState(false);
   const [xpInput, setXpInput] = useState(String(xp || 0));
   const [savingXp, setSavingXp] = useState(false);
+
+  // Validação de pendências de Subclasse e Sub-raça
+  const fichaStatus = useMemo(() => {
+    return {
+      classe: fichaBase.classe || ficha?.classe || "",
+      subclasse: subClasse || fichaBase.subclasse || ficha?.subclasse || "",
+      raca: fichaBase.raca || ficha?.raca || "",
+      subraca: subRaca || fichaBase.subraca || ficha?.subraca || "",
+      nivel: Number(level || ficha?.level || 1),
+    };
+  }, [fichaBase, ficha, subClasse, subRaca, level]);
+
+  const subclasseInfo = useMemo(() => checarPendenciasSubclasse(fichaStatus), [fichaStatus]);
+  const subracaInfo = useMemo(() => checarPendenciasSubraca(fichaStatus), [fichaStatus]);
 
   const antecedenteNome =
     typeof antecedente === "string"
@@ -323,6 +348,7 @@ export default function FichaIdentityHeader({
             direction="row"
             spacing={1}
             useFlexGap
+            alignItems="center"
             sx={{
               flexWrap: "wrap",
               justifyContent: { xs: "center", sm: "flex-start" },
@@ -330,36 +356,98 @@ export default function FichaIdentityHeader({
             }}
           >
             {/* Classe & Subclasse */}
-            <Chip
-              icon={<AccountTreeIcon sx={{ color: `${accentColor} !important` }} />}
-              label={
-                subClasse
-                  ? `${fichaBase.classe || "Aventureiro"} (${subClasse})`
-                  : fichaBase.classe || "Aventureiro"
-              }
-              size="small"
-              sx={{
-                fontWeight: 700,
-                border: `1px solid ${strokeColor}`,
-                bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)",
-              }}
-            />
+            <Tooltip title={subclasseInfo.opcoesDisponiveis.length > 0 ? "Clique para gerenciar Subclasse" : ""}>
+              <Chip
+                icon={<AccountTreeIcon sx={{ color: `${accentColor} !important` }} />}
+                label={
+                  subClasse
+                    ? `${fichaBase.classe || "Aventureiro"} (${subClasse})`
+                    : fichaBase.classe || "Aventureiro"
+                }
+                size="small"
+                onClick={subclasseInfo.opcoesDisponiveis.length > 0 ? () => setSubclasseModalOpen(true) : undefined}
+                clickable={subclasseInfo.opcoesDisponiveis.length > 0}
+                sx={{
+                  fontWeight: 700,
+                  border: `1px solid ${strokeColor}`,
+                  bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)",
+                  cursor: subclasseInfo.opcoesDisponiveis.length > 0 ? "pointer" : "default",
+                  "&:hover": subclasseInfo.opcoesDisponiveis.length > 0 ? { borderColor: accentColor } : {},
+                }}
+              />
+            </Tooltip>
+
+            {/* Badge Pulsante de Subclasse Pendente */}
+            {subclasseInfo.pendente && (
+              <Tooltip title={`Sua classe desbloqueia subclasse no nível ${subclasseInfo.nivelRequerido}. Clique para escolher!`}>
+                <Chip
+                  icon={<BoltIcon sx={{ color: "#000 !important" }} />}
+                  label="Escolha sua Subclasse!"
+                  onClick={() => setSubclasseModalOpen(true)}
+                  size="small"
+                  clickable
+                  sx={{
+                    fontWeight: 900,
+                    fontFamily: "Cinzel",
+                    bgcolor: "#ffd700",
+                    color: "#000",
+                    border: "1.5px solid #ffb300",
+                    boxShadow: "0 0 10px rgba(255, 215, 0, 0.6)",
+                    cursor: "pointer",
+                    animation: "pulse 2s infinite ease-in-out",
+                    "@keyframes pulse": {
+                      "0%": { transform: "scale(1)", boxShadow: "0 0 4px rgba(255, 215, 0, 0.4)" },
+                      "50%": { transform: "scale(1.04)", boxShadow: "0 0 14px rgba(255, 215, 0, 0.8)" },
+                      "100%": { transform: "scale(1)", boxShadow: "0 0 4px rgba(255, 215, 0, 0.4)" },
+                    },
+                    "&:hover": { bgcolor: "#ffca28" },
+                  }}
+                />
+              </Tooltip>
+            )}
 
             {/* Raça & Sub-raça */}
-            <Chip
-              icon={<InfoIcon sx={{ color: `${accentColor} !important` }} />}
-              label={
-                subRaca
-                  ? `${fichaBase.raca || "Humano"} (${subRaca})`
-                  : fichaBase.raca || "Humano"
-              }
-              size="small"
-              sx={{
-                fontWeight: 700,
-                border: `1px solid ${strokeColor}`,
-                bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)",
-              }}
-            />
+            <Tooltip title={subracaInfo.opcoesDisponiveis.length > 0 ? "Clique para gerenciar Sub-raça" : ""}>
+              <Chip
+                icon={<InfoIcon sx={{ color: `${accentColor} !important` }} />}
+                label={
+                  subRaca
+                    ? `${fichaBase.raca || "Humano"} (${subRaca})`
+                    : fichaBase.raca || "Humano"
+                }
+                size="small"
+                onClick={subracaInfo.opcoesDisponiveis.length > 0 ? () => setSubracaModalOpen(true) : undefined}
+                clickable={subracaInfo.opcoesDisponiveis.length > 0}
+                sx={{
+                  fontWeight: 700,
+                  border: `1px solid ${strokeColor}`,
+                  bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)",
+                  cursor: subracaInfo.opcoesDisponiveis.length > 0 ? "pointer" : "default",
+                  "&:hover": subracaInfo.opcoesDisponiveis.length > 0 ? { borderColor: accentColor } : {},
+                }}
+              />
+            </Tooltip>
+
+            {/* Badge de Sub-raça Pendente */}
+            {subracaInfo.pendente && (
+              <Tooltip title="Esta raça possui sub-raças disponíveis. Clique para selecionar!">
+                <Chip
+                  icon={<PsychologyIcon sx={{ color: "#fff !important", fontSize: "14px !important" }} />}
+                  label="Escolher Sub-raça"
+                  onClick={() => setSubracaModalOpen(true)}
+                  size="small"
+                  clickable
+                  sx={{
+                    fontWeight: 800,
+                    fontFamily: "Cinzel",
+                    bgcolor: isDark ? "rgba(186, 104, 200, 0.3)" : "rgba(142, 36, 170, 0.2)",
+                    color: isDark ? "#ce93d8" : "#6a1b9a",
+                    border: `1px solid ${isDark ? "#ba68c8" : "#8e24aa"}`,
+                    cursor: "pointer",
+                  }}
+                />
+              </Tooltip>
+            )}
 
             {/* Antecedente */}
             <Chip
@@ -553,6 +641,25 @@ export default function FichaIdentityHeader({
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Modal de Seleção de Subclasse */}
+      <SelectSubclasseModal
+        open={subclasseModalOpen}
+        onClose={() => setSubclasseModalOpen(false)}
+        classeNome={fichaBase.classe || ficha?.classe || ""}
+        currentSubclasse={subClasse || fichaBase.subclasse || ficha?.subclasse || ""}
+        onSelectSubclasse={(newSub) => onSubclasseSave?.(newSub)}
+        level={currentLvl}
+      />
+
+      {/* Modal de Seleção de Sub-raça */}
+      <SelectSubracaModal
+        open={subracaModalOpen}
+        onClose={() => setSubracaModalOpen(false)}
+        racaNome={fichaBase.raca || ficha?.raca || ""}
+        currentSubraca={subRaca || fichaBase.subraca || ficha?.subraca || ""}
+        onSelectSubraca={(newSubRaca) => onSubracaSave?.(newSubRaca)}
+      />
     </Paper>
   );
 }

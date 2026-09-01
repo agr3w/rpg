@@ -19,11 +19,14 @@ import SecurityIcon from "@mui/icons-material/Security";
 import FeatureCardItem from "./FeatureCardItem";
 import FeaturesCompendiumModal from "./FeaturesCompendiumModal";
 import AddFeatureModal from "./AddFeatureModal";
+import SelectSubclasseModal from "./SelectSubclasseModal";
 import {
   getHabilidadesAtivas,
   getCompendioProgressao,
   calcularUsosMaximos,
 } from "../../Array/HabilidadesDB";
+import { checarPendenciasSubclasse } from "../../Array/RegrasSubclasses";
+import BoltIcon from "@mui/icons-material/Bolt";
 
 export default function FichaHabilidadesPanel({
   ficha = {},
@@ -38,6 +41,7 @@ export default function FichaHabilidadesPanel({
   usosHabilidades = {},
   onChangeUsosHabilidades,
   abilityMods = {},
+  onSubclasseSave,
 }) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
@@ -50,6 +54,7 @@ export default function FichaHabilidadesPanel({
   const [compendiumFocusId, setCompendiumFocusId] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editingCustomFeature, setEditingCustomFeature] = useState(null);
+  const [subclasseModalOpen, setSubclasseModalOpen] = useState(false);
 
   // 1. Objeto unificado com dados da ficha para cálculos dinâmicos
   const fichaCompleta = useMemo(() => {
@@ -64,6 +69,8 @@ export default function FichaHabilidadesPanel({
       habilidadesLivres: ficha?.habilidadesLivres || customClassFeatures || [],
     };
   }, [ficha, racaNome, subRacaNome, classeNome, levelAtual, abilityMods, customClassFeatures]);
+
+  const subclasseInfo = useMemo(() => checarPendenciasSubclasse(fichaCompleta), [fichaCompleta]);
 
   // 2. Obtenção das habilidades ATIVAS no nível atual do personagem
   const habilidadesAtivas = useMemo(() => {
@@ -329,6 +336,57 @@ export default function FichaHabilidadesPanel({
             />
           </Box>
 
+          {/* Banner de Subclasse Pendente */}
+          {subclasseInfo.pendente && (
+            <Paper
+              elevation={0}
+              onClick={() => setSubclasseModalOpen(true)}
+              sx={{
+                p: 1.5,
+                mb: 1.5,
+                borderRadius: 2,
+                bgcolor: isDark ? "rgba(255, 215, 0, 0.1)" : "rgba(255, 215, 0, 0.16)",
+                border: "1.5px dashed #ffd700",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 1,
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  bgcolor: isDark ? "rgba(255, 215, 0, 0.18)" : "rgba(255, 215, 0, 0.24)",
+                },
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <BoltIcon sx={{ color: "#ffd700", fontSize: 22 }} />
+                <Box>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 900, fontFamily: "Cinzel", color: isDark ? "#ffe082" : "#8d4f00" }}>
+                    Subclasse Pendente!
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                    Seu {fichaCompleta.classe} atingiu o nível {fichaCompleta.nivel}. Clique para escolher seu arquétipo.
+                  </Typography>
+                </Box>
+              </Box>
+              <Button
+                type="button"
+                size="small"
+                variant="contained"
+                sx={{
+                  bgcolor: "#ffd700",
+                  color: "#000",
+                  fontFamily: "Cinzel",
+                  fontWeight: 800,
+                  fontSize: "0.72rem",
+                  "&:hover": { bgcolor: "#ffca28" },
+                }}
+              >
+                Escolher
+              </Button>
+            </Paper>
+          )}
+
           {habilidadesClasseELivres.length === 0 ? (
             <Paper
               elevation={0}
@@ -392,6 +450,16 @@ export default function FichaHabilidadesPanel({
         }}
         onSave={handleSaveCustomFeature}
         editingFeature={editingCustomFeature}
+      />
+
+      {/* Modal de Seleção de Subclasse */}
+      <SelectSubclasseModal
+        open={subclasseModalOpen}
+        onClose={() => setSubclasseModalOpen(false)}
+        classeNome={fichaCompleta.classe}
+        currentSubclasse={fichaCompleta.subclasse}
+        onSelectSubclasse={(newSub) => onSubclasseSave?.(newSub)}
+        level={fichaCompleta.nivel}
       />
     </Paper>
   );

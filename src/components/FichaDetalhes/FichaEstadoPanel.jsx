@@ -106,6 +106,7 @@ export default function FichaEstadoPanel({
   sectionMotion,
   loadingEquipped,
   loadingBackpack,
+  onSubclasseSave,
 }) {
   const profBonus =
     profBonusProp || 2 + Math.floor(Math.max((fichaEstado.level || 1) - 1, 0) / 4);
@@ -340,6 +341,7 @@ export default function FichaEstadoPanel({
           usosHabilidades={usosHabilidades}
           onChangeUsosHabilidades={onChangeUsosHabilidades}
           abilityMods={abilityMods}
+          onSubclasseSave={onSubclasseSave}
         />
       </motion.div>
     </Box>

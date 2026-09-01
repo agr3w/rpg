@@ -492,10 +492,10 @@ export const HABILIDADES_RACIAIS = [
 ];
 
 // ==========================================
-// ⚔️ RECURSOS DE CLASSE (D&D 5e NÍVEIS 1 A 20)
+// 🪓 BÁRBARO - CLASSE BASE E SUBCLASSES (D&D 5e)
 // ==========================================
-export const HABILIDADES_CLASSES = [
-  // --- BÁRBARO ---
+export const HABILIDADES_BARBARO = [
+  // --- CLASSE BASE (NÍVEIS 1 A 20) ---
   {
     id: "barbaro_furia",
     nome: "Fúria",
@@ -504,8 +504,8 @@ export const HABILIDADES_CLASSES = [
     nivel: 1,
     tipoAcao: "Ação Bônus",
     recarga: "Descanso Longo",
-    usosMax: "TABELA_FURIA",
-    descricao: "Dura 1 min. Vantagem em testes e resistências de Força, bônus de dano de fúria (+2 a +4) e resistência a dano de concussão, cortante e perfurante.",
+    usosMax: "TABELA_FURIA", // 2 a 6 usos (Ilimitado no nível 20)
+    descricao: "Dura 1 minuto (termina se você cair inconsciente, encerrar voluntariamente ou passar um turno sem atacar criatura hostil nem sofrer dano). Sem armadura pesada, concede: vantagem em testes e salvaguardas de Força; bônus de dano em ataques corpo a corpo com Força (+2 no 1º nível, +3 no 9º e +4 no 16º); e resistência a dano de concussão, cortante e perfurante. Impede conjurar ou concentrar magias.",
   },
   {
     id: "barbaro_defesa_sem_armadura",
@@ -516,7 +516,7 @@ export const HABILIDADES_CLASSES = [
     tipoAcao: "Passiva",
     recarga: "Nenhum",
     usosMax: null,
-    descricao: "Sem armadura, sua CA é igual a 10 + Modificador de Destreza + Modificador de Constituição (permite escudo).",
+    descricao: "Quando você não estiver vestindo nenhuma armadura, sua CA base é igual a 10 + Modificador de Destreza + Modificador de Constituição. Você pode utilizar um escudo e continuar recebendo este benefício.",
   },
   {
     id: "barbaro_ataque_descuidado",
@@ -527,7 +527,7 @@ export const HABILIDADES_CLASSES = [
     tipoAcao: "Especial",
     recarga: "Ilimitado",
     usosMax: null,
-    descricao: "No primeiro ataque do turno, ganha vantagem em ataques corpo a corpo com Força, mas ataques contra você têm vantagem até o início do seu próximo turno.",
+    descricao: "Ao realizar o seu primeiro ataque no turno, você pode optar por atacar descuidadamente. Você ganha vantagem em jogadas de ataque corpo a corpo usando Força neste turno, mas jogadas de ataque contra você têm vantagem até o início do seu próximo turno.",
   },
   {
     id: "barbaro_sentido_perigo",
@@ -538,7 +538,18 @@ export const HABILIDADES_CLASSES = [
     tipoAcao: "Passiva",
     recarga: "Ilimitado",
     usosMax: null,
-    descricao: "Vantagem em testes de resistência de Destreza contra armadilhas e magias que possa ver.",
+    descricao: "Você possui vantagem em testes de resistência de Destreza contra efeitos que possa ver, como armadilhas e magias (não pode estar cego, surdo ou incapacitado).",
+  },
+  {
+    id: "barbaro_incremento_habilidade_4",
+    nome: "Incremento no Valor de Habilidade (4º Nível)",
+    categoria: "classe",
+    vinculo: "Bárbaro",
+    nivel: 4,
+    tipoAcao: "Passiva",
+    recarga: "Nenhum",
+    usosMax: null,
+    descricao: "Aumenta um atributo à sua escolha em +2 ou dois atributos em +1 (máximo 20). Reocorre nos níveis 8, 12, 16 e 19.",
   },
   {
     id: "barbaro_ataque_extra",
@@ -549,7 +560,7 @@ export const HABILIDADES_CLASSES = [
     tipoAcao: "Passiva",
     recarga: "Nenhum",
     usosMax: null,
-    descricao: "Pode atacar duas vezes sempre que realizar a ação de Ataque no seu turno.",
+    descricao: "Você pode atacar duas vezes, ao invés de uma, sempre que realizar a ação de Ataque no seu turno.",
   },
   {
     id: "barbaro_movimento_rapido",
@@ -560,18 +571,29 @@ export const HABILIDADES_CLASSES = [
     tipoAcao: "Passiva",
     recarga: "Nenhum",
     usosMax: null,
-    descricao: "Seu deslocamento aumenta em +3 metros enquanto não estiver vestindo armadura pesada.",
+    descricao: "Seu deslocamento base de caminhada aumenta em +3 metros enquanto você não estiver usando armadura pesada.",
   },
   {
-    id: "barbaro_critico_brutal",
-    nome: "Crítico Brutal",
+    id: "barbaro_instinto_selvagem",
+    nome: "Instinto Selvagem",
+    categoria: "classe",
+    vinculo: "Bárbaro",
+    nivel: 7,
+    tipoAcao: "Passiva",
+    recarga: "Ilimitado",
+    usosMax: null,
+    descricao: "Você tem vantagem em testes de iniciativa. Além disso, se estiver surpreso no início do combate e não estiver incapacitado, pode agir normalmente no seu primeiro turno desde que entre em Fúria antes de fazer qualquer outra coisa.",
+  },
+  {
+    id: "barbaro_critico_brutal_9",
+    nome: "Crítico Brutal (1 dado)",
     categoria: "classe",
     vinculo: "Bárbaro",
     nivel: 9,
     tipoAcao: "Passiva",
     recarga: "Ilimitado",
     usosMax: null,
-    descricao: "Rola +1 dado de dano adicional em acertos críticos corpo a corpo (+2 dados no 13º e +3 dados no 17º nível).",
+    descricao: "Você rola 1 dado de dano de arma adicional ao calcular o dano extra de um acerto crítico com arma corpo a corpo (+2 dados adicionais no nível 13 e +3 dados no nível 17).",
   },
   {
     id: "barbaro_furia_implacavel",
@@ -582,7 +604,18 @@ export const HABILIDADES_CLASSES = [
     tipoAcao: "Reação",
     recarga: "Descanso Curto",
     usosMax: "ESPECIAL",
-    descricao: "Ao cair para 0 PV em fúria sem morrer, teste Con CD 10 para voltar a 1 PV (CD aumenta em +5 a cada uso até descansar).",
+    descricao: "Se você for reduzido a 0 pontos de vida enquanto estiver em Fúria sem morrer instantaneamente, pode fazer um teste de resistência de Constituição CD 10. Em caso de sucesso, fica com 1 ponto de vida. A cada uso subsequente a CD aumenta em +5, resetando para 10 após um descanso curto ou longo.",
+  },
+  {
+    id: "barbaro_critico_brutal_13",
+    nome: "Crítico Brutal (2 dados)",
+    categoria: "classe",
+    vinculo: "Bárbaro",
+    nivel: 13,
+    tipoAcao: "Passiva",
+    recarga: "Ilimitado",
+    usosMax: null,
+    descricao: "O número de dados de dano adicionais rolados em um acerto crítico corpo a corpo aumenta para 2 dados extras.",
   },
   {
     id: "barbaro_furia_persistente",
@@ -591,9 +624,20 @@ export const HABILIDADES_CLASSES = [
     vinculo: "Bárbaro",
     nivel: 15,
     tipoAcao: "Passiva",
+    recarga: "Nenhum",
+    usosMax: null,
+    descricao: "Sua Fúria é tão intensa que só termina prematuramente se você cair inconsciente ou se decidir terminá-la voluntariamente.",
+  },
+  {
+    id: "barbaro_critico_brutal_17",
+    nome: "Crítico Brutal (3 dados)",
+    categoria: "classe",
+    vinculo: "Bárbaro",
+    nivel: 17,
+    tipoAcao: "Passiva",
     recarga: "Ilimitado",
     usosMax: null,
-    descricao: "Sua fúria é tão intensa que ela só termina precocemente se você cair inconsciente ou se você decidir encerrá-la.",
+    descricao: "O número de dados de dano adicionais rolados em um acerto crítico corpo a corpo aumenta para 3 dados extras.",
   },
   {
     id: "barbaro_forca_indomavel",
@@ -604,21 +648,140 @@ export const HABILIDADES_CLASSES = [
     tipoAcao: "Passiva",
     recarga: "Ilimitado",
     usosMax: null,
-    descricao: "Se o total de um teste de Força for menor que seu valor de Força, você pode usar seu valor de Força no lugar do resultado.",
+    descricao: "Se o resultado total de um teste de Força seu for menor que o seu valor bruto do atributo Força, você pode usar o seu valor de Força no lugar do resultado rolado.",
   },
   {
-    id: "barbaro_campeao_primordial",
-    nome: "Campeão Primordial",
+    id: "barbaro_campeao_primitivo",
+    nome: "Campeão Primitivo",
     categoria: "classe",
     vinculo: "Bárbaro",
     nivel: 20,
     tipoAcao: "Passiva",
     recarga: "Nenhum",
     usosMax: null,
-    descricao: "Seus valores de Força e Constituição aumentam em +4 cada, e seu valor máximo para esses atributos se torna 24.",
+    descricao: "Seus valores de atributo de Força e Constituição aumentam em +4 permanentemente. O seu limite máximo para esses atributos passa a ser 24.",
   },
 
-  // --- BARDO ---
+  // --- SUBCLASSE: CAMINHO DO FURIOSO (PATH OF THE BERSERKER) ---
+  {
+    id: "barbaro_furioso_frenesi",
+    nome: "Frenesi",
+    categoria: "subclasse",
+    vinculo: "Caminho do Furioso",
+    nivel: 3,
+    tipoAcao: "Ação Bônus",
+    recarga: "Descanso Longo",
+    usosMax: null,
+    descricao: "Ao entrar em Fúria, você pode entrar em Frenesi. Pela duração dessa fúria, você pode realizar um ataque corpo a corpo com arma como Ação Bônus em cada um dos seus turnos após o primeiro. Ao término da fúria, você sofre 1 nível de exaustão.",
+  },
+  {
+    id: "barbaro_furioso_furia_inconsciente",
+    nome: "Fúria Inconsciente",
+    categoria: "subclasse",
+    vinculo: "Caminho do Furioso",
+    nivel: 6,
+    tipoAcao: "Passiva",
+    recarga: "Ilimitado",
+    usosMax: null,
+    descricao: "Você não pode ser enfeitiçado ou amedrontado enquanto estiver em Fúria. Se já estiver sob algum desses efeitos ao entrar em Fúria, o efeito é suspenso pela duração da fúria.",
+  },
+  {
+    id: "barbaro_furioso_presenca_intimidante",
+    nome: "Presença Intimidante",
+    categoria: "subclasse",
+    vinculo: "Caminho do Furioso",
+    nivel: 10,
+    tipoAcao: "1 Ação",
+    recarga: "Ilimitado",
+    usosMax: null,
+    descricao: "Com uma Ação, escolhe uma criatura a até 9 metros que possa vê-lo ou ouvi-lo. Ela deve passar em uma salvaguarda de Sabedoria (CD = 8 + Proficiência + Mod. Carisma) ou ficará amedrontada até o fim do seu próximo turno. Você pode gastar uma ação em turnos seguintes para estender a duração. Se passar, fica imune por 24 horas.",
+  },
+  {
+    id: "barbaro_furioso_retaliacao",
+    nome: "Retaliação",
+    categoria: "subclasse",
+    vinculo: "Caminho do Furioso",
+    nivel: 14,
+    tipoAcao: "Reação",
+    recarga: "Ilimitado",
+    usosMax: null,
+    descricao: "Quando sofrer dano de uma criatura visível a até 1,5 metro de você, você pode usar sua Reação para desferir um ataque corpo a corpo com arma contra ela.",
+  },
+
+  // --- SUBCLASSE: CAMINHO DO GUERREIRO TOTÊMICO (PATH OF THE TOTEM WARRIOR) ---
+  {
+    id: "barbaro_totemico_conselheiro_espiritual",
+    nome: "Conselheiro Espiritual",
+    categoria: "subclasse",
+    vinculo: "Caminho do Guerreiro Totêmico",
+    nivel: 3,
+    tipoAcao: "Especial",
+    recarga: "Ilimitado",
+    usosMax: null,
+    descricao: "Você ganha a habilidade de conjurar as magias 'Sentido Bestial' e 'Falar com Animais', mas exclusivamente como rituais.",
+  },
+  {
+    id: "barbaro_totemico_espirito_totemico_3",
+    nome: "Totem Espiritual (3º Nível)",
+    categoria: "subclasse",
+    vinculo: "Caminho do Guerreiro Totêmico",
+    nivel: 3,
+    tipoAcao: "Passiva",
+    recarga: "Especial",
+    usosMax: null,
+    descricao: "Enquanto estiver em Fúria, concede um benefício conforme o animal escolhido:\n• Urso: Resistência a todos os tipos de dano, exceto psíquico.\n• Águia: Desvantagem em ataques de oportunidade contra você e pode usar Disparada como Ação Bônus.\n• Lobo: Seus aliados têm vantagem em ataques corpo a corpo contra inimigos a até 1,5 metro de você.",
+  },
+  {
+    id: "barbaro_totemico_aspecto_da_besta_6",
+    nome: "Aspecto da Besta (6º Nível)",
+    categoria: "subclasse",
+    vinculo: "Caminho do Guerreiro Totêmico",
+    nivel: 6,
+    tipoAcao: "Passiva",
+    recarga: "Nenhum",
+    usosMax: null,
+    descricao: "Concede um benefício permanente conforme o animal escolhido:\n• Urso: Capacidade de carga dobrada e vantagem em testes de Força para empurrar, puxar, erguer ou quebrar objetos.\n• Águia: Enxerga com nitidez a até 1,6 km e penumbra não impõe desvantagem em Percepção.\n• Lobo: Rastreia criaturas a passo rápido e move-se furtivamente a passo normal.",
+  },
+  {
+    id: "barbaro_totemico_andarilho_espiritual",
+    nome: "Andarilho Espiritual",
+    categoria: "subclasse",
+    vinculo: "Caminho do Guerreiro Totêmico",
+    nivel: 10,
+    tipoAcao: "Especial",
+    recarga: "Ilimitado",
+    usosMax: null,
+    descricao: "Você pode conjurar a magia 'Comunhão com a Natureza' como um ritual. Um espírito do seu animal totêmico aparece para transmitir as informações.",
+  },
+  {
+    id: "barbaro_totemico_sintonia_totemica_14",
+    nome: "Sintonia Totêmica (14º Nível)",
+    categoria: "subclasse",
+    vinculo: "Caminho do Guerreiro Totêmico",
+    nivel: 14,
+    tipoAcao: "Especial",
+    recarga: "Ilimitado",
+    usosMax: null,
+    descricao: "Enquanto estiver em Fúria, concede um benefício de combate:\n• Urso: Inimigos a até 1,5 metro de você têm desvantagem em jogadas de ataque contra qualquer alvo que não seja você (se não forem imunes a medo).\n• Águia: Ganha deslocamento de voo igual ao seu deslocamento de caminhada (cai se terminar o turno no ar sem apoio).\n• Lobo: Pode usar uma Ação Bônus para derrubar uma criatura Grande ou menor ao acertá-la com ataque corpo a corpo.",
+  },
+];
+
+// ==========================================
+// 🎵 BARDO - CLASSE BASE E SUBCLASSES (D&D 5e)
+// ==========================================
+export const HABILIDADES_BARDO = [
+  // --- CLASSE BASE (NÍVEIS 1 A 20) ---
+  {
+    id: "bardo_conjuracao",
+    nome: "Conjuração (Bardo)",
+    categoria: "classe",
+    vinculo: "Bardo",
+    nivel: 1,
+    tipoAcao: "Passiva",
+    recarga: "Descanso Longo",
+    usosMax: null,
+    descricao: "Capacidade de conjurar magias usando Carisma como atributo de conjuração (CD = 8 + Proficiência + Mod. Carisma; Ataque = Proficiência + Mod. Carisma). Permite conjurar magias conhecidas como Ritual se tiverem o descritor ritual, e usar instrumentos musicais como foco de conjuração.",
+  },
   {
     id: "bardo_inspiracao",
     nome: "Inspiração de Bardo",
@@ -626,31 +789,20 @@ export const HABILIDADES_CLASSES = [
     vinculo: "Bardo",
     nivel: 1,
     tipoAcao: "Ação Bônus",
-    recarga: "Descanso Longo",
+    recarga: "Descanso Longo", // Torna-se Descanso Curto/Longo no nível 5 com Fonte de Inspiração
     usosMax: "MOD_CAR",
-    descricao: "Gera um dado (d6 no 1º, d8 no 5º, d10 no 10º, d12 no 15º) para um aliado a até 18m somar em 1 ataque, teste ou salvaguarda nos próximos 10 minutos.",
-  },
-  {
-    id: "bardo_conjuracao",
-    nome: "Conjuração de Bardo",
-    categoria: "classe",
-    vinculo: "Bardo",
-    nivel: 1,
-    tipoAcao: "1 Ação",
-    recarga: "Ilimitado",
-    usosMax: null,
-    descricao: "Capacidade de conjurar magias da lista de bardo utilizando Carisma como atributo de conjuração.",
+    descricao: "Com uma Ação Bônus, escolhe uma criatura a até 18 metros que possa ouvi-lo. Ela ganha 1 dado de Inspiração (d6 no nível 1, d8 no nível 5, d10 no nível 10, d12 no nível 15) que pode rolar e somar a 1 teste de atributo, jogada de ataque ou teste de resistência feito nos próximos 10 minutos (antes do Mestre declarar o resultado).",
   },
   {
     id: "bardo_versatilidade",
-    nome: "Versatilidade (Jack of All Trades)",
+    nome: "Versatilidade",
     categoria: "classe",
     vinculo: "Bardo",
     nivel: 2,
     tipoAcao: "Passiva",
     recarga: "Nenhum",
     usosMax: null,
-    descricao: "Adiciona metade do seu bônus de proficiência (arredondado para baixo) em qualquer teste de atributo que não seja proficiente.",
+    descricao: "Adiciona metade do seu bônus de proficiência (arredondado para baixo) em qualquer teste de atributo que você fizer que já não inclua seu bônus de proficiência.",
   },
   {
     id: "bardo_cancao_descanso",
@@ -661,18 +813,29 @@ export const HABILIDADES_CLASSES = [
     tipoAcao: "Passiva",
     recarga: "Descanso Curto",
     usosMax: null,
-    descricao: "Aliados que recuperarem PV gastando Dados de Vida no descanso curto ganham +1d6 PV extras (+1d8 no 9º, +1d10 no 13º, +1d12 no 17º).",
+    descricao: "Durante um descanso curto, você e qualquer aliado que possa ouvir sua atuação e gaste Dados de Vida para curar recupera pontos de vida extras: +1d6 no nível 2, +1d8 no nível 9, +1d10 no nível 13 e +1d12 no nível 17.",
   },
   {
-    id: "bardo_especializacao",
-    nome: "Especialização (Bardo)",
+    id: "bardo_aptidao_3",
+    nome: "Aptidão (3º Nível)",
     categoria: "classe",
     vinculo: "Bardo",
     nivel: 3,
     tipoAcao: "Passiva",
     recarga: "Nenhum",
     usosMax: null,
-    descricao: "Escolha duas de suas perícias proficientes. Seu bônus de proficiência é dobrado para qualquer teste de atributo que você fizer usando qualquer uma das perícias escolhidas (mais 2 no nível 10).",
+    descricao: "Escolha duas perícias em que você seja proficiente. Seu bônus de proficiência é dobrado em qualquer teste de atributo que utilize qualquer uma das perícias escolhidas.",
+  },
+  {
+    id: "bardo_incremento_habilidade_4",
+    nome: "Incremento no Valor de Habilidade (4º Nível)",
+    categoria: "classe",
+    vinculo: "Bardo",
+    nivel: 4,
+    tipoAcao: "Passiva",
+    recarga: "Nenhum",
+    usosMax: null,
+    descricao: "Aumenta um valor de atributo à sua escolha em +2 ou dois atributos em +1 (máximo 20). Reocorre nos níveis 8, 12, 16 e 19.",
   },
   {
     id: "bardo_fonte_inspiracao",
@@ -683,7 +846,7 @@ export const HABILIDADES_CLASSES = [
     tipoAcao: "Passiva",
     recarga: "Nenhum",
     usosMax: null,
-    descricao: "Você agora recupera todos os usos gastos da sua Inspiração de Bardo após terminar um descanso curto ou longo.",
+    descricao: "Você agora recupera todos os usos gastos da sua Inspiração de Bardo após concluir um descanso curto ou longo.",
   },
   {
     id: "bardo_cancao_protecao",
@@ -694,18 +857,51 @@ export const HABILIDADES_CLASSES = [
     tipoAcao: "1 Ação",
     recarga: "Ilimitado",
     usosMax: null,
-    descricao: "Inicia atuação até o fim do próximo turno concedendo vantagem em testes contra medo e encantamento para aliados a até 9 metros.",
+    descricao: "Com uma Ação, inicia uma atuação que dura até o fim do seu próximo turno. Durante esse período, você e aliados a até 9 metros ganham vantagem em testes de resistência contra ficar amedrontado ou enfeitiçado enquanto puderem ouvi-lo.",
   },
   {
-    id: "bardo_segredos_magicos",
-    nome: "Segredos Mágicos",
+    id: "bardo_segredos_magicos_10",
+    nome: "Segredos Mágicos (10º Nível)",
     categoria: "classe",
     vinculo: "Bardo",
     nivel: 10,
     tipoAcao: "Passiva",
     recarga: "Nenhum",
     usosMax: null,
-    descricao: "Aprende 2 magias de qualquer classe nos níveis 10, 14 e 18, contando como magias de bardo.",
+    descricao: "Aprende duas magias ou truques de qualquer classe de níveis que você possa conjurar. Elas contam como magias de bardo para você e estão incluídas no limite de magias conhecidas.",
+  },
+  {
+    id: "bardo_aptidao_10",
+    nome: "Aptidão (10º Nível)",
+    categoria: "classe",
+    vinculo: "Bardo",
+    nivel: 10,
+    tipoAcao: "Passiva",
+    recarga: "Nenhum",
+    usosMax: null,
+    descricao: "Escolha mais duas perícias em que você é proficiente para ter o seu bônus de proficiência dobrado nos testes de atributo.",
+  },
+  {
+    id: "bardo_segredos_magicos_14",
+    nome: "Segredos Mágicos (14º Nível)",
+    categoria: "classe",
+    vinculo: "Bardo",
+    nivel: 14,
+    tipoAcao: "Passiva",
+    recarga: "Nenhum",
+    usosMax: null,
+    descricao: "Aprende mais duas magias ou truques adicionais de qualquer classe que você possa conjurar, contando como magias de bardo.",
+  },
+  {
+    id: "bardo_segredos_magicos_18",
+    nome: "Segredos Mágicos (18º Nível)",
+    categoria: "classe",
+    vinculo: "Bardo",
+    nivel: 18,
+    tipoAcao: "Passiva",
+    recarga: "Nenhum",
+    usosMax: null,
+    descricao: "Aprende mais duas magias ou truques adicionais de qualquer classe que você possa conjurar, contando como magias de bardo.",
   },
   {
     id: "bardo_inspiracao_superior",
@@ -716,8 +912,111 @@ export const HABILIDADES_CLASSES = [
     tipoAcao: "Passiva",
     recarga: "Especial",
     usosMax: null,
-    descricao: "Quando você rolar iniciativa e não tiver nenhum uso de Inspiração de Bardo restante, você recupera um uso.",
+    descricao: "Ao rolar Iniciativa no início de um combate, se você não possuir nenhum uso restante de Inspiração de Bardo, você recupera imediatamente 1 uso.",
   },
+
+  // --- SUBCLASSE: COLÉGIO DO CONHECIMENTO (COLLEGE OF LORE) ---
+  {
+    id: "bardo_conhecimento_proficiencias",
+    nome: "Proficiência Adicional (Conhecimento)",
+    categoria: "subclasse",
+    vinculo: "Colégio do Conhecimento",
+    nivel: 3,
+    tipoAcao: "Passiva",
+    recarga: "Nenhum",
+    usosMax: null,
+    descricao: "Ao escolher este colégio no 3º nível, você ganha proficiência em três perícias à sua escolha.",
+  },
+  {
+    id: "bardo_conhecimento_palavras_interrupcao",
+    nome: "Palavras de Interrupção",
+    categoria: "subclasse",
+    vinculo: "Colégio do Conhecimento",
+    nivel: 3,
+    tipoAcao: "Reação",
+    recarga: "Descanso Curto", // Gasta 1 uso de Inspiração de Bardo
+    usosMax: "INSPIRACAO_BARDO",
+    descricao: "Quando uma criatura visível a até 18 metros faz uma jogada de ataque, teste de habilidade ou jogada de dano, você pode gastar 1 uso de Inspiração de Bardo como Reação para rolar o dado e subtrair o valor do resultado da criatura (antes de saber o sucesso/falha do ataque ou antes de aplicar o dano).",
+  },
+  {
+    id: "bardo_conhecimento_segredos_adicionais",
+    nome: "Segredos Mágicos Adicionais",
+    categoria: "subclasse",
+    vinculo: "Colégio do Conhecimento",
+    nivel: 6,
+    tipoAcao: "Passiva",
+    recarga: "Nenhum",
+    usosMax: null,
+    descricao: "Você aprende 2 magias ou truques de qualquer classe que possa conjurar. Elas contam como magias de bardo, mas NÃO contam no limite de magias conhecidas da tabela de Bardo.",
+  },
+  {
+    id: "bardo_conhecimento_pericia_inigualavel",
+    nome: "Perícia Inigualável",
+    categoria: "subclasse",
+    vinculo: "Colégio do Conhecimento",
+    nivel: 14,
+    tipoAcao: "Especial",
+    recarga: "Descanso Curto", // Gasta 1 uso de Inspiração de Bardo
+    usosMax: "INSPIRACAO_BARDO",
+    descricao: "Ao realizar um teste de atributo, você pode gastar 1 uso de Inspiração de Bardo para rolar o dado de inspiração e adicionar o resultado ao seu teste (após rolar o d20, mas antes do Mestre declarar sucesso ou falha).",
+  },
+
+  // --- SUBCLASSE: COLÉGIO DA BRAVURA (COLLEGE OF VALOR) ---
+  {
+    id: "bardo_bravura_proficiencias",
+    nome: "Proficiências em Combate (Bravura)",
+    categoria: "subclasse",
+    vinculo: "Colégio da Bravura",
+    nivel: 3,
+    tipoAcao: "Passiva",
+    recarga: "Nenhum",
+    usosMax: null,
+    descricao: "Ganha proficiência com armaduras médias, escudos e armas marciais.",
+  },
+  {
+    id: "bardo_bravura_inspiracao_combate",
+    nome: "Inspiração em Combate",
+    categoria: "subclasse",
+    vinculo: "Colégio da Bravura",
+    nivel: 3,
+    tipoAcao: "Passiva",
+    recarga: "Especial",
+    usosMax: null,
+    descricao: "Um aliado que possua um dado de Inspiração de Bardo seu pode rolar esse dado e somar o resultado em uma jogada de dano de arma que acabou de realizar. Alternativamente, quando atacado, pode usar sua Reação para rolar o dado e somar à sua CA contra aquele ataque (antes de saber se acertou).",
+  },
+  {
+    id: "bardo_bravura_ataque_extra",
+    nome: "Ataque Extra (Bardo da Bravura)",
+    categoria: "subclasse",
+    vinculo: "Colégio da Bravura",
+    nivel: 6,
+    tipoAcao: "Passiva",
+    recarga: "Nenhum",
+    usosMax: null,
+    descricao: "Você pode atacar duas vezes, em vez de uma, sempre que realizar a ação de Ataque no seu turno.",
+  },
+  {
+    id: "bardo_bravura_magia_de_batalha",
+    nome: "Magia de Batalha",
+    categoria: "subclasse",
+    vinculo: "Colégio da Bravura",
+    nivel: 14,
+    tipoAcao: "Ação Bônus",
+    recarga: "Ilimitado",
+    usosMax: null,
+    descricao: "Quando você usar sua ação para conjurar uma magia de bardo, você pode realizar um ataque com arma corpo a corpo ou à distância como uma Ação Bônus.",
+  },
+];
+
+// ==========================================
+// ⚔️ RECURSOS DE CLASSE (D&D 5e NÍVEIS 1 A 20)
+// ==========================================
+export const HABILIDADES_CLASSES = [
+  // --- BÁRBARO (CLASSE BASE E SUBCLASSES) ---
+  ...HABILIDADES_BARBARO,
+
+  // --- BARDO (CLASSE BASE E SUBCLASSES) ---
+  ...HABILIDADES_BARDO,
 
   // --- GUERREIRO ---
   {
@@ -1622,10 +1921,10 @@ export function getCompendioProgressao(ficha) {
   const racaNorm = normalizeString(ficha.raca);
   const subracaNorm = normalizeString(ficha.subraca || ficha.DetalhesDaRaça?.SubRaca);
   const classeNorm = normalizeString(ficha.classe);
-  const subclasseNorm = normalizeString(ficha.subclasse);
+  const subclasseNorm = normalizeString(ficha.subclasse || ficha.subClasse);
   const nivelAtual = Number(ficha.nivel || ficha.level) || 1;
 
-  // Filtra e enriquece traços raciais
+  // 1. Raciais e Sub-raciais
   const raciais = HABILIDADES_RACIAIS.filter((h) => {
     const v = normalizeString(h.vinculo);
     if (!v) return false;
@@ -1638,22 +1937,20 @@ export function getCompendioProgressao(ficha) {
     origem: "raca",
     adquirida: true,
     desbloqueado: true,
-    origemLabel: `Raça (${h.vinculo})`,
+    origemLabel: h.categoria === "subraca" ? `Sub-raça (${h.vinculo})` : `Raça (${h.vinculo})`,
     subOrigem: h.vinculo || "Raça",
   }));
 
-  // Filtra e enriquece recursos de classe (Níveis 1 ao 20)
-  const deClasse = HABILIDADES_CLASSES.filter((h) => {
+  // 2. Classe Base
+  const deClasseBase = HABILIDADES_CLASSES.filter((h) => {
     const v = normalizeString(h.vinculo);
     if (!v) return false;
-    const matchClasse = classeNorm && (classeNorm.includes(v) || v.includes(classeNorm));
-    const matchSubclasse = subclasseNorm && (subclasseNorm.includes(v) || v.includes(subclasseNorm));
-    return matchClasse || matchSubclasse;
+    return (v === classeNorm || classeNorm.includes(v)) && h.categoria === "classe";
   }).map((h) => {
     const isAdquirida = Number(h.nivel || 1) <= nivelAtual;
     return {
       ...h,
-      categoria: h.categoria || "classe",
+      categoria: "classe",
       origem: "classe",
       adquirida: isAdquirida,
       desbloqueado: isAdquirida,
@@ -1662,7 +1959,31 @@ export function getCompendioProgressao(ficha) {
     };
   });
 
-  // Habilidades personalizadas / livres / talentos
+  // 3. Subclasse (Se selecionada, puxa a árvore dela)
+  let deSubclasse = [];
+  if (subclasseNorm) {
+    deSubclasse = HABILIDADES_CLASSES.filter((h) => {
+      const v = normalizeString(h.vinculo);
+      if (!v) return false;
+      return (
+        (v === subclasseNorm || subclasseNorm.includes(v) || v.includes(subclasseNorm)) &&
+        h.categoria === "subclasse"
+      );
+    }).map((h) => {
+      const isAdquirida = Number(h.nivel || 1) <= nivelAtual;
+      return {
+        ...h,
+        categoria: "subclasse",
+        origem: "classe",
+        adquirida: isAdquirida,
+        desbloqueado: isAdquirida,
+        origemLabel: `Subclasse: ${h.vinculo} (Nível ${h.nivel})`,
+        subOrigem: `${h.vinculo} (Nvl ${h.nivel})`,
+      };
+    });
+  }
+
+  // 4. Habilidades personalizadas / livres / talentos
   const livres = (ficha.habilidadesLivres || []).map((h) => ({
     ...h,
     categoria: "livre",
@@ -1675,7 +1996,7 @@ export function getCompendioProgressao(ficha) {
     tipoAcao: h.tipoAcao || "Passiva",
   }));
 
-  return [...raciais, ...deClasse, ...livres];
+  return [...raciais, ...deClasseBase, ...deSubclasse, ...livres];
 }
 
 /**
@@ -1709,6 +2030,7 @@ export function calcularUsosMaximos(habilidade, ficha) {
 
   switch (habilidade.usosMax) {
     case "MOD_CAR":
+    case "INSPIRACAO_BARDO":
       return Math.max(1, carMod);
     case "MOD_SAB":
       return Math.max(1, sabMod);

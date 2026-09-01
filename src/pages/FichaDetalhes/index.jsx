@@ -727,6 +727,55 @@ const FichaDetalhes = () => {
     }
   };
 
+  // 🔹 salvar subclasse do personagem
+  const handleSubclasseSave = async (subclasse) => {
+    if (!subclasse) return;
+    setFicha((prev) => ({
+      ...(prev || {}),
+      subclasse,
+      DetalhesDaClasse: {
+        ...(prev?.DetalhesDaClasse || {}),
+        SubClasseInfo: {
+          ...(prev?.DetalhesDaClasse?.SubClasseInfo || {}),
+          SubClasse: subclasse,
+        },
+      },
+    }));
+    if (!userID || !fichaKey) return;
+    try {
+      await firebase.database().ref(`fichas/${userID}/${fichaKey}`).update({
+        subclasse,
+        "DetalhesDaClasse/SubClasseInfo/SubClasse": subclasse,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP,
+      });
+    } catch (e) {
+      console.error("Erro ao salvar subclasse:", e);
+    }
+  };
+
+  // 🔹 salvar sub-raça do personagem
+  const handleSubracaSave = async (subraca) => {
+    if (!subraca) return;
+    setFicha((prev) => ({
+      ...(prev || {}),
+      subraca,
+      DetalhesDaRaça: {
+        ...(prev?.DetalhesDaRaça || {}),
+        SubRaca: subraca,
+      },
+    }));
+    if (!userID || !fichaKey) return;
+    try {
+      await firebase.database().ref(`fichas/${userID}/${fichaKey}`).update({
+        subraca,
+        "DetalhesDaRaça/SubRaca": subraca,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP,
+      });
+    } catch (e) {
+      console.error("Erro ao salvar sub-raça:", e);
+    }
+  };
+
   // 🔹 salvar história do personagem (verso)
   const handleStoryChange = async (newStory) => {
     const text = String(newStory || "");
@@ -1089,6 +1138,8 @@ const FichaDetalhes = () => {
               onPortraitUpload={handlePortraitUpload}
               onNameSave={handleNameSave}
               onXpSave={handleXpSave}
+              onSubclasseSave={handleSubclasseSave}
+              onSubracaSave={handleSubracaSave}
             />
           </motion.div>
 
@@ -1228,6 +1279,7 @@ const FichaDetalhes = () => {
                 sectionMotion={sectionMotion}
                 loadingEquipped={loadingEquipped}
                 loadingBackpack={loadingBackpack}
+                onSubclasseSave={handleSubclasseSave}
               />
             )}
           </Box>
