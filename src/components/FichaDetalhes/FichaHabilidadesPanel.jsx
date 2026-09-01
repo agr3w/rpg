@@ -7,7 +7,6 @@ import {
   Stack,
   Button,
   Chip,
-  Divider,
   alpha,
   useTheme,
 } from "@mui/material";
@@ -16,15 +15,15 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 import SecurityIcon from "@mui/icons-material/Security";
-import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 
 import FeatureCardItem from "./FeatureCardItem";
 import FeaturesCompendiumModal from "./FeaturesCompendiumModal";
 import AddFeatureModal from "./AddFeatureModal";
 import {
-  getRacialTraitsForRace,
-  getClassFeaturesForClass,
-} from "../../data/dnd5eFeatures";
+  getHabilidadesPersonagem,
+  calcularUsosMaximos,
+  getCompendioCompleto,
+} from "../../Array/HabilidadesDB";
 
 export default function FichaHabilidadesPanel({
   ficha = {},
@@ -52,50 +51,80 @@ export default function FichaHabilidadesPanel({
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editingCustomFeature, setEditingCustomFeature] = useState(null);
 
-  // 1. Obtenção estruturada dos Traços Raciais
-  const racialTraits = useMemo(() => {
-    return getRacialTraitsForRace(
-      racaNome || ficha?.raca || "Raça",
-      subRacaNome || ficha?.DetalhesDaRaça?.SubRaca || "",
-      habilidadesRaca
+  // 1. Objeto unificado com dados da ficha para cálculos dinâmicos
+  const fichaCompleta = useMemo(() => {
+    return {
+      ...ficha,
+      raca: racaNome || ficha?.raca || "Raça",
+      subraca: subRacaNome || ficha?.subraca || ficha?.DetalhesDaRaça?.SubRaca || "",
+      classe: classeNome || ficha?.classe || "Classe",
+      subclasse: ficha?.subclasse || "",
+      nivel: Number(levelAtual || ficha?.nivel || ficha?.level || 1),
+      atributos: ficha?.atributos || abilityMods || {},
+      habilidadesLivres: ficha?.habilidadesLivres || customClassFeatures || [],
+    };
+  }, [ficha, racaNome, subRacaNome, classeNome, levelAtual, abilityMods, customClassFeatures]);
+
+  // 2. Obtenção das habilidades automáticas do personagem (desbloqueadas para o nível atual)
+  const todasHabilidadesAuto = useMemo(() => {
+    const list = getHabilidadesPersonagem(fichaCompleta);
+    return list.map((h) => {
+      const calcMax = calcularUsosMaximos(h, fichaCompleta);
+      return {
+        ...h,
+        usosMax: calcMax !== null ? calcMax : h.usosMax,
+        temUsos: calcMax !== null || Boolean(h.usosMax),
+        desbloqueado: true,
+      };
+    });
+  }, [fichaCompleta]);
+
+  // 3. Coluna 1 — Traços Raciais
+  const habilidadesRaciais = useMemo(() => {
+    return todasHabilidadesAuto.filter(
+      (h) => h.categoria === "raca" || h.categoria === "subraca" || h.origem === "raca"
     );
-  }, [racaNome, subRacaNome, ficha, habilidadesRaca]);
+  }, [todasHabilidadesAuto]);
 
-  // 2. Obtenção estruturada dos Recursos de Classe (desbloqueados no nível atual)
-  const classFeatures = useMemo(() => {
-    return getClassFeaturesForClass(
-      classeNome || ficha?.classe || "Classe",
-      levelAtual || ficha?.level || 1,
-      classFeaturesProgression,
-      abilityMods
+  // 4. Coluna 2 — Recursos de Classe & Talentos / Habilidades Livres
+  const habilidadesClasseELivres = useMemo(() => {
+    const deClasse = todasHabilidadesAuto.filter(
+      (h) => h.categoria === "classe" || h.categoria === "subclasse" || h.origem === "classe"
     );
-  }, [classeNome, levelAtual, ficha, classFeaturesProgression, abilityMods]);
+    const livres = (fichaCompleta.habilidadesLivres || []).map((h) => {
+      const calcMax = calcularUsosMaximos(h, fichaCompleta);
+      return {
+        ...h,
+        categoria: "livre",
+        origem: "livre",
+        subOrigem: h.subOrigem || h.vinculo || "Talento / Livre",
+        nivel: Number(h.nivel || h.level || 1),
+        usosMax: calcMax !== null ? calcMax : h.usosMax || null,
+        temUsos: calcMax !== null || Boolean(h.usosMax),
+        desbloqueado: true,
+      };
+    });
+    return [...deClasse, ...livres];
+  }, [todasHabilidadesAuto, fichaCompleta]);
 
-  // Filtra apenas os desbloqueados para o painel principal
-  const unlockedClassFeatures = useMemo(() => {
-    return classFeatures.filter((f) => f.desbloqueado);
-  }, [classFeatures]);
-
-  // 3. Obtenção estruturada das Habilidades Livres / Talentos
-  const formattedCustomFeatures = useMemo(() => {
-    return (customClassFeatures || []).map((f) => ({
-      id: f.id || `custom_${f.name}`,
-      nome: f.nome || f.name || "Habilidade Livre",
-      origem: f.origem || "livre",
-      subOrigem: f.subOrigem || "Talento / Livre",
-      nivel: Number(f.nivel || f.level || 1),
-      tipoAcao: f.tipoAcao || "Passiva",
-      recarga: f.recarga || "Ilimitado",
-      temUsos: Boolean(f.temUsos || Number(f.usosMax || 0) > 0),
-      usosMax: Number(f.usosMax || 0),
-      descricao: f.descricao || f.description || "",
-    }));
-  }, [customClassFeatures]);
-
-  // Lista unificada para o Compêndio
+  // 5. Lista unificada completa para o Compêndio
   const allFeaturesForCompendium = useMemo(() => {
-    return [...racialTraits, ...classFeatures, ...formattedCustomFeatures];
-  }, [racialTraits, classFeatures, formattedCustomFeatures]);
+    const list = getCompendioCompleto(fichaCompleta);
+    return list.map((h) => {
+      const calcMax = calcularUsosMaximos(h, fichaCompleta);
+      const isUnlocked =
+        h.categoria === "raca" ||
+        h.categoria === "subraca" ||
+        h.categoria === "livre" ||
+        Number(h.nivel || 1) <= fichaCompleta.nivel;
+      return {
+        ...h,
+        usosMax: calcMax !== null ? calcMax : h.usosMax,
+        temUsos: calcMax !== null || Boolean(h.usosMax),
+        desbloqueado: isUnlocked,
+      };
+    });
+  }, [fichaCompleta]);
 
   // Manipulação de Usos de Habilidades
   const handleDeltaUses = (featureId, nextSpent) => {
@@ -114,14 +143,13 @@ export default function FichaHabilidadesPanel({
 
   // Salvar Habilidade Livre (Nova ou Edição)
   const handleSaveCustomFeature = (savedFeature) => {
-    const isEditing = (customClassFeatures || []).some((f) => f.id === savedFeature.id);
+    const currentList = fichaCompleta.habilidadesLivres || [];
+    const isEditing = currentList.some((f) => f.id === savedFeature.id);
     let nextList;
     if (isEditing) {
-      nextList = (customClassFeatures || []).map((f) =>
-        f.id === savedFeature.id ? savedFeature : f
-      );
+      nextList = currentList.map((f) => (f.id === savedFeature.id ? savedFeature : f));
     } else {
-      nextList = [...(customClassFeatures || []), savedFeature];
+      nextList = [...currentList, savedFeature];
     }
     onChangeCustomClassFeatures?.(nextList);
     setEditingCustomFeature(null);
@@ -129,7 +157,8 @@ export default function FichaHabilidadesPanel({
 
   // Remover Habilidade Livre
   const handleDeleteCustomFeature = (featureId) => {
-    const nextList = (customClassFeatures || []).filter((f) => f.id !== featureId);
+    const currentList = fichaCompleta.habilidadesLivres || [];
+    const nextList = currentList.filter((f) => f.id !== featureId);
     onChangeCustomClassFeatures?.(nextList);
   };
 
@@ -237,11 +266,11 @@ export default function FichaHabilidadesPanel({
                   letterSpacing: 0.5,
                 }}
               >
-                Traços Raciais ({racaNome || ficha?.raca || "Raça"})
+                Traços Raciais ({fichaCompleta.raca})
               </Typography>
             </Box>
             <Chip
-              label={`${racialTraits.length} ${racialTraits.length === 1 ? "traço" : "traços"}`}
+              label={`${habilidadesRaciais.length} ${habilidadesRaciais.length === 1 ? "traço" : "traços"}`}
               size="small"
               sx={{
                 height: 19,
@@ -252,7 +281,7 @@ export default function FichaHabilidadesPanel({
             />
           </Box>
 
-          {racialTraits.length === 0 ? (
+          {habilidadesRaciais.length === 0 ? (
             <Paper
               elevation={0}
               sx={{
@@ -264,12 +293,12 @@ export default function FichaHabilidadesPanel({
               }}
             >
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Nenhum traço racial registrado.
+                Nenhum traço racial registrado para {fichaCompleta.raca}.
               </Typography>
             </Paper>
           ) : (
             <Stack spacing={1.25}>
-              {racialTraits.map((trait) => (
+              {habilidadesRaciais.map((trait) => (
                 <FeatureCardItem
                   key={trait.id}
                   feature={trait}
@@ -282,7 +311,7 @@ export default function FichaHabilidadesPanel({
           )}
         </Grid>
 
-        {/* COLUNA 2: RECURSOS DE CLASSE */}
+        {/* COLUNA 2: RECURSOS DE CLASSE & TALENTOS */}
         <Grid item xs={12} md={6}>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
@@ -298,11 +327,11 @@ export default function FichaHabilidadesPanel({
                   letterSpacing: 0.5,
                 }}
               >
-                Recursos de Classe ({classeNome || ficha?.classe || "Classe"} - Nível {levelAtual})
+                Recursos de Classe & Talentos ({fichaCompleta.classe} - Nível {fichaCompleta.nivel})
               </Typography>
             </Box>
             <Chip
-              label={`${unlockedClassFeatures.length} ${unlockedClassFeatures.length === 1 ? "recurso" : "recursos"}`}
+              label={`${habilidadesClasseELivres.length} ${habilidadesClasseELivres.length === 1 ? "recurso" : "recursos"}`}
               size="small"
               sx={{
                 height: 19,
@@ -313,7 +342,7 @@ export default function FichaHabilidadesPanel({
             />
           </Box>
 
-          {unlockedClassFeatures.length === 0 ? (
+          {habilidadesClasseELivres.length === 0 ? (
             <Paper
               elevation={0}
               sx={{
@@ -325,18 +354,28 @@ export default function FichaHabilidadesPanel({
               }}
             >
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Nenhum recurso de classe disponível para o nível {levelAtual}.
+                Nenhum recurso de classe disponível para o nível {fichaCompleta.nivel}.
               </Typography>
             </Paper>
           ) : (
             <Stack spacing={1.25}>
-              {unlockedClassFeatures.map((feat) => (
+              {habilidadesClasseELivres.map((feat) => (
                 <FeatureCardItem
                   key={feat.id}
                   feature={feat}
                   currentUses={usosHabilidades?.[feat.id] || 0}
                   onDeltaUses={handleDeltaUses}
                   onOpenDetails={handleOpenFeatureInCompendium}
+                  onEdit={
+                    feat.categoria === "livre"
+                      ? (f) => {
+                          setEditingCustomFeature(f);
+                          setAddModalOpen(true);
+                        }
+                      : undefined
+                  }
+                  onDelete={feat.categoria === "livre" ? handleDeleteCustomFeature : undefined}
+                  isCustom={feat.categoria === "livre"}
                 />
               ))}
             </Stack>
@@ -344,68 +383,15 @@ export default function FichaHabilidadesPanel({
         </Grid>
       </Grid>
 
-      {/* SEÇÃO 3: TALENTOS E HABILIDADES LIVRES (Se houver) */}
-      {formattedCustomFeatures.length > 0 && (
-        <Box sx={{ mt: 3, pt: 2, borderTop: `1px solid ${strokeColor}` }}>
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-              <AutoAwesomeIcon sx={{ fontSize: 18, color: isDark ? "#ba68c8" : "#8e24aa" }} />
-              <Typography
-                variant="caption"
-                sx={{
-                  fontFamily: "Cinzel",
-                  fontWeight: 900,
-                  fontSize: "0.85rem",
-                  color: isDark ? "#ba68c8" : "#8e24aa",
-                  textTransform: "uppercase",
-                  letterSpacing: 0.5,
-                }}
-              >
-                Talentos & Habilidades Livres Criadas pelo Jogador
-              </Typography>
-            </Box>
-            <Chip
-              label={`${formattedCustomFeatures.length} ${formattedCustomFeatures.length === 1 ? "habilidade" : "habilidades"}`}
-              size="small"
-              sx={{
-                height: 19,
-                fontSize: "0.68rem",
-                fontWeight: 800,
-                border: `1px solid ${strokeColor}`,
-              }}
-            />
-          </Box>
-
-          <Grid container spacing={1.5}>
-            {formattedCustomFeatures.map((feat) => (
-              <Grid item xs={12} md={6} key={feat.id}>
-                <FeatureCardItem
-                  feature={feat}
-                  currentUses={usosHabilidades?.[feat.id] || 0}
-                  onDeltaUses={handleDeltaUses}
-                  onOpenDetails={handleOpenFeatureInCompendium}
-                  onEdit={(f) => {
-                    setEditingCustomFeature(f);
-                    setAddModalOpen(true);
-                  }}
-                  onDelete={handleDeleteCustomFeature}
-                  isCustom={true}
-                />
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-      )}
-
       {/* Modal de Compêndio de Habilidades */}
       <FeaturesCompendiumModal
         open={compendiumOpen}
         onClose={() => setCompendiumOpen(false)}
         features={allFeaturesForCompendium}
         initialSelectedId={compendiumFocusId}
-        racaNome={racaNome || ficha?.raca || "Raça"}
-        classeNome={classeNome || ficha?.classe || "Classe"}
-        level={levelAtual}
+        racaNome={fichaCompleta.raca}
+        classeNome={fichaCompleta.classe}
+        level={fichaCompleta.nivel}
         usosHabilidades={usosHabilidades}
         onDeltaUses={handleDeltaUses}
       />

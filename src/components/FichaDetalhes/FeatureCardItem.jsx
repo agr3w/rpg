@@ -24,7 +24,7 @@ import BedtimeIcon from "@mui/icons-material/Bedtime";
 import LockIcon from "@mui/icons-material/Lock";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 
-import { getActionTypeStyle } from "../../data/dnd5eFeatures";
+import { getActionTypeStyle } from "../../Array/HabilidadesDB";
 
 export default function FeatureCardItem({
   feature,

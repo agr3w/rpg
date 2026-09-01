@@ -33,7 +33,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import LockIcon from "@mui/icons-material/Lock";
 
-import { getActionTypeStyle } from "../../data/dnd5eFeatures";
+import { getActionTypeStyle } from "../../Array/HabilidadesDB";
 
 export default function FeaturesCompendiumModal({
   open,

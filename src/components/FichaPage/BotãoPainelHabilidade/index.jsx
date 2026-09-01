@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@mui/material";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import FeaturesCompendiumModal from "../../FichaDetalhes/FeaturesCompendiumModal";
-import { getClassFeaturesForClass } from "../../../data/dnd5eFeatures";
+import { getCompendioCompleto } from "../../../Array/HabilidadesDB";
 
 export default function BotaoPainelHabilidade({
   classeNome = "",
@@ -18,9 +18,7 @@ export default function BotaoPainelHabilidade({
   const structuredFeatures =
     features && features.length > 0
       ? features
-      : classeNome
-      ? getClassFeaturesForClass(classeNome, level)
-      : [];
+      : getCompendioCompleto({ classe: classeNome, raca: racaNome, nivel: level });
 
   return (
     <>
