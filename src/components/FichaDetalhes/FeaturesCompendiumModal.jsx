@@ -98,6 +98,8 @@ export default function FeaturesCompendiumModal({
         matchAba = cat === "classe" || cat === "subclasse" || orig === "classe";
       } else if (categoryTab === "invocacao" || categoryTab === "invocacoes") {
         matchAba = cat === "invocacao";
+      } else if (categoryTab === "metamagica" || categoryTab === "metamagicas") {
+        matchAba = cat === "metamagica";
       } else if (categoryTab === "livres" || categoryTab === "talentos") {
         matchAba = cat === "talento" || cat === "livre" || orig === "talento" || orig === "livre";
       }
@@ -270,6 +272,9 @@ export default function FeaturesCompendiumModal({
             {features.some((f) => f.categoria === "invocacao") && (
               <Tab label="Invocações" value="invocacao" />
             )}
+            {features.some((f) => f.categoria === "metamagica") && (
+              <Tab label="Metamágica" value="metamagica" />
+            )}
             <Tab label="Talentos" value="livres" />
           </Tabs>
 
@@ -378,7 +383,11 @@ export default function FeaturesCompendiumModal({
 
                       <Typography variant="caption" sx={{ fontSize: "0.68rem", color: "text.secondary" }}>
                         {feat.origemLabel ||
-                          (feat.categoria === "classe" || feat.categoria === "subclasse" || feat.origem === "classe"
+                          (feat.categoria === "metamagica"
+                            ? `Metamágica (Nível ${feat.nivel || 3})`
+                            : feat.categoria === "invocacao"
+                            ? `Invocação Mística (Nível ${feat.nivel || 2})`
+                            : feat.categoria === "classe" || feat.categoria === "subclasse" || feat.origem === "classe"
                             ? `${feat.vinculo || "Classe"} (Nível ${feat.nivel || 1})`
                             : feat.categoria === "raca" || feat.categoria === "subraca" || feat.origem === "raca"
                             ? `Raça (${feat.vinculo || "Geral"})`

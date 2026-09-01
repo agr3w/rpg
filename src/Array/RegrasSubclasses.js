@@ -39,7 +39,7 @@ export const SUBCLASSES_POR_CLASSE = {
   "Bruxo": ["A Arquifada", "O Corruptor", "O Grande Antigo"],
   "Clérigo": [
     "Domínio do Conhecimento",
-    "Domínio do Engano",
+    "Domínio da Enganação",
     "Domínio da Guerra",
     "Domínio da Luz",
     "Domínio da Morte",
