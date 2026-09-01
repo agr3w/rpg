@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import { Box } from "@mui/material";
 
 import { useAuth } from "contexts/AuthContext";
@@ -23,7 +23,8 @@ export default function AppLayout() {
   const useSimpleTransition = prefs.reduceMotion || prefs.pageTransition === "simple";
 
   return (
-    <Box sx={{ minHeight: "100vh", ...vars, position: "relative" }}>
+    <MotionConfig reducedMotion="user">
+      <Box sx={{ minHeight: "100vh", ...vars, position: "relative" }}>
       {/* ✅ background animado por rota */}
       <RouteBackground forceReduceMotion={Boolean(prefs.reduceMotion)} />
 
@@ -50,5 +51,6 @@ export default function AppLayout() {
         </AnimatePresence>
       </Box>
     </Box>
+  </MotionConfig>
   );
 }

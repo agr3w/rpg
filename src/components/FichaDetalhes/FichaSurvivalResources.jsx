@@ -145,19 +145,21 @@ export default function FichaSurvivalResources({
                 </Box>
 
                 <Tooltip title="Resetar / Estabilizado">
-                  <IconButton
-                    type="button"
-                    size="small"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleResetDeathSaves();
-                    }}
-                    disabled={!deathSaves.successes && !deathSaves.failures}
-                    sx={{ p: 0.4 }}
-                  >
-                    <RestartAltIcon fontSize="small" />
-                  </IconButton>
+                  <span>
+                    <IconButton
+                      type="button"
+                      size="small"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleResetDeathSaves();
+                      }}
+                      disabled={!deathSaves.successes && !deathSaves.failures}
+                      sx={{ p: 0.4 }}
+                    >
+                      <RestartAltIcon fontSize="small" />
+                    </IconButton>
+                  </span>
                 </Tooltip>
               </Box>
 

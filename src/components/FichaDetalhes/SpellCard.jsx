@@ -505,9 +505,10 @@ export default function SpellCard({
                   <MenuItem
                     key={`upcast-${circleLvl}`}
                     onClick={() => handleSelectUpcastCircle(circleLvl)}
-                    sx={{ fontSize: "0.82rem", fontWeight: 700 }}
+                    sx={{ fontSize: "0.82rem", fontWeight: 700, display: "flex", alignItems: "center" }}
                   >
-                    ⚡ {circleLvl}º Círculo
+                    <BoltIcon sx={{ fontSize: 16, mr: 0.75, color: arcanaColor }} />
+                    {circleLvl}º Círculo
                   </MenuItem>
                 ))}
               </Menu>

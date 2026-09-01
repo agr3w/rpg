@@ -785,6 +785,21 @@ const FichaDetalhes = () => {
     }
   };
 
+  const handleUsosHabilidadesChange = async (nextUsos) => {
+    const safe = nextUsos || {};
+    setFicha((prev) => ({ ...(prev || {}), usosHabilidades: safe }));
+
+    if (!userID || !fichaKey) return;
+    try {
+      await firebase
+        .database()
+        .ref(`fichas/${userID}/${fichaKey}/usosHabilidades`)
+        .set(safe);
+    } catch (e) {
+      console.error("Erro ao salvar usos de habilidades:", e);
+    }
+  };
+
   // helpers de inventário (mantém no container)
   const persistInventoryPartial = async (partial) => {
     setFicha((prev) => {
@@ -1201,6 +1216,8 @@ const FichaDetalhes = () => {
                 classFeaturesProgression={classFeaturesProgression}
                 customClassFeatures={customClassFeatures}
                 onChangeCustomClassFeatures={handleCustomClassFeaturesChange}
+                usosHabilidades={ficha.usosHabilidades || {}}
+                onChangeUsosHabilidades={handleUsosHabilidadesChange}
                 classeImagens={ficha.DetalhesDaClasse?.imagens || []}
                 backgroundUrl={backgrounds[ficha.classe]}
                 levelAtual={fichaEstado.level}

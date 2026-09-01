@@ -151,7 +151,7 @@ export default function FichaMagiasPanel({
       // Truque (Sem Custo de Slot)
       setCastFeedback({
         type: "info",
-        message: `✨ ${spell.name} lançado com sucesso! (Truque sem custo de espaço)`,
+        message: `${spell.name} lançado com sucesso! (Truque sem custo de espaço)`,
       });
       return;
     }
@@ -165,7 +165,7 @@ export default function FichaMagiasPanel({
     if (currentUsed >= total) {
       setCastFeedback({
         type: "warning",
-        message: `⚠️ Não há espaços de ${targetCircle}º Círculo disponíveis!`,
+        message: `Não há espaços de ${targetCircle}º Círculo disponíveis!`,
       });
       return;
     }
@@ -189,8 +189,8 @@ export default function FichaMagiasPanel({
     setCastFeedback({
       type: "success",
       message: isUpcast
-        ? `⚡ ${spell.name} conjurado em ${targetCircle}º Círculo (Upcast)! Restam ${remaining} espaço(s) de ${targetCircle}º Círculo.`
-        : `⚡ ${spell.name} conjurado! Restam ${remaining} espaço(s) de ${targetCircle}º Círculo.`,
+        ? `${spell.name} conjurado em ${targetCircle}º Círculo (Upcast)! Restam ${remaining} espaço(s) de ${targetCircle}º Círculo.`
+        : `${spell.name} conjurado! Restam ${remaining} espaço(s) de ${targetCircle}º Círculo.`,
     });
   };
 

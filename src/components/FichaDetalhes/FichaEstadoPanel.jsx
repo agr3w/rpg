@@ -22,7 +22,7 @@ import Inventory2Icon from "@mui/icons-material/Inventory2";
 import InfoIcon from "@mui/icons-material/Info";
 import { motion } from "framer-motion";
 import FichaTacticalEquipmentHub from "./FichaTacticalEquipmentHub";
-import BotaoPainelHabilidade from "components/FichaPage/BotãoPainelHabilidade";
+import FichaHabilidadesPanel from "./FichaHabilidadesPanel";
 
 // grupos exatamente como na ficha: 1 card por atributo
 const SKILL_GROUPS = [
@@ -98,6 +98,8 @@ export default function FichaEstadoPanel({
   classFeaturesProgression = [],
   customClassFeatures = [],
   onChangeCustomClassFeatures,
+  usosHabilidades = {},
+  onChangeUsosHabilidades,
   classeImagens = [],
   backgroundUrl,
   levelAtual = 1,
@@ -105,64 +107,11 @@ export default function FichaEstadoPanel({
   loadingEquipped,
   loadingBackpack,
 }) {
-  const [featureDialogOpen, setFeatureDialogOpen] = useState(false);
-  const [newFeature, setNewFeature] = useState({
-    name: "",
-    description: "",
-    level: Number(levelAtual || 1),
-  });
-
   const profBonus =
     profBonusProp || 2 + Math.floor(Math.max((fichaEstado.level || 1) - 1, 0) / 4);
 
   const periciasSet = new Set(periciasAtivas || []);
   const savesSet = new Set(savingThrowsAtivos || []);
-
-  const unlockedClassFeatures = useMemo(
-    () =>
-      (classFeaturesProgression || [])
-        .filter((item) => Number(item?.level || 1) <= Number(levelAtual || 1))
-        .sort((a, b) => Number(a.level || 1) - Number(b.level || 1)),
-    [classFeaturesProgression, levelAtual]
-  );
-
-  const newFeaturesThisLevel = useMemo(
-    () =>
-      unlockedClassFeatures.filter(
-        (item) => Number(item?.level || 1) === Number(levelAtual || 1)
-      ),
-    [unlockedClassFeatures, levelAtual]
-  );
-
-  const handleOpenFeatureDialog = () => {
-    setNewFeature({ name: "", description: "", level: Number(levelAtual || 1) });
-    setFeatureDialogOpen(true);
-  };
-
-  const handleAddCustomFeature = () => {
-    const name = String(newFeature.name || "").trim();
-    if (!name || !onChangeCustomClassFeatures) return;
-
-    const next = [
-      ...(customClassFeatures || []),
-      {
-        id: `custom-feature-${Date.now()}`,
-        name,
-        description: String(newFeature.description || "").trim(),
-        level: Math.max(1, Number(newFeature.level || levelAtual || 1)),
-        createdAt: Date.now(),
-      },
-    ];
-
-    onChangeCustomClassFeatures(next);
-    setFeatureDialogOpen(false);
-  };
-
-  const handleRemoveCustomFeature = (id) => {
-    if (!onChangeCustomClassFeatures) return;
-    const next = (customClassFeatures || []).filter((item) => item.id !== id);
-    onChangeCustomClassFeatures(next);
-  };
 
   const toggleSkill = (skillId) => {
     if (!onChangePericiasAtivas) return;
@@ -376,205 +325,23 @@ export default function FichaEstadoPanel({
         />
       </motion.div>
 
-      {/* 4) Habilidades de Raça e de Classe */}
+      {/* 4) Habilidades de Raça, Recursos de Classe & Talentos */}
       <motion.div {...sectionMotion}>
-        <Paper elevation={3} sx={{ p: 2, mb: 2 }}>
-          <Typography variant="h6" sx={{ mb: 1 }}>
-            Habilidades de Raça & Classe
-          </Typography>
-
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                Habilidades de Raça
-              </Typography>
-              {habilidadesRaca.length === 0 ? (
-                <Typography variant="caption" sx={{ opacity: 0.7 }}>
-                  Nenhuma habilidade racial cadastrada.
-                </Typography>
-              ) : (
-                <List dense>
-                  {habilidadesRaca.map((h, idx) => (
-                    <ListItem key={idx}>
-                      <ListItemText primary={h} />
-                    </ListItem>
-                  ))}
-                </List>
-              )}
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                Habilidades de Classe
-              </Typography>
-
-              {/* 🔽 bloco movido pra cá */}
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  flexWrap: "wrap",
-                  mb: 1,
-                }}
-              >
-                <BotaoPainelHabilidade imagens={classeImagens || []} />
-
-                <Button
-                  size="small"
-                  variant="outlined"
-                  onClick={handleOpenFeatureDialog}
-                >
-                  Adicionar habilidade livre
-                </Button>
-
-                {backgroundUrl && (
-                  <Button
-                    size="small"
-                    variant="text"
-                    href={backgroundUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    startIcon={<InfoIcon fontSize="small" />}
-                  >
-                    Ver referência
-                  </Button>
-                )}
-              </Box>
-
-              {newFeaturesThisLevel.length > 0 && (
-                <Box sx={{ mb: 1, display: "flex", gap: 0.5, flexWrap: "wrap" }}>
-                  <Typography variant="caption" sx={{ width: "100%", opacity: 0.8 }}>
-                    Novas no nível {levelAtual}
-                  </Typography>
-                  {newFeaturesThisLevel.map((f) => (
-                    <Chip
-                      key={`new-${f.id}`}
-                      size="small"
-                      label={f.name}
-                      sx={{ bgcolor: "var(--ficha-accent-soft)", border: "1px solid var(--ficha-line)" }}
-                    />
-                  ))}
-                </Box>
-              )}
-
-              {unlockedClassFeatures.length === 0 && (customClassFeatures || []).length === 0 ? (
-                <Typography variant="caption" sx={{ opacity: 0.7 }}>
-                  Nenhuma habilidade de classe cadastrada.
-                </Typography>
-              ) : (
-                <>
-                  {unlockedClassFeatures.length > 0 && (
-                    <List dense>
-                      {unlockedClassFeatures.map((h) => (
-                        <ListItem key={h.id}>
-                          <ListItemText
-                            primary={h.name}
-                            secondary={`Desbloqueada no nível ${h.level}`}
-                          />
-                        </ListItem>
-                      ))}
-                    </List>
-                  )}
-
-                  {(customClassFeatures || []).length > 0 && (
-                    <>
-                      <Divider sx={{ my: 1 }} />
-                      <Typography variant="caption" sx={{ opacity: 0.8 }}>
-                        Habilidades livres criadas pelo jogador
-                      </Typography>
-                      <List dense>
-                        {(customClassFeatures || []).map((h) => (
-                          <ListItem
-                            key={h.id}
-                            secondaryAction={
-                              <Button
-                                size="small"
-                                color="error"
-                                onClick={() => handleRemoveCustomFeature(h.id)}
-                              >
-                                Remover
-                              </Button>
-                            }
-                          >
-                            <ListItemText
-                              primary={h.name}
-                              secondary={
-                                h.description
-                                  ? `${h.description} • Nível ${h.level || 1}`
-                                  : `Nível ${h.level || 1}`
-                              }
-                            />
-                          </ListItem>
-                        ))}
-                      </List>
-                    </>
-                  )}
-                </>
-              )}
-            </Grid>
-          </Grid>
-        </Paper>
+        <FichaHabilidadesPanel
+          ficha={ficha}
+          racaNome={ficha?.raca}
+          subRacaNome={ficha?.DetalhesDaRaça?.SubRaca}
+          classeNome={classe || ficha?.classe}
+          levelAtual={fichaEstado.level || levelAtual}
+          habilidadesRaca={habilidadesRaca}
+          classFeaturesProgression={classFeaturesProgression}
+          customClassFeatures={customClassFeatures}
+          onChangeCustomClassFeatures={onChangeCustomClassFeatures}
+          usosHabilidades={usosHabilidades}
+          onChangeUsosHabilidades={onChangeUsosHabilidades}
+          abilityMods={abilityMods}
+        />
       </motion.div>
-
-      <Dialog
-        open={featureDialogOpen}
-        onClose={() => setFeatureDialogOpen(false)}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: {
-            border: "1px solid var(--ficha-accent-soft, rgba(191,143,0,0.2))",
-            backgroundColor: "var(--ficha-surface, rgba(236,225,207,0.9))",
-            color: "var(--ficha-text, #2f2318)",
-          },
-        }}
-      >
-        <DialogTitle>Nova habilidade de classe (livre)</DialogTitle>
-        <DialogContent dividers>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 0.5 }}>
-            <TextField
-              label="Nome da habilidade"
-              value={newFeature.name}
-              onChange={(e) => setNewFeature((prev) => ({ ...prev, name: e.target.value }))}
-              fullWidth
-            />
-            <TextField
-              label="Descrição"
-              value={newFeature.description}
-              onChange={(e) =>
-                setNewFeature((prev) => ({ ...prev, description: e.target.value }))
-              }
-              fullWidth
-              multiline
-              minRows={3}
-            />
-            <TextField
-              label="Nível de aquisição"
-              type="number"
-              value={newFeature.level}
-              onChange={(e) =>
-                setNewFeature((prev) => ({
-                  ...prev,
-                  level: Math.max(1, Number(e.target.value || 1)),
-                }))
-              }
-              inputProps={{ min: 1 }}
-              sx={{ maxWidth: 220 }}
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setFeatureDialogOpen(false)}>Cancelar</Button>
-          <Button
-            variant="contained"
-            onClick={handleAddCustomFeature}
-            disabled={!String(newFeature.name || "").trim()}
-          >
-            Adicionar
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 }
