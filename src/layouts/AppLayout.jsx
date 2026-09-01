@@ -23,7 +23,7 @@ export default function AppLayout() {
   const useSimpleTransition = prefs.reduceMotion || prefs.pageTransition === "simple";
 
   return (
-    <MotionConfig reducedMotion="user">
+    <MotionConfig reducedMotion="never">
       <Box sx={{ minHeight: "100vh", ...vars, position: "relative" }}>
       {/* ✅ background animado por rota */}
       <RouteBackground forceReduceMotion={Boolean(prefs.reduceMotion)} />

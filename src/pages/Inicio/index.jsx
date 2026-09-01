@@ -257,16 +257,15 @@ const Section = memo(function Section({
 });
 
 export default function Inicio() {
-  const prefersReducedMotion = useReducedMotion();
   const sections = HOME_SECTIONS;
   const { prefs } = usePreferences();
-  const shouldAnimate = !prefersReducedMotion && Number(prefs?.visualQuality ?? 2) > 0;
+  const shouldAnimate = Number(prefs?.visualQuality ?? 2) > 0;
   
   // ✅ Usar o hook aqui
   const system = useSystem();
 
   return (
-    <MotionConfig reducedMotion="user">
+    <MotionConfig reducedMotion="never">
       <PageContainer
         initial="hidden"
         animate="show"

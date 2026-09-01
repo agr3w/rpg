@@ -1131,8 +1131,6 @@ const FichaDetalhes = () => {
             bgcolor: "rgba(22,15,11,0.88)",
             color: "#f7eddc",
             boxShadow: "0 20px 48px rgba(0,0,0,0.45)",
-            transform: "translateZ(0)",
-            contain: "paint",
             backgroundImage:
               "radial-gradient(120% 140% at 0% 0%, var(--ficha-accent-soft) 0%, transparent 45%), radial-gradient(120% 140% at 100% 100%, rgba(131,60,11,0.22) 0%, transparent 55%)",
           }}

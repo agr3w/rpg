@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { MotionConfig } from "framer-motion";
 import { useAuth } from "contexts/AuthContext";
 import { Box, CircularProgress } from "@mui/material";
 
@@ -99,11 +100,13 @@ function Rout() {
 
   return (
     <div style={{ position: "relative", overflowX: "hidden" }}>
-      <Router>
-        <Suspense fallback={Loader}>
-          <AppRoutes />
-        </Suspense>
-      </Router>
+      <MotionConfig reducedMotion="never">
+        <Router>
+          <Suspense fallback={Loader}>
+            <AppRoutes />
+          </Suspense>
+        </Router>
+      </MotionConfig>
     </div>
   );
 }

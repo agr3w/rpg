@@ -179,10 +179,14 @@ function AppCard({
             component="img"
             src={image}
             alt=""
+            loading="lazy"
+            decoding="async"
             sx={{
               width: "100%",
               height: "100%",
               objectFit: "cover",
+              contentVisibility: "auto",
+              transform: "translateZ(0)",
               transition: "transform 180ms ease",
               "@media (hover: hover) and (pointer: fine)": {
                 ".MuiPaper-root:hover &": {
