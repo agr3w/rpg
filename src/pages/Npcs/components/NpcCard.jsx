@@ -76,7 +76,6 @@ function NpcCard({ uid, campaignId, campaignMode = "legacy", npc }) {
         elevation={0}
         sx={{
           borderRadius: 3,
-          border: "1px solid rgba(191,143,0,0.35)",
           overflow: "hidden",
           bgcolor: (t) => (t.palette.mode === "dark" ? "#1e1814" : "#fff8e8"),
           backgroundImage: (t) => t.palette.rpg?.paperBg || "none",

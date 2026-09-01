@@ -387,105 +387,79 @@ export default function FichaCombatHud({
               />
             </Box>
 
-            {/* Ações Rápidas de PV (Incremento, Dano/Cura, Level Up) */}
+            {/* Ações Rápidas de PV (Incremento, Dano/Cura) */}
             <Box sx={{ pt: 0.75, borderTop: `1px solid ${strokeColor}` }}>
-              {pendingLevels > 0 && canRollLevelHp ? (
-                <Button
-                  type="button"
-                  fullWidth
-                  size="small"
-                  variant="contained"
-                  startIcon={<CasinoIcon />}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleRollLevelUpHp();
-                  }}
-                  sx={{
-                    bgcolor: accentColor,
-                    color: "#000",
-                    fontWeight: 900,
-                    fontSize: "0.72rem",
-                    py: 0.4,
-                    animation: "pulse 2s infinite",
-                    "&:hover": { filter: "brightness(0.95)" },
-                  }}
-                >
-                  Rolar +1d{hitDie} ({pendingLevels}x)
-                </Button>
-              ) : (
-                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 0.5 }}>
-                  {/* Botões Rápidos */}
-                  <Stack direction="row" spacing={0.3}>
-                    {[-5, -1, 1, 5].map((amt) => (
-                      <Button
-                        type="button"
-                        key={amt}
-                        size="small"
-                        variant="outlined"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleQuickHpDelta(amt);
-                        }}
-                        sx={{
-                          minWidth: 26,
-                          px: 0.4,
-                          py: 0.1,
-                          fontSize: "0.7rem",
-                          fontWeight: 800,
-                          borderColor: strokeColor,
-                          color: amt < 0 ? "#ef5350" : "#66bb6a",
-                        }}
-                      >
-                        {amt > 0 ? `+${amt}` : amt}
-                      </Button>
-                    ))}
-                  </Stack>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 0.5 }}>
+                {/* Botões Rápidos */}
+                <Stack direction="row" spacing={0.3}>
+                  {[-5, -1, 1, 5].map((amt) => (
+                    <Button
+                      type="button"
+                      key={amt}
+                      size="small"
+                      variant="outlined"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleQuickHpDelta(amt);
+                      }}
+                      sx={{
+                        minWidth: 26,
+                        px: 0.4,
+                        py: 0.1,
+                        fontSize: "0.7rem",
+                        fontWeight: 800,
+                        borderColor: strokeColor,
+                        color: amt < 0 ? "#ef5350" : "#66bb6a",
+                      }}
+                    >
+                      {amt > 0 ? `+${amt}` : amt}
+                    </Button>
+                  ))}
+                </Stack>
 
-                  {/* Input Rápido de Dano / Cura */}
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.4 }}>
-                    <TextField
-                      size="small"
-                      placeholder="Qtd"
-                      type="number"
-                      value={quickAmount}
-                      onChange={(e) => setQuickAmount(e.target.value.replace(/[^\d]/g, ""))}
-                      inputProps={{ min: 1, style: { padding: "2px 4px", fontSize: "0.75rem", width: 32, textAlign: "center" } }}
-                    />
-                    <Button
-                      type="button"
-                      size="small"
-                      variant="contained"
-                      color="error"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleApplyDamageOrHeal(false);
-                      }}
-                      disabled={!quickAmount}
-                      sx={{ minWidth: 26, px: 0.6, py: 0.2, fontSize: "0.68rem", fontWeight: 800 }}
-                    >
-                      Dano
-                    </Button>
-                    <Button
-                      type="button"
-                      size="small"
-                      variant="contained"
-                      color="success"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleApplyDamageOrHeal(true);
-                      }}
-                      disabled={!quickAmount}
-                      sx={{ minWidth: 26, px: 0.6, py: 0.2, fontSize: "0.68rem", fontWeight: 800 }}
-                    >
-                      Cura
-                    </Button>
-                  </Box>
+                {/* Input Rápido de Dano / Cura */}
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.4 }}>
+                  <TextField
+                    size="small"
+                    placeholder="Qtd"
+                    type="number"
+                    value={quickAmount}
+                    onChange={(e) => setQuickAmount(e.target.value.replace(/[^\d]/g, ""))}
+                    inputProps={{ min: 1, style: { padding: "2px 4px", fontSize: "0.75rem", width: 32, textAlign: "center" } }}
+                  />
+                  <Button
+                    type="button"
+                    size="small"
+                    variant="contained"
+                    color="error"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleApplyDamageOrHeal(false);
+                    }}
+                    disabled={!quickAmount}
+                    sx={{ minWidth: 26, px: 0.6, py: 0.2, fontSize: "0.68rem", fontWeight: 800 }}
+                  >
+                    Dano
+                  </Button>
+                  <Button
+                    type="button"
+                    size="small"
+                    variant="contained"
+                    color="success"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleApplyDamageOrHeal(true);
+                    }}
+                    disabled={!quickAmount}
+                    sx={{ minWidth: 26, px: 0.6, py: 0.2, fontSize: "0.68rem", fontWeight: 800 }}
+                  >
+                    Cura
+                  </Button>
                 </Box>
-              )}
+              </Box>
             </Box>
           </Paper>
         </Grid>

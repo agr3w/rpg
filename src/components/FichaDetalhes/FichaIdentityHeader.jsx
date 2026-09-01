@@ -29,11 +29,13 @@ import AutoStoriesIcon from "@mui/icons-material/AutoStories";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import BoltIcon from "@mui/icons-material/Bolt";
 import PsychologyIcon from "@mui/icons-material/Psychology";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 
 import { XP_TABLE, computeLevelFromXp, nextLevelXp } from "Utils/xpTable";
 import { checarPendenciasSubclasse, checarPendenciasSubraca } from "../../Array/RegrasSubclasses";
 import SelectSubclasseModal from "./SelectSubclasseModal";
 import SelectSubracaModal from "./SelectSubracaModal";
+import LevelUpModal from "./LevelUpModal";
 
 export default function FichaIdentityHeader({
   ficha,
@@ -50,6 +52,7 @@ export default function FichaIdentityHeader({
   onXpSave,
   onSubclasseSave,
   onSubracaSave,
+  onLevelUpSave,
 }) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
@@ -59,9 +62,15 @@ export default function FichaIdentityHeader({
   const [nameValue, setNameValue] = useState(fichaBase.nome || "");
   const [savingName, setSavingName] = useState(false);
 
-  // Estado dos modais de Subclasse e Sub-raça
+  // Estado dos modais de Subclasse, Sub-raça e Level Up
   const [subclasseModalOpen, setSubclasseModalOpen] = useState(false);
   const [subracaModalOpen, setSubracaModalOpen] = useState(false);
+  const [levelUpModalOpen, setLevelUpModalOpen] = useState(false);
+  const [levelUpData, setLevelUpData] = useState({
+    fromLevel: 1,
+    toLevel: 2,
+    targetXp: 0,
+  });
 
   // Estado do diálogo de XP
   const [xpDialogOpen, setXpDialogOpen] = useState(false);
@@ -151,16 +160,32 @@ export default function FichaIdentityHeader({
     }
     const parsed = parseInt(xpInput || "0", 10);
     if (Number.isNaN(parsed) || parsed < 0) return;
-    setSavingXp(true);
-    try {
-      if (onXpSave) {
-        await onXpSave(parsed);
+
+    const newCalculatedLevel = computeLevelFromXp(parsed);
+    const prevLevel = currentLvl;
+
+    setXpDialogOpen(false);
+
+    if (newCalculatedLevel > prevLevel) {
+      // Abre o modal de Level Up automaticamente com as etapas necessárias!
+      setLevelUpData({
+        fromLevel: prevLevel,
+        toLevel: newCalculatedLevel,
+        targetXp: parsed,
+      });
+      setLevelUpModalOpen(true);
+    } else {
+      // Salva XP diretamente se não subiu de nível ou diminuiu
+      setSavingXp(true);
+      try {
+        if (onXpSave) {
+          await onXpSave(parsed);
+        }
+      } catch (err) {
+        console.error("Erro ao salvar XP:", err);
+      } finally {
+        setSavingXp(false);
       }
-      setXpDialogOpen(false);
-    } catch (err) {
-      console.error("Erro ao salvar XP:", err);
-    } finally {
-      setSavingXp(false);
     }
   };
 
@@ -659,6 +684,40 @@ export default function FichaIdentityHeader({
         racaNome={fichaBase.raca || ficha?.raca || ""}
         currentSubraca={subRaca || fichaBase.subraca || ficha?.subraca || ""}
         onSelectSubraca={(newSubRaca) => onSubracaSave?.(newSubRaca)}
+      />
+
+      {/* Modal de Subida de Nível Automático (Level Up) */}
+      <LevelUpModal
+        open={levelUpModalOpen}
+        onClose={() => setLevelUpModalOpen(false)}
+        ficha={{
+          ...ficha,
+          ...fichaBase,
+          hp: ficha?.hp || fichaBase?.hp,
+          vidaMax: ficha?.hp?.max || ficha?.vidaMax,
+          vidaAtual: ficha?.hp?.atual || ficha?.vidaAtual,
+          classe: fichaBase.classe || ficha?.classe || "Guerreiro",
+          subclasse: subClasse || fichaBase.subclasse || ficha?.subclasse || "",
+          subraca: subRaca || fichaBase.subraca || ficha?.subraca || "",
+          nivel: levelUpData.fromLevel || currentLvl,
+          level: levelUpData.fromLevel || currentLvl,
+          xp: levelUpData.targetXp || currentXp,
+        }}
+        fromLevel={levelUpData.fromLevel}
+        toLevel={levelUpData.toLevel}
+        targetXp={levelUpData.targetXp}
+        onConfirmLevelUp={(payload) => {
+          if (onLevelUpSave) {
+            onLevelUpSave(payload);
+          } else {
+            if (payload.subclasse && onSubclasseSave) {
+              onSubclasseSave(payload.subclasse);
+            }
+            if (onXpSave && payload.xp !== undefined) {
+              onXpSave(payload.xp);
+            }
+          }
+        }}
       />
     </Paper>
   );

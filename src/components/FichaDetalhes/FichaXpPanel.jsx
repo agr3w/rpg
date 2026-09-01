@@ -10,13 +10,21 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import firebase from "firebase/compat/app";
 import "firebase/database";
 import { XP_TABLE, computeLevelFromXp, nextLevelXp } from "Utils/xpTable";
+import LevelUpModal from "./LevelUpModal";
 
 export default function FichaXpPanel({ userID, fichaKey, ficha, onFichaChange }) {
   const [xpInput, setXpInput] = useState("");
   const [saving, setSaving] = useState(false);
+  const [levelUpModalOpen, setLevelUpModalOpen] = useState(false);
+  const [levelUpData, setLevelUpData] = useState({
+    fromLevel: 1,
+    toLevel: 2,
+    targetXp: 0,
+  });
   const [snack, setSnack] = useState({
     open: false,
     severity: "success",
@@ -75,35 +83,88 @@ export default function FichaXpPanel({ userID, fichaKey, ficha, onFichaChange })
       ficha?.level ?? ficha?.Level ?? computeLevelFromXp(currentXp)
     );
 
-    setSaving(true);
-    try {
-      await firebase.database().ref(`fichas/${userID}/${fichaKey}`).update({
-        xp: parsed,
-        level: newLevel,
-        updatedAt: firebase.database.ServerValue.TIMESTAMP,
+    if (newLevel > prevLevel) {
+      // Abre o modal de Level Up automaticamente com as etapas necessárias!
+      setLevelUpData({
+        fromLevel: prevLevel,
+        toLevel: newLevel,
+        targetXp: parsed,
       });
+      setLevelUpModalOpen(true);
+    } else {
+      setSaving(true);
+      try {
+        await firebase.database().ref(`fichas/${userID}/${fichaKey}`).update({
+          xp: parsed,
+          level: newLevel,
+          nivel: newLevel,
+          updatedAt: firebase.database.ServerValue.TIMESTAMP,
+        });
 
-      onFichaChange?.((old) => ({ ...(old || {}), xp: parsed, level: newLevel }));
+        onFichaChange?.((old) => ({ ...(old || {}), xp: parsed, level: newLevel, nivel: newLevel }));
 
-      setSnack({
-        open: true,
-        severity: "success",
-        message: "XP salvo com sucesso.",
-      });
-
-      if (newLevel > prevLevel) {
-        // aqui depois podemos abrir um diálogo de "Level up!"
+        setSnack({
+          open: true,
+          severity: "success",
+          message: "XP salvo com sucesso.",
+        });
+      } catch (err) {
+        console.error("Erro ao salvar XP:", err);
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Erro ao salvar XP.",
+        });
+      } finally {
+        setSaving(false);
       }
-    } catch (err) {
-      console.error("Erro ao salvar XP:", err);
-      setSnack({
-        open: true,
-        severity: "error",
-        message: "Erro ao salvar XP.",
-      });
-    } finally {
-      setSaving(false);
     }
+  };
+
+  const handleConfirmLevelUp = async (payload) => {
+    if (!payload) return;
+    const { nivel, vidaMax, vidaAtual, atributos, subclasse } = payload;
+
+    const targetXp = XP_TABLE[nivel] ?? (currentXp + 1000);
+    const newXp = Math.max(currentXp, targetXp);
+
+    if (userID && fichaKey) {
+      try {
+        const updates = {
+          xp: newXp,
+          level: nivel,
+          nivel,
+          vidaMax,
+          vidaAtual,
+          updatedAt: firebase.database.ServerValue.TIMESTAMP,
+        };
+        if (atributos) updates.atributos = atributos;
+        if (subclasse) {
+          updates.subclasse = subclasse;
+          updates["DetalhesDaClasse/SubClasseInfo/SubClasse"] = subclasse;
+        }
+        await firebase.database().ref(`fichas/${userID}/${fichaKey}`).update(updates);
+      } catch (err) {
+        console.error("Erro ao salvar level up:", err);
+      }
+    }
+
+    onFichaChange?.((old) => ({
+      ...(old || {}),
+      xp: newXp,
+      level: nivel,
+      nivel,
+      vidaMax,
+      vidaAtual,
+      atributos: atributos || old?.atributos,
+      subclasse: subclasse || old?.subclasse,
+    }));
+
+    setSnack({
+      open: true,
+      severity: "success",
+      message: `Parabéns! Você alcançou o Nível ${nivel}!`,
+    });
   };
 
   return (
@@ -180,15 +241,18 @@ export default function FichaXpPanel({ userID, fichaKey, ficha, onFichaChange })
               md={3}
               sx={{ textAlign: { xs: "left", md: "right" } }}
             >
-              <Button
-                variant="contained"
-                onClick={handleSaveXp}
-                disabled={saving}
-                size="medium"
-                sx={{ bgcolor: "var(--ficha-accent, #bf8f00)", color: "var(--ficha-text, #2f2318)", fontWeight: 800, "&:hover": { filter: "brightness(0.94)" } }}
-              >
-                {saving ? "Salvando..." : "Salvar XP"}
-              </Button>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1, alignItems: { xs: "flex-start", md: "flex-end" } }}>
+                <Button
+                  variant="contained"
+                  onClick={handleSaveXp}
+                  disabled={saving}
+                  size="small"
+                  sx={{ bgcolor: "var(--ficha-accent, #bf8f00)", color: "var(--ficha-text, #2f2318)", fontWeight: 800, "&:hover": { filter: "brightness(0.94)" } }}
+                >
+                  {saving ? "Salvando..." : "Salvar XP"}
+                </Button>
+              </Box>
+
               <Typography variant="caption" display="block" sx={{ mt: 1 }}>
                 {xpToNext > 0
                   ? `${xpToNext} XP para o próximo nível`
@@ -198,6 +262,20 @@ export default function FichaXpPanel({ userID, fichaKey, ficha, onFichaChange })
           </Grid>
         </Paper>
       </Box>
+
+      <LevelUpModal
+        open={levelUpModalOpen}
+        onClose={() => setLevelUpModalOpen(false)}
+        ficha={{
+          ...ficha,
+          nivel: levelUpData.fromLevel,
+          level: levelUpData.fromLevel,
+        }}
+        fromLevel={levelUpData.fromLevel}
+        toLevel={levelUpData.toLevel}
+        targetXp={levelUpData.targetXp}
+        onConfirmLevelUp={handleConfirmLevelUp}
+      />
 
       <Snackbar
         open={snack.open}

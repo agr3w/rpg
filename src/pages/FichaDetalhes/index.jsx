@@ -341,52 +341,10 @@ const FichaDetalhes = () => {
     };
   }, [fichaClasse]);
 
-  // sincroniza níveis de HP pendentes vindos do banco
   useEffect(() => {
     if (!ficha) return;
     setPendingHpLevels(ficha.hpLevelsPendentes || 0);
   }, [ficha?.hpLevelsPendentes]);
-
-  // detecta aumento de nível para marcar rolagem de HP pendente
-  useEffect(() => {
-    if (!ficha) return;
-
-    const current = ficha.level || 1;
-
-    // primeira vez: só registra o nível atual, não cria rolagem pendente
-    if (lastLevelRef.current == null) {
-      lastLevelRef.current = current;
-      return;
-    }
-
-    const prev = lastLevelRef.current;
-    const diff = current - prev;
-
-    if (diff > 0) {
-      // Atualiza estado local de forma segura (não depende de valor "stale")
-      setPendingHpLevels((prevPend) => Math.max(0, Number(prevPend || 0) + diff));
-
-      // Mantém a ficha em memória consistente (pra UI refletir na hora)
-      setFicha((prevFicha) => {
-        const base = prevFicha || {};
-        const before = Number(base.hpLevelsPendentes || 0);
-        return { ...base, hpLevelsPendentes: Math.max(0, before + diff) };
-      });
-
-      // Persiste de forma atômica no Firebase (evita duplicar/concorrer)
-      if (userID && fichaKey) {
-        firebase
-          .database()
-          .ref(`fichas/${userID}/${fichaKey}/hpLevelsPendentes`)
-          .transaction((curr) => Math.max(0, Number(curr || 0) + diff))
-          .catch((e) =>
-            console.error("Erro ao salvar níveis de HP pendentes:", e)
-          );
-      }
-    }
-
-    lastLevelRef.current = current;
-  }, [ficha?.level, fichaKey, userID]);
 
   // mantém o campo de nome sincronizado com a ficha carregada
   useEffect(() => {
@@ -776,6 +734,61 @@ const FichaDetalhes = () => {
     }
   };
 
+  // 🔹 salvar subida de nível completa (Level Up)
+  const handleLevelUpSave = async (payload) => {
+    if (!payload) return;
+    const { nivel, vidaMax, vidaAtual, atributos, subclasse, xp } = payload;
+
+    const currentHpState = ficha?.hp || {};
+    const finalHpMax = Number(vidaMax || currentHpState.max || 10);
+    const finalHpAtual = Number(vidaAtual || currentHpState.atual || finalHpMax);
+    const hpPayload = {
+      max: finalHpMax,
+      atual: finalHpAtual,
+      temp: Number(currentHpState.temp || 0),
+    };
+
+    const newXp = xp !== undefined ? Number(xp) : (ficha?.xp ?? ficha?.XP ?? 0);
+
+    setFicha((prev) => ({
+      ...(prev || {}),
+      nivel,
+      level: nivel,
+      xp: newXp,
+      XP: newXp,
+      hp: hpPayload,
+      vidaMax: finalHpMax,
+      vidaAtual: finalHpAtual,
+      hpLevelsPendentes: 0,
+      atributos: atributos || prev?.atributos,
+      subclasse: subclasse || prev?.subclasse,
+    }));
+    setPendingHpLevels(0);
+
+    if (!userID || !fichaKey) return;
+    try {
+      const updates = {
+        nivel,
+        level: nivel,
+        xp: newXp,
+        XP: newXp,
+        hp: hpPayload,
+        vidaMax: finalHpMax,
+        vidaAtual: finalHpAtual,
+        hpLevelsPendentes: 0,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP,
+      };
+      if (atributos) updates.atributos = atributos;
+      if (subclasse) {
+        updates.subclasse = subclasse;
+        updates["DetalhesDaClasse/SubClasseInfo/SubClasse"] = subclasse;
+      }
+      await firebase.database().ref(`fichas/${userID}/${fichaKey}`).update(updates);
+    } catch (e) {
+      console.error("Erro ao salvar evolução de nível:", e);
+    }
+  };
+
   // 🔹 salvar história do personagem (verso)
   const handleStoryChange = async (newStory) => {
     const text = String(newStory || "");
@@ -1140,6 +1153,7 @@ const FichaDetalhes = () => {
               onXpSave={handleXpSave}
               onSubclasseSave={handleSubclasseSave}
               onSubracaSave={handleSubracaSave}
+              onLevelUpSave={handleLevelUpSave}
             />
           </motion.div>
 
