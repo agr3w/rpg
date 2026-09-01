@@ -46,3 +46,99 @@ table {
 	border-collapse: collapse;
 	border-spacing: 0;
 }
+
+/* ===================================================
+   PERFORMANCE ENGINE: SCROLL SUAVE & CLIQUE INSTANTÂNEO (60/120 FPS)
+   =================================================== */
+
+/* 1. Elimina delay de 300ms em toques/cliques e melhora interpolação */
+html, body {
+  touch-action: manipulation;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+/* 2. Força aceleração de GPU e camada própria em todos os containers com scroll */
+* {
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(10, 12, 20, 0.6);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.6);
+}
+
+/* 3. Classe utilitária para qualquer container com rolagem interna */
+.smooth-scroll-container,
+[class*="scrollBody"],
+[class*="panelList"],
+[class*="cardsGrid"] {
+  -webkit-overflow-scrolling: touch;
+  transform: translateZ(0); /* Promove para camada de GPU */
+  will-change: scroll-position;
+  contain: paint; /* Isola repaints de fora do container */
+}
+
+/* 4. Otimização de Imagens Pesadas e Backgrounds */
+img {
+  content-visibility: auto; /* Não renderiza imagens fora da viewport */
+  transform: translateZ(0);
+}
+
+/* 5. Otimização nos Botões e Interações (sem 'transition: all') */
+.actionBtn,
+button,
+.MuiButtonBase-root {
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  /* Transição ultrarrápida apenas nas propriedades necessárias */
+  transition: transform 0.1s ease-out, background-color 0.12s ease-out, border-color 0.12s ease-out, opacity 0.12s ease-out !important;
+  will-change: transform;
+}
+
+/* Feedback tátil imediato ao clicar/pressionar */
+.actionBtn:active,
+button:active,
+.MuiButtonBase-root:active {
+  transform: scale(0.96) translateZ(0) !important;
+}
+
+/* 6. Otimização de Listas Longas (Spells, Habilidades e Itens) */
+.cardItem,
+[class*="featureItem"],
+[class*="spellCard"],
+[class*="itemRow"],
+[class*="FeatureCardItem"],
+[class*="SpellCard"] {
+  /* Isola o layout do card e só calcula o conteúdo visível na tela */
+  content-visibility: auto;
+  contain-intrinsic-size: 0 80px; /* Altura estimada do card */
+  contain: layout style paint;
+  transform: translateZ(0);
+}
+
+/* 7. Otimização de Modais e Overlays com Blur */
+.modalOverlay,
+.MuiBackdrop-root,
+.MuiDialog-container {
+  contain: strict;
+  transform: translateZ(0);
+  will-change: opacity;
+}

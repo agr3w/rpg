@@ -198,9 +198,11 @@ export function createAppTheme({ mode = "dark", style = "parchment" } = {}) {
           root: ({ theme }) => ({
             borderRadius: 12,
             paddingInline: theme.spacing(2),
-            transition: "background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease",
+            touchAction: "manipulation",
+            willChange: "transform",
+            transition: "transform 100ms ease-out, background-color 120ms ease-out, border-color 120ms ease-out, opacity 120ms ease-out",
             "&:active": {
-              transform: "scale(0.98)",
+              transform: "scale(0.96) translateZ(0)",
             },
           }),
         },
@@ -212,9 +214,11 @@ export function createAppTheme({ mode = "dark", style = "parchment" } = {}) {
         },
         styleOverrides: {
           root: {
-            transition: "background-color 150ms ease, color 150ms ease, transform 150ms ease",
+            touchAction: "manipulation",
+            willChange: "transform",
+            transition: "transform 100ms ease-out, background-color 120ms ease-out, color 120ms ease-out, opacity 120ms ease-out",
             "&:active": {
-              transform: "scale(0.96)",
+              transform: "scale(0.96) translateZ(0)",
             },
           },
         },

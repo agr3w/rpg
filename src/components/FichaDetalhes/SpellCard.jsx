@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import {
   Box,
   Paper,
@@ -24,7 +24,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import BoltIcon from "@mui/icons-material/Bolt";
 
-export default function SpellCard({
+function SpellCard({
   spell,
   spellDc = 13,
   spellAttackBonus = 5,
@@ -58,6 +58,10 @@ export default function SpellCard({
     setUpcastMenuAnchor(event.currentTarget);
   };
 
+  const handleCloseUpcastMenu = () => {
+    setUpcastMenuAnchor(null);
+  };
+
   const handleSelectUpcastCircle = (circleLevel) => {
     setUpcastMenuAnchor(null);
     onCast?.(spell, circleLevel);
@@ -66,18 +70,22 @@ export default function SpellCard({
   return (
     <Paper
       elevation={0}
+      className="spellCard cardItem"
       sx={{
         p: 2,
         borderRadius: 3,
         border: `1.5px solid ${arcanaBorder}`,
-        bgcolor: isDark ? "rgba(28, 18, 32, 0.88)" : "rgba(255, 252, 246, 0.94)",
-        backdropFilter: "blur(6px)",
+        bgcolor: isDark ? "rgba(28, 18, 32, 0.95)" : "rgba(255, 252, 246, 0.98)",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
         height: "100%",
         position: "relative",
-        transition: "all 0.18s ease",
+        contentVisibility: "auto",
+        containIntrinsicSize: "0 120px",
+        contain: "layout style paint",
+        transform: "translateZ(0)",
+        transition: "border-color 0.12s ease-out, box-shadow 0.12s ease-out",
         "&:hover": {
           borderColor: arcanaColor,
           boxShadow: isDark
@@ -519,3 +527,5 @@ export default function SpellCard({
     </Paper>
   );
 }
+
+export default memo(SpellCard);

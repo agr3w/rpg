@@ -1,10 +1,8 @@
 .pageContainer {
   min-height: 100vh;
   position: relative;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  overflow-x: hidden;
+  transform: translateZ(0);
 }
 
 .pageContainer::before {
@@ -13,6 +11,8 @@
   inset: 0;
   pointer-events: none;
   z-index: 0;
+  transform: translateZ(0);
+  will-change: transform;
   background:
     radial-gradient(120% 130% at 0% 0%, var(--ficha-accent-soft, rgba(191, 143, 0, 0.18)) 0%, transparent 45%),
     radial-gradient(120% 130% at 100% 100%, var(--ficha-accent-deep, rgba(131, 60, 11, 0.24)) 0%, transparent 52%),
@@ -26,20 +26,18 @@
 
 .classeBardo {
   background-image: url(./backgounds/bard.jpg);
-  background-position: top;
+  background-position: top center;
   background-size: cover;
   min-height: 100vh;
   background-repeat: no-repeat;
-  background-attachment: fixed;
 }
 
 .classeBárbaro {
   background-image: url(./backgounds/Barbarian.jpg);
-  background-position: bottom;
+  background-position: bottom center;
   background-size: cover;
   min-height: 100vh;
   background-repeat: no-repeat;
-  background-attachment: fixed;
 }
 
 .classeBruxo {
@@ -48,7 +46,6 @@
   background-size: cover;
   min-height: 100vh;
   background-repeat: no-repeat;
-  background-attachment: fixed;
 }
 
 .classeClérigo {

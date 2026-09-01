@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import {
   Box,
   Paper,
@@ -26,7 +26,7 @@ import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 
 import { getActionTypeStyle } from "../../Array/HabilidadesDB";
 
-export default function FeatureCardItem({
+function FeatureCardItem({
   feature,
   currentUses = 0,
   onDeltaUses,
@@ -42,7 +42,7 @@ export default function FeatureCardItem({
 
   const actionStyle = getActionTypeStyle(feature.tipoAcao);
   const strokeColor = isDark ? "rgba(229,179,36,0.2)" : "rgba(131,60,11,0.2)";
-  const cardBg = isDark ? "rgba(30, 22, 18, 0.9)" : "rgba(255, 252, 246, 0.95)";
+  const cardBg = isDark ? "rgba(30, 22, 18, 0.95)" : "rgba(255, 252, 246, 0.98)";
   const accentColor = theme.palette.secondary.main || "#bf8f00";
 
   const maxUses = Number(feature.usosMax || 0);
@@ -68,15 +68,19 @@ export default function FeatureCardItem({
   return (
     <Paper
       elevation={0}
+      className="cardItem"
       sx={{
         p: 1.75,
         borderRadius: 2.5,
         border: `1px solid ${strokeColor}`,
         bgcolor: cardBg,
-        backdropFilter: "blur(6px)",
         position: "relative",
         opacity: isUnlocked ? 1 : 0.65,
-        transition: "all 0.18s ease",
+        contentVisibility: "auto",
+        containIntrinsicSize: "0 80px",
+        contain: "layout style paint",
+        transform: "translateZ(0)",
+        transition: "border-color 0.12s ease-out, box-shadow 0.12s ease-out",
         "&:hover": {
           borderColor: alpha(actionStyle.color, 0.6),
           boxShadow: isDark
@@ -394,3 +398,5 @@ export default function FeatureCardItem({
     </Paper>
   );
 }
+
+export default memo(FeatureCardItem);
