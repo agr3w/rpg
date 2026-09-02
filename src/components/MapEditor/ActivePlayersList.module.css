@@ -1,0 +1,161 @@
+﻿/* src/components/MapEditor/ActivePlayersList.module.css */
+.playersWidgetContainer {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 45;
+}
+
+.triggerButton {
+  background: rgba(18, 22, 34, 0.95);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  color: #f1c40f;
+  padding: 8px 16px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+  font-weight: 700;
+  font-size: 0.85rem;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+
+.triggerButton:hover {
+  background: rgba(26, 32, 48, 0.98);
+  border-color: #ffd700;
+  box-shadow: 0 6px 25px rgba(212, 175, 55, 0.35);
+  transform: scale(1.02);
+}
+
+.onlineDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2ecc71;
+  box-shadow: 0 0 10px #2ecc71;
+}
+
+.playersDropdown {
+  position: absolute;
+  top: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 260px;
+  background: rgba(18, 22, 34, 0.98);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.9);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  backdrop-filter: blur(12px);
+}
+
+.dropdownHeader {
+  font-size: 0.75rem;
+  color: #ffd700;
+  letter-spacing: 1.2px;
+  font-weight: 800;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+  padding-bottom: 6px;
+  text-align: center;
+}
+
+.playerList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.playerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.playerRow:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.avatarWrapper {
+  position: relative;
+  width: 32px;
+  height: 32px;
+}
+
+.avatar, .avatarPlaceholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid #ffd700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #222938;
+  color: #f1c40f;
+  font-weight: bold;
+}
+
+.statusBadge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  background: #2ecc71;
+  border-radius: 50%;
+  border: 1.5px solid #121622;
+}
+
+.playerDetails {
+  flex: 1;
+  margin-left: 10px;
+  overflow: hidden;
+}
+
+.playerName {
+  color: #e6edf3;
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: block;
+}
+
+.dmCrown {
+  color: #ffd700;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.kickButton {
+  background: rgba(235, 87, 87, 0.15);
+  border: 1px solid rgba(235, 87, 87, 0.3);
+  color: #ff6b6b;
+  border-radius: 6px;
+  padding: 4px 6px;
+  cursor: pointer;
+  opacity: 0.8;
+  font-size: 0.75rem;
+  transition: all 0.15s ease;
+}
+
+.kickButton:hover {
+  opacity: 1;
+  background: rgba(235, 87, 87, 0.3);
+  border-color: #ff6b6b;
+}

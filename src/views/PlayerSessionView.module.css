@@ -1,0 +1,90 @@
+﻿/* src/views/PlayerSessionView.module.css */
+.playerContainer {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #05070c;
+}
+
+.viewport {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mapSurface {
+  position: relative;
+  background-color: #1a1e29;
+  background-size: cover;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+}
+
+.playerFog {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  opacity: 1 !important; /* 100% Escuro absoluto para o jogador */
+  pointer-events: none;
+}
+
+.playerToken {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+}
+
+.playerToken img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid #f1c40f;
+}
+
+.passwordScreen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #0b0d14;
+}
+
+.passwordCard {
+  background: #161b26;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  padding: 30px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: #fff;
+  text-align: center;
+}
+
+.passwordCard input {
+  background: #0d1117;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 10px;
+  border-radius: 6px;
+  color: #fff;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.passwordCard button {
+  background: #c29928;
+  color: #0b0d14;
+  border: none;
+  padding: 10px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.error {
+  color: #ff6b6b;
+  font-size: 0.8rem;
+}

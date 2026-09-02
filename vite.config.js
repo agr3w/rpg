@@ -20,6 +20,7 @@ export default defineConfig({
             'service': path.resolve(__dirname, './src/service'),
             'config': path.resolve(__dirname, './src/config'),
             'hooks': path.resolve(__dirname, './src/hooks'),
+            'views': path.resolve(__dirname, './src/views'),
         },
     },
     server: {

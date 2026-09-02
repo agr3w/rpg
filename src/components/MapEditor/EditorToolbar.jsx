@@ -25,6 +25,7 @@ import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import LayersClearIcon from '@mui/icons-material/LayersClear';
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import TuneIcon from '@mui/icons-material/Tune';
+import ShareIcon from '@mui/icons-material/Share';
 
 import DiceRoller from "./DiceRoller";
 
@@ -33,6 +34,7 @@ const EditorToolbar = ({
   strokeColor, setStrokeColor, 
   strokeWidth, setStrokeWidth, 
   onUndo, onOpenSettings,
+  onOpenShareSession,
   snapMode = "center", setSnapMode,
   rulerVariant = "5e-standard", setRulerVariant,
   rulerUnit = "all", setRulerUnit,
@@ -165,6 +167,22 @@ const EditorToolbar = ({
           </IconButton>
         </Tooltip>
         
+        {/* Compartilhar Mesa VTT */}
+        {onOpenShareSession && (
+          <Tooltip title="Compartilhar Mesa / Convidar Jogadores (VTT)" placement="right">
+            <IconButton 
+              size="small" 
+              onClick={onOpenShareSession} 
+              sx={{ 
+                color: "#ffd700",
+                "&:hover": { bgcolor: "rgba(255,215,0,0.15)" }
+              }}
+            >
+              <ShareIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
+
         {/* Configurações */}
         <Tooltip title="Configurações do Grid" placement="right">
           <IconButton size="small" onClick={onOpenSettings} sx={{ color: "#aaa" }}>

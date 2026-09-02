@@ -181,6 +181,26 @@
           }
         }
       }
+    },
+
+    "vtt_sessions": {
+      "$sessionId": {
+        ".read": "auth != null",
+        "meta": {
+          ".write": "auth != null && (!data.exists() || data.child('dmId').val() === auth.uid)"
+        },
+        "state": {
+          ".write": "auth != null && root.child('vtt_sessions').child($sessionId).child('meta').child('dmId').val() === auth.uid"
+        },
+        "players": {
+          "$uid": {
+            ".write": "auth != null && (auth.uid === $uid || root.child('vtt_sessions').child($sessionId).child('meta').child('dmId').val() === auth.uid)"
+          }
+        },
+        "kicked": {
+          ".write": "auth != null && root.child('vtt_sessions').child($sessionId).child('meta').child('dmId').val() === auth.uid"
+        }
+      }
     }
   }
 }

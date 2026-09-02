@@ -30,6 +30,7 @@ const QuestsPage = lazy(() => import("pages/Quests"));
 const QuestDetail = lazy(() => import("pages/Quests/QuestDetail"));
 const MapEditor = lazy(() => import("pages/MapEditor"));
 const AdminPage = lazy(() => import("pages/Admin"));
+const PlayerSessionView = lazy(() => import("views/PlayerSessionView"));
 
 const AppRoutes = () => {
   const { user: usuarioAutenticado } = useAuth();
@@ -37,6 +38,9 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route element={<AppLayout />}>
+        {/* 🗺️ Rota de Sessão VTT dos Jogadores (Pública ou com Senha) */}
+        <Route path="/sessao/:sessionId" element={<PlayerSessionView />} />
+
         {/* ✅ Home separada: HUB quando logado / BemVindo quando não */}
         <Route path="/" element={usuarioAutenticado ? <Inicio /> : <BemVindo />} />
         <Route path="/*" element={usuarioAutenticado ? <Inicio /> : <BemVindo />} />

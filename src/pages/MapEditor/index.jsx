@@ -8,11 +8,16 @@ import EditorToolbar from "components/MapEditor/EditorToolbar";
 import LayersPanel from "components/MapEditor/LayersPanel";
 import MapSettingsDialog from "components/MapEditor/MapSettingsDialog";
 import QuickEditModal from "components/MapEditor/QuickEditModal";
+import ActivePlayersList from "components/MapEditor/ActivePlayersList";
+import ShareSessionModal from "components/MapEditor/ShareSessionModal";
 
 import { snapToGrid, pointToCell } from "Utils/gridUtils";
 import { calculateDistance, formatDistance } from "Utils/rulerUtils";
 import { createFogCanvas, revealFogCircle, hideFogCircle, fillFog, clearFog } from "Utils/fogUtils";
 import { exportMapImage, exportUniversalVTT } from "Utils/vttExporter";
+import { trackPlayerPresence, syncMapState, setupSession } from "APIs/sessionService";
+import { auth } from "APIs/firebaseConfig";
+import { getDatabase, ref, onValue } from "firebase/database";
 
 const MapEditor = () => {
   const { mapId } = useParams();
@@ -50,6 +55,10 @@ const MapEditor = () => {
   const [fogBrushRadius, setFogBrushRadius] = useState(60);
   const [fogCanvas, setFogCanvas] = useState(null);
 
+  // --- SESSÃO VTT / MULTIPLAYER ESTADOS ---
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [sessionMeta, setSessionMeta] = useState(null);
+
   // --- FIGMA-STYLE NAVIGATION REFS ---
   const [isSpacePressed, setIsSpacePressed] = useState(false);
   const isSpacePressedRef = useRef(false);
@@ -59,6 +68,26 @@ const MapEditor = () => {
   // Feedback visual para atalhos
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState("");
+
+  // Presença do Mestre e Carregamento de Metadados da Sessão VTT
+  useEffect(() => {
+    if (!mapId) return;
+    const db = getDatabase();
+    const metaRef = ref(db, `vtt_sessions/${mapId}/meta`);
+    const unsubMeta = onValue(metaRef, (snap) => {
+      setSessionMeta(snap.val());
+    });
+
+    const unsubPresence = trackPlayerPresence(
+      mapId,
+      { name: auth.currentUser?.displayName || "Mestre", isDM: true }
+    );
+
+    return () => {
+      unsubMeta();
+      unsubPresence();
+    };
+  }, [mapId]);
 
   useEffect(() => {
     if (currentMap) {
@@ -70,6 +99,27 @@ const MapEditor = () => {
       }
     }
   }, [currentMap]);
+
+  // Transmissão em tempo real do estado do mapa para jogadores conectados
+  useEffect(() => {
+    if (!mapId || !currentMap) return;
+    const timer = setTimeout(() => {
+      try {
+        syncMapState(mapId, {
+          name: currentMap.name || "Mesa VTT",
+          bgUrl: currentMap.backgroundImage || "",
+          width: (currentMap.gridConfig?.width || 20) * (currentMap.gridConfig?.cellSize || 50),
+          height: (currentMap.gridConfig?.height || 15) * (currentMap.gridConfig?.cellSize || 50),
+          elements: elements || [],
+          fogDataUrl: fogCanvas ? fogCanvas.toDataURL("image/webp", 0.4) : null
+        });
+      } catch (err) {
+        console.warn("Erro na sincronização da mesa VTT:", err);
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [mapId, currentMap, elements, fogCanvas, fogEnabled]);
 
   // --- HELPERS DE DIMENSÃO DO GRID ---
   const mapWidth = currentMap?.gridConfig?.width || 20;
@@ -795,6 +845,7 @@ const MapEditor = () => {
         strokeWidth={strokeWidth} setStrokeWidth={setStrokeWidth}
         onUndo={handleUndo}
         onOpenSettings={() => setSettingsOpen(true)}
+        onOpenShareSession={() => setShareModalOpen(true)}
         snapMode={snapMode} setSnapMode={setSnapMode}
         rulerVariant={rulerVariant} setRulerVariant={setRulerVariant}
         rulerUnit={rulerUnit} setRulerUnit={setRulerUnit}
@@ -803,6 +854,18 @@ const MapEditor = () => {
         onFogFillAll={handleFogFillAll} onFogClearAll={handleFogClearAll}
         onExportImage={handleExportImage} onExportUniversalVTT={handleExportUniversalVTT}
       />
+
+      {/* Widget de Jogadores Conectados no Canto Superior Direito */}
+      <ActivePlayersList sessionId={mapId} isMaster={true} />
+
+      {/* Modal de Compartilhamento da Mesa VTT */}
+      {shareModalOpen && (
+        <ShareSessionModal
+          sessionId={mapId}
+          sessionMeta={sessionMeta}
+          onClose={() => setShareModalOpen(false)}
+        />
+      )}
 
       <LayersPanel
         elements={elements}
