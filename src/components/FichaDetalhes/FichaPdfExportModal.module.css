@@ -1,0 +1,356 @@
+﻿/* src/components/FichaDetalhes/FichaPdfExportModal.module.css */
+.printWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  background: #2b2b2b;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.a4Page {
+  width: 794px;
+  min-height: 1123px;
+  background: #ffffff;
+  color: #111111;
+  padding: 24px 28px;
+  box-sizing: border-box;
+  font-family: 'Cinzel', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* HEADER ESTILO D&D */
+.sheetHeader {
+  display: flex;
+  border: 2px solid #333;
+  border-radius: 6px;
+  background: #fdfdfd;
+}
+
+.headerNameBox {
+  width: 35%;
+  padding: 10px 14px;
+  border-right: 2px solid #333;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.headerInfoGrid {
+  width: 65%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 8px 12px;
+}
+
+.infoCell {
+  display: flex;
+  flex-direction: column;
+}
+
+.fieldLabel {
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: #666;
+  letter-spacing: 0.6px;
+}
+
+.fieldValueBig {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #111;
+  font-family: 'Cinzel', serif;
+}
+
+.fieldValue {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #222;
+}
+
+/* FAIXA DE COMBATE */
+.combatTopBar {
+  display: grid;
+  grid-template-columns: 1fr 1.8fr 1fr 1fr 1fr 1fr;
+  gap: 6px;
+}
+
+.combatBox, .combatBoxWide {
+  border: 2px solid #333;
+  border-radius: 6px;
+  padding: 6px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+  text-align: center;
+}
+
+.combatLabel {
+  font-size: 0.52rem;
+  font-weight: 800;
+  color: #555;
+}
+
+.combatValue {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #111;
+}
+
+.combatSub {
+  font-size: 0.55rem;
+  color: #666;
+}
+
+.hpNumbers {
+  display: flex;
+  gap: 8px;
+  font-size: 0.75rem;
+  margin-top: 4px;
+}
+
+/* CORPO PÁGINA 1 */
+.page1Body {
+  display: grid;
+  grid-template-columns: 1.1fr 1.4fr 1.3fr;
+  gap: 12px;
+  flex: 1;
+}
+
+.col1, .col2, .col3 {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.attrBlock {
+  display: flex;
+  border: 1.5px solid #444;
+  border-radius: 6px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.attrScoreBox {
+  width: 68px;
+  background: #f0f0f0;
+  border-right: 1.5px solid #444;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.attrName {
+  font-size: 0.55rem;
+  font-weight: 900;
+  color: #333;
+}
+
+.attrMod {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #000;
+}
+
+.attrVal {
+  font-size: 0.52rem;
+  color: #666;
+  font-weight: bold;
+}
+
+.skillsBox {
+  flex: 1;
+  padding: 4px 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+
+.saveRow, .skillRow {
+  display: flex;
+  align-items: center;
+  font-size: 0.65rem;
+  gap: 4px;
+}
+
+.saveRow {
+  font-weight: bold;
+  border-bottom: 1px dashed #ccc;
+  padding-bottom: 2px;
+  margin-bottom: 2px;
+}
+
+.checkSquare {
+  font-size: 0.65rem;
+  color: #333;
+}
+
+.saveLabel, .skillLabel {
+  flex: 1;
+  color: #222;
+}
+
+.skillModText {
+  font-weight: 800;
+  color: #000;
+}
+
+.sectionHeader {
+  background: #222;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 4px 4px 0 0;
+  letter-spacing: 0.5px;
+}
+
+.weaponsTable, .spellsTable {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1.5px solid #333;
+  font-size: 0.68rem;
+}
+
+.weaponsTable th, .spellsTable th {
+  background: #e8e8e8;
+  border-bottom: 1.5px solid #333;
+  padding: 4px;
+  text-align: left;
+  font-size: 0.62rem;
+}
+
+.weaponsTable td, .spellsTable td {
+  border-bottom: 1px solid #ddd;
+  padding: 4px 6px;
+}
+
+.emptyTable {
+  text-align: center;
+  color: #888;
+  font-style: italic;
+  padding: 10px !important;
+}
+
+.trainingBox, .traitsBox, .featuresBox, .inventoryBox, .storyBox {
+  border: 1.5px solid #444;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  padding: 8px;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  background: #fafafa;
+}
+
+.featuresBox {
+  flex: 1;
+}
+
+.featureItem {
+  margin-bottom: 6px;
+}
+
+/* PÁGINA 2 */
+.page2Header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  border: 2px solid #333;
+  border-radius: 6px;
+  background: #fdfdfd;
+}
+
+.spellHeaderBox {
+  padding: 10px 14px;
+  border-right: 2px solid #333;
+  display: flex;
+  flex-direction: column;
+}
+
+.spellStatBox {
+  padding: 8px;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.spellStatBox:last-child {
+  border-right: none;
+}
+
+.page2Body {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 12px;
+  flex: 1;
+}
+
+.coinsGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  border: 1.5px solid #444;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  background: #fafafa;
+  overflow: hidden;
+}
+
+.coinCell {
+  padding: 6px 2px;
+  text-align: center;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.65rem;
+}
+
+.coinCell:last-child {
+  border-right: none;
+}
+
+.coinCell span {
+  font-size: 0.55rem;
+  color: #777;
+  font-weight: bold;
+}
+
+.coinCell strong {
+  font-size: 0.82rem;
+  color: #111;
+}
+
+/* MEDIA PRINT */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .printWrapper, .printWrapper * {
+    visibility: visible;
+  }
+  .printWrapper {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 0;
+    background: transparent;
+  }
+  .a4Page {
+    box-shadow: none;
+    page-break-after: always;
+    break-after: page;
+    width: 100%;
+    height: 100%;
+  }
+}

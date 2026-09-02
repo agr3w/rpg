@@ -45,6 +45,8 @@ import FichaCoinsPanel from "components/FichaDetalhes/FichaCoinsPanel";
 import FichaArmorPanel from "components/FichaDetalhes/FichaArmorPanel";
 import FichaHpPanel from "components/FichaDetalhes/FichaHpPanel"; 
 import FichaStatusPanel from "components/FichaDetalhes/FichaStatusPanel";
+import FichaPdfExportModal from "components/FichaDetalhes/FichaPdfExportModal";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 
 const sectionMotion = {
   initial: { opacity: 0, y: 8 },
@@ -283,6 +285,7 @@ const FichaDetalhes = () => {
   const [editedName, setEditedName] = useState("");
   const [savingName, setSavingName] = useState(false);
   const [uploadingPortrait, setUploadingPortrait] = useState(false);
+  const [pdfModalOpen, setPdfModalOpen] = useState(false);
   const lastLevelRef = useRef(null); // ✅ começa sem nível anterior
 
   const user = auth.currentUser;
@@ -1135,6 +1138,34 @@ const FichaDetalhes = () => {
               "radial-gradient(120% 140% at 0% 0%, var(--ficha-accent-soft) 0%, transparent 45%), radial-gradient(120% 140% at 100% 100%, rgba(131,60,11,0.22) 0%, transparent 55%)",
           }}
         >
+          {/* BOTÃO DE EXPORTAR PDF / D&D 5E */}
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+            <Button
+              variant="outlined"
+              startIcon={<PictureAsPdfIcon sx={{ color: "#ffd700" }} />}
+              onClick={() => setPdfModalOpen(true)}
+              sx={{
+                color: "#ffd700",
+                borderColor: "rgba(212, 175, 55, 0.45)",
+                bgcolor: "rgba(18, 22, 34, 0.75)",
+                fontFamily: "Cinzel",
+                fontWeight: 700,
+                fontSize: "0.82rem",
+                textTransform: "none",
+                borderRadius: 2,
+                backdropFilter: "blur(6px)",
+                boxShadow: "0 4px 15px rgba(0,0,0,0.4)",
+                "&:hover": {
+                  bgcolor: "rgba(212, 175, 55, 0.2)",
+                  borderColor: "#ffd700",
+                  transform: "translateY(-1px)",
+                },
+              }}
+            >
+              Exportar Ficha (PDF / D&D 5E)
+            </Button>
+          </Box>
+
           {/* BLOCO A: Banner de Identidade & Retrato (Topo) */}
           <motion.div {...sectionMotion}>
             <FichaIdentityHeader
@@ -1313,6 +1344,23 @@ const FichaDetalhes = () => {
           </Box>
         </Box>
       </Box>
+
+      {/* MODAL DE EXPORTAÇÃO PDF D&D 5E */}
+      <FichaPdfExportModal
+        open={pdfModalOpen}
+        onClose={() => setPdfModalOpen(false)}
+        ficha={ficha}
+        fichaBase={fichaBase}
+        atributosComBonus={atributosComBonus}
+        abilityMods={abilityMods}
+        profBonus={profBonus}
+        fichaEstado={fichaEstado}
+        periciasAtivas={periciasAtivas}
+        savingThrowsAtivos={savingThrowsAtivos}
+        passivePerception={passivePerception}
+        spellAttr={spellAttr}
+        classTheme={classTheme}
+      />
     </div>
   );
 };

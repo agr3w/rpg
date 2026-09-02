@@ -1,21 +1,23 @@
-/* src/components/MapEditor/TokenMiniSheet.module.css */
+﻿/* src/components/MapEditor/TokenMiniSheet.module.css */
 .miniSheetDrawer {
   position: absolute;
   top: 80px;
   right: 24px;
-  width: 320px;
+  width: 330px;
+  max-height: calc(100vh - 120px);
   background: rgba(14, 18, 28, 0.98);
   border: 1px solid rgba(212, 175, 55, 0.4);
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.85);
+  border-radius: 14px;
+  box-shadow: 0 12px 45px rgba(0, 0, 0, 0.88);
   z-index: 50;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   padding: 14px;
   color: #e6edf3;
   animation: slideDrawer 0.18s ease-out;
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(14px);
+  overflow-y: auto;
 }
 
 @keyframes slideDrawer {
@@ -32,16 +34,16 @@
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   border: 2px solid #f1c40f;
   object-fit: cover;
 }
 
 .avatarPlaceholder {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   border: 2px solid #f1c40f;
   display: flex;
@@ -50,6 +52,7 @@
   background: #222938;
   color: #f1c40f;
   font-weight: bold;
+  font-size: 1.1rem;
 }
 
 .characterInfo {
@@ -59,16 +62,21 @@
 
 .characterInfo h4 {
   margin: 0;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #f1c40f;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: 0.5px;
 }
 
 .characterInfo span {
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   color: #8b949e;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .closeBtn {
@@ -76,20 +84,53 @@
   border: none;
   color: #8b949e;
   cursor: pointer;
-  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.closeBtn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.openFullSheetBtn {
+  width: 100%;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  color: #ffd700;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.openFullSheetBtn:hover {
+  background: rgba(212, 175, 55, 0.25);
+  border-color: #ffd700;
+  transform: translateY(-1px);
 }
 
 .coreBadges {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 6px;
 }
 
 .badge {
-  flex: 1;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  padding: 6px;
+  border-radius: 8px;
+  padding: 6px 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -99,11 +140,15 @@
 .badgeLabel {
   font-size: 0.62rem;
   color: #8b949e;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .badgeValue {
   font-size: 0.8rem;
   font-weight: bold;
+  display: flex;
+  align-items: center;
 }
 
 .miniRollBtn {
@@ -113,27 +158,34 @@
   border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   padding: 2px 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 3px;
+  transition: all 0.15s ease;
+}
+
+.miniRollBtn:hover {
+  background: rgba(212, 175, 55, 0.35);
+  border-color: #ffd700;
 }
 
 .hpContainer {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.25);
   padding: 8px;
-  border-radius: 6px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .hpLabels {
   display: flex;
   justify-content: space-between;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: bold;
 }
 
@@ -157,26 +209,28 @@
 }
 
 .hpActions input {
-  width: 50px;
+  width: 55px;
   background: #090c14;
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #fff;
   border-radius: 4px;
-  padding: 2px 6px;
+  padding: 3px 6px;
   font-size: 0.75rem;
+  text-align: center;
 }
 
 .damageBtn, .healBtn {
   flex: 1;
   border-radius: 4px;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: bold;
   cursor: pointer;
-  padding: 4px;
+  padding: 4px 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
+  transition: all 0.15s ease;
 }
 
 .damageBtn {
@@ -185,10 +239,18 @@
   color: #ff7675;
 }
 
+.damageBtn:hover {
+  background: rgba(231, 76, 60, 0.35);
+}
+
 .healBtn {
   background: rgba(46, 204, 113, 0.2);
   border: 1px solid #2ecc71;
   color: #55efc4;
+}
+
+.healBtn:hover {
+  background: rgba(46, 204, 113, 0.35);
 }
 
 .tabsNav {
@@ -210,6 +272,7 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
+  transition: all 0.15s ease;
 }
 
 .tabsNav button.activeTab {
@@ -219,11 +282,12 @@
 }
 
 .tabContent {
-  max-height: 200px;
+  max-height: 220px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  padding-right: 2px;
 }
 
 .actionCard {
@@ -231,6 +295,7 @@
   justify-content: space-between;
   align-items: center;
   background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   padding: 6px 8px;
   border-radius: 6px;
 }
@@ -238,10 +303,12 @@
 .actionInfo {
   display: flex;
   flex-direction: column;
+  gap: 1px;
 }
 
 .actionInfo strong {
   font-size: 0.75rem;
+  color: #e6edf3;
 }
 
 .actionInfo small {
@@ -260,8 +327,15 @@
   color: #f1c40f;
   border-radius: 4px;
   font-size: 0.68rem;
+  font-weight: 600;
   padding: 3px 6px;
   cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.actionBtns button:hover, .castBtn:hover {
+  background: rgba(212, 175, 55, 0.3);
+  border-color: #ffd700;
 }
 
 .attributesGrid {
@@ -274,7 +348,7 @@
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 6px;
-  padding: 6px;
+  padding: 5px 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -288,7 +362,7 @@
 }
 
 .attrVal {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   color: #8b949e;
 }
 
@@ -302,4 +376,73 @@
   font-size: 0.75rem;
   cursor: pointer;
   padding: 2px 0;
+  transition: all 0.15s ease;
+}
+
+.attrRollBtn:hover {
+  background: rgba(212, 175, 55, 0.35);
+  border-color: #ffd700;
+}
+
+.subSectionHeader {
+  font-size: 0.68rem;
+  color: #ffd700;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  margin: 6px 0 2px 0;
+}
+
+.skillsList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.skillRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+  padding: 3px 6px;
+  font-size: 0.72rem;
+}
+
+.skillName {
+  color: #c9d1d9;
+}
+
+.skillModBtn {
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: #f1c40f;
+  font-weight: bold;
+  border-radius: 3px;
+  padding: 1px 5px;
+  cursor: pointer;
+  font-size: 0.7rem;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 16px 8px;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.emptyState strong {
+  font-size: 0.75rem;
+  color: #c9d1d9;
+}
+
+.emptyState small {
+  font-size: 0.66rem;
+  color: #8b949e;
 }

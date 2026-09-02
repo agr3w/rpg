@@ -131,13 +131,21 @@ const MapEditor = () => {
     if (!mapId || !currentMap) return;
     const timer = setTimeout(() => {
       try {
+        const cleanElements = (elements || []).map((el) => {
+          const { imageObj, ...rest } = el;
+          return rest;
+        });
+
         syncMapState(mapId, {
           name: currentMap.name || "Mesa VTT",
           bgUrl: currentMap.backgroundImage || "",
           width: (currentMap.gridConfig?.width || 20) * (currentMap.gridConfig?.cellSize || 50),
           height: (currentMap.gridConfig?.height || 15) * (currentMap.gridConfig?.cellSize || 50),
-          elements: elements || [],
-          fogDataUrl: fogCanvas ? fogCanvas.toDataURL("image/webp", 0.4) : null
+          gridConfig: currentMap.gridConfig || { width: 20, height: 15, cellSize: 50, showGrid: true },
+          theme: currentMap.theme || "void",
+          elements: cleanElements,
+          fogEnabled: Boolean(fogEnabled),
+          fogDataUrl: fogEnabled && fogCanvas ? fogCanvas.toDataURL("image/webp", 0.4) : null
         });
       } catch (err) {
         console.warn("Erro na sincronização da mesa VTT:", err);

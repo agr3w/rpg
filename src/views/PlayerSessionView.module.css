@@ -5,43 +5,43 @@
   height: 100vh;
   overflow: hidden;
   background-color: #05070c;
+  user-select: none;
 }
 
-.viewport {
-  width: 100%;
-  height: 100%;
+.zoomControls {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(14, 18, 28, 0.9);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  padding: 6px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.zoomBtn {
+  background: transparent;
+  border: none;
+  color: #f1c40f;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.15s ease;
 }
 
-.mapSurface {
-  position: relative;
-  background-color: #1a1e29;
-  background-size: cover;
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
-}
-
-.playerFog {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 10;
-  opacity: 1 !important; /* 100% Escuro absoluto para o jogador */
-  pointer-events: none;
-}
-
-.playerToken {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  z-index: 5;
-}
-
-.playerToken img {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 2px solid #f1c40f;
+.zoomBtn:hover {
+  background: rgba(212, 175, 55, 0.2);
+  color: #ffd700;
+  transform: scale(1.05);
 }
 
 .passwordScreen {
@@ -49,42 +49,75 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: #0b0d14;
+  background: radial-gradient(circle at center, #151a28 0%, #080a10 100%);
 }
 
 .passwordCard {
-  background: #161b26;
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  padding: 30px;
-  border-radius: 12px;
+  background: rgba(18, 22, 34, 0.95);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  padding: 36px 32px;
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
   gap: 12px;
   color: #fff;
   text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
+  width: 340px;
+  backdrop-filter: blur(10px);
+}
+
+.passwordCard h2 {
+  margin: 0;
+  font-family: 'Cinzel', serif;
+  color: #f1c40f;
+  font-size: 1.25rem;
+}
+
+.passwordCard p {
+  font-size: 0.8rem;
+  color: #8b949e;
+  margin: 0;
 }
 
 .passwordCard input {
-  background: #0d1117;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 10px;
+  background: #090c14;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  padding: 10px 14px;
   border-radius: 6px;
   color: #fff;
   width: 100%;
-  margin-bottom: 10px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  outline: none;
+  font-size: 0.85rem;
+  transition: border-color 0.2s ease;
+}
+
+.passwordCard input:focus {
+  border-color: #ffd700;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
 }
 
 .passwordCard button {
-  background: #c29928;
+  background: #bf8f00;
   color: #0b0d14;
   border: none;
   padding: 10px;
   font-weight: bold;
   border-radius: 6px;
   cursor: pointer;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.5px;
+  transition: all 0.15s ease;
+}
+
+.passwordCard button:hover {
+  background: #d4af37;
+  transform: translateY(-1px);
 }
 
 .error {
   color: #ff6b6b;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
 }
