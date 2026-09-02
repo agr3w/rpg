@@ -17,10 +17,22 @@ export default function AppLayout() {
   const { prefs } = usePreferences();
   const location = useLocation();
 
+  const isMapEditor = location.pathname.startsWith("/mapas/editor/");
+
   const element = useMemo(() => getElementFromPath(location.pathname), [location.pathname]);
   const vars = ELEMENT_VARS[element] || ELEMENT_VARS.void;
 
   const useSimpleTransition = prefs.reduceMotion || prefs.pageTransition === "simple";
+
+  if (isMapEditor) {
+    return (
+      <MotionConfig reducedMotion="never">
+        <Box sx={{ width: "100vw", height: "100vh", overflow: "hidden", bgcolor: "#0d0f17", position: "fixed", inset: 0, zIndex: 999 }}>
+          <Outlet />
+        </Box>
+      </MotionConfig>
+    );
+  }
 
   return (
     <MotionConfig reducedMotion="never">

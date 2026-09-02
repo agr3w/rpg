@@ -1,14 +1,18 @@
-﻿// src/Utils/fogUtils.js
+// src/Utils/fogUtils.js
 
 /**
- * Cria ou reinicializa um canvas de Nevoa de Guerra preenchido com a cor de sombra
+ * Cria ou reinicializa um canvas de Névoa de Guerra (transparente por padrão)
  */
-export function createFogCanvas(width, height, fogColor = "rgba(10, 12, 20, 0.95)") {
+export function createFogCanvas(width, height, filled = false, fogColor = "rgba(10, 12, 20, 0.95)") {
   const canvas = document.createElement("canvas");
   canvas.width = Math.max(1, width);
   canvas.height = Math.max(1, height);
   const ctx = canvas.getContext("2d");
-  fillFog(ctx, width, height, fogColor);
+  if (filled) {
+    fillFog(ctx, width, height, fogColor);
+  } else {
+    clearFog(ctx, width, height);
+  }
   return canvas;
 }
 

@@ -1,0 +1,120 @@
+﻿/* src/components/MapEditor/MapEditor.module.css */
+.editorLayout {
+  position: relative;
+  width: 100vw;
+  height: calc(100vh - 64px); /* Desconta a Navbar superior */
+  overflow: hidden;
+  background-color: #0d0f17;
+  user-select: none;
+}
+
+/* Palco Central do Canvas com Pan e Zoom */
+.viewportContainer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: grab;
+}
+
+.viewportContainer.isPanning {
+  cursor: grabbing;
+}
+
+.mapCanvasSurface {
+  position: relative;
+  background-color: #1a1715;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  transform-origin: center center;
+  transition: transform 0.05s ease-out;
+}
+
+/* Toolbar Flutuante Esquerda */
+.leftFloatingToolbar {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 6px;
+  background: rgba(18, 22, 34, 0.95);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 28px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.toolButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #c9d1d9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.toolButton:hover {
+  background-color: rgba(212, 175, 55, 0.15);
+  color: #f1c40f;
+}
+
+.toolButton.active {
+  background: #c29928;
+  color: #0b0d14;
+  box-shadow: 0 0 12px rgba(194, 153, 40, 0.5);
+}
+
+/* Painel Lateral Direito de Camadas / Biblioteca */
+.rightFloatingDrawer {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  bottom: 24px;
+  width: 320px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  background: rgba(18, 22, 34, 0.95);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+  transition: transform 0.25s ease;
+}
+
+.rightFloatingDrawer.collapsed {
+  transform: translateX(calc(100% + 32px));
+}
+
+.drawerToggleBtn {
+  position: absolute;
+  top: 24px;
+  right: 356px;
+  z-index: 35;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(18, 22, 34, 0.95);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: #f1c40f;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: right 0.25s ease;
+}
+
+.drawerToggleBtn.collapsed {
+  right: 24px;
+}

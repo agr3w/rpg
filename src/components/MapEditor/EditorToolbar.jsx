@@ -50,15 +50,15 @@ const EditorToolbar = ({
   const [snapAnchorEl, setSnapAnchorEl] = useState(null);
 
   const tools = [
-    { id: "select", icon: <NearMeIcon sx={{ transform: "rotate(-90deg)" }} />, title: "Selecionar e Mover" },
-    { id: "pan", icon: <PanToolIcon />, title: "Mover Tela (Pan)" },
-    { id: "text", icon: <TextFieldsIcon />, title: "Texto" },
-    { id: "brush", icon: <BrushIcon />, title: "Pincel Livre" },
-    { id: "line", icon: <RemoveIcon />, title: "Linha Reta" },
-    { id: "rect", icon: <CropSquareIcon />, title: "Retângulo" },
-    { id: "circle", icon: <RadioButtonUncheckedIcon />, title: "Círculo" },
-    { id: "ruler", icon: <StraightenIcon />, title: "Régua Tática 5e" },
-    { id: "fog", icon: <VisibilityOffIcon />, title: "Névoa de Guerra (Fog of War)" },
+    { id: "select", icon: <NearMeIcon sx={{ transform: "rotate(-90deg)" }} />, title: "Selecionar e Mover (V)" },
+    { id: "pan", icon: <PanToolIcon />, title: "Mover Tela / Pan (Espaço ou H)" },
+    { id: "text", icon: <TextFieldsIcon />, title: "Inserir Texto (T)" },
+    { id: "brush", icon: <BrushIcon />, title: "Pincel Livre (B)" },
+    { id: "line", icon: <RemoveIcon />, title: "Linha / Parede (L)" },
+    { id: "rect", icon: <CropSquareIcon />, title: "Retângulo / Sala (R)" },
+    { id: "circle", icon: <RadioButtonUncheckedIcon />, title: "Círculo / Área (C)" },
+    { id: "ruler", icon: <StraightenIcon />, title: "Régua Tática 5e (M)" },
+    { id: "fog", icon: <VisibilityOffIcon />, title: "Névoa de Guerra (F)" },
   ];
 
   const isFogActive = tool === "fog";
