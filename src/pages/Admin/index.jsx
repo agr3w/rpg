@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { 
   Box, Container, Typography, Paper, TextField, Button, 
-  Grid, Divider, Alert, Switch, FormControlLabel, Stack, Chip
+  Grid, Divider, Alert, Switch, FormControlLabel, Stack, Chip,
+  FormControl, InputLabel, Select, MenuItem, IconButton
 } from "@mui/material";
 import { styled, alpha } from "@mui/material/styles";
 import { database, auth } from "APIs/firebaseConfig";
@@ -11,6 +12,8 @@ import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import BugReportIcon from '@mui/icons-material/BugReport';
 import LinkIcon from '@mui/icons-material/Link';
 import CampaignIcon from '@mui/icons-material/Campaign';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 // --- ESTILOS RPG ---
 
@@ -81,7 +84,11 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState(null);
 
-  // Carregar dados atuais
+  // Relatórios de usuários
+  const [reports, setReports] = useState([]);
+  const [reportsFilter, setReportsFilter] = useState("all");
+
+  // Carregar dados atuais e escutar chamados de usuários
   useEffect(() => {
     database.ref("system/metadata").once("value").then(snap => {
       const val = snap.val() || {};
@@ -100,7 +107,91 @@ export default function AdminPage() {
       });
       setLoading(false);
     });
+
+    // Escuta relatórios em 'reports' e 'system/reports'
+    const reportsRef = database.ref("reports");
+    const sysReportsRef = database.ref("system/reports");
+    let reportsData = {};
+    let sysReportsData = {};
+
+    const syncReports = () => {
+      const merged = { ...sysReportsData, ...reportsData };
+      const list = Object.entries(merged).map(([id, item]) => ({
+        id,
+        ...item
+      })).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      setReports(list);
+    };
+
+    const listener = reportsRef.on("value", (snapshot) => {
+      reportsData = snapshot.val() || {};
+      syncReports();
+    });
+
+    const sysListener = sysReportsRef.on("value", (snapshot) => {
+      sysReportsData = snapshot.val() || {};
+      syncReports();
+    });
+
+    return () => {
+      reportsRef.off("value", listener);
+      sysReportsRef.off("value", sysListener);
+    };
   }, []);
+
+  const handleUpdateReportStatus = async (reportId, newStatus) => {
+    try {
+      await database.ref(`reports/${reportId}`).update({ status: newStatus }).catch(() => {
+        return database.ref(`system/reports/${reportId}`).update({ status: newStatus });
+      });
+      setMsg({ type: "success", text: "Status do relatório alterado." });
+      setTimeout(() => setMsg(null), 3000);
+    } catch (e) {
+      setMsg({ type: "error", text: "Erro ao atualizar: " + e.message });
+    }
+  };
+
+  const [replyDrafts, setReplyDrafts] = useState({});
+
+  const handleSendAdminReply = async (reportId, replyText, newStatus = "resolvido") => {
+    if (!replyText || !replyText.trim()) {
+      setMsg({ type: "error", text: "Por favor, escreva uma resposta para o jogador antes de enviar." });
+      return;
+    }
+
+    try {
+      const updateData = {
+        adminReply: replyText.trim(),
+        adminReplyAt: new Date().toISOString(),
+        status: newStatus,
+        userDismissed: false
+      };
+
+      await database.ref(`reports/${reportId}`).update(updateData).catch(() => {
+        return database.ref(`system/reports/${reportId}`).update(updateData);
+      });
+
+      setMsg({ type: "success", text: "Resposta enviada ao jogador e chamado atualizado com sucesso!" });
+      setReplyDrafts(prev => ({ ...prev, [reportId]: "" }));
+      setTimeout(() => setMsg(null), 4000);
+    } catch (e) {
+      setMsg({ type: "error", text: "Erro ao enviar resposta: " + e.message });
+    }
+  };
+
+  const handleDeleteReport = async (reportId) => {
+    if (window.confirm("Deseja realmente remover este chamado?")) {
+      try {
+        await database.ref(`reports/${reportId}`).remove().catch(() => {
+          return database.ref(`system/reports/${reportId}`).remove();
+        });
+        setMsg({ type: "success", text: "Chamado removido com sucesso." });
+        setTimeout(() => setMsg(null), 3000);
+      } catch (e) {
+        setMsg({ type: "error", text: "Erro ao deletar: " + e.message });
+      }
+    }
+  };
 
   const handleSave = async () => {
     try {
@@ -292,6 +383,229 @@ export default function AdminPage() {
               >
                 Aplicar Alterações no Multiverso
               </Button>
+            </Grid>
+
+            {/* --- CHAMADOS & RELATOS DE JOGADORES --- */}
+            <Grid item xs={12} sx={{ mt: 3 }}>
+              <SectionTitle icon={BugReportIcon}>
+                Chamados & Relatos de Jogadores ({reports.length})
+              </SectionTitle>
+
+              {/* Filtros */}
+              <Stack direction="row" spacing={1} sx={{ mb: 2 }} flexWrap="wrap" useFlexGap>
+                {[
+                  { id: "all", label: `Todos (${reports.length})` },
+                  { id: "pendente", label: `Pendentes (${reports.filter(r => r.status === "pendente" || !r.status).length})`, color: "#ef5350" },
+                  { id: "analise", label: `Em Análise (${reports.filter(r => r.status === "analise").length})`, color: "#ffa726" },
+                  { id: "resolvido", label: `Resolvidos (${reports.filter(r => r.status === "resolvido").length})`, color: "#66bb6a" }
+                ].map((f) => (
+                  <Chip
+                    key={f.id}
+                    label={f.label}
+                    onClick={() => setReportsFilter(f.id)}
+                    sx={{
+                      bgcolor: reportsFilter === f.id ? (f.color ? alpha(f.color, 0.25) : "rgba(255,255,255,0.2)") : "rgba(255,255,255,0.05)",
+                      border: `1px solid ${reportsFilter === f.id ? (f.color || "#fff") : "rgba(255,255,255,0.1)"}`,
+                      color: reportsFilter === f.id ? (f.color || "#fff") : "#aaa",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      fontFamily: "Cinzel"
+                    }}
+                  />
+                ))}
+              </Stack>
+
+              {reports.length === 0 ? (
+                <Box sx={{ p: 4, textAlign: "center", bgcolor: "rgba(0,0,0,0.3)", borderRadius: 2, border: "1px dashed rgba(255,255,255,0.1)" }}>
+                  <Typography variant="body2" sx={{ color: "#888", fontFamily: "Cinzel" }}>
+                    Nenhum chamado de erro ou sugestão recebido até o momento.
+                  </Typography>
+                </Box>
+              ) : (
+                <Stack spacing={2}>
+                  {reports
+                    .filter(r => reportsFilter === "all" ? true : (r.status || "pendente") === reportsFilter)
+                    .map((rep) => {
+                      const typeBadge = rep.type === "bug" 
+                        ? { label: "Bug / Erro", color: "#ef5350" }
+                        : rep.type === "suggestion"
+                        ? { label: "Sugestão", color: "#ffa726" }
+                        : { label: "Feedback", color: "#29b6f6" };
+
+                      const severityColor = rep.severity === "critica"
+                        ? "#ff1744"
+                        : rep.severity === "alta"
+                        ? "#ff9100"
+                        : rep.severity === "media"
+                        ? "#ffea00"
+                        : "#00e676";
+
+                      return (
+                        <Paper
+                          key={rep.id}
+                          sx={{
+                            p: 3,
+                            bgcolor: "#16100c",
+                            backgroundImage: "none",
+                            border: `1px solid ${rep.status === "resolvido" ? "rgba(102,187,106,0.6)" : "rgba(212,175,55,0.45)"}`,
+                            borderRadius: 2.5,
+                            boxShadow: "0 8px 24px rgba(0,0,0,0.6)",
+                            position: "relative",
+                            transition: "all 0.2s ease",
+                            "&:hover": {
+                              borderColor: "#ffd700",
+                              boxShadow: "0 12px 30px rgba(0,0,0,0.8)"
+                            }
+                          }}
+                        >
+                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 2, mb: 1.5 }}>
+                            <Box>
+                              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.8 }} flexWrap="wrap">
+                                <Chip
+                                  label={typeBadge.label}
+                                  size="small"
+                                  sx={{ bgcolor: alpha(typeBadge.color, 0.25), color: typeBadge.color, border: `1px solid ${typeBadge.color}`, fontWeight: 800, fontFamily: "Cinzel" }}
+                                />
+                                <Chip
+                                  label={`Impacto: ${rep.severity || "Média"}`}
+                                  size="small"
+                                  sx={{ bgcolor: alpha(severityColor, 0.2), color: severityColor, border: `1px solid ${severityColor}`, fontWeight: 700, fontSize: "0.75rem" }}
+                                />
+                                <Typography variant="caption" sx={{ color: "#b8ab99", fontWeight: 600 }}>
+                                  {rep.createdAt ? new Date(rep.createdAt).toLocaleString("pt-BR") : "Data desconhecida"}
+                                </Typography>
+                              </Stack>
+
+                              <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 900, color: "#ffd700", letterSpacing: 0.5 }}>
+                                {rep.title}
+                              </Typography>
+                            </Box>
+
+                            <IconButton
+                              size="small"
+                              onClick={() => handleDeleteReport(rep.id)}
+                              sx={{ color: "#aaa", "&:hover": { color: "#ff1744", bgcolor: "rgba(255,23,68,0.1)" } }}
+                              title="Remover chamado"
+                            >
+                              <DeleteForeverIcon fontSize="small" />
+                            </IconButton>
+                          </Box>
+
+                          {/* Caixa de Descrição do Jogador com Alto Contraste */}
+                          <Box sx={{ bgcolor: "#000000", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 1.5, p: 2, mb: 2 }}>
+                            <Typography variant="caption" sx={{ color: "#ffd700", fontWeight: 800, display: "block", mb: 0.5, fontFamily: "Cinzel" }}>
+                              Relato do Jogador:
+                            </Typography>
+                            <Typography variant="body1" sx={{ color: "#f5f0e6", whiteSpace: "pre-wrap", lineHeight: 1.7, fontSize: "0.95rem" }}>
+                              {rep.description}
+                            </Typography>
+                          </Box>
+
+                          {/* Seção de Resposta Existente */}
+                          {rep.adminReply && (
+                            <Box sx={{ bgcolor: "rgba(102,187,106,0.1)", border: "1px solid rgba(102,187,106,0.4)", borderRadius: 1.5, p: 2, mb: 2 }}>
+                              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
+                                <CheckCircleIcon sx={{ color: "#66bb6a", fontSize: 18 }} />
+                                <Typography variant="caption" sx={{ color: "#66bb6a", fontWeight: 800, fontFamily: "Cinzel" }}>
+                                  Sua Resposta Enviada ao Jogador ({rep.adminReplyAt ? new Date(rep.adminReplyAt).toLocaleString("pt-BR") : "Enviada"}):
+                                </Typography>
+                              </Stack>
+                              <Typography variant="body2" sx={{ color: "#e8f5e9", whiteSpace: "pre-wrap", lineHeight: 1.6 }}>
+                                {rep.adminReply}
+                              </Typography>
+                            </Box>
+                          )}
+
+                          {/* Formulário de Resposta do Mestre */}
+                          <Box sx={{ bgcolor: "rgba(0,0,0,0.5)", border: "1px solid rgba(212,175,55,0.3)", borderRadius: 1.5, p: 2, mb: 2 }}>
+                            <Typography variant="caption" sx={{ color: "#ffd700", fontWeight: 800, display: "block", mb: 1, fontFamily: "Cinzel" }}>
+                              {rep.adminReply ? "Atualizar / Enviar Nova Resposta:" : "Responder ao Jogador:"}
+                            </Typography>
+                            <TextField
+                              fullWidth
+                              multiline
+                              rows={2}
+                              placeholder="Digite a resposta ou solução que aparecerá no Mural de Avisos do jogador..."
+                              value={replyDrafts[rep.id] ?? (rep.adminReply || "")}
+                              onChange={(e) => setReplyDrafts(prev => ({ ...prev, [rep.id]: e.target.value }))}
+                              variant="filled"
+                              sx={{
+                                mb: 1.5,
+                                "& .MuiFilledInput-root": { bgcolor: "#0a0705", border: "1px solid rgba(255,255,255,0.2)", color: "#f5f0e6" }
+                              }}
+                            />
+                            <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
+                              <Button
+                                variant="contained"
+                                size="small"
+                                startIcon={<CheckCircleIcon />}
+                                onClick={() => handleSendAdminReply(rep.id, replyDrafts[rep.id] ?? rep.adminReply, "resolvido")}
+                                sx={{
+                                  bgcolor: "#2e7d32",
+                                  color: "#fff",
+                                  fontFamily: "Cinzel",
+                                  fontWeight: 800,
+                                  "&:hover": { bgcolor: "#1b5e20" }
+                                }}
+                              >
+                                Responder & Marcar como Resolvido
+                              </Button>
+                              <Button
+                                variant="outlined"
+                                size="small"
+                                onClick={() => handleSendAdminReply(rep.id, replyDrafts[rep.id] ?? rep.adminReply, "analise")}
+                                sx={{
+                                  borderColor: "rgba(255,167,38,0.5)",
+                                  color: "#ffa726",
+                                  fontFamily: "Cinzel",
+                                  fontWeight: 700,
+                                  "&:hover": { bgcolor: "rgba(255,167,38,0.1)", borderColor: "#ffa726" }
+                                }}
+                              >
+                                Responder (Em Análise)
+                              </Button>
+                            </Stack>
+                          </Box>
+
+                          <Divider sx={{ my: 1.5, borderColor: "rgba(255,255,255,0.1)" }} />
+
+                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 1.5 }}>
+                            <Box sx={{ fontSize: "0.85rem", color: "#b8ab99" }}>
+                              <Typography variant="caption" sx={{ display: "block", color: "#dcd3c2" }}>
+                                <strong>Jogador:</strong> <span style={{ color: "#ffd700" }}>{rep.userName || "Anônimo"}</span> ({rep.userEmail || "sem email"})
+                              </Typography>
+                              <Typography variant="caption" sx={{ display: "block", color: "#dcd3c2" }}>
+                                <strong>Rota / URL:</strong> <span style={{ color: "#fff" }}>{rep.pathname || rep.currentUrl || "N/A"}</span>
+                              </Typography>
+                            </Box>
+
+                            <FormControl size="small" sx={{ minWidth: 160 }}>
+                              <InputLabel sx={{ color: "#ffd700", fontFamily: "Cinzel" }}>Status</InputLabel>
+                              <Select
+                                value={rep.status || "pendente"}
+                                label="Status"
+                                onChange={(e) => handleUpdateReportStatus(rep.id, e.target.value)}
+                                sx={{
+                                  color: rep.status === "resolvido" ? "#66bb6a" : rep.status === "analise" ? "#ffa726" : "#ef5350",
+                                  bgcolor: "#000000",
+                                  fontWeight: 800,
+                                  fontFamily: "Cinzel",
+                                  "& .MuiOutlinedInput-notchedOutline": {
+                                    borderColor: rep.status === "resolvido" ? "rgba(102,187,106,0.6)" : rep.status === "analise" ? "rgba(255,167,38,0.6)" : "rgba(239,83,80,0.6)"
+                                  }
+                                }}
+                              >
+                                <MenuItem value="pendente" sx={{ color: "#ef5350", fontWeight: 700 }}>Pendente</MenuItem>
+                                <MenuItem value="analise" sx={{ color: "#ffa726", fontWeight: 700 }}>Em Análise</MenuItem>
+                                <MenuItem value="resolvido" sx={{ color: "#66bb6a", fontWeight: 700 }}>Resolvido</MenuItem>
+                              </Select>
+                            </FormControl>
+                          </Box>
+                        </Paper>
+                      );
+                    })}
+                </Stack>
+              )}
             </Grid>
           </Grid>
         </GrimoirePaper>

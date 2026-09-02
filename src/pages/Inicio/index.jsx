@@ -1,5 +1,4 @@
-// Inicio.jsx
-import React, { memo } from "react";
+import React, { memo, useState, useEffect } from "react";
 import { motion, MotionConfig, useReducedMotion } from "framer-motion";
 import {
   Box,
@@ -14,6 +13,8 @@ import {
 import { alpha, styled, useTheme } from "@mui/material/styles";
 import AutoStoriesIcon from "@mui/icons-material/AutoStories";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import FeedbackIcon from "@mui/icons-material/Feedback";
 import { Link as RouterLink } from "react-router-dom";
 
 // ✅ IMPORTAR o novo Hook
@@ -23,6 +24,8 @@ import { usePreferences } from "contexts/PreferencesContext";
 import bg from "./tumblr_okx6d5BR4K1rnbw6mo1_540.webp";
 import AppCard from "components/Cards/AppCard";
 import { HOME_SECTIONS } from "components/Cards/cardsRegistry";
+import WelcomeGuideModal from "components/WelcomeGuideModal";
+import ReportFeedbackModal from "components/ReportFeedbackModal";
 
 // --- OTIMIZAÇÃO 1: Styled Components (Zero Runtime Overhead no render) ---
 
@@ -97,7 +100,7 @@ const buttonMotionProps = {
 
 // --- COMPONENTES ---
 
-const HeroBanner = memo(() => {
+const HeroBanner = memo(({ onOpenGuide, onOpenReport }) => {
   return (
     <HeroPaper elevation={0}>
       {/* Gradiente leve substituindo Blur pesado */}
@@ -151,18 +154,18 @@ const HeroBanner = memo(() => {
               crie novos personagens para a próxima aventura.
             </Typography>
 
-            <Stack direction="row" spacing={2} sx={{ pt: 1 }}>
+            <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap sx={{ pt: 1 }}>
               <Button
                 component={RouterLink}
                 to="/fichas"
                 variant="contained"
                 startIcon={<AddCircleOutlineIcon />}
-                {...buttonMotionProps} // ✅ Aplica a física de botão
+                {...buttonMotionProps}
                 sx={{
                   bgcolor: "#bf8f00",
                   color: "#2c1a10",
                   fontWeight: 800,
-                  border: "none", // Remove borda padrão do button HTML
+                  border: "none",
                   "&:hover": { bgcolor: "#a67c00" },
                 }}
               >
@@ -173,7 +176,7 @@ const HeroBanner = memo(() => {
                 to="/diario"
                 variant="outlined"
                 startIcon={<AutoStoriesIcon />}
-                {...buttonMotionProps} // ✅ Aplica a física de botão
+                {...buttonMotionProps}
                 sx={{
                   borderColor: "rgba(255,255,255,0.3)",
                   color: "#fff",
@@ -184,6 +187,42 @@ const HeroBanner = memo(() => {
                 }}
               >
                 Diário
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<AutoAwesomeIcon />}
+                onClick={onOpenGuide}
+                {...buttonMotionProps}
+                sx={{
+                  borderColor: "rgba(212,175,55,0.5)",
+                  color: "#e5b324",
+                  fontFamily: "Cinzel",
+                  fontWeight: 700,
+                  bgcolor: "rgba(212,175,55,0.1)",
+                  "&:hover": {
+                    borderColor: "#e5b324",
+                    bgcolor: "rgba(212,175,55,0.2)",
+                  },
+                }}
+              >
+                Guia & Novidades
+              </Button>
+              <Button
+                variant="text"
+                startIcon={<FeedbackIcon />}
+                onClick={onOpenReport}
+                {...buttonMotionProps}
+                sx={{
+                  color: "#aaa",
+                  fontFamily: "Cinzel",
+                  fontSize: "0.8rem",
+                  "&:hover": {
+                    color: "#fff",
+                    bgcolor: "rgba(255,255,255,0.05)",
+                  },
+                }}
+              >
+                Reportar Feedback
               </Button>
             </Stack>
           </Stack>
@@ -264,6 +303,16 @@ export default function Inicio() {
   // ✅ Usar o hook aqui
   const system = useSystem();
 
+  const [welcomeOpen, setWelcomeOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+
+  useEffect(() => {
+    const seen = localStorage.getItem("rpg_welcome_guide_seen_v1");
+    if (!seen) {
+      setWelcomeOpen(true);
+    }
+  }, []);
+
   return (
     <MotionConfig reducedMotion="never">
       <PageContainer
@@ -275,7 +324,10 @@ export default function Inicio() {
         <Container maxWidth="lg">
           {/* Hero Section */}
           <motion.div variants={shouldAnimate ? itemVariants : undefined}>
-            <HeroBanner />
+            <HeroBanner 
+              onOpenGuide={() => setWelcomeOpen(true)}
+              onOpenReport={() => setReportOpen(true)}
+            />
           </motion.div>
 
           {/* Seções */}
@@ -367,6 +419,17 @@ export default function Inicio() {
             </Stack>
           </Box>
         </Container>
+
+        <WelcomeGuideModal 
+          open={welcomeOpen}
+          onClose={() => setWelcomeOpen(false)}
+          onOpenReport={() => setReportOpen(true)}
+        />
+
+        <ReportFeedbackModal
+          open={reportOpen}
+          onClose={() => setReportOpen(false)}
+        />
       </PageContainer>
     </MotionConfig>
   );

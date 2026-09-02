@@ -3,10 +3,34 @@
     ".read": false,
     ".write": false,
 
+    "system": {
+      "metadata": {
+        // Todo mundo pode ler a versão e anúncios
+        ".read": true,
+        // SÓ VOCÊ pode alterar
+        ".write": "auth != null && auth.uid === 'hKYEhI9JIEPOS2RSON7tsviLzjV2'"
+      },
+      "reports": {
+        // Leitura para você (admin) e quem enviou
+        ".read": "auth != null",
+        "$reportId": {
+          // Qualquer usuário logado pode criar um report; admin pode editar/excluir
+          ".write": "auth != null"
+        }
+      }
+    },
+
+    "reports": {
+      ".read": "auth != null",
+      "$reportId": {
+        ".write": "auth != null"
+      }
+    },
+
     "users": {
       "$uid": {
-        ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && auth.uid === $uid",
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
         "campaigns": {
           "$campaignId": {
             "sessionLogs": {
@@ -14,6 +38,86 @@
             }
           }
         }
+      }
+    },
+
+    "preferences": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        "themeMode": {
+          ".validate": "newData.isString() && (newData.val() === 'system' || newData.val() === 'light' || newData.val() === 'dark')"
+        },
+        "themeStyle": {
+          ".validate": "newData.isString() && (newData.val() === 'parchment' || newData.val() === 'default')"
+        },
+        "reduceMotion": {
+          ".validate": "newData.isBoolean()"
+        },
+        "pageTransition": {
+          ".validate": "newData.isString() && (newData.val() === 'dragon' || newData.val() === 'simple')"
+        },
+        "updatedAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "$other": {
+          ".validate": true
+        }
+      }
+    },
+
+    "books": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "musicas": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "notes": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "folders": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "fichas": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        ".indexOn": ["id", "createdAt"]
+      }
+    },
+
+    "maps": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "public_assets": {
+      ".read": true,
+      ".write": false
+    },
+
+    "user_assets": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
       }
     },
 

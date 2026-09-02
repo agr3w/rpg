@@ -25,6 +25,7 @@ import {
   alpha,
   Collapse,
   Chip,
+  Stack,
 } from "@mui/material";
 
 import {
@@ -42,7 +43,7 @@ import {
   LightMode as LightModeIcon,
 } from "@mui/icons-material";
 
-import { auth } from "APIs/firebaseConfig";
+import { auth, database } from "APIs/firebaseConfig";
 import { signOut } from "firebase/auth";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
@@ -54,6 +55,7 @@ import NewReleasesIcon from '@mui/icons-material/NewReleases'; // Para novidades
 import WarningIcon from '@mui/icons-material/Warning'; // Para avisos
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'; // Para Lore
 import ReportProblemIcon from '@mui/icons-material/ReportProblem'; // Para Erros
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 // ✅ Importamos a lógica para saber qual elemento estamos
 import { getElementFromPath } from "theme/elementTokens";
@@ -284,14 +286,14 @@ const Nav = () => {
 
   // --- CÓDIGO QUE FALTAVA ---
   
-  // ✅ 1. Estado para controlar se é novo
+  // ✅ Estado para controlar se é novo
   const [isNewNotification, setIsNewNotification] = useState(false);
+  const [userTicketReplies, setUserTicketReplies] = useState([]);
 
-  // ✅ 2. Efeito para verificar o localStorage
+  // ✅ Efeito para verificar o localStorage e escutar respostas de chamados do usuário
   useEffect(() => {
     if (hasAnnouncement && announcement.id) {
       const lastSeenId = localStorage.getItem("rpg_last_announcement_id");
-      // Se o ID do sistema for diferente do salvo, é novo!
       if (lastSeenId !== String(announcement.id)) {
         setIsNewNotification(true);
       } else {
@@ -302,9 +304,58 @@ const Nav = () => {
     }
   }, [hasAnnouncement, announcement?.id]);
 
-  // ✅ 3. Helper para pegar estilo da notificação atual
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (!user) {
+      setUserTicketReplies([]);
+      return;
+    }
+
+    const reportsRef = database.ref("reports");
+    const sysReportsRef = database.ref("system/reports");
+    let reportsMap = {};
+    let sysReportsMap = {};
+
+    const syncUserReplies = () => {
+      const merged = { ...sysReportsMap, ...reportsMap };
+      const replies = Object.entries(merged)
+        .map(([id, r]) => ({ id, ...r }))
+        .filter(r => (r.userId === user.uid || r.userEmail === user.email) && r.adminReply && !r.userDismissed)
+        .sort((a, b) => (new Date(b.adminReplyAt || 0)) - (new Date(a.adminReplyAt || 0)));
+      setUserTicketReplies(replies);
+    };
+
+    const l1 = reportsRef.on("value", (snap) => {
+      reportsMap = snap.val() || {};
+      syncUserReplies();
+    });
+
+    const l2 = sysReportsRef.on("value", (snap) => {
+      sysReportsMap = snap.val() || {};
+      syncUserReplies();
+    });
+
+    return () => {
+      reportsRef.off("value", l1);
+      sysReportsRef.off("value", l2);
+    };
+  }, [auth.currentUser]);
+
+  const handleDismissTicketReply = useCallback(async (ticketId) => {
+    try {
+      await database.ref(`reports/${ticketId}`).update({ userDismissed: true }).catch(() => {
+        return database.ref(`system/reports/${ticketId}`).update({ userDismissed: true });
+      });
+    } catch (err) {
+      console.error("Erro ao dispensar notificação:", err);
+    }
+  }, []);
+
+  // ✅ Helper para pegar estilo da notificação atual
   const notifStyle = NOTIF_TYPES[announcement?.type] || NOTIF_TYPES.info;
   const NotifIcon = notifStyle.icon;
+
+  const totalNotifications = (isNewNotification ? 1 : 0) + userTicketReplies.length;
 
   // --- FIM DO CÓDIGO QUE FALTAVA ---
 
@@ -336,42 +387,6 @@ const Nav = () => {
   const profileTimerRef = useRef(null);
   const toolsTimerRef = useRef(null);
 
-  // ✅ Profile Hover Handlers
-  const handleProfileMouseEnter = useCallback((event) => {
-    if (profileTimerRef.current) clearTimeout(profileTimerRef.current);
-    setAnchorEl(event.currentTarget);
-  }, []);
-
-  const handleProfileMouseLeave = useCallback(() => {
-    if (profileTimerRef.current) clearTimeout(profileTimerRef.current);
-    profileTimerRef.current = setTimeout(() => {
-      setAnchorEl(null);
-    }, 180);
-  }, []);
-
-  const handleProfileMenuClose = useCallback(() => {
-    if (profileTimerRef.current) clearTimeout(profileTimerRef.current);
-    setAnchorEl(null);
-  }, []);
-
-  // ✅ Tools Hover Handlers
-  const handleToolsMouseEnter = useCallback((event) => {
-    if (toolsTimerRef.current) clearTimeout(toolsTimerRef.current);
-    setToolsAnchorEl(event.currentTarget);
-  }, []);
-
-  const handleToolsMouseLeave = useCallback(() => {
-    if (toolsTimerRef.current) clearTimeout(toolsTimerRef.current);
-    toolsTimerRef.current = setTimeout(() => {
-      setToolsAnchorEl(null);
-    }, 180);
-  }, []);
-
-  const handleToolsMenuClose = useCallback(() => {
-    if (toolsTimerRef.current) clearTimeout(toolsTimerRef.current);
-    setToolsAnchorEl(null);
-  }, []);
-
   const closeAllMenus = useCallback(() => {
     if (profileTimerRef.current) clearTimeout(profileTimerRef.current);
     if (toolsTimerRef.current) clearTimeout(toolsTimerRef.current);
@@ -380,6 +395,64 @@ const Nav = () => {
     setNotifAnchorEl(null);
     setDrawerOpen(false);
   }, []);
+
+  // ✅ Profile Hover & Click Handlers (Mutuamente exclusivos)
+  const handleProfileMouseEnter = useCallback((event) => {
+    if (profileTimerRef.current) clearTimeout(profileTimerRef.current);
+    if (toolsTimerRef.current) clearTimeout(toolsTimerRef.current);
+    setToolsAnchorEl(null);
+    setNotifAnchorEl(null);
+    setAnchorEl(event.currentTarget);
+  }, []);
+
+  const handleProfileMouseLeave = useCallback(() => {
+    if (profileTimerRef.current) clearTimeout(profileTimerRef.current);
+    profileTimerRef.current = setTimeout(() => {
+      setAnchorEl(null);
+    }, 120);
+  }, []);
+
+  const handleProfileMenuClose = useCallback(() => {
+    if (profileTimerRef.current) clearTimeout(profileTimerRef.current);
+    setAnchorEl(null);
+  }, []);
+
+  const handleProfileClick = useCallback((event) => {
+    if (anchorEl) {
+      handleProfileMenuClose();
+    } else {
+      handleProfileMouseEnter(event);
+    }
+  }, [anchorEl, handleProfileMenuClose, handleProfileMouseEnter]);
+
+  // ✅ Tools Hover & Click Handlers (Mutuamente exclusivos)
+  const handleToolsMouseEnter = useCallback((event) => {
+    if (toolsTimerRef.current) clearTimeout(toolsTimerRef.current);
+    if (profileTimerRef.current) clearTimeout(profileTimerRef.current);
+    setAnchorEl(null);
+    setNotifAnchorEl(null);
+    setToolsAnchorEl(event.currentTarget);
+  }, []);
+
+  const handleToolsMouseLeave = useCallback(() => {
+    if (toolsTimerRef.current) clearTimeout(toolsTimerRef.current);
+    toolsTimerRef.current = setTimeout(() => {
+      setToolsAnchorEl(null);
+    }, 120);
+  }, []);
+
+  const handleToolsMenuClose = useCallback(() => {
+    if (toolsTimerRef.current) clearTimeout(toolsTimerRef.current);
+    setToolsAnchorEl(null);
+  }, []);
+
+  const handleToolsClick = useCallback((event) => {
+    if (toolsAnchorEl) {
+      handleToolsMenuClose();
+    } else {
+      handleToolsMouseEnter(event);
+    }
+  }, [toolsAnchorEl, handleToolsMenuClose, handleToolsMouseEnter]);
 
   // ✅ Navegação com fechamento imediato de todos os menus
   const handleNavClick = useCallback(
@@ -392,12 +465,18 @@ const Nav = () => {
   
   // ✅ Handlers de Notificação
   const handleNotifOpen = useCallback((event) => {
+    if (notifAnchorEl) {
+      setNotifAnchorEl(null);
+      return;
+    }
+    setAnchorEl(null);
+    setToolsAnchorEl(null);
     setNotifAnchorEl(event.currentTarget);
     if (hasAnnouncement && announcement.id) {
       localStorage.setItem("rpg_last_announcement_id", String(announcement.id));
       setIsNewNotification(false); // Para de piscar instantaneamente
     }
-  }, [hasAnnouncement, announcement]);
+  }, [notifAnchorEl, hasAnnouncement, announcement]);
 
   const handleNotifClose = useCallback(() => setNotifAnchorEl(null), []);
 
@@ -423,6 +502,7 @@ const Nav = () => {
     closeAllMenus();
   }, [location.pathname, location.search, closeAllMenus]);
 
+  // Fechar menus ao rolar a página ou clicar fora
   useEffect(() => {
     const handlePointerDownOutside = (e) => {
       const isInsideMenu = e.target && e.target.closest && e.target.closest(".MuiPaper-root");
@@ -430,9 +510,17 @@ const Nav = () => {
         closeAllMenus();
       }
     };
+    const handleScroll = () => {
+      if (anchorEl || toolsAnchorEl || notifAnchorEl) {
+        closeAllMenus();
+      }
+    };
+
     window.addEventListener("pointerdown", handlePointerDownOutside);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
       window.removeEventListener("pointerdown", handlePointerDownOutside);
+      window.removeEventListener("scroll", handleScroll);
       if (profileTimerRef.current) clearTimeout(profileTimerRef.current);
       if (toolsTimerRef.current) clearTimeout(toolsTimerRef.current);
     };
@@ -708,7 +796,7 @@ const Nav = () => {
                 <Button
                   color="inherit"
                   startIcon={<FolderIcon />}
-                  onClick={handleToolsMouseEnter}
+                  onClick={handleToolsClick}
                   sx={{
                     ...navItemSx,
                     ...(Boolean(toolsAnchorEl)
@@ -781,21 +869,20 @@ const Nav = () => {
               onClick={handleNotifOpen}
             >
               <Badge 
-                badgeContent={isNewNotification ? "!" : 0} 
+                badgeContent={totalNotifications > 0 ? (totalNotifications > 9 ? "9+" : totalNotifications) : 0} 
                 sx={{ 
                   "& .MuiBadge-badge": { 
-                    bgcolor: notifStyle.color, // Cor dinâmica baseada no tipo
+                    bgcolor: userTicketReplies.length > 0 ? "#66bb6a" : notifStyle.color,
                     color: "#000",
                     fontWeight: "bold",
                     fontSize: 10, 
                     height: 18, 
                     minWidth: 18,
-                    // Só anima se for novo
-                    animation: isNewNotification ? "pulse 2s infinite" : "none",
+                    animation: totalNotifications > 0 ? "pulse 2s infinite" : "none",
                     "@keyframes pulse": {
-                      "0%": { boxShadow: `0 0 0 0 ${alpha(notifStyle.color, 0.7)}` },
-                      "70%": { boxShadow: `0 0 0 6px ${alpha(notifStyle.color, 0)}` },
-                      "100%": { boxShadow: `0 0 0 0 ${alpha(notifStyle.color, 0)}` }
+                      "0%": { boxShadow: `0 0 0 0 ${alpha(userTicketReplies.length > 0 ? "#66bb6a" : notifStyle.color, 0.7)}` },
+                      "70%": { boxShadow: `0 0 0 6px ${alpha(userTicketReplies.length > 0 ? "#66bb6a" : notifStyle.color, 0)}` },
+                      "100%": { boxShadow: `0 0 0 0 ${alpha(userTicketReplies.length > 0 ? "#66bb6a" : notifStyle.color, 0)}` }
                     }
                   } 
                 }}
@@ -804,42 +891,123 @@ const Nav = () => {
               </Badge>
             </IconButton>
 
-            {/* ✅ MENU DE NOTIFICAÇÕES RICO */}
+            {/* ✅ MENU DE NOTIFICAÇÕES RICO COM RESPOSTAS AOS CHAMADOS */}
             <Menu
               anchorEl={notifAnchorEl}
               open={Boolean(notifAnchorEl)}
               onClose={handleNotifClose}
-              PaperProps={{ sx: { ...toolsMenuPaperSx, maxWidth: 360, p: 0 } }}
+              PaperProps={{ 
+                sx: { 
+                  ...toolsMenuPaperSx, 
+                  width: { xs: 320, sm: 400 }, 
+                  maxWidth: "92vw", 
+                  p: 0,
+                  bgcolor: "#140e0b",
+                  backgroundImage: "none",
+                  border: "1px solid rgba(212,175,55,0.45)",
+                  boxShadow: "0 16px 40px rgba(0,0,0,0.9)"
+                } 
+              }}
               disableScrollLock
             >
-              <Box sx={{ p: 2, pb: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Typography variant="overline" sx={{ opacity: 0.7, fontWeight: 700 }}>
-                  Mural de Avisos
+              <Box sx={{ p: 2, pb: 1, display: "flex", justifyContent: "space-between", alignItems: "center", bgcolor: "rgba(0,0,0,0.4)" }}>
+                <Typography variant="overline" sx={{ color: "#ffd700", fontWeight: 800, fontFamily: "Cinzel", letterSpacing: 1 }}>
+                  Mural de Avisos & Mensagens
                 </Typography>
-                {hasAnnouncement && (
+                {totalNotifications > 0 && (
                   <Chip 
-                    label={notifStyle.label} 
+                    label={`${totalNotifications} ${totalNotifications === 1 ? "novo" : "novos"}`} 
                     size="small" 
                     sx={{ 
                       height: 20, 
                       fontSize: 10, 
-                      bgcolor: alpha(notifStyle.color, 0.2), 
-                      color: notifStyle.color,
-                      border: `1px solid ${alpha(notifStyle.color, 0.3)}`
+                      bgcolor: "rgba(102,187,106,0.2)", 
+                      color: "#66bb6a",
+                      border: "1px solid rgba(102,187,106,0.4)",
+                      fontWeight: "bold"
                     }} 
                   />
                 )}
               </Box>
-              <Divider sx={{ borderColor: "rgba(255,255,255,0.1)" }} />
+              <Divider sx={{ borderColor: "rgba(212,175,55,0.2)" }} />
+
+              {/* 1. RESPOSTAS PESSOAIS DE CHAMADOS */}
+              {userTicketReplies.length > 0 && (
+                <Box sx={{ p: 2, bgcolor: "rgba(0,0,0,0.25)" }}>
+                  <Typography variant="caption" sx={{ color: "#ffd700", fontWeight: 800, fontFamily: "Cinzel", display: "block", mb: 1.5 }}>
+                    Respostas do Mestre aos seus Chamados:
+                  </Typography>
+                  <Stack spacing={1.5}>
+                    {userTicketReplies.map((ticket) => (
+                      <Box
+                        key={ticket.id}
+                        sx={{
+                          p: 1.5,
+                          bgcolor: "#1a120e",
+                          border: `1px solid ${ticket.status === "resolvido" ? "rgba(102,187,106,0.5)" : "rgba(255,167,38,0.5)"}`,
+                          borderRadius: 2,
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.6)"
+                        }}
+                      >
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.8 }}>
+                          <Typography variant="subtitle2" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#ffd700", fontSize: "0.85rem" }}>
+                            {ticket.title}
+                          </Typography>
+                          <Chip
+                            label={ticket.status === "resolvido" ? "Resolvido" : "Em Análise"}
+                            size="small"
+                            sx={{
+                              height: 18,
+                              fontSize: "0.65rem",
+                              bgcolor: ticket.status === "resolvido" ? "rgba(102,187,106,0.2)" : "rgba(255,167,38,0.2)",
+                              color: ticket.status === "resolvido" ? "#66bb6a" : "#ffa726",
+                              border: `1px solid ${ticket.status === "resolvido" ? "rgba(102,187,106,0.4)" : "rgba(255,167,38,0.4)"}`,
+                              fontWeight: "bold"
+                            }}
+                          />
+                        </Box>
+
+                        <Typography variant="body2" sx={{ color: "#f5f0e6", fontSize: "0.84rem", lineHeight: 1.6, mb: 1.2, bgcolor: "#0a0705", p: 1, borderRadius: 1, border: "1px solid rgba(255,255,255,0.08)" }}>
+                          <strong style={{ color: "#ffd700" }}>Mestre:</strong> {ticket.adminReply}
+                        </Typography>
+
+                        <Button
+                          variant="contained"
+                          size="small"
+                          fullWidth
+                          startIcon={<CheckCircleIcon sx={{ fontSize: 14 }} />}
+                          onClick={() => handleDismissTicketReply(ticket.id)}
+                          sx={{
+                            bgcolor: ticket.status === "resolvido" ? "#2e7d32" : "#bf8f00",
+                            color: ticket.status === "resolvido" ? "#fff" : "#120e0a",
+                            fontFamily: "Cinzel",
+                            fontWeight: 800,
+                            fontSize: "0.74rem",
+                            py: 0.5,
+                            "&:hover": { bgcolor: ticket.status === "resolvido" ? "#1b5e20" : "#ffd700" }
+                          }}
+                        >
+                          Marcar como Lido
+                        </Button>
+                      </Box>
+                    ))}
+                  </Stack>
+                </Box>
+              )}
+
+              {userTicketReplies.length > 0 && hasAnnouncement && (
+                <Divider sx={{ borderColor: "rgba(212,175,55,0.2)" }} />
+              )}
               
-              {hasAnnouncement ? (
+              {/* 2. ANÚNCIO GLOBAL DA TAVERNA */}
+              {hasAnnouncement && (
                 <Box sx={{ p: 2 }}>
                   <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
                     <Box 
                       sx={{ 
                         p: 1, 
                         borderRadius: 1.5, 
-                        bgcolor: alpha(notifStyle.color, 0.1),
+                        bgcolor: alpha(notifStyle.color, 0.15),
                         color: notifStyle.color,
                         display: "grid",
                         placeItems: "center"
@@ -849,29 +1017,30 @@ const Nav = () => {
                     </Box>
                     <Box sx={{ flex: 1 }}>
                       {announcement.title && (
-                        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#fff", mb: 0.5 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#ffd700", fontFamily: "Cinzel", mb: 0.5 }}>
                           {announcement.title}
                         </Typography>
                       )}
-                      <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.8)", lineHeight: 1.5 }}>
+                      <Typography variant="body2" sx={{ color: "#f5f0e6", lineHeight: 1.6, fontSize: "0.85rem" }}>
                         {announcement.message}
                       </Typography>
                       
-                      {/* Botão de Ação (Link) */}
                       {announcement.link && (
                         <Button
                           variant="outlined"
                           size="small"
                           href={announcement.link}
-                          target="_blank" // Abre em nova aba
+                          target="_blank"
                           rel="noopener noreferrer"
                           sx={{ 
-                            mt: 2, 
+                            mt: 1.5, 
                             borderColor: alpha(notifStyle.color, 0.5),
                             color: notifStyle.color,
+                            fontFamily: "Cinzel",
+                            fontWeight: 700,
                             "&:hover": {
                               borderColor: notifStyle.color,
-                              bgcolor: alpha(notifStyle.color, 0.1)
+                              bgcolor: alpha(notifStyle.color, 0.15)
                             }
                           }}
                         >
@@ -881,10 +1050,17 @@ const Nav = () => {
                     </Box>
                   </Box>
                 </Box>
-              ) : (
-                <Box sx={{ p: 4, textAlign: "center", opacity: 0.5 }}>
-                  <Typography variant="body2">O vento sopra silencioso...</Typography>
-                  <Typography variant="caption">Nenhum aviso no momento.</Typography>
+              )}
+
+              {/* 3. ESTADO VAZIO */}
+              {!hasAnnouncement && userTicketReplies.length === 0 && (
+                <Box sx={{ p: 4, textAlign: "center", opacity: 0.7 }}>
+                  <Typography variant="body2" sx={{ color: "#ffd700", fontFamily: "Cinzel", fontWeight: 700 }}>
+                    O vento sopra silencioso...
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: "#dcd3c2" }}>
+                    Nenhum aviso ou mensagem pendente.
+                  </Typography>
                 </Box>
               )}
             </Menu>
@@ -896,7 +1072,7 @@ const Nav = () => {
             >
               <Tooltip title="Conta">
                 <IconButton
-                  onClick={handleProfileMouseEnter}
+                  onClick={handleProfileClick}
                   sx={{
                     p: 0.3,
                     ml: 0.5,
