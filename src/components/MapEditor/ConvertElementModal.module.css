@@ -1,0 +1,137 @@
+/* src/components/MapEditor/ConvertElementModal.module.css */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalCard {
+  width: 440px;
+  background: #111520;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85);
+  color: #e6edf3;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  padding-bottom: 8px;
+  margin-bottom: 14px;
+}
+
+.header h4 {
+  margin: 0;
+  color: #f1c40f;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: #8b949e;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.field label {
+  font-size: 0.72rem;
+  color: #8b949e;
+  font-weight: bold;
+}
+
+.field input,
+.select {
+  background: #090c14;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.typeGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.typeBtn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #c9d1d9;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+  transition: all 0.15s ease;
+}
+
+.typeBtn:hover {
+  background: rgba(212, 175, 55, 0.1);
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.activeType {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: #f1c40f;
+  color: #f1c40f;
+  font-weight: bold;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.cancelBtn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #8b949e;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.submitBtn {
+  background: #c29928;
+  color: #0b0d14;
+  border: none;
+  font-weight: bold;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}

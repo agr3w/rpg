@@ -10,11 +10,14 @@ import MapSettingsDialog from "components/MapEditor/MapSettingsDialog";
 import QuickEditModal from "components/MapEditor/QuickEditModal";
 import ActivePlayersList from "components/MapEditor/ActivePlayersList";
 import ShareSessionModal from "components/MapEditor/ShareSessionModal";
+import TokenMiniSheet from "components/MapEditor/TokenMiniSheet";
+import ConvertElementModal from "components/MapEditor/ConvertElementModal";
 
 import { snapToGrid, pointToCell } from "Utils/gridUtils";
 import { calculateDistance, formatDistance } from "Utils/rulerUtils";
 import { createFogCanvas, revealFogCircle, hideFogCircle, fillFog, clearFog } from "Utils/fogUtils";
 import { exportMapImage, exportUniversalVTT } from "Utils/vttExporter";
+import { rollDiceString } from "Utils/DiceRoller";
 import { trackPlayerPresence, syncMapState, setupSession } from "APIs/sessionService";
 import { auth } from "APIs/firebaseConfig";
 import { getDatabase, ref, onValue } from "firebase/database";
@@ -58,6 +61,29 @@ const MapEditor = () => {
   // --- SESSÃO VTT / MULTIPLAYER ESTADOS ---
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [sessionMeta, setSessionMeta] = useState(null);
+
+  // --- FICHAS & TOKENS TÁTICOS ---
+  const [userSheets, setUserSheets] = useState([]);
+  const [configuringElement, setConfiguringElement] = useState(null);
+  const [activeMiniSheet, setActiveMiniSheet] = useState(null);
+
+  // Carregar fichas de personagem do usuário
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (!user) return;
+    const db = getDatabase();
+    const fichasRef = ref(db, `fichas/${user.uid}`);
+    const unsub = onValue(fichasRef, (snap) => {
+      const data = snap.val() || {};
+      const list = Object.entries(data).map(([key, val]) => ({
+        id: key,
+        key,
+        ...val
+      }));
+      setUserSheets(list);
+    });
+    return () => unsub();
+  }, []);
 
   // --- FIGMA-STYLE NAVIGATION REFS ---
   const [isSpacePressed, setIsSpacePressed] = useState(false);
@@ -728,6 +754,25 @@ const MapEditor = () => {
 
   const handleDragOver = (e) => { e.preventDefault(); };
 
+  const handleUpdateElement = (id, changes) => {
+    setElements((prev) => {
+      const updated = prev.map((item) => (item.id === id ? { ...item, ...changes } : item));
+      saveMapState(mapId, updated);
+      return updated;
+    });
+    if (activeMiniSheet?.token?.id === id) {
+      setActiveMiniSheet((prev) => ({
+        ...prev,
+        token: { ...prev.token, ...changes }
+      }));
+    }
+  };
+
+  const handleRollFromSheet = (formula, label) => {
+    const result = rollDiceString(formula);
+    showMsg(`${label}: Rolou [${result.rolls.join(", ")}] ${result.modifier >= 0 ? `+${result.modifier}` : result.modifier} = Total: ${result.total}`);
+  };
+
   // --- RENDERIZAÇÃO ---
   const renderGrid = () => {
     if (!showGrid) return null;
@@ -758,11 +803,32 @@ const MapEditor = () => {
       },
       onDblClick: (e) => {
         e.cancelBubble = true;
-        setEditingElement(el);
+        if (el.type === "token" || el.characterId) {
+          const sheet = userSheets.find((s) => s.id === el.characterId || s.key === el.characterId) || null;
+          setActiveMiniSheet({ token: el, sheetData: sheet });
+        } else if (el.tool === "image" || el.type === "prop") {
+          setConfiguringElement(el);
+        } else {
+          setEditingElement(el);
+        }
       },
       onDblTap: (e) => {
         e.cancelBubble = true;
-        setEditingElement(el);
+        if (el.type === "token" || el.characterId) {
+          const sheet = userSheets.find((s) => s.id === el.characterId || s.key === el.characterId) || null;
+          setActiveMiniSheet({ token: el, sheetData: sheet });
+        } else if (el.tool === "image" || el.type === "prop") {
+          setConfiguringElement(el);
+        } else {
+          setEditingElement(el);
+        }
+      },
+      onContextMenu: (e) => {
+        if (el.tool === "image" || el.type === "token" || el.type === "prop") {
+          e.evt.preventDefault();
+          e.cancelBubble = true;
+          setConfiguringElement(el);
+        }
       },
       onDragEnd: handleDragEnd,
       onTransformEnd: handleTransformEnd,
@@ -888,6 +954,27 @@ const MapEditor = () => {
           element={editingElement}
           onSave={handleQuickEditSave}
           onClose={() => setEditingElement(null)}
+        />
+      )}
+
+      {/* Mini Ficha Tática Lateral */}
+      {activeMiniSheet && (
+        <TokenMiniSheet
+          token={activeMiniSheet.token}
+          sheetData={activeMiniSheet.sheetData}
+          onRollDice={handleRollFromSheet}
+          onUpdateToken={handleUpdateElement}
+          onClose={() => setActiveMiniSheet(null)}
+        />
+      )}
+
+      {/* Modal de Conversão e Vinculação de Ficha ao Elemento */}
+      {configuringElement && (
+        <ConvertElementModal
+          element={configuringElement}
+          userSheets={userSheets}
+          onUpdateElement={handleUpdateElement}
+          onClose={() => setConfiguringElement(null)}
         />
       )}
 

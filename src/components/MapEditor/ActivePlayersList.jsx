@@ -1,6 +1,9 @@
 ﻿// src/components/MapEditor/ActivePlayersList.jsx
 import React, { useEffect, useState } from "react";
 import { getDatabase, ref, onValue } from "firebase/database";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
+import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
 import { kickPlayer } from "../../APIs/sessionService";
 import styles from "./ActivePlayersList.module.css";
 
@@ -29,7 +32,8 @@ export default function ActivePlayersList({ sessionId, isMaster }) {
         title="Jogadores na Sessão"
       >
         <span className={styles.onlineDot} />
-        👥 <span className={styles.playerCount}>{players.length}</span>
+        <PeopleAltIcon sx={{ fontSize: 18, color: "#ffd700" }} />
+        <span className={styles.playerCount}>{players.length}</span>
       </button>
 
       {showMenu && (
@@ -54,7 +58,12 @@ export default function ActivePlayersList({ sessionId, isMaster }) {
 
                 <div className={styles.playerDetails}>
                   <span className={styles.playerName}>
-                    {player.name} {player.isDM && <span className={styles.dmCrown}>👑 Mestre</span>}
+                    {player.name} {player.isDM && (
+                      <span className={styles.dmCrown}>
+                        <WorkspacePremiumIcon sx={{ fontSize: 14, verticalAlign: "middle", mr: 0.3 }} />
+                        Mestre
+                      </span>
+                    )}
                   </span>
                 </div>
 
@@ -63,8 +72,9 @@ export default function ActivePlayersList({ sessionId, isMaster }) {
                     className={styles.kickButton}
                     onClick={() => kickPlayer(sessionId, player.uid)}
                     title="Expulsar jogador"
+                    aria-label="Expulsar jogador"
                   >
-                    ⛔
+                    <PersonRemoveIcon sx={{ fontSize: 14 }} />
                   </button>
                 )}
               </div>

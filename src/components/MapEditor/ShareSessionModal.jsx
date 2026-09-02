@@ -1,5 +1,9 @@
 ﻿// src/components/MapEditor/ShareSessionModal.jsx
 import React, { useState } from "react";
+import PublicIcon from "@mui/icons-material/Public";
+import CloseIcon from "@mui/icons-material/Close";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import CheckIcon from "@mui/icons-material/Check";
 import { setupSession } from "../../APIs/sessionService";
 import styles from "./ShareSessionModal.module.css";
 
@@ -27,8 +31,13 @@ export default function ShareSessionModal({ sessionId, sessionMeta, onClose }) {
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <h3>🌐 COMPARTILHAR MUNDO (VTT)</h3>
-          <button className={styles.closeBtn} onClick={onClose}>✕</button>
+          <h3>
+            <PublicIcon sx={{ fontSize: 20, verticalAlign: "middle", mr: 0.8, color: "#f1c40f" }} />
+            COMPARTILHAR MUNDO (VTT)
+          </h3>
+          <button className={styles.closeBtn} onClick={onClose} aria-label="Fechar">
+            <CloseIcon fontSize="small" />
+          </button>
         </div>
 
         <form onSubmit={handleSaveSettings} className={styles.form}>
@@ -37,7 +46,17 @@ export default function ShareSessionModal({ sessionId, sessionMeta, onClose }) {
             <div className={styles.copyBox}>
               <input type="text" readOnly value={playerUrl} />
               <button type="button" onClick={handleCopyLink}>
-                {copied ? "Copiado! ✓" : "Copiar"}
+                {copied ? (
+                  <>
+                    <CheckIcon sx={{ fontSize: 14, mr: 0.5, verticalAlign: "middle" }} />
+                    Copiado!
+                  </>
+                ) : (
+                  <>
+                    <ContentCopyIcon sx={{ fontSize: 14, mr: 0.5, verticalAlign: "middle" }} />
+                    Copiar
+                  </>
+                )}
               </button>
             </div>
           </div>

@@ -56,11 +56,41 @@ export function calcularRiquezaInicialPorClasse(classKeyOrObj) {
   else result = 0;
 
   // fallback seguro mínimo 1
-  if (!Number.isFinite(result) || result < 1) result = 1;
   return Math.round(result);
+}
+
+/**
+ * Rola uma fórmula como "1d20+5", "2d6+3", "1d8-1" ou "3d4".
+ * Retorna { total, rolls, modifier, formula }
+ */
+export function rollDiceString(formula = "1d20") {
+  const clean = String(formula).replace(/\s+/g, "");
+  const match = clean.match(/^(\d+)d(\d+)([+-]\d+)?$/i);
+
+  if (!match) {
+    const num = Number(clean);
+    return { total: isNaN(num) ? 0 : num, rolls: [], modifier: 0, formula };
+  }
+
+  const count = parseInt(match[1], 10);
+  const sides = parseInt(match[2], 10);
+  const modifier = match[3] ? parseInt(match[3], 10) : 0;
+
+  const rolls = [];
+  let sum = 0;
+
+  for (let i = 0; i < count; i++) {
+    const roll = Math.floor(Math.random() * sides) + 1;
+    rolls.push(roll);
+    sum += roll;
+  }
+
+  const total = sum + modifier;
+  return { total, rolls, modifier, formula };
 }
 
 export default {
   rollDiceNotation,
   calcularRiquezaInicialPorClasse,
+  rollDiceString
 };
