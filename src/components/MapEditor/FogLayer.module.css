@@ -1,0 +1,9 @@
+﻿/* src/components/MapEditor/FogLayer.module.css */
+.fogCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 25; /* Fica acima do Grid e Props, mas abaixo dos controles de UI */
+  transition: opacity 0.2s ease-in-out;
+  cursor: crosshair;
+}

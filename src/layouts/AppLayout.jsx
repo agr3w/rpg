@@ -20,6 +20,10 @@ export default function AppLayout() {
   const isMapEditor = location.pathname.startsWith("/mapas/editor/");
   const isAuthRoute = location.pathname === "/login" || location.pathname === "/Registrar-se";
 
+  const element = useMemo(() => getElementFromPath(location.pathname), [location.pathname]);
+  const vars = ELEMENT_VARS[element] || ELEMENT_VARS.void;
+  const useSimpleTransition = prefs.reduceMotion || prefs.pageTransition === "simple";
+
   if (isMapEditor) {
     return (
       <MotionConfig reducedMotion="never">
