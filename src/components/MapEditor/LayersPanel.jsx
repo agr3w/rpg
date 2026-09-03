@@ -1,335 +1,320 @@
-import React, { useState, useEffect } from "react";
-import { 
-  Paper, Box, Collapse, Typography, List, ListItem, 
-  ListItemText, ListItemSecondaryAction, IconButton, Divider, Tabs, Tab, Tooltip
-} from "@mui/material";
-import {
-  Visibility,
-  VisibilityOff,
-  Delete,
-  Brush,
-  CropSquare,
-  Circle,
-  TextFields,
-  Image as ImageIcon,
-  Straighten,
-  ShowChart,
-  TouchApp,
-  Layers as LayersIcon,
-  AutoStories as AutoStoriesIcon,
-  Lock as LockIcon,
-  LockOpen as LockOpenIcon,
-  ChevronRight as ChevronRightIcon,
-  DragIndicator as DragIndicatorIcon,
-  KeyboardArrowUp as KeyboardArrowUpIcon,
-  KeyboardArrowDown as KeyboardArrowDownIcon,
-  Edit as EditIcon,
-  Inventory2 as VaultIcon
-} from "@mui/icons-material";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+﻿// src/components/MapEditor/LayersPanel.jsx
+import React, { useState } from "react";
+import { Tooltip } from "@mui/material";
 
-import AssetLibrary from "./AssetLibrary"; 
+// Material-UI Icons (ZERO EMOJIS)
+import LayersIcon from "@mui/icons-material/Layers";
+import CloudQueueIcon from "@mui/icons-material/CloudQueue";
+import PersonIcon from "@mui/icons-material/Person";
+import Inventory2Icon from "@mui/icons-material/Inventory2";
+import MapIcon from "@mui/icons-material/Map";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import LockIcon from "@mui/icons-material/Lock";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
+import CloseIcon from "@mui/icons-material/Close";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import AutoStoriesIcon from "@mui/icons-material/AutoStories";
+import SecurityIcon from "@mui/icons-material/Security";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import BrushIcon from "@mui/icons-material/Brush";
+import CropSquareIcon from "@mui/icons-material/CropSquare";
+import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
+import TextFieldsIcon from "@mui/icons-material/TextFields";
+import RemoveIcon from "@mui/icons-material/Remove";
+import StraightenIcon from "@mui/icons-material/Straighten";
+
+import AssetLibrary from "./AssetLibrary";
 import UserVault from "./UserVault";
+import styles from "./LayersPanel.module.css";
 
-const LayersPanel = ({ 
-  elements, 
-  selectedId, 
-  onSelectElement, 
-  onDeleteElement, 
+const LAYERS_ORDER = [
+  { id: "roof", name: "Telhado / Efeitos", IconComponent: CloudQueueIcon },
+  { id: "tokens", name: "Tokens de Criaturas", IconComponent: PersonIcon },
+  { id: "props", name: "Objetos & Mobília", IconComponent: Inventory2Icon },
+  { id: "map", name: "Mapa / Chão", IconComponent: MapIcon },
+];
+
+export default function LayersPanel({
+  elements = [],
+  setElements,
+  selectedId,
+  onSelectElement,
+  onDeleteElement,
   onToggleVisibility,
   onToggleLock,
   onEditElement,
-  onReorderElements
-}) => {
-  const [isOpen, setIsOpen] = useState(true);
-  const [tabIndex, setTabIndex] = useState(0);
-  const [visualList, setVisualList] = useState([]);
+  onClose,
+  isGM = true
+}) {
+  const [activeTab, setActiveTab] = useState("layers"); // "layers" | "assets" | "vault"
+  const [collapsedLayers, setCollapsedLayers] = useState({});
 
-  useEffect(() => {
-    setVisualList([...elements].map((el, i) => ({ ...el, originalIndex: i })).reverse());
-  }, [elements]);
-
-  const handleTabChange = (event, newValue) => {
-    setTabIndex(newValue);
+  const toggleLayerFolder = (layerKey) => {
+    setCollapsedLayers((prev) => ({ ...prev, [layerKey]: !prev[layerKey] }));
   };
 
-  const getIcon = (tool) => {
-    switch (tool) {
-      case "brush": return <Brush fontSize="small" sx={{ color: "#bf8f00" }} />;
-      case "rect": return <CropSquare fontSize="small" sx={{ color: "#bf8f00" }} />;
-      case "circle": return <Circle fontSize="small" sx={{ color: "#bf8f00" }} />;
-      case "text": return <TextFields fontSize="small" sx={{ color: "#bf8f00" }} />;
-      case "image": return <ImageIcon fontSize="small" sx={{ color: "#bf8f00" }} />;
-      case "ruler": return <Straighten fontSize="small" sx={{ color: "#bf8f00" }} />;
-      case "line": return <ShowChart fontSize="small" sx={{ color: "#bf8f00" }} />;
-      default: return <TouchApp fontSize="small" sx={{ color: "#bf8f00" }} />;
+  const handleTogglePlayerVisibility = (id, currentHidden = false) => {
+    if (setElements) {
+      setElements((prev) =>
+        prev.map((el) => (el.id === id ? { ...el, hiddenFromPlayers: !currentHidden } : el))
+      );
     }
   };
 
-  const getElementName = (el, index) => {
-    if (el.tool === "text" || el.type === "text") return `Texto: "${(el.text || el.content || '').substring(0, 12)}"`;
-    if (el.tool === "image" || el.type === "token") return el.name || "Imagem / Token";
-    const layerNum = el.originalIndex !== undefined ? el.originalIndex + 1 : index + 1;
-    switch(el.tool || el.type) {
-      case "brush": return `Pincel Livre #${layerNum}`;
-      case "line": return `Linha / Parede #${layerNum}`;
-      case "rect": return `Sala / Retângulo #${layerNum}`;
-      case "circle": return `Área Circular #${layerNum}`;
-      case "ruler": return `Régua #${layerNum}`;
-      default: return `Objeto #${layerNum}`;
-    }
-  };
-
-  const handleDragEnd = (result) => {
-    if (!result.destination) return;
-    const sourceIndex = result.source.index;
-    const destinationIndex = result.destination.index;
-    if (sourceIndex === destinationIndex) return;
-
-    const newVisualList = Array.from(visualList);
-    const [reorderedItem] = newVisualList.splice(sourceIndex, 1);
-    newVisualList.splice(destinationIndex, 0, reorderedItem);
-
-    setVisualList(newVisualList);
-
-    const newElementsData = [...newVisualList].reverse().map(item => {
-        const { originalIndex, ...cleanItem } = item;
-        return cleanItem;
-    });
-
-    if (onReorderElements) {
-        onReorderElements(newElementsData);
-    }
-  };
-
-  const handleMoveStep = (indexInVisual, direction, e) => {
-    e.stopPropagation();
-    const newVisual = [...visualList];
-    const targetIndex = direction === "up" ? indexInVisual - 1 : indexInVisual + 1;
-    if (targetIndex < 0 || targetIndex >= newVisual.length) return;
-
-    const temp = newVisual[indexInVisual];
-    newVisual[indexInVisual] = newVisual[targetIndex];
-    newVisual[targetIndex] = temp;
-
-    setVisualList(newVisual);
-
-    const newElementsData = [...newVisual].reverse().map(item => {
-      const { originalIndex, ...cleanItem } = item;
-      return cleanItem;
-    });
-
-    if (onReorderElements) {
-      onReorderElements(newElementsData);
+  const getElementIcon = (el) => {
+    switch (el.tool || el.type) {
+      case "brush": return <BrushIcon sx={{ fontSize: 14, color: "#bf8f00" }} />;
+      case "line": return <RemoveIcon sx={{ fontSize: 14, color: "#bf8f00" }} />;
+      case "rect": return <CropSquareIcon sx={{ fontSize: 14, color: "#bf8f00" }} />;
+      case "circle": return <RadioButtonUncheckedIcon sx={{ fontSize: 14, color: "#bf8f00" }} />;
+      case "text": return <TextFieldsIcon sx={{ fontSize: 14, color: "#bf8f00" }} />;
+      case "ruler": return <StraightenIcon sx={{ fontSize: 14, color: "#bf8f00" }} />;
+      case "token": return <PersonIcon sx={{ fontSize: 14, color: "#bf8f00" }} />;
+      default: return <Inventory2Icon sx={{ fontSize: 14, color: "#bf8f00" }} />;
     }
   };
 
   return (
-    <Box sx={{ position: "absolute", top: 24, right: 24, zIndex: 30, display: "flex", alignItems: "flex-start", gap: 1, flexDirection: "row-reverse" }}>
-      <Collapse in={isOpen} orientation="horizontal">
-        <Paper 
-          elevation={6} 
-          sx={{ 
-            width: 320, 
-            height: "calc(100vh - 120px)", 
-            display: "flex", 
-            flexDirection: "column",
-            bgcolor: "#181412", 
-            border: "1px solid rgba(212,175,55,0.3)", 
-            borderRadius: 2,
-            boxShadow: "0 10px 30px rgba(0,0,0,0.6)",
-            overflow: "hidden"
-          }}
-        >
-          <Tabs 
-            value={tabIndex} 
-            onChange={handleTabChange} 
-            variant="fullWidth" 
-            sx={{ 
-              minHeight: 44, 
-              borderBottom: "1px solid rgba(212,175,55,0.2)", 
-              bgcolor: "#1e1814", 
-              flexShrink: 0,
-              '& .MuiTab-root': { color: "#888", minHeight: 44, fontSize: "0.75rem", fontFamily: "Cinzel", fontWeight: 700 },
-              '& .Mui-selected': { color: "#bf8f00" },
-              '& .MuiTabs-indicator': { backgroundColor: "#bf8f00" }
-            }}
-          >
-            <Tab icon={<LayersIcon fontSize="small" />} label={`Camadas (${elements.length})`} />
-            <Tab icon={<AutoStoriesIcon fontSize="small" />} label="Biblioteca" />
-            <Tab icon={<VaultIcon fontSize="small" />} label="Cofre" />
-          </Tabs>
+    <aside className={styles.layersCard}>
+      {/* HEADER DO PAINEL */}
+      <div className={styles.header}>
+        <div className={styles.titleArea}>
+          <LayersIcon sx={{ color: "#ffd700", fontSize: 18 }} />
+          <h4>GERENCIADOR DO CENÁRIO</h4>
+        </div>
+        <button className={styles.closeBtn} onClick={onClose} title="Fechar Painel">
+          <CloseIcon fontSize="small" />
+        </button>
+      </div>
 
-          <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
-            
-            {tabIndex === 0 && (
-              <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable 
-                  droppableId="layers-list"
-                  mode="virtual"
-                  renderClone={(provided, snapshot, rubric) => (
-                    <ListItem 
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      sx={{ 
-                         bgcolor: "#241d18", 
-                         boxShadow: "0 5px 15px rgba(0,0,0,0.5)",
-                         borderLeft: "4px solid #bf8f00",
-                         ...provided.draggableProps.style 
-                      }}
-                    >
-                       <Box sx={{ mr: 1, display: "flex", alignItems: "center", color: "#bf8f00" }}>
-                          <DragIndicatorIcon fontSize="small" />
-                        </Box>
-                        <Box sx={{ mr: 1.5, display: "flex", alignItems: "center" }}>
-                            {getIcon(visualList[rubric.source.index]?.tool || visualList[rubric.source.index]?.type)}
-                        </Box>
-                        <ListItemText primary={getElementName(visualList[rubric.source.index], rubric.source.index)} />
-                    </ListItem>
-                  )}
+      {/* ABAS */}
+      <div className={styles.tabsHeader}>
+        <button
+          type="button"
+          className={`${styles.tabBtn} ${activeTab === "layers" ? styles.activeTab : ""}`}
+          onClick={() => setActiveTab("layers")}
+        >
+          <LayersIcon sx={{ fontSize: 15 }} />
+          <span>Camadas</span>
+        </button>
+        <button
+          type="button"
+          className={`${styles.tabBtn} ${activeTab === "assets" ? styles.activeTab : ""}`}
+          onClick={() => setActiveTab("assets")}
+        >
+          <AutoStoriesIcon sx={{ fontSize: 15 }} />
+          <span>Biblioteca</span>
+        </button>
+        <button
+          type="button"
+          className={`${styles.tabBtn} ${activeTab === "vault" ? styles.activeTab : ""}`}
+          onClick={() => setActiveTab("vault")}
+        >
+          <Inventory2Icon sx={{ fontSize: 15 }} />
+          <span>Meu Cofre</span>
+        </button>
+      </div>
+
+      {/* ABA: CAMADAS */}
+      {activeTab === "layers" && (
+        <div className={styles.layersContainer}>
+          {LAYERS_ORDER.map((layer) => {
+            const layerItems = elements.filter(
+              (el) => (el.layer || (el.type === "token" ? "tokens" : (el.type === "prop" ? "props" : "map"))) === layer.id
+            );
+            const isCollapsed = !!collapsedLayers[layer.id];
+            const IconComp = layer.IconComponent;
+
+            return (
+              <div key={layer.id} className={styles.layerGroup}>
+                {/* Header do Grupo de Camadas */}
+                <div
+                  className={styles.layerGroupHeader}
+                  onClick={() => toggleLayerFolder(layer.id)}
                 >
-                  {(provided) => (
-                    <List 
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                      sx={{ 
-                        overflowY: "auto",
-                        flexGrow: 1, 
-                        p: 0.5, 
-                        '&::-webkit-scrollbar': { width: '6px' }, 
-                        '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(212,175,55,0.3)', borderRadius: '3px' } 
-                      }}
-                    >
-                      {visualList.length === 0 ? (
-                        <Typography variant="caption" sx={{ color: "#777", p: 3, display: "block", textAlign: "center", fontFamily: "Cinzel" }}>
-                          Nenhum elemento no mapa.
-                        </Typography>
-                      ) : (
-                        visualList.map((el, index) => (
-                          <Draggable key={el.id.toString()} draggableId={el.id.toString()} index={index}>
-                            {(provided, snapshot) => (
-                              <React.Fragment>
-                                <ListItem 
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  onClick={() => onSelectElement(el.id)} 
-                                  onDoubleClick={() => onEditElement?.(el)}
-                                  selected={selectedId === el.id}
-                                  sx={{ 
-                                    "&.Mui-selected": { bgcolor: "rgba(191, 143, 0, 0.18)" },
-                                    "&:hover": { bgcolor: "rgba(255,255,255,0.04)" },
-                                    borderLeft: `4px solid ${selectedId === el.id ? '#bf8f00' : (el.stroke || 'transparent')}`,
-                                    opacity: el.isVisible === false ? 0.45 : 1,
-                                    py: 0.5,
-                                    borderRadius: 1,
-                                    my: 0.3,
-                                    bgcolor: snapshot.isDragging ? "#241d18" : "transparent",
-                                    ...provided.draggableProps.style
+                  <div className={styles.layerGroupTitle}>
+                    {isCollapsed ? (
+                      <ChevronRightIcon sx={{ fontSize: 14, color: "#8b949e" }} />
+                    ) : (
+                      <ExpandMoreIcon sx={{ fontSize: 14, color: "#8b949e" }} />
+                    )}
+                    <IconComp sx={{ fontSize: 16, color: "#ffd700" }} />
+                    <strong>{layer.name}</strong>
+                    <span className={styles.countBadge}>{layerItems.length}</span>
+                  </div>
+                </div>
+
+                {/* Itens contidos na camada */}
+                {!isCollapsed && (
+                  <div className={styles.itemsList}>
+                    {layerItems.length === 0 ? (
+                      <div className={styles.emptyLayer}>Nenhum item nesta camada</div>
+                    ) : (
+                      layerItems.map((item) => {
+                        const isSelected = selectedId === item.id;
+                        const isHiddenGM = item.hiddenFromPlayers;
+                        const isVisible = item.visible !== false && item.isVisible !== false;
+                        const isLocked = !!item.locked;
+
+                        return (
+                          <div
+                            key={item.id}
+                            className={`${styles.itemRow} ${isSelected ? styles.selectedRow : ""} ${
+                              isHiddenGM ? styles.stealthRow : ""
+                            }`}
+                            onClick={() => onSelectElement?.(item.id)}
+                          >
+                            <div className={styles.itemInfo}>
+                              {item.src ? (
+                                <img
+                                  src={item.src}
+                                  alt={item.name || "Elemento"}
+                                  className={styles.itemThumb}
+                                />
+                              ) : (
+                                <div className={styles.itemIconWrapper}>
+                                  {getElementIcon(item)}
+                                </div>
+                              )}
+                              <span className={styles.itemName} title={item.name || "Elemento"}>
+                                {item.name || (item.type === "token" ? "Token" : (item.text ? `Texto: "${item.text.substring(0, 10)}"` : "Objeto"))}
+                              </span>
+                              {isHiddenGM && (
+                                <span className={styles.stealthTag} title="Oculto para os Jogadores">
+                                  Emboscada
+                                </span>
+                              )}
+                            </div>
+
+                            <div className={styles.itemActions}>
+                              {/* Modo Emboscada / Ocultar para Players */}
+                              {isGM && (
+                                <Tooltip
+                                  title={
+                                    isHiddenGM
+                                      ? "Invisível aos Players (Clique para Revelar)"
+                                      : "Visível a Todos (Clique para Ocultar dos Players / Emboscada)"
+                                  }
+                                >
+                                  <button
+                                    type="button"
+                                    className={`${styles.actionBtn} ${
+                                      isHiddenGM ? styles.stealthActive : styles.actionInactive
+                                    }`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleTogglePlayerVisibility(item.id, isHiddenGM);
+                                    }}
+                                  >
+                                    <SecurityIcon sx={{ fontSize: 14 }} />
+                                  </button>
+                                </Tooltip>
+                              )}
+
+                              {/* Visibilidade Geral */}
+                              <Tooltip title={isVisible ? "Ocultar no Mapa" : "Exibir no Mapa"}>
+                                <button
+                                  type="button"
+                                  className={`${styles.actionBtn} ${
+                                    isVisible ? "" : styles.actionInactive
+                                  }`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onToggleVisibility?.(item.id);
                                   }}
                                 >
-                                  <Box 
-                                    {...provided.dragHandleProps}
-                                    sx={{ mr: 0.5, display: "flex", alignItems: "center", color: "#666", cursor: "grab", "&:hover": { color: "#bf8f00" } }}
-                                  >
-                                    <DragIndicatorIcon fontSize="small" />
-                                  </Box>
+                                  {isVisible ? (
+                                    <VisibilityIcon sx={{ fontSize: 14 }} />
+                                  ) : (
+                                    <VisibilityOffIcon sx={{ fontSize: 14 }} />
+                                  )}
+                                </button>
+                              </Tooltip>
 
-                                  <Box sx={{ mr: 1, display: "flex", alignItems: "center" }}>
-                                      {getIcon(el.tool || el.type)}
-                                  </Box>
+                              {/* Trava de Posição */}
+                              <Tooltip title={isLocked ? "Destravar Posição" : "Travar Posição"}>
+                                <button
+                                  type="button"
+                                  className={`${styles.actionBtn} ${
+                                    isLocked ? styles.lockActive : styles.actionInactive
+                                  }`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onToggleLock?.(item.id);
+                                  }}
+                                >
+                                  {isLocked ? (
+                                    <LockIcon sx={{ fontSize: 14 }} />
+                                  ) : (
+                                    <LockOpenIcon sx={{ fontSize: 14 }} />
+                                  )}
+                                </button>
+                              </Tooltip>
 
-                                  <ListItemText 
-                                    primary={getElementName(el, index)} 
-                                    primaryTypographyProps={{ 
-                                      sx: { 
-                                        color: selectedId === el.id ? "#fff" : "#ccc", 
-                                        fontSize: "0.8rem", 
-                                        whiteSpace: "nowrap", 
-                                        overflow: "hidden", 
-                                        textOverflow: "ellipsis",
-                                        fontFamily: "Cinzel",
-                                        fontWeight: selectedId === el.id ? 700 : 500
-                                      } 
+                              {/* Configurar Elemento */}
+                              {onEditElement && (
+                                <Tooltip title="Configurar Ficha / Objeto">
+                                  <button
+                                    type="button"
+                                    className={styles.actionBtn}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      onEditElement(item);
                                     }}
-                                  />
-                                  
-                                  <ListItemSecondaryAction sx={{ display: "flex", alignItems: "center", gap: 0.2 }}>
-                                    <Tooltip title={el.locked ? "Destravar" : "Travar Posição"}>
-                                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); onToggleLock?.(el.id); }}>
-                                        {el.locked ? <LockIcon sx={{ color: "#bf8f00", fontSize: 16 }} /> : <LockOpenIcon sx={{ color: "#555", fontSize: 16 }} />}
-                                      </IconButton>
-                                    </Tooltip>
+                                  >
+                                    <EditIcon sx={{ fontSize: 14 }} />
+                                  </button>
+                                </Tooltip>
+                              )}
 
-                                    <Tooltip title="Subir Camada">
-                                      <IconButton size="small" onClick={(e) => handleMoveStep(index, "up", e)} disabled={index === 0}>
-                                        <KeyboardArrowUpIcon sx={{ color: index === 0 ? "#333" : "#aaa", fontSize: 16 }} />
-                                      </IconButton>
-                                    </Tooltip>
+                              {/* Excluir Elemento */}
+                              {onDeleteElement && (
+                                <Tooltip title="Excluir do Cenário">
+                                  <button
+                                    type="button"
+                                    className={styles.actionBtn}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      onDeleteElement(item.id);
+                                    }}
+                                  >
+                                    <DeleteOutlineIcon sx={{ fontSize: 14, color: "#e74c3c" }} />
+                                  </button>
+                                </Tooltip>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
-                                    <Tooltip title="Descer Camada">
-                                      <IconButton size="small" onClick={(e) => handleMoveStep(index, "down", e)} disabled={index === visualList.length - 1}>
-                                        <KeyboardArrowDownIcon sx={{ color: index === visualList.length - 1 ? "#333" : "#aaa", fontSize: 16 }} />
-                                      </IconButton>
-                                    </Tooltip>
+      {/* ABA: BIBLIOTECA DE ASSETS */}
+      {activeTab === "assets" && (
+        <div style={{ flex: 1, overflowY: "auto" }}>
+          <AssetLibrary onSelectAsset={(asset) => {
+            // Callback handled inside AssetLibrary
+          }} />
+        </div>
+      )}
 
-                                    <Tooltip title={el.isVisible === false ? "Exibir" : "Ocultar"}>
-                                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); onToggleVisibility(el.id); }}>
-                                        {el.isVisible === false ? <VisibilityOff sx={{ color: "#666", fontSize: 16 }} /> : <Visibility sx={{ color: "#aaa", fontSize: 16 }} />}
-                                      </IconButton>
-                                    </Tooltip>
-
-                                    <Tooltip title="Editar">
-                                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); onEditElement?.(el); }}>
-                                        <EditIcon sx={{ color: "#bf8f00", fontSize: 16 }} />
-                                      </IconButton>
-                                    </Tooltip>
-
-                                    <Tooltip title="Deletar">
-                                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); onDeleteElement(el.id); }}>
-                                        <Delete sx={{ color: "#ef5350", fontSize: 16 }} />
-                                      </IconButton>
-                                    </Tooltip>
-                                  </ListItemSecondaryAction>
-                                </ListItem>
-                              </React.Fragment>
-                            )}
-                          </Draggable>
-                        ))
-                      )}
-                      {provided.placeholder}
-                    </List>
-                  )}
-                </Droppable>
-              </DragDropContext>
-            )}
-
-            {tabIndex === 1 && <AssetLibrary />}
-            {tabIndex === 2 && <UserVault />}
-
-          </Box>
-        </Paper>
-      </Collapse>
-
-      <Paper 
-        onClick={() => setIsOpen(!isOpen)}
-        sx={{ 
-          p: 1, 
-          bgcolor: "#181412", 
-          border: "1px solid rgba(212,175,55,0.3)", 
-          cursor: "pointer",
-          borderRadius: 1.5,
-          display: "flex", 
-          alignItems: "center", 
-          justifyContent: "center",
-          boxShadow: "0 6px 20px rgba(0,0,0,0.5)",
-          "&:hover": { bgcolor: "#241d18" }
-        }}
-      >
-        {isOpen ? <ChevronRightIcon sx={{ color: "#bf8f00" }} /> : <LayersIcon sx={{ color: "#bf8f00" }} />}
-      </Paper>
-    </Box>
+      {/* ABA: MEU COFRE */}
+      {activeTab === "vault" && (
+        <div style={{ flex: 1, overflowY: "auto" }}>
+          <UserVault onSelectAsset={(asset) => {
+            // Callback handled inside UserVault
+          }} />
+        </div>
+      )}
+    </aside>
   );
-};
-
-export default LayersPanel;
+}

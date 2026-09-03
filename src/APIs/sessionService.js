@@ -1,4 +1,4 @@
-﻿// src/APIs/sessionService.js
+// src/APIs/sessionService.js
 import { getDatabase, ref, set, onValue, update, remove, onDisconnect, serverTimestamp } from "firebase/database";
 import { auth } from "./firebaseConfig";
 
@@ -75,4 +75,28 @@ export function syncMapState(sessionId, mapData) {
 export async function kickPlayer(sessionId, targetUid) {
   await set(ref(db, `vtt_sessions/${sessionId}/kicked/${targetUid}`), true);
   await remove(ref(db, `vtt_sessions/${sessionId}/players/${targetUid}`));
+}
+
+/**
+ * Atualiza um elemento específico na sessão (movimentação de token por jogador autorizado)
+ */
+export async function updateSessionElement(sessionId, elementId, updates) {
+  const stateRef = ref(db, `vtt_sessions/${sessionId}/state/elements`);
+  
+  const snapshot = await new Promise((resolve) => {
+    onValue(stateRef, (snap) => resolve(snap.val()), { onlyOnce: true });
+  });
+
+  if (Array.isArray(snapshot)) {
+    const updatedElements = snapshot.map((el) => {
+      if (el && (el.id === elementId || String(el.id) === String(elementId))) {
+        return { ...el, ...updates };
+      }
+      return el;
+    });
+    await update(ref(db, `vtt_sessions/${sessionId}/state`), {
+      elements: updatedElements,
+      lastUpdate: serverTimestamp()
+    });
+  }
 }

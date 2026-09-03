@@ -4,16 +4,19 @@ import PersonIcon from "@mui/icons-material/Person";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
 import MapIcon from "@mui/icons-material/Map";
 import CloseIcon from "@mui/icons-material/Close";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
 import styles from "./ConvertElementModal.module.css";
 
 export default function ConvertElementModal({
-  element,
+  element = {},
   userSheets = [],
+  activePlayers = [],
   onUpdateElement,
   onClose
 }) {
   const [selectedType, setSelectedType] = useState(element.type || element.tool || "token");
   const [selectedSheetId, setSelectedSheetId] = useState(element.characterId || "");
+  const [controlledBy, setControlledBy] = useState(element.controlledBy || "dm_only");
   const [visionRadius, setVisionRadius] = useState(element.visionRadius || 180);
   const [coneAngle, setConeAngle] = useState(element.coneAngle || 90);
 
@@ -22,6 +25,7 @@ export default function ConvertElementModal({
 
     let updatedFields = {
       type: selectedType,
+      controlledBy: controlledBy || "dm_only",
       characterId: selectedType === "token" ? selectedSheetId : null
     };
 
@@ -84,6 +88,26 @@ export default function ConvertElementModal({
                 <span>Chão / Fundo</span>
               </button>
             </div>
+          </div>
+
+          {/* PERMISSÃO DE CONTROLE / MOVIMENTAÇÃO */}
+          <div className={styles.field}>
+            <label>Quem pode mover / controlar este elemento:</label>
+            <select
+              value={controlledBy}
+              onChange={(e) => setControlledBy(e.target.value)}
+              className={styles.select}
+            >
+              <option value="dm_only">Apenas o Mestre (Padrão)</option>
+              <option value="all">Todos os Jogadores da Mesa</option>
+              {activePlayers
+                .filter((p) => !p.isDM)
+                .map((player) => (
+                  <option key={player.uid} value={player.uid}>
+                    Jogador: {player.name || "Aventureiro"}
+                  </option>
+                ))}
+            </select>
           </div>
 
           {selectedType === "token" && (

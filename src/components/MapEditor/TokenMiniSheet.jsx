@@ -10,7 +10,6 @@ import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 import FlashOnIcon from "@mui/icons-material/FlashOn";
 import SportsKabaddiIcon from "@mui/icons-material/SportsKabaddi";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 import { getDatabase, ref, onValue, update } from "firebase/database";
 import { auth } from "../../APIs/firebaseConfig";
 import { racas, classes } from "../../Array/RacaEClasse";
@@ -37,8 +36,32 @@ const SKILL_LIST = [
   { id: "Persuasão", label: "Persuasão", ability: "Carisma" },
 ];
 
+const safeStr = (val, fallback = "—") => {
+  if (val === null || val === undefined || val === "") return fallback;
+  if (typeof val === "string" || typeof val === "number") return String(val);
+  if (typeof val === "object") {
+    return val.nome || val.name || val.antecedente || val.label || val.raca || val.classe || fallback;
+  }
+  return String(val);
+};
+
+const extractHpNumber = (source, field = "atual", fallback = 5) => {
+  if (source === null || source === undefined) return fallback;
+  if (typeof source === "number") return source;
+  if (typeof source === "string") {
+    const num = Number(source);
+    return isNaN(num) ? fallback : num;
+  }
+  if (typeof source === "object") {
+    const val = source[field] ?? source.atual ?? source.max ?? fallback;
+    const num = Number(val);
+    return isNaN(num) ? fallback : num;
+  }
+  return fallback;
+};
+
 export default function TokenMiniSheet({
-  token,
+  token = {},
   sheetData: initialSheetData,
   onUpdateToken,
   onRollDice,
@@ -121,18 +144,16 @@ export default function TokenMiniSheet({
   }, [atributos]);
 
   const dexMod = abilityMods.Destreza;
-  const conMod = abilityMods.Constituição;
-  const wisMod = abilityMods.Sabedoria;
 
   // CA Real
-  const ca = sheet?.caState?.total ?? sheet?.ca ?? (10 + dexMod);
+  const ca = typeof sheet?.caState === "object" ? Number(sheet.caState.total ?? 10) : (typeof sheet?.ca === "object" ? Number(sheet.ca.total ?? 10) : Number(sheet?.ca ?? (10 + dexMod)));
 
   // Deslocamento Real
-  const speed = sheet?.deslocamento || racaSelecionada?.deslocamento || "9m (30ft)";
+  const speed = safeStr(sheet?.deslocamento || racaSelecionada?.deslocamento, "9m (30ft)");
 
-  // PV Real
-  const currentHp = sheet?.hp?.atual ?? sheet?.hpAtual ?? token.hp ?? 5;
-  const maxHp = sheet?.hp?.max ?? sheet?.hpMaximo ?? token.maxHp ?? 5;
+  // PV Real (Garantido contra objetos)
+  const currentHp = extractHpNumber(sheet?.hp ?? sheet?.hpAtual ?? token?.hp, "atual", 5);
+  const maxHp = extractHpNumber(sheet?.hp ?? sheet?.hpMaximo ?? token?.maxHp ?? token?.hp, "max", 5);
 
   // Cálculo de Armas e Ataques conforme Regras Oficiais D&D 5E
   const realWeapons = useMemo(() => {
@@ -161,12 +182,12 @@ export default function TokenMiniSheet({
         const damageFormula = `${damageDice}${damageBonus !== 0 ? (damageBonus > 0 ? `+${damageBonus}` : `${damageBonus}`) : ""}`;
 
         list.push({
-          nome: item.name || item.nome || slot,
+          nome: safeStr(item.name || item.nome, slot),
           damageDice,
           damageBonus,
           damageFormula,
           bonusAtaque: attackBonus,
-          tipo: item.damageType || item.tipo || "Dano",
+          tipo: safeStr(item.damageType || item.tipo, "Dano"),
           statUsed: stat,
           props: item.props || {},
         });
@@ -195,12 +216,12 @@ export default function TokenMiniSheet({
         const damageFormula = `${damageDice}${damageBonus !== 0 ? (damageBonus > 0 ? `+${damageBonus}` : `${damageBonus}`) : ""}`;
 
         list.push({
-          nome: w.name || w.nome || "Arma",
+          nome: safeStr(w.name || w.nome, "Arma"),
           damageDice,
           damageBonus,
           damageFormula,
           bonusAtaque: attackBonus,
-          tipo: w.damageType || w.tipo || "Dano",
+          tipo: safeStr(w.damageType || w.tipo, "Dano"),
           statUsed: stat,
           props: w.props || {},
         });
@@ -217,7 +238,7 @@ export default function TokenMiniSheet({
       Object.entries(sheet.spellcasting.spells).forEach(([id, s]) => {
         if (s && s.name) {
           list.push({
-            nome: s.name,
+            nome: safeStr(s.name, "Magia"),
             circulo: Number(s.circle ?? s.circulo ?? 0),
             formula: s.damage || s.formula || "1d20"
           });
@@ -236,7 +257,7 @@ export default function TokenMiniSheet({
     if (!val || val <= 0) return;
     const newHp = Math.max(0, currentHp - val);
     
-    onUpdateToken(token.id, { hp: newHp, maxHp });
+    onUpdateToken?.(token.id, { hp: newHp, maxHp });
     setHpModInput("");
 
     if (sheetId && auth.currentUser) {
@@ -251,7 +272,7 @@ export default function TokenMiniSheet({
     if (!val || val <= 0) return;
     const newHp = Math.min(maxHp, currentHp + val);
 
-    onUpdateToken(token.id, { hp: newHp, maxHp });
+    onUpdateToken?.(token.id, { hp: newHp, maxHp });
     setHpModInput("");
 
     if (sheetId && auth.currentUser) {
@@ -268,11 +289,11 @@ export default function TokenMiniSheet({
     const total = d20 + bonus;
     let label = `Ataque: ${arma.nome}`;
     if (d20 === 20) {
-      onRollDice(`d20[20] ${formatMod(bonus)} = Total ${total}`, `⚡ ACERTO CRÍTICO! ${label}`);
+      onRollDice?.(`d20[20] ${formatMod(bonus)} = Total ${total}`, `⚡ ACERTO CRÍTICO! ${label}`);
     } else if (d20 === 1) {
-      onRollDice(`d20[1] ${formatMod(bonus)} = Total ${total}`, `⚠️ FALHA CRÍTICA! ${label}`);
+      onRollDice?.(`d20[1] ${formatMod(bonus)} = Total ${total}`, `⚠️ FALHA CRÍTICA! ${label}`);
     } else {
-      onRollDice(`1d20${formatMod(bonus)}`, `${label} (${formatMod(bonus)} para acertar)`);
+      onRollDice?.(`1d20${formatMod(bonus)}`, `${label} (${formatMod(bonus)} para acertar)`);
     }
   };
 
@@ -282,11 +303,13 @@ export default function TokenMiniSheet({
     const diceFaces = diceMatch ? parseInt(diceMatch[2], 10) : 8;
     const totalNumDice = isCrit ? numDice * 2 : numDice;
     const formula = `${totalNumDice}d${diceFaces}${arma.damageBonus !== 0 ? (arma.damageBonus > 0 ? `+${arma.damageBonus}` : `${arma.damageBonus}`) : ""}`;
-    onRollDice(formula, `Dano: ${arma.nome} (${arma.tipo || "Dano"})${isCrit ? " [CRÍTICO 2X DADOS]" : ""}`);
+    onRollDice?.(formula, `Dano: ${arma.nome} (${arma.tipo || "Dano"})${isCrit ? " [CRÍTICO 2X DADOS]" : ""}`);
   };
 
-  const characterName = sheet?.nome || sheet?.nomePersonagem || token.name || "Personagem";
-  const characterSub = `${sheet?.raca || "Raça"} • ${sheet?.classe || "Classe"} (Nvl ${level})`;
+  const characterName = safeStr(sheet?.nome || sheet?.nomePersonagem || token.name, "Personagem");
+  const characterRaca = safeStr(sheet?.raca || token.raca, "Personagem");
+  const characterClasse = safeStr(sheet?.classe || token.classe, "Token");
+  const characterSub = `${characterRaca} • ${characterClasse} (Nvl ${level})`;
 
   return (
     <div className={styles.miniSheetDrawer}>
@@ -341,7 +364,7 @@ export default function TokenMiniSheet({
           <button
             className={styles.miniRollBtn}
             onClick={() => {
-              onRollDice(`1d20${formatMod(dexMod)}`, `Iniciativa de ${characterName}`);
+              onRollDice?.(`1d20${formatMod(dexMod)}`, `Iniciativa de ${characterName}`);
             }}
             title="Rolar Iniciativa"
           >
@@ -460,7 +483,7 @@ export default function TokenMiniSheet({
                     <span className={styles.attrVal}>Valor {val}</span>
                     <button
                       className={styles.attrRollBtn}
-                      onClick={() => onRollDice(`1d20${formatMod(mod)}`, `Teste de ${attr}`)}
+                      onClick={() => onRollDice?.(`1d20${formatMod(mod)}`, `Teste de ${attr}`)}
                     >
                       {formatMod(mod)}
                     </button>
@@ -483,7 +506,7 @@ export default function TokenMiniSheet({
                     </span>
                     <button
                       className={styles.skillModBtn}
-                      onClick={() => onRollDice(`1d20${formatMod(totalSkillMod)}`, `Perícia: ${sk.label}`)}
+                      onClick={() => onRollDice?.(`1d20${formatMod(totalSkillMod)}`, `Perícia: ${sk.label}`)}
                     >
                       {formatMod(totalSkillMod)}
                     </button>
@@ -506,7 +529,7 @@ export default function TokenMiniSheet({
                   </div>
                   <button
                     className={styles.castBtn}
-                    onClick={() => onRollDice(magia.formula || "1d20", `Magia: ${magia.nome}`)}
+                    onClick={() => onRollDice?.(magia.formula || "1d20", `Magia: ${magia.nome}`)}
                   >
                     Conjurar ({magia.formula || "1d20"})
                   </button>

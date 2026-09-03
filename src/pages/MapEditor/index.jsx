@@ -94,6 +94,8 @@ const MapEditor = () => {
   // Feedback visual para atalhos
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState("");
+  const [activePlayers, setActivePlayers] = useState([]);
+  const [layersOpen, setLayersOpen] = useState(false);
 
   // Presença do Mestre e Carregamento de Metadados da Sessão VTT
   useEffect(() => {
@@ -104,6 +106,12 @@ const MapEditor = () => {
       setSessionMeta(snap.val());
     });
 
+    const playersRef = ref(db, `vtt_sessions/${mapId}/players`);
+    const unsubPlayers = onValue(playersRef, (snap) => {
+      const val = snap.val();
+      setActivePlayers(val ? Object.values(val) : []);
+    });
+
     const unsubPresence = trackPlayerPresence(
       mapId,
       { name: auth.currentUser?.displayName || "Mestre", isDM: true }
@@ -111,6 +119,7 @@ const MapEditor = () => {
 
     return () => {
       unsubMeta();
+      unsubPlayers();
       unsubPresence();
     };
   }, [mapId]);
@@ -156,10 +165,24 @@ const MapEditor = () => {
   }, [mapId, currentMap, elements, fogCanvas, fogEnabled]);
 
   // --- HELPERS DE DIMENSÃO DO GRID ---
+  const [showGridOverride, setShowGridOverride] = useState(null);
   const mapWidth = currentMap?.gridConfig?.width || 20;
   const mapHeight = currentMap?.gridConfig?.height || 15;
   const cellSize = currentMap?.gridConfig?.cellSize || 50;
-  const showGrid = currentMap?.gridConfig?.showGrid !== false;
+  const showGrid = showGridOverride !== null ? showGridOverride : (currentMap?.gridConfig?.showGrid !== false);
+
+  const setShowGrid = (val) => {
+    const nextVal = typeof val === "function" ? val(showGrid) : val;
+    setShowGridOverride(nextVal);
+    if (currentMap && updateMapSettings) {
+      updateMapSettings(mapId, {
+        gridConfig: {
+          ...(currentMap.gridConfig || { width: 20, height: 15, cellSize: 50 }),
+          showGrid: nextVal
+        }
+      });
+    }
+  };
   const themeColors = currentMap ?
     (currentMap.theme === "stone" ? { bg: "#2b2b2b", grid: "#424242" } :
       currentMap.theme === "grass" ? { bg: "#2e7d32", grid: "#1b5e20" } :
@@ -795,11 +818,13 @@ const MapEditor = () => {
   const renderElement = (el, i) => {
     if (el.isVisible === false) return null;
 
+    const isHiddenGM = el.hiddenFromPlayers;
     const commonProps = {
       key: el.id || i,
       id: el.id ? el.id.toString() : i.toString(),
-      stroke: el.stroke,
-      strokeWidth: el.strokeWidth,
+      stroke: isHiddenGM ? "#9b59b6" : el.stroke,
+      strokeWidth: isHiddenGM ? 2 : el.strokeWidth,
+      dash: isHiddenGM ? [6, 4] : undefined,
       draggable: tool === "select" && !el.locked,
       onMouseDown: (e) => {
         e.cancelBubble = true;
@@ -845,7 +870,7 @@ const MapEditor = () => {
       rotation: el.rotation || 0,
       scaleX: el.scaleX || 1,
       scaleY: el.scaleY || 1,
-      opacity: el.locked ? 0.9 : 1,
+      opacity: isHiddenGM ? 0.48 : (el.locked ? 0.9 : (el.opacity ?? 1)),
     };
 
     if (el.tool === "brush" || el.tool === "line") {
@@ -887,7 +912,25 @@ const MapEditor = () => {
           stageRef.current.batchDraw();
         }
       }
-      return <KonvaImage {...commonProps} image={el.imageObj} width={el.width} height={el.height} />;
+      return (
+        <Group key={el.id || i}>
+          <KonvaImage
+            {...commonProps}
+            image={el.imageObj}
+            width={el.width}
+            height={el.height}
+            stroke={isHiddenGM ? "#9b59b6" : commonProps.stroke}
+            strokeWidth={isHiddenGM ? 2 : commonProps.strokeWidth}
+            dash={isHiddenGM ? [6, 4] : undefined}
+          />
+          {isHiddenGM && (
+            <Label x={el.x} y={el.y - 14} listening={false}>
+              <Tag fill="#8e44ad" cornerRadius={3} />
+              <Text text="EMBOSCADA" fill="#ffffff" fontSize={8} padding={2} fontStyle="bold" />
+            </Label>
+          )}
+        </Group>
+      );
     }
     return null;
   };
@@ -920,6 +963,8 @@ const MapEditor = () => {
         onUndo={handleUndo}
         onOpenSettings={() => setSettingsOpen(true)}
         onOpenShareSession={() => setShareModalOpen(true)}
+        showGrid={showGrid} setShowGrid={setShowGrid}
+        fogEnabled={fogEnabled} setFogEnabled={setFogEnabled}
         snapMode={snapMode} setSnapMode={setSnapMode}
         rulerVariant={rulerVariant} setRulerVariant={setRulerVariant}
         rulerUnit={rulerUnit} setRulerUnit={setRulerUnit}
@@ -927,6 +972,8 @@ const MapEditor = () => {
         fogBrushRadius={fogBrushRadius} setFogBrushRadius={setFogBrushRadius}
         onFogFillAll={handleFogFillAll} onFogClearAll={handleFogClearAll}
         onExportImage={handleExportImage} onExportUniversalVTT={handleExportUniversalVTT}
+        layersOpen={layersOpen} onToggleLayers={() => setLayersOpen(!layersOpen)}
+        isGM={true}
       />
 
       {/* Widget de Jogadores Conectados no Canto Superior Direito */}
@@ -941,16 +988,20 @@ const MapEditor = () => {
         />
       )}
 
-      <LayersPanel
-        elements={elements}
-        selectedId={selectedId}
-        onSelectElement={(id) => { setTool("select"); setSelectedId(id); }}
-        onDeleteElement={handleDeleteElement}
-        onToggleVisibility={handleToggleVisibility}
-        onToggleLock={handleToggleLock}
-        onEditElement={(el) => setEditingElement(el)}
-        onReorderElements={handleReorderElements} 
-      />
+      {layersOpen && (
+        <LayersPanel
+          elements={elements}
+          setElements={setElements}
+          selectedId={selectedId}
+          onSelectElement={(id) => { setTool("select"); setSelectedId(id); }}
+          onDeleteElement={handleDeleteElement}
+          onToggleVisibility={handleToggleVisibility}
+          onToggleLock={handleToggleLock}
+          onEditElement={(el) => setConfiguringElement(el)}
+          onClose={() => setLayersOpen(false)}
+          isGM={true}
+        />
+      )}
 
       <MapSettingsDialog
         open={settingsOpen} onClose={() => setSettingsOpen(false)}
@@ -981,6 +1032,7 @@ const MapEditor = () => {
         <ConvertElementModal
           element={configuringElement}
           userSheets={userSheets}
+          activePlayers={activePlayers}
           onUpdateElement={handleUpdateElement}
           onClose={() => setConfiguringElement(null)}
         />

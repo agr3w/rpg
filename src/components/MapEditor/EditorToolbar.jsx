@@ -1,455 +1,613 @@
+﻿// src/components/MapEditor/EditorToolbar.jsx
 import React, { useState } from "react";
 import { 
-  Paper, IconButton, Tooltip, Box, Popover, Typography, Stack, Slider, Button, Divider, ToggleButtonGroup, ToggleButton
+  Popover, Typography, Stack, Slider, Button, Tooltip, Box
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-// Ícones Material UI
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import NearMeIcon from '@mui/icons-material/NearMe';
-import PanToolIcon from '@mui/icons-material/PanTool';
-import BrushIcon from '@mui/icons-material/Brush';
-import RemoveIcon from '@mui/icons-material/Remove';
-import CropSquareIcon from '@mui/icons-material/CropSquare';
-import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
-import UndoIcon from '@mui/icons-material/Undo';
-import PaletteIcon from '@mui/icons-material/Palette';
-import SettingsIcon from '@mui/icons-material/Settings';
-import TextFieldsIcon from '@mui/icons-material/TextFields';
-import StraightenIcon from '@mui/icons-material/Straighten';
-import CasinoIcon from '@mui/icons-material/Casino';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import GridOnIcon from '@mui/icons-material/GridOn';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
-import LayersClearIcon from '@mui/icons-material/LayersClear';
-import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
-import TuneIcon from '@mui/icons-material/Tune';
-import ShareIcon from '@mui/icons-material/Share';
+// Material-UI Icons (ZERO EMOJIS)
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import NearMeIcon from "@mui/icons-material/NearMe";
+import PanToolIcon from "@mui/icons-material/PanTool";
+import StraightenIcon from "@mui/icons-material/Straighten";
+import FmdGoodIcon from "@mui/icons-material/FmdGood";
+import BrushIcon from "@mui/icons-material/Brush";
+import RemoveIcon from "@mui/icons-material/Remove";
+import CropSquareIcon from "@mui/icons-material/CropSquare";
+import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
+import TextFieldsIcon from "@mui/icons-material/TextFields";
+import PaletteIcon from "@mui/icons-material/Palette";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import BlurOnIcon from "@mui/icons-material/BlurOn";
+import GridOnIcon from "@mui/icons-material/GridOn";
+import SettingsIcon from "@mui/icons-material/Settings";
+import LayersIcon from "@mui/icons-material/Layers";
+import Inventory2Icon from "@mui/icons-material/Inventory2";
+import CasinoIcon from "@mui/icons-material/Casino";
+import ShareIcon from "@mui/icons-material/Share";
+import UndoIcon from "@mui/icons-material/Undo";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
+import LayersClearIcon from "@mui/icons-material/LayersClear";
+import TuneIcon from "@mui/icons-material/Tune";
 
 import DiceRoller from "./DiceRoller";
+import styles from "./EditorToolbar.module.css";
 
-const EditorToolbar = ({ 
-  tool, setTool, 
-  strokeColor, setStrokeColor, 
-  strokeWidth, setStrokeWidth, 
-  onUndo, onOpenSettings,
+export default function EditorToolbar({
+  tool,
+  setTool,
+  showGrid,
+  setShowGrid,
+  fogEnabled,
+  setFogEnabled,
+  fogMode = "reveal-brush",
+  setFogMode,
+  fogBrushRadius = 60,
+  setFogBrushRadius,
+  onFogFillAll,
+  onFogClearAll,
+  onToggleLayers,
+  layersOpen,
+  onToggleAssets,
+  assetsOpen,
+  onToggleDice,
+  diceOpen,
+  onOpenSettings,
   onOpenShareSession,
-  snapMode = "center", setSnapMode,
-  rulerVariant = "5e-standard", setRulerVariant,
-  rulerUnit = "all", setRulerUnit,
-  fogMode = "reveal-brush", setFogMode,
-  fogBrushRadius = 60, setFogBrushRadius,
-  onFogFillAll, onFogClearAll,
-  onExportImage, onExportUniversalVTT
-}) => {
+  onUndo,
+  onExportImage,
+  onExportUniversalVTT,
+  strokeColor,
+  setStrokeColor,
+  strokeWidth,
+  setStrokeWidth,
+  snapMode = "center",
+  setSnapMode,
+  rulerVariant = "5e-standard",
+  setRulerVariant,
+  rulerUnit = "all",
+  setRulerUnit,
+  isGM = true
+}) {
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [diceAnchorEl, setDiceAnchorEl] = useState(null);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Popovers
+  const [colorAnchorEl, setColorAnchorEl] = useState(null);
   const [fogAnchorEl, setFogAnchorEl] = useState(null);
   const [rulerAnchorEl, setRulerAnchorEl] = useState(null);
-  const [exportAnchorEl, setExportAnchorEl] = useState(null);
   const [snapAnchorEl, setSnapAnchorEl] = useState(null);
+  const [exportAnchorEl, setExportAnchorEl] = useState(null);
+  const [diceAnchorEl, setDiceAnchorEl] = useState(null);
 
-  const tools = [
-    { id: "select", icon: <NearMeIcon sx={{ transform: "rotate(-90deg)" }} />, title: "Selecionar e Mover (V)" },
-    { id: "pan", icon: <PanToolIcon />, title: "Mover Tela / Pan (Espaço ou H)" },
-    { id: "text", icon: <TextFieldsIcon />, title: "Inserir Texto (T)" },
-    { id: "brush", icon: <BrushIcon />, title: "Pincel Livre (B)" },
-    { id: "line", icon: <RemoveIcon />, title: "Linha / Parede (L)" },
-    { id: "rect", icon: <CropSquareIcon />, title: "Retângulo / Sala (R)" },
-    { id: "circle", icon: <RadioButtonUncheckedIcon />, title: "Círculo / Área (C)" },
-    { id: "ruler", icon: <StraightenIcon />, title: "Régua Tática 5e (M)" },
-    { id: "fog", icon: <VisibilityOffIcon />, title: "Névoa de Guerra (F)" },
-  ];
-
-  const isFogActive = tool === "fog";
-  const isRulerActive = tool === "ruler";
+  const colors = ["#e5b324", "#ffffff", "#000000", "#e74c3c", "#3498db", "#2ecc71", "#9b59b6", "#e67e22"];
 
   return (
-    <Box sx={{ position: "absolute", top: 20, left: 20, zIndex: 10 }}>
-      <Paper 
-        elevation={6} 
-        sx={{ 
-          p: 0.5, 
-          display: "flex", 
-          flexDirection: "column", 
-          gap: 0.5, 
-          bgcolor: "#181412",
-          border: "1px solid rgba(212,175,55,0.25)", 
-          borderRadius: 2,
-          width: 48,
-          boxShadow: "0 10px 30px rgba(0,0,0,0.5)"
-        }}
+    <aside className={`${styles.toolbarWrapper} ${isCollapsed ? styles.collapsed : ""}`}>
+      {/* Botão Retrátil */}
+      <button
+        type="button"
+        className={styles.toggleCollapseBtn}
+        onClick={() => setIsCollapsed((prev) => !prev)}
+        title={isCollapsed ? "Expandir Ferramentas" : "Recolher Ferramentas"}
       >
-        <Tooltip title="Voltar para Mapas" placement="right">
-          <IconButton size="small" onClick={() => navigate("/mapas")} sx={{ color: "#aaa", mb: 0.5 }}>
-            <ArrowBackIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        
-        {tools.map((t) => (
-          <Tooltip key={t.id} title={t.title} placement="right">
-            <IconButton 
-              size="small"
-              onClick={() => {
-                setTool(t.id);
-                if (t.id === "fog") setFogAnchorEl(null);
-              }} 
-              sx={{ 
-                color: tool === t.id ? "#fff" : "#888",
-                bgcolor: tool === t.id ? "#bf8f00" : "transparent",
-                borderRadius: 1.5,
-                "&:hover": { bgcolor: tool === t.id ? "#a67c00" : "rgba(255,255,255,0.08)" }
-              }}
-            >
-              {t.icon}
-            </IconButton>
-          </Tooltip>
-        ))}
+        {isCollapsed ? <ChevronRightIcon fontSize="small" /> : <ChevronLeftIcon fontSize="small" />}
+      </button>
 
-        <Box sx={{ height: 1, bgcolor: "rgba(212,175,55,0.15)", my: 0.5 }} />
+      {!isCollapsed && (
+        <div className={styles.toolbarContent}>
+          {/* VOLTAR */}
+          <div className={styles.toolGroup}>
+            <div className={styles.buttonsRow}>
+              <Tooltip title="Voltar para Mapas" placement="right">
+                <button
+                  type="button"
+                  className={styles.toolBtn}
+                  onClick={() => navigate("/mapas")}
+                >
+                  <ArrowBackIcon fontSize="small" />
+                </button>
+              </Tooltip>
+            </div>
+          </div>
 
-        {/* Menu Rápido de Névoa */}
-        {isFogActive && (
-          <Tooltip title="Opções de Névoa" placement="right">
-            <IconButton size="small" onClick={(e) => setFogAnchorEl(e.currentTarget)} sx={{ color: "#e5b324" }}>
-              <TuneIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        )}
+          <div className={styles.divider} />
 
-        {/* Menu Rápido de Régua */}
-        {isRulerActive && (
-          <Tooltip title="Opções da Régua 5e" placement="right">
-            <IconButton size="small" onClick={(e) => setRulerAnchorEl(e.currentTarget)} sx={{ color: "#e5b324" }}>
-              <TuneIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        )}
+          {/* CATEGORIA 1: CONTROLE & NAVEGAÇÃO */}
+          <div className={styles.toolGroup}>
+            <span className={styles.groupLabel}>Controle</span>
+            <div className={styles.buttonsRow}>
+              <Tooltip title="Selecionar e Mover Tokens (V)" placement="right">
+                <button
+                  type="button"
+                  className={`${styles.toolBtn} ${tool === "select" ? styles.active : ""}`}
+                  onClick={() => setTool("select")}
+                >
+                  <NearMeIcon fontSize="small" sx={{ transform: "rotate(-90deg)" }} />
+                </button>
+              </Tooltip>
 
-        {/* Snap to Grid */}
-        <Tooltip title={`Snap ao Grid: ${snapMode === "center" ? "Centro" : snapMode === "vertex" ? "Vértice" : "Desativado"}`} placement="right">
-          <IconButton 
-            size="small" 
-            onClick={(e) => setSnapAnchorEl(e.currentTarget)} 
-            sx={{ color: snapMode !== "off" ? "#bf8f00" : "#666" }}
-          >
-            <GridOnIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        
-        {/* Paleta de Cores e Traço */}
-        <Tooltip title="Cor e Traço" placement="right">
-          <IconButton size="small" onClick={(e) => setAnchorEl(e.currentTarget)} sx={{ color: strokeColor }}>
-            <PaletteIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        
-        {/* Rolador de Dados */}
-        <Tooltip title="Rolar Dados" placement="right">
-          <IconButton size="small" onClick={(e) => setDiceAnchorEl(e.currentTarget)} sx={{ color: "#aaa" }}>
-            <CasinoIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
+              <Tooltip title="Mover Tela / Pan (Espaço ou H)" placement="right">
+                <button
+                  type="button"
+                  className={`${styles.toolBtn} ${tool === "pan" ? styles.active : ""}`}
+                  onClick={() => setTool("pan")}
+                >
+                  <PanToolIcon fontSize="small" />
+                </button>
+              </Tooltip>
 
-        {/* Desfazer */}
-        <Tooltip title="Desfazer (Ctrl+Z)" placement="right">
-          <IconButton size="small" onClick={onUndo} sx={{ color: "#aaa" }}>
-            <UndoIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
+              <Tooltip title="Régua de Deslocamento Tático (R)" placement="right">
+                <button
+                  type="button"
+                  className={`${styles.toolBtn} ${tool === "ruler" ? styles.active : ""}`}
+                  onClick={(e) => {
+                    setTool("ruler");
+                    setRulerAnchorEl(e.currentTarget);
+                  }}
+                >
+                  <StraightenIcon fontSize="small" />
+                </button>
+              </Tooltip>
 
-        {/* Exportar Mapa */}
-        <Tooltip title="Exportar Mapa (VTT & Imagem)" placement="right">
-          <IconButton size="small" onClick={(e) => setExportAnchorEl(e.currentTarget)} sx={{ color: "#aaa" }}>
-            <FileDownloadIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        
-        {/* Compartilhar Mesa VTT */}
-        {onOpenShareSession && (
-          <Tooltip title="Compartilhar Mesa / Convidar Jogadores (VTT)" placement="right">
-            <IconButton 
-              size="small" 
-              onClick={onOpenShareSession} 
-              sx={{ 
-                color: "#ffd700",
-                "&:hover": { bgcolor: "rgba(255,215,0,0.15)" }
-              }}
-            >
-              <ShareIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        )}
+              <Tooltip title="Sinalizar Ponto de Interesse (Ping)" placement="right">
+                <button
+                  type="button"
+                  className={`${styles.toolBtn} ${tool === "ping" ? styles.active : ""}`}
+                  onClick={() => setTool("ping")}
+                >
+                  <FmdGoodIcon fontSize="small" />
+                </button>
+              </Tooltip>
+            </div>
+          </div>
 
-        {/* Configurações */}
-        <Tooltip title="Configurações do Grid" placement="right">
-          <IconButton size="small" onClick={onOpenSettings} sx={{ color: "#aaa" }}>
-            <SettingsIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-      </Paper>
+          <div className={styles.divider} />
 
-      {/* Popover de Cores */}
-      <Popover 
-        open={Boolean(anchorEl)} 
-        anchorEl={anchorEl} 
-        onClose={() => setAnchorEl(null)} 
-        anchorOrigin={{ vertical: 'center', horizontal: 'right' }}
-      >
-        <Box sx={{ p: 2, bgcolor: "#1e1814", border: "1px solid rgba(212,175,55,0.3)", borderRadius: 1.5, color: "#fff" }}>
-          <Typography variant="caption" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#bf8f00" }}>Cor do Traço</Typography>
-          <Stack direction="row" spacing={1} sx={{ mb: 2, mt: 1 }}>
-            {["#000000", "#d32f2f", "#1976d2", "#388e3c", "#fbc02d", "#795548", "#ffffff"].map(color => (
-              <Box 
-                key={color} 
-                onClick={() => { setStrokeColor(color); setAnchorEl(null); }} 
-                sx={{ 
-                  width: 24, height: 24, bgcolor: color, borderRadius: "50%", cursor: "pointer", 
-                  border: strokeColor === color ? "2px solid #bf8f00" : "1px solid rgba(255,255,255,0.2)" 
-                }} 
-              />
-            ))}
-          </Stack>
-          <Typography variant="caption" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#bf8f00" }}>Espessura: {strokeWidth}px</Typography>
-          <Slider 
-            value={strokeWidth} min={1} max={30} 
-            onChange={(e, v) => setStrokeWidth(v)} 
-            sx={{ color: "#bf8f00", width: 160 }} 
-          />
-        </Box>
-      </Popover>
+          {/* CATEGORIA 2: DESENHO & CONSTRUÇÃO */}
+          <div className={styles.toolGroup}>
+            <span className={styles.groupLabel}>Desenho</span>
+            <div className={styles.buttonsRow}>
+              <Tooltip title="Pincel Livre (B)" placement="right">
+                <button
+                  type="button"
+                  className={`${styles.toolBtn} ${tool === "brush" ? styles.active : ""}`}
+                  onClick={() => setTool("brush")}
+                >
+                  <BrushIcon fontSize="small" />
+                </button>
+              </Tooltip>
 
-      {/* Popover de Snap to Grid */}
+              <Tooltip title="Linha / Parede (L)" placement="right">
+                <button
+                  type="button"
+                  className={`${styles.toolBtn} ${tool === "line" ? styles.active : ""}`}
+                  onClick={() => setTool("line")}
+                >
+                  <RemoveIcon fontSize="small" />
+                </button>
+              </Tooltip>
+
+              <Tooltip title="Sala / Retângulo (R)" placement="right">
+                <button
+                  type="button"
+                  className={`${styles.toolBtn} ${tool === "rect" ? styles.active : ""}`}
+                  onClick={() => setTool("rect")}
+                >
+                  <CropSquareIcon fontSize="small" />
+                </button>
+              </Tooltip>
+
+              <Tooltip title="Área / Círculo (C)" placement="right">
+                <button
+                  type="button"
+                  className={`${styles.toolBtn} ${tool === "circle" ? styles.active : ""}`}
+                  onClick={() => setTool("circle")}
+                >
+                  <RadioButtonUncheckedIcon fontSize="small" />
+                </button>
+              </Tooltip>
+
+              <Tooltip title="Inserir Texto (T)" placement="right">
+                <button
+                  type="button"
+                  className={`${styles.toolBtn} ${tool === "text" ? styles.active : ""}`}
+                  onClick={() => setTool("text")}
+                >
+                  <TextFieldsIcon fontSize="small" />
+                </button>
+              </Tooltip>
+
+              <Tooltip title="Cor e Espessura" placement="right">
+                <button
+                  type="button"
+                  className={styles.toolBtn}
+                  onClick={(e) => setColorAnchorEl(e.currentTarget)}
+                >
+                  <PaletteIcon fontSize="small" sx={{ color: strokeColor }} />
+                </button>
+              </Tooltip>
+            </div>
+          </div>
+
+          <div className={styles.divider} />
+
+          {/* CATEGORIA 3: NÉVOA DE GUERRA (GM ONLY) */}
+          {isGM && (
+            <>
+              <div className={styles.toolGroup}>
+                <span className={styles.groupLabel}>Névoa</span>
+                <div className={styles.buttonsRow}>
+                  <Tooltip title={fogEnabled ? "Névoa Ativa no Mapa" : "Névoa Desativada"} placement="right">
+                    <button
+                      type="button"
+                      className={`${styles.toolBtn} ${fogEnabled ? styles.glowActive : ""}`}
+                      onClick={() => setFogEnabled?.(!fogEnabled)}
+                    >
+                      <BlurOnIcon fontSize="small" />
+                    </button>
+                  </Tooltip>
+
+                  <Tooltip title="Pincel: Revelar Área" placement="right">
+                    <button
+                      type="button"
+                      disabled={!fogEnabled}
+                      className={`${styles.toolBtn} ${tool === "fog" && (fogMode === "reveal" || fogMode === "reveal-brush") ? styles.active : ""}`}
+                      onClick={(e) => {
+                        setTool("fog");
+                        setFogMode?.("reveal-brush");
+                        setFogAnchorEl(e.currentTarget);
+                      }}
+                    >
+                      <VisibilityIcon fontSize="small" />
+                    </button>
+                  </Tooltip>
+
+                  <Tooltip title="Pincel: Ocultar Área" placement="right">
+                    <button
+                      type="button"
+                      disabled={!fogEnabled}
+                      className={`${styles.toolBtn} ${tool === "fog" && (fogMode === "hide" || fogMode === "hide-brush") ? styles.active : ""}`}
+                      onClick={(e) => {
+                        setTool("fog");
+                        setFogMode?.("hide-brush");
+                        setFogAnchorEl(e.currentTarget);
+                      }}
+                    >
+                      <VisibilityOffIcon fontSize="small" />
+                    </button>
+                  </Tooltip>
+                </div>
+              </div>
+
+              <div className={styles.divider} />
+            </>
+          )}
+
+          {/* CATEGORIA 4: MUNDO & GRID */}
+          <div className={styles.toolGroup}>
+            <span className={styles.groupLabel}>Mundo</span>
+            <div className={styles.buttonsRow}>
+              <Tooltip title="Alternar Grid Tático" placement="right">
+                <button
+                  type="button"
+                  className={`${styles.toolBtn} ${showGrid ? styles.active : ""}`}
+                  onClick={() => setShowGrid?.(!showGrid)}
+                >
+                  <GridOnIcon fontSize="small" />
+                </button>
+              </Tooltip>
+
+              <Tooltip title="Alinhamento ao Grid (Snap)" placement="right">
+                <button
+                  type="button"
+                  className={styles.toolBtn}
+                  onClick={(e) => setSnapAnchorEl(e.currentTarget)}
+                >
+                  <TuneIcon fontSize="small" />
+                </button>
+              </Tooltip>
+
+              {isGM && (
+                <Tooltip title="Ajustes do Mapa & Grid" placement="right">
+                  <button
+                    type="button"
+                    className={styles.toolBtn}
+                    onClick={onOpenSettings}
+                  >
+                    <SettingsIcon fontSize="small" />
+                  </button>
+                </Tooltip>
+              )}
+            </div>
+          </div>
+
+          <div className={styles.divider} />
+
+          {/* CATEGORIA 5: PAINÉIS & AUXILIARES */}
+          <div className={styles.toolGroup}>
+            <span className={styles.groupLabel}>Painéis</span>
+            <div className={styles.buttonsRow}>
+              <Tooltip title="Gerenciar Camadas do Mapa" placement="right">
+                <button
+                  type="button"
+                  className={`${styles.toolBtn} ${layersOpen ? styles.active : ""}`}
+                  onClick={onToggleLayers}
+                >
+                  <LayersIcon fontSize="small" />
+                </button>
+              </Tooltip>
+
+              <Tooltip title="Cofre de Assets & Biblioteca" placement="right">
+                <button
+                  type="button"
+                  className={`${styles.toolBtn} ${assetsOpen ? styles.active : ""}`}
+                  onClick={onToggleAssets}
+                >
+                  <Inventory2Icon fontSize="small" />
+                </button>
+              </Tooltip>
+
+              <Tooltip title="Rolador de Dados 3D" placement="right">
+                <button
+                  type="button"
+                  className={`${styles.toolBtn} ${diceOpen ? styles.active : ""}`}
+                  onClick={(e) => {
+                    onToggleDice?.();
+                    setDiceAnchorEl(e.currentTarget);
+                  }}
+                >
+                  <CasinoIcon fontSize="small" />
+                </button>
+              </Tooltip>
+
+              {isGM && (
+                <Tooltip title="Convidar / Compartilhar Mesa" placement="right">
+                  <button
+                    type="button"
+                    className={`${styles.toolBtn} ${styles.shareBtn}`}
+                    onClick={onOpenShareSession}
+                  >
+                    <ShareIcon fontSize="small" />
+                  </button>
+                </Tooltip>
+              )}
+
+              <Tooltip title="Desfazer Ação (Ctrl+Z)" placement="right">
+                <button
+                  type="button"
+                  className={styles.toolBtn}
+                  onClick={onUndo}
+                >
+                  <UndoIcon fontSize="small" />
+                </button>
+              </Tooltip>
+
+              <Tooltip title="Exportar Imagem / VTT" placement="right">
+                <button
+                  type="button"
+                  className={styles.toolBtn}
+                  onClick={(e) => setExportAnchorEl(e.currentTarget)}
+                >
+                  <FileDownloadIcon fontSize="small" />
+                </button>
+              </Tooltip>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* POPOVER DE COR & ESPESSURA */}
       <Popover
-        open={Boolean(snapAnchorEl)}
-        anchorEl={snapAnchorEl}
-        onClose={() => setSnapAnchorEl(null)}
-        anchorOrigin={{ vertical: 'center', horizontal: 'right' }}
+        open={Boolean(colorAnchorEl)}
+        anchorEl={colorAnchorEl}
+        onClose={() => setColorAnchorEl(null)}
+        anchorOrigin={{ vertical: "center", horizontal: "right" }}
+        transformOrigin={{ vertical: "center", horizontal: "left" }}
+        PaperProps={{ sx: { bgcolor: "#181412", p: 2, border: "1px solid rgba(212,175,55,0.3)", borderRadius: 2 } }}
       >
-        <Box sx={{ p: 2, bgcolor: "#1e1814", border: "1px solid rgba(212,175,55,0.3)", borderRadius: 1.5, color: "#fff", width: 220 }}>
-          <Typography variant="subtitle2" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#bf8f00", mb: 1 }}>
-            Snap ao Grid
-          </Typography>
-          <ToggleButtonGroup
-            orientation="vertical"
-            value={snapMode}
-            exclusive
-            onChange={(e, val) => { if (val) setSnapMode?.(val); }}
-            fullWidth
-            size="small"
-            sx={{
-              "& .MuiToggleButton-root": {
-                color: "#ccc",
-                borderColor: "rgba(212,175,55,0.2)",
-                fontFamily: "Cinzel",
-                fontSize: "0.75rem",
-                justifyContent: "flex-start",
-                "&.Mui-selected": {
-                  color: "#bf8f00",
-                  bgcolor: "rgba(191,143,0,0.15)"
-                }
-              }
-            }}
-          >
-            <ToggleButton value="center">Centro da Célula</ToggleButton>
-            <ToggleButton value="vertex">Vértice / Interseção</ToggleButton>
-            <ToggleButton value="off">Desativado (Livre)</ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
+        <Typography variant="caption" sx={{ color: "#ffd700", fontWeight: "bold", mb: 1, display: "block" }}>
+          COR DO TRAÇO
+        </Typography>
+        <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+          {colors.map((c) => (
+            <Box
+              key={c}
+              onClick={() => setStrokeColor?.(c)}
+              sx={{
+                width: 24,
+                height: 24,
+                bgcolor: c,
+                borderRadius: "50%",
+                cursor: "pointer",
+                border: strokeColor === c ? "2px solid #ffd700" : "1px solid #555"
+              }}
+            />
+          ))}
+        </Stack>
+        <Typography variant="caption" sx={{ color: "#ffd700", fontWeight: "bold", mb: 0.5, display: "block" }}>
+          ESPESSURA: {strokeWidth}px
+        </Typography>
+        <Slider
+          size="small"
+          min={1}
+          max={20}
+          value={strokeWidth || 3}
+          onChange={(_, v) => setStrokeWidth?.(v)}
+          sx={{ color: "#bf8f00" }}
+        />
       </Popover>
 
-      {/* Popover de Névoa de Guerra (Fog of War) */}
+      {/* POPOVER DE NÉVOA DE GUERRA */}
       <Popover
         open={Boolean(fogAnchorEl)}
         anchorEl={fogAnchorEl}
         onClose={() => setFogAnchorEl(null)}
-        anchorOrigin={{ vertical: 'center', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "center", horizontal: "right" }}
+        transformOrigin={{ vertical: "center", horizontal: "left" }}
+        PaperProps={{ sx: { bgcolor: "#181412", p: 2, border: "1px solid rgba(212,175,55,0.3)", borderRadius: 2, width: 220 } }}
       >
-        <Box sx={{ p: 2, bgcolor: "#1e1814", border: "1px solid rgba(212,175,55,0.3)", borderRadius: 1.5, color: "#fff", width: 240 }}>
-          <Typography variant="subtitle2" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#bf8f00", mb: 1 }}>
-            Névoa de Guerra
-          </Typography>
-          <ToggleButtonGroup
-            value={fogMode}
-            exclusive
-            onChange={(e, val) => { if (val) setFogMode?.(val); }}
-            fullWidth
+        <Typography variant="caption" sx={{ color: "#ffd700", fontWeight: "bold", mb: 1, display: "block" }}>
+          CONTROLES DA NÉVOA
+        </Typography>
+        <Typography variant="caption" sx={{ color: "#888", display: "block", mb: 0.5 }}>
+          RAIO DO PINCEL: {fogBrushRadius}px
+        </Typography>
+        <Slider
+          size="small"
+          min={20}
+          max={250}
+          value={fogBrushRadius || 60}
+          onChange={(_, v) => setFogBrushRadius?.(v)}
+          sx={{ color: "#9b59b6", mb: 1.5 }}
+        />
+        <Stack spacing={1}>
+          <Button
             size="small"
-            sx={{
-              mb: 2,
-              "& .MuiToggleButton-root": {
-                color: "#ccc",
-                borderColor: "rgba(212,175,55,0.2)",
-                fontFamily: "Cinzel",
-                fontSize: "0.75rem",
-                "&.Mui-selected": {
-                  color: "#bf8f00",
-                  bgcolor: "rgba(191,143,0,0.15)"
-                }
-              }
-            }}
+            variant="outlined"
+            startIcon={<AutoFixHighIcon />}
+            onClick={() => onFogFillAll?.()}
+            sx={{ borderColor: "rgba(212,175,55,0.4)", color: "#ffd700", fontSize: "0.72rem" }}
           >
-            <ToggleButton value="reveal-brush">Revelar</ToggleButton>
-            <ToggleButton value="hide-brush">Esconder</ToggleButton>
-          </ToggleButtonGroup>
-
-          <Typography variant="caption" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#bf8f00" }}>
-            Raio do Pincel: {fogBrushRadius}px
-          </Typography>
-          <Slider 
-            value={fogBrushRadius} min={20} max={200} step={10}
-            onChange={(e, v) => setFogBrushRadius?.(v)} 
-            sx={{ color: "#bf8f00", mb: 2 }} 
-          />
-
-          <Divider sx={{ borderColor: "rgba(212,175,55,0.2)", mb: 1.5 }} />
-
-          <Stack spacing={1}>
-            <Button 
-              size="small" 
-              variant="outlined" 
-              startIcon={<AutoFixHighIcon />}
-              onClick={() => { onFogClearAll?.(); setFogAnchorEl(null); }}
-              sx={{ borderColor: "rgba(212,175,55,0.3)", color: "#bf8f00", fontSize: "0.75rem" }}
-            >
-              Revelar Todo o Mapa
-            </Button>
-            <Button 
-              size="small" 
-              variant="outlined" 
-              startIcon={<LayersClearIcon />}
-              onClick={() => { onFogFillAll?.(); setFogAnchorEl(null); }}
-              sx={{ borderColor: "rgba(212,175,55,0.3)", color: "#ccc", fontSize: "0.75rem" }}
-            >
-              Cobrir Todo o Mapa
-            </Button>
-          </Stack>
-        </Box>
+            Cobrir Mapa Inteiro
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<LayersClearIcon />}
+            onClick={() => onFogClearAll?.()}
+            sx={{ borderColor: "rgba(231,76,60,0.4)", color: "#ff7675", fontSize: "0.72rem" }}
+          >
+            Revelar Mapa Inteiro
+          </Button>
+        </Stack>
       </Popover>
 
-      {/* Popover da Régua 5e */}
+      {/* POPOVER DE RÉGUA TÁTICA */}
       <Popover
         open={Boolean(rulerAnchorEl)}
         anchorEl={rulerAnchorEl}
         onClose={() => setRulerAnchorEl(null)}
-        anchorOrigin={{ vertical: 'center', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "center", horizontal: "right" }}
+        transformOrigin={{ vertical: "center", horizontal: "left" }}
+        PaperProps={{ sx: { bgcolor: "#181412", p: 2, border: "1px solid rgba(212,175,55,0.3)", borderRadius: 2, width: 200 } }}
       >
-        <Box sx={{ p: 2, bgcolor: "#1e1814", border: "1px solid rgba(212,175,55,0.3)", borderRadius: 1.5, color: "#fff", width: 240 }}>
-          <Typography variant="subtitle2" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#bf8f00", mb: 1 }}>
-            Regra de Medição 5e
-          </Typography>
-          <ToggleButtonGroup
-            orientation="vertical"
-            value={rulerVariant}
-            exclusive
-            onChange={(e, val) => { if (val) setRulerVariant?.(val); }}
-            fullWidth
+        <Typography variant="caption" sx={{ color: "#ffd700", fontWeight: "bold", mb: 1, display: "block" }}>
+          MÉTRICA DA RÉGUA (5E)
+        </Typography>
+        <Stack spacing={0.8}>
+          <Button
             size="small"
-            sx={{
-              mb: 2,
-              "& .MuiToggleButton-root": {
-                color: "#ccc",
-                borderColor: "rgba(212,175,55,0.2)",
-                fontFamily: "Cinzel",
-                fontSize: "0.72rem",
-                justifyContent: "flex-start",
-                "&.Mui-selected": {
-                  color: "#bf8f00",
-                  bgcolor: "rgba(191,143,0,0.15)"
-                }
-              }
-            }}
+            variant={rulerVariant === "5e-standard" ? "contained" : "outlined"}
+            onClick={() => setRulerVariant?.("5e-standard")}
+            sx={{ fontSize: "0.7rem", bgcolor: rulerVariant === "5e-standard" ? "#bf8f00" : "transparent" }}
           >
-            <ToggleButton value="5e-standard">D&D 5e Padrão (RAW 5ft)</ToggleButton>
-            <ToggleButton value="5-10-5">D&D Alternativo (5-10-5)</ToggleButton>
-            <ToggleButton value="euclidean">Distância Euclidiana</ToggleButton>
-          </ToggleButtonGroup>
-
-          <Typography variant="caption" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#bf8f00", mb: 0.5, display: "block" }}>
-            Unidade Exibida
-          </Typography>
-          <ToggleButtonGroup
-            value={rulerUnit}
-            exclusive
-            onChange={(e, val) => { if (val) setRulerUnit?.(val); }}
-            fullWidth
+            Padrão 5e (Euclidiana)
+          </Button>
+          <Button
             size="small"
-            sx={{
-              "& .MuiToggleButton-root": {
-                color: "#ccc",
-                borderColor: "rgba(212,175,55,0.2)",
-                fontFamily: "Cinzel",
-                fontSize: "0.72rem",
-                "&.Mui-selected": {
-                  color: "#bf8f00",
-                  bgcolor: "rgba(191,143,0,0.15)"
-                }
-              }
-            }}
+            variant={rulerVariant === "manhattan" ? "contained" : "outlined"}
+            onClick={() => setRulerVariant?.("manhattan")}
+            sx={{ fontSize: "0.7rem", bgcolor: rulerVariant === "manhattan" ? "#bf8f00" : "transparent" }}
           >
-            <ToggleButton value="all">Pés & Metros</ToggleButton>
-            <ToggleButton value="ft">Pés (ft)</ToggleButton>
-            <ToggleButton value="m">Metros (m)</ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
+            Ortogonal (Manhattan)
+          </Button>
+        </Stack>
       </Popover>
 
-      {/* Popover de Exportação (Universal VTT & Imagem HD) */}
+      {/* POPOVER DE SNAPPING */}
+      <Popover
+        open={Boolean(snapAnchorEl)}
+        anchorEl={snapAnchorEl}
+        onClose={() => setSnapAnchorEl(null)}
+        anchorOrigin={{ vertical: "center", horizontal: "right" }}
+        transformOrigin={{ vertical: "center", horizontal: "left" }}
+        PaperProps={{ sx: { bgcolor: "#181412", p: 2, border: "1px solid rgba(212,175,55,0.3)", borderRadius: 2 } }}
+      >
+        <Typography variant="caption" sx={{ color: "#ffd700", fontWeight: "bold", mb: 1, display: "block" }}>
+          ALINHAMENTO (SNAP)
+        </Typography>
+        <Stack spacing={0.8}>
+          <Button
+            size="small"
+            variant={snapMode === "center" ? "contained" : "outlined"}
+            onClick={() => setSnapMode?.("center")}
+            sx={{ fontSize: "0.7rem", bgcolor: snapMode === "center" ? "#bf8f00" : "transparent" }}
+          >
+            Centro da Célula
+          </Button>
+          <Button
+            size="small"
+            variant={snapMode === "corner" ? "contained" : "outlined"}
+            onClick={() => setSnapMode?.("corner")}
+            sx={{ fontSize: "0.7rem", bgcolor: snapMode === "corner" ? "#bf8f00" : "transparent" }}
+          >
+            Vértice / Canto
+          </Button>
+          <Button
+            size="small"
+            variant={snapMode === "none" ? "contained" : "outlined"}
+            onClick={() => setSnapMode?.("none")}
+            sx={{ fontSize: "0.7rem", bgcolor: snapMode === "none" ? "#bf8f00" : "transparent" }}
+          >
+            Livre (Sem Snap)
+          </Button>
+        </Stack>
+      </Popover>
+
+      {/* POPOVER DE EXPORTAÇÃO */}
       <Popover
         open={Boolean(exportAnchorEl)}
         anchorEl={exportAnchorEl}
         onClose={() => setExportAnchorEl(null)}
-        anchorOrigin={{ vertical: 'center', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "center", horizontal: "right" }}
+        transformOrigin={{ vertical: "center", horizontal: "left" }}
+        PaperProps={{ sx: { bgcolor: "#181412", p: 2, border: "1px solid rgba(212,175,55,0.3)", borderRadius: 2, width: 220 } }}
       >
-        <Box sx={{ p: 2, bgcolor: "#1e1814", border: "1px solid rgba(212,175,55,0.3)", borderRadius: 1.5, color: "#fff", width: 260 }}>
-          <Typography variant="subtitle2" sx={{ fontFamily: "Cinzel", fontWeight: 800, color: "#bf8f00", mb: 1.5 }}>
-            Exportar Mapa
-          </Typography>
-          <Stack spacing={1}>
-            <Button 
-              size="small" 
-              variant="contained" 
-              startIcon={<ImageOutlinedIcon />}
-              onClick={() => { onExportImage?.("png"); setExportAnchorEl(null); }}
-              sx={{ bgcolor: "#bf8f00", color: "#1e1814", fontWeight: 800, fontSize: "0.75rem", "&:hover": { bgcolor: "#a67c00" } }}
-            >
-              Exportar Imagem PNG (HD)
-            </Button>
-            <Button 
-              size="small" 
-              variant="outlined" 
-              startIcon={<ImageOutlinedIcon />}
-              onClick={() => { onExportImage?.("jpeg"); setExportAnchorEl(null); }}
-              sx={{ borderColor: "rgba(212,175,55,0.3)", color: "#e5b324", fontSize: "0.75rem" }}
-            >
-              Exportar Imagem JPEG (HD)
-            </Button>
-            <Button 
-              size="small" 
-              variant="outlined" 
-              startIcon={<FileDownloadIcon />}
-              onClick={() => { onExportUniversalVTT?.(); setExportAnchorEl(null); }}
-              sx={{ borderColor: "rgba(212,175,55,0.4)", color: "#fff", fontSize: "0.75rem" }}
-            >
-              Universal VTT (.dd2vtt)
-            </Button>
-          </Stack>
-        </Box>
+        <Typography variant="caption" sx={{ color: "#ffd700", fontWeight: "bold", mb: 1, display: "block" }}>
+          EXPORTAR TABULEIRO
+        </Typography>
+        <Stack spacing={1}>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => {
+              onExportImage?.("png");
+              setExportAnchorEl(null);
+            }}
+            sx={{ borderColor: "rgba(212,175,55,0.4)", color: "#ffd700", fontSize: "0.72rem" }}
+          >
+            Salvar Imagem PNG
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => {
+              onExportUniversalVTT?.();
+              setExportAnchorEl(null);
+            }}
+            sx={{ borderColor: "rgba(212,175,55,0.4)", color: "#ffd700", fontSize: "0.72rem" }}
+          >
+            Universal VTT (.dd2vtt)
+          </Button>
+        </Stack>
       </Popover>
 
-      {/* Popover de Dados */}
+      {/* ROLADOR DE DADOS */}
       <Popover
         open={Boolean(diceAnchorEl)}
         anchorEl={diceAnchorEl}
         onClose={() => setDiceAnchorEl(null)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "center", horizontal: "right" }}
+        transformOrigin={{ vertical: "center", horizontal: "left" }}
+        PaperProps={{ sx: { bgcolor: "#181412", p: 1.5, border: "1px solid rgba(212,175,55,0.3)", borderRadius: 2 } }}
       >
         <DiceRoller />
       </Popover>
-    </Box>
+    </aside>
   );
-};
-
-export default EditorToolbar;
+}

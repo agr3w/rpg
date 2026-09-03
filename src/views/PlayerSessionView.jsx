@@ -10,7 +10,7 @@ import CenterFocusStrongIcon from "@mui/icons-material/CenterFocusStrong";
 import LockIcon from "@mui/icons-material/Lock";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { auth } from "../APIs/firebaseConfig";
-import { trackPlayerPresence } from "../APIs/sessionService";
+import { trackPlayerPresence, updateSessionElement } from "../APIs/sessionService";
 import { pointToCell } from "../Utils/gridUtils";
 import { calculateDistance, formatDistance } from "../Utils/rulerUtils";
 import { rollDiceString } from "../Utils/DiceRoller";
@@ -245,6 +245,13 @@ export default function PlayerSessionView() {
   const renderElement = (el, i) => {
     if (el.isVisible === false || el.hiddenFromPlayers) return null;
 
+    const currentUserId = auth.currentUser?.uid;
+    const isControllable = Boolean(
+      el.controlledBy === "all" ||
+      (currentUserId && el.controlledBy === currentUserId) ||
+      (currentUserId && el.characterId && el.ownerUid === currentUserId)
+    );
+
     const commonProps = {
       key: el.id || i,
       id: el.id ? el.id.toString() : i.toString(),
@@ -256,13 +263,19 @@ export default function PlayerSessionView() {
       scaleX: el.scaleX || 1,
       scaleY: el.scaleY || 1,
       opacity: el.opacity ?? 1,
+      draggable: isControllable,
+      onDragEnd: (e) => {
+        if (isControllable) {
+          updateSessionElement(sessionId, el.id, { x: e.target.x(), y: e.target.y() });
+        }
+      },
       onDblClick: () => {
-        if (el.type === "token" || el.characterId) {
+        if (el.type === "token" || el.characterId || el.tool === "image") {
           setActiveMiniSheet(el);
         }
       },
       onDblTap: () => {
-        if (el.type === "token" || el.characterId) {
+        if (el.type === "token" || el.characterId || el.tool === "image") {
           setActiveMiniSheet(el);
         }
       }
@@ -311,7 +324,14 @@ export default function PlayerSessionView() {
         </Group>
       );
     } else if (el.tool === "image" || el.type === "token" || el.type === "prop") {
-      return <KonvaImageElement key={el.id || i} el={el} commonProps={commonProps} />;
+      return (
+        <KonvaImageElement
+          key={el.id || i}
+          el={el}
+          commonProps={commonProps}
+          isControllable={isControllable}
+        />
+      );
     }
     return null;
   };
@@ -374,7 +394,9 @@ export default function PlayerSessionView() {
             const res = rollDiceString(formula);
             alert(`${label}: Rolou [${res.rolls.join(", ")}] ${res.modifier >= 0 ? `+${res.modifier}` : res.modifier} = Total: ${res.total}`);
           }}
-          onUpdateToken={() => {}}
+          onUpdateToken={(id, updates) => {
+            updateSessionElement(sessionId, id, updates);
+          }}
           onClose={() => setActiveMiniSheet(null)}
         />
       )}
@@ -458,8 +480,8 @@ export default function PlayerSessionView() {
   );
 }
 
-// Subcomponente auxiliar de imagem para Konva
-function KonvaImageElement({ el, commonProps }) {
+// Subcomponente auxiliar de imagem para Konva com indicação visual de controle
+function KonvaImageElement({ el, commonProps, isControllable }) {
   const img = useLoadedImage(el.src);
   if (!img) return null;
   return (
@@ -468,6 +490,8 @@ function KonvaImageElement({ el, commonProps }) {
       image={img}
       width={el.width || 50}
       height={el.height || 50}
+      stroke={isControllable ? "#2ecc71" : commonProps.stroke}
+      strokeWidth={isControllable ? 2 : commonProps.strokeWidth}
     />
   );
 }

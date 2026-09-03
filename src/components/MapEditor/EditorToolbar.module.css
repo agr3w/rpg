@@ -1,0 +1,135 @@
+﻿/* src/components/MapEditor/EditorToolbar.module.css */
+.toolbarWrapper {
+  position: absolute;
+  top: 75px;
+  left: 20px;
+  z-index: 40;
+  display: flex;
+  align-items: flex-start;
+  transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.collapsed {
+  transform: translateX(-100%);
+}
+
+.toolbarContent {
+  background: rgba(13, 17, 26, 0.94);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 12px;
+  padding: 8px 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85), inset 0 0 15px rgba(212, 175, 55, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.toggleCollapseBtn {
+  position: absolute;
+  right: -28px;
+  top: 8px;
+  width: 28px;
+  height: 38px;
+  background: rgba(13, 17, 26, 0.96);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  color: #f1c40f;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 4px 6px 15px rgba(0, 0, 0, 0.6);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.toggleCollapseBtn:hover {
+  background: rgba(212, 175, 55, 0.2);
+  color: #ffffff;
+}
+
+.toggleIcon {
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.toolGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.groupLabel {
+  font-size: 0.58rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #8b949e;
+  font-weight: 700;
+  padding-left: 2px;
+}
+
+.buttonsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.toolBtn {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 7px;
+  color: #8b949e;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.toolBtn:hover:not(:disabled) {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: rgba(212, 175, 55, 0.5);
+  color: #ffd700;
+  transform: translateY(-1px);
+}
+
+.toolBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.active {
+  background: rgba(212, 175, 55, 0.25) !important;
+  border-color: #f1c40f !important;
+  color: #ffd700 !important;
+  box-shadow: 0 0 10px rgba(241, 196, 15, 0.35);
+}
+
+.glowActive {
+  background: rgba(142, 68, 173, 0.25) !important;
+  border-color: #9b59b6 !important;
+  color: #d7bde2 !important;
+  box-shadow: 0 0 10px rgba(155, 89, 182, 0.4);
+}
+
+.shareBtn {
+  border-color: rgba(212, 175, 55, 0.4);
+  color: #ffd700;
+}
+
+.shareBtn:hover {
+  border-color: #ffd700 !important;
+  background: rgba(212, 175, 55, 0.25) !important;
+}
+
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.2), rgba(255, 255, 255, 0.05), transparent);
+  margin: 2px 0;
+}
