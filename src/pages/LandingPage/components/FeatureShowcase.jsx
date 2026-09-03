@@ -1,143 +1,164 @@
 ﻿// src/pages/LandingPage/components/FeatureShowcase.jsx
 import React, { useState } from "react";
-import AutoStoriesIcon from "@mui/icons-material/AutoStories";
-import MapIcon from "@mui/icons-material/Map";
-import MenuBookIcon from "@mui/icons-material/MenuBook";
-import MusicNoteIcon from "@mui/icons-material/MusicNote";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import { motion, AnimatePresence } from "framer-motion";
+import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
+import FlashOnIcon from "@mui/icons-material/FlashOn";
+import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import styles from "../LandingPage.module.css";
 
-const FEATURES_DATA = [
+const CHAPTERS = [
   {
     id: "fichas",
-    titleShort: "Fichas Vivas D&D 5e",
-    tag: "Automação & Regras",
-    icon: AutoStoriesIcon,
-    title: "Fichas Inteligentes com Grimório Dinâmico",
-    description: "Cálculo automático de modificadores, bônus de proficiência, salvaguardas, classe de armadura e inventário tático. Suba de nível com um assistente guiado passo a passo e controle espaços de magia (spell slots) com um clique.",
-    bulletPoints: [
-      "Compêndio completo com todas as classes e raças oficiais do SRD 5.1",
-      "Slots de magia interativos por círculo com suporte a upcasting",
-      "Rolagens automáticas de ataque e dano com cálculo de atributos e dados 3D",
-      "Exportação para PDF oficial no formato clássico de 2 páginas A4"
+    ribbonColor: "#9E2A2B", // Vermelho
+    dragonType: "Fogo do Dragão Vermelho",
+    icon: LocalFireDepartmentIcon,
+    tabLabel: "Fichas Vivas 5e",
+    title: "Cálculos Automáticos e Grimório Tático",
+    lore: "Cada número responde instantaneamente. Modificadores, proficiências, salvaguardas e slots de magia operam em perfeita sintonia para que você nunca mais interrompa o fluxo narrativo para consultar tabelas.",
+    highlights: [
+      "Subida de nível guiada com distribuição automatizada de PV e magias",
+      "Controle de Espaços de Magia (Spell Slots) por círculo com suporte a conjuração superior",
+      "Inventário com cálculo de peso, capacidade de carga e moedas convertidas",
+      "Exportação oficial para PDF no formato clássico de 2 páginas A4"
     ],
-    badgeText: "Zero Contas Manuais",
-    mediaPlaceholder: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=900&q=80"
+    demoCaption: "Grimório dinâmico com rolagem tática integrada."
   },
   {
     id: "vtt",
-    titleShort: "Mesa Virtual & Névoa",
-    tag: "Imersão em Tempo Real",
-    icon: MapIcon,
-    title: "VTT Nativo com Névoa de Guerra Dinâmica",
-    description: "Crie ou importe mapas em alta definição. Revele salas conforme os jogadores exploram com pincéis e cones de visão direcional vinculados aos tokens, gerando suspense tático imediato.",
-    bulletPoints: [
-      "Névoa de Guerra em tempo real via Firebase (100% blackout para jogadores)",
-      "Tokens vinculados diretamente à ficha: duplo clique abre mini-ficha e ataques",
-      "Snap-to-grid milimétrico, controle de permissões e régua de medição 5E",
-      "Modo Emboscada: oculte criaturas do mapa até o momento da surpresa"
+    ribbonColor: "#1D4E89", // Azul
+    dragonType: "Relâmpago do Dragão Azul",
+    icon: FlashOnIcon,
+    tabLabel: "Mesa Tática & Névoa",
+    title: "Névoa de Guerra & Tokens com Alma",
+    lore: "Mapas em alta resolução ganham vida com controle de visão. O Mestre desenha a escuridão enquanto jogadores desbravam masmorras sem saber o perigo que os aguarda na próxima curva.",
+    highlights: [
+      "Névoa de guerra em tempo real: os jogadores só enxergam onde a tocha alcança",
+      "Modo Emboscada: oculte criaturas no mapa com um clique antes do combate",
+      "Duplo clique no token abre o resumo tático da criatura instantaneamente",
+      "Régua de deslocamento tático e controle de permissões por jogador"
     ],
-    badgeText: "Multijogador Sem Lag",
-    mediaPlaceholder: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=900&q=80"
+    demoCaption: "Visão tática e névoa viva diretamente no navegador."
   },
   {
-    id: "campanha",
-    titleShort: "Caderno & Missões",
-    tag: "Organização do Mestre",
-    icon: MenuBookIcon,
-    title: "Organize Campanhas Inteiras Sem se Perder",
-    description: "Mantenha o registro vivo da sua história com fluxogramas visuais de quests, notas ramificadas por pastas e diretório de NPCs com segredos e laços ocultos.",
-    bulletPoints: [
-      "Árvore de quests conectada com objetivos, recompensas de XP e loot",
-      "Diário de sessões colaborativo com linha do tempo de acontecimentos",
-      "Catálogo de NPCs com atitudes, estatísticas e itens carregados",
-      "Biblioteca Arcana com pastas e notas em formatação rica"
+    id: "aventuras",
+    ribbonColor: "#2D6A4F", // Verde
+    dragonType: "Veneno do Dragão Verde",
+    icon: ShieldOutlinedIcon,
+    tabLabel: "Diário & Quests",
+    title: "A Crônica Viva da Sua Campanha",
+    lore: "Organize NPCs, notas secretas, pistas e a árvore de missões da sua história em pastas arcanas interligadas.",
+    highlights: [
+      "Árvore visual de missões com rastreamento de recompensas, loot e status",
+      "Catálogo de NPCs com alianças, fraquezas e laços com os heróis",
+      "Bloco de notas rápido para anotações no calor da batalha",
+      "Diário de sessões colaborativo com linha do tempo de acontecimentos"
     ],
-    badgeText: "Fim das Anotações Perdidas",
-    mediaPlaceholder: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=900&q=80"
+    demoCaption: "Linha do tempo e dossiê de NPCs sem desorganização."
   },
   {
-    id: "atmosfera",
-    titleShort: "Trilha & Soundboard",
-    tag: "Atmosfera Sonora",
-    icon: MusicNoteIcon,
-    title: "Som e Ambientação que Dão Vida à Sessão",
-    description: "Troque a atmosfera da taverna calorosa para a masmorra assustadora com um clique. Soundboard categorizado para combate épico, mistério, descanso e viagens.",
-    bulletPoints: [
-      "Mixagem de áudio ambiente com controle de volume independente",
-      "Categorias sonoras rápidas para combates épicos e exploração",
+    id: "som",
+    ribbonColor: "#C89B3C", // Dourado
+    dragonType: "Sopro do Dragão Dourado",
+    icon: AutoAwesomeIcon,
+    tabLabel: "Atmosfera Sonora",
+    title: "Paisagens Sonoras que Guiam o Clima",
+    lore: "Transforme uma simples taverna em um refúgio acolhedor ou uma cripta em uma marcha fúnebre com sons sincronizados.",
+    highlights: [
+      "Mixagem de áudio com canais independentes para clima e efeitos sonoros",
+      "Troca rápida de ambiência entre exploração, suspense e combate épico",
       "Player de música do Bardo integrado ao ecossistema da mesa"
     ],
-    badgeText: "Imersão Sonora",
-    mediaPlaceholder: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=900&q=80"
+    demoCaption: "Soundboard orquestrado para imersão total."
   }
 ];
 
 export default function FeatureShowcase() {
-  const [activeTabId, setActiveTabId] = useState("fichas");
-  const currentFeature = FEATURES_DATA.find((f) => f.id === activeTabId) || FEATURES_DATA[0];
+  const [selectedChapter, setSelectedChapter] = useState(CHAPTERS[0]);
+  const ChapterIcon = selectedChapter.icon;
 
   return (
-    <div className={styles.showcaseContainer}>
+    <div className={styles.grimoireSection}>
       <div className={styles.sectionHeading}>
-        <span className={styles.goldBadge}>FERRAMENTAS SUPREMAS</span>
-        <h2>Tudo o que sua mesa precisa em um só lugar</h2>
-        <p>Aposente dezenas de guias abertas, planilhas confusas e programas pesados.</p>
+        <span className={styles.ancientBadge}>TOMO DE RECURSOS</span>
+        <h2>O Poder nas Mãos de Mestres e Heróis</h2>
+        <p>Um sistema desenhado para ser leve, fluido e esteticamente conectado às mesas clássicas.</p>
       </div>
 
-      <div className={styles.showcaseGrid}>
-        {/* COLUNA LATERAL DE ABAS */}
-        <div className={styles.tabsCol}>
-          {FEATURES_DATA.map((feat) => {
-            const IconComp = feat.icon;
-            const isActive = activeTabId === feat.id;
+      {/* Livro Aberto */}
+      <div className={styles.tomeSpread}>
+        {/* Marcadores de Fita Laterais (Abas) */}
+        <nav className={styles.ribbonsNav} aria-label="Capítulos de Recursos">
+          {CHAPTERS.map((chap) => {
+            const isActive = selectedChapter.id === chap.id;
             return (
               <button
-                key={feat.id}
+                key={chap.id}
                 type="button"
-                className={`${styles.tabButton} ${isActive ? styles.tabActive : ""}`}
-                onClick={() => setActiveTabId(feat.id)}
+                className={`${styles.ribbonBtn} ${isActive ? styles.ribbonActive : ""}`}
+                style={{ "--ribbon-accent": chap.ribbonColor }}
+                onClick={() => setSelectedChapter(chap)}
               >
-                <IconComp sx={{ color: isActive ? "#ffd700" : "#8b949e", fontSize: 24 }} />
-                <div className={styles.tabTextWrapper}>
-                  <span className={styles.tabIconTitle}>{feat.titleShort}</span>
-                  <span className={styles.tabCategory}>{feat.tag}</span>
-                </div>
+                <span className={styles.ribbonFlameDot} />
+                <span className={styles.ribbonText}>{chap.tabLabel}</span>
               </button>
             );
           })}
-        </div>
+        </nav>
 
-        {/* COLUNA DO PREVIEW ATIVO */}
-        <div className={styles.previewCol}>
-          <div className={styles.previewHeader}>
-            <span className={styles.miniTag}>{currentFeature.tag}</span>
-            <h3>{currentFeature.title}</h3>
-            <p>{currentFeature.description}</p>
-          </div>
+        {/* Páginas do Grimório (Conteúdo) */}
+        <div className={styles.tomePages}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={selectedChapter.id}
+              className={styles.pageContent}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+            >
+              <div className={styles.pageTextCol}>
+                <span
+                  className={styles.dragonOriginTag}
+                  style={{ color: selectedChapter.ribbonColor }}
+                >
+                  <ChapterIcon sx={{ fontSize: 16 }} />
+                  <span>{selectedChapter.dragonType}</span>
+                </span>
+                <h3>{selectedChapter.title}</h3>
+                <p className={styles.chapterDescription}>{selectedChapter.lore}</p>
 
-          <div className={styles.mediaFrame}>
-            <img
-              src={currentFeature.mediaPlaceholder}
-              alt={currentFeature.title}
-              loading="lazy"
-              className={styles.featureMedia}
-            />
-            <div className={styles.mediaOverlayBadge}>
-              <AutoAwesomeIcon sx={{ fontSize: 14 }} />
-              <span>{currentFeature.badgeText}</span>
-            </div>
-          </div>
+                <ul className={styles.runicFeatureList}>
+                  {selectedChapter.highlights.map((item, idx) => (
+                    <motion.li
+                      key={idx}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.08 * idx, duration: 0.3 }}
+                    >
+                      <span className={styles.runicBullet}>᚛</span>
+                      <span>{item}</span>
+                    </motion.li>
+                  ))}
+                </ul>
+              </div>
 
-          <ul className={styles.bulletList}>
-            {currentFeature.bulletPoints.map((pt, i) => (
-              <li key={i}>
-                <CheckCircleOutlineIcon sx={{ color: "#f1c40f", fontSize: 18 }} />
-                <span>{pt}</span>
-              </li>
-            ))}
-          </ul>
+              {/* Área de Demonstração Visual (Vídeo/GIF em loop) */}
+              <div className={styles.pageVisualCol}>
+                <div className={styles.pergaminhoFrame}>
+                  <div className={styles.mockVideoSurface}>
+                    <div className={styles.videoEmblem}>
+                      <ShieldOutlinedIcon sx={{ fontSize: 48, color: selectedChapter.ribbonColor }} />
+                    </div>
+                    <span className={styles.mockVideoLabel}>
+                      Módulo Tático Integrado
+                    </span>
+                    <small style={{ color: "#a8947c" }}>{selectedChapter.demoCaption}</small>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </div>

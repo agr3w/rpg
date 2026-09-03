@@ -12,7 +12,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "Como funciona a mesa virtual (VTT) colaborativa em tempo real?",
-    a: "O Mestre pode gerar um link seguro de sessão diretamente no editor do mapa. Os jogadores entram pelo navegador e veem instantaneamente o grid e seus tokens. A névoa de guerra esconde os monstros até que a visão do token revele a sala, tudo sincronizado em milissegundos via Firebase Realtime Database."
+    a: "O Mestre gera um link seguro de sessão diretamente no editor do mapa. Os jogadores entram pelo navegador e veem instantaneamente o grid e seus tokens. A névoa de guerra esconde perigos até que a visão do token revele a sala, tudo sincronizado em milissegundos via Firebase Realtime Database."
   },
   {
     q: "As fichas calculam automaticamente os atributos e regras de D&D 5E?",
@@ -42,7 +42,7 @@ export default function FaqSection() {
   return (
     <section className={styles.faqContainer}>
       <div className={styles.sectionHeading}>
-        <span className={styles.goldBadge}>
+        <span className={styles.ancientBadge}>
           <HelpOutlineIcon sx={{ fontSize: 14, mr: 0.5 }} />
           DÚVIDAS FREQUENTES
         </span>
@@ -63,9 +63,9 @@ export default function FaqSection() {
               >
                 <span>{item.q}</span>
                 {isOpen ? (
-                  <ExpandLessIcon sx={{ color: "#ffd700" }} />
+                  <ExpandLessIcon sx={{ color: "#9e2a2b" }} />
                 ) : (
-                  <ExpandMoreIcon sx={{ color: "#8b949e" }} />
+                  <ExpandMoreIcon sx={{ color: "#8c6e4d" }} />
                 )}
               </button>
               {isOpen && <div className={styles.faqAnswer}>{item.a}</div>}

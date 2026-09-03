@@ -1,112 +1,80 @@
 ﻿// src/pages/LandingPage/components/PricingSection.jsx
 import React from "react";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import { motion } from "framer-motion";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import styles from "../LandingPage.module.css";
 
 export default function PricingSection({ onChoosePlan }) {
   return (
-    <div className={styles.pricingContainer}>
+    <div className={styles.pactsSection}>
       <div className={styles.sectionHeading}>
-        <span className={styles.goldBadge}>ACESSO & PLANOS</span>
-        <h2>Jogue de Graça Hoje Durante o Beta Aberto</h2>
-        <p>Sem pegadinhas, sem necessidade de cartão de crédito. Crie sua conta e comece agora.</p>
+        <span className={styles.ancientBadge}>PACTOS & ACESSO</span>
+        <h2>Honesto, Livre e Feito para Durar</h2>
+        <p>Durante o período de Beta Aberto, todas as ferramentas essenciais são 100% gratuitas.</p>
       </div>
 
-      <div className={styles.pricingCardsGrid}>
-        {/* PLANO AVENTUREIRO (GRÁTIS) */}
-        <div className={styles.priceCard}>
-          <div className={styles.priceHeader}>
-            <span className={styles.planName}>Aventureiro (Beta Aberto)</span>
-            <div className={styles.priceValue}>
-              <strong>R$ 0</strong>
-              <small>/para sempre</small>
-            </div>
-            <p>Perfeito para jogadores e mestres que querem tudo o que precisam para jogar D&D sem travas.</p>
+      <div className={styles.pactsGrid}>
+        {/* PACTO DO AVENTUREIRO */}
+        <motion.div
+          className={styles.scrollParchment}
+          initial={{ opacity: 0, y: 25 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className={styles.waxSealGreen}>GRÁTIS</div>
+          <h3>Pacto do Aventureiro</h3>
+          <div className={styles.costBadge}>
+            <strong>R$ 0</strong>
+            <span>/ Beta Oficial</span>
           </div>
+          <p className={styles.pactDesc}>Tudo o que jogadores e mestres precisam para campanhas completas.</p>
 
-          <ul className={styles.benefitsList}>
-            <li className={styles.benefitItem}>
-              <CheckCircleOutlineIcon sx={{ color: "#2ecc71", fontSize: 18 }} />
-              <span>Fichas D&D 5e ilimitadas e completas</span>
-            </li>
-            <li className={styles.benefitItem}>
-              <CheckCircleOutlineIcon sx={{ color: "#2ecc71", fontSize: 18 }} />
-              <span>Grimório de magias com slots interativos</span>
-            </li>
-            <li className={styles.benefitItem}>
-              <CheckCircleOutlineIcon sx={{ color: "#2ecc71", fontSize: 18 }} />
-              <span>Compêndio com todas as raças e classes do SRD 5.1</span>
-            </li>
-            <li className={styles.benefitItem}>
-              <CheckCircleOutlineIcon sx={{ color: "#2ecc71", fontSize: 18 }} />
-              <span>Criador e Editor de Mapas com Grid Tático</span>
-            </li>
-            <li className={styles.benefitItem}>
-              <CheckCircleOutlineIcon sx={{ color: "#2ecc71", fontSize: 18 }} />
-              <span>Rolador de Dados 3D integrado às ações da ficha</span>
-            </li>
-            <li className={styles.benefitItem}>
-              <CheckCircleOutlineIcon sx={{ color: "#2ecc71", fontSize: 18 }} />
-              <span>Diário de Missões, Anotações e Diretório de NPCs</span>
-            </li>
-            <li className={styles.benefitItem}>
-              <CheckCircleOutlineIcon sx={{ color: "#2ecc71", fontSize: 18 }} />
-              <span>Exportação oficial da ficha em PDF A4 de 2 páginas</span>
-            </li>
+          <ul className={styles.pactPerks}>
+            <li>✦ Criação ilimitada de fichas D&D 5e</li>
+            <li>✦ Grimório completo com slots de magia interativos</li>
+            <li>✦ Criação e montagem de mapas de batalha com grid</li>
+            <li>✦ Rolagens de dados 3D em tempo real</li>
+            <li>✦ Diário de notas, catálogo de NPCs e inventário de grupo</li>
+            <li>✦ Exportação oficial em PDF A4 de 2 páginas</li>
           </ul>
 
-          <button type="button" className={styles.primaryPlanBtn} onClick={onChoosePlan}>
-            <span>Criar Conta Gratuita</span>
-            <ArrowForwardIcon sx={{ fontSize: 17 }} />
+          <button type="button" className={styles.pactBtnRustic} onClick={onChoosePlan}>
+            <span>Entrar no Beta Sem Custos</span>
+            <ArrowForwardIcon sx={{ fontSize: 16 }} />
           </button>
-        </div>
+        </motion.div>
 
-        {/* PLANO MESTRE LENDÁRIO (PRO / APOIADOR) */}
-        <div className={`${styles.priceCard} ${styles.featuredPlanCard}`}>
-          <div className={styles.featuredRibbon}>MAIS POPULAR</div>
-          <div className={styles.priceHeader}>
-            <span className={styles.planName}>Mestre Lendário</span>
-            <div className={styles.priceValue}>
-              <strong>R$ 14,90</strong>
-              <small>/mês (Em breve)</small>
-            </div>
-            <p>Para o mestre que deseja experiência de VTT multiplayer sem limites de armazenamento.</p>
+        {/* PACTO DO ARQUI-MESTRE (APOIADOR) */}
+        <motion.div
+          className={`${styles.scrollParchment} ${styles.archmageScroll}`}
+          initial={{ opacity: 0, y: 25 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <div className={styles.waxSealRed}>APOIADOR</div>
+          <h3>Pacto do Arqui-Mestre</h3>
+          <div className={styles.costBadge}>
+            <strong>R$ 14,90</strong>
+            <span>/ mês (Em breve)</span>
           </div>
+          <p className={styles.pactDesc}>Recursos de alta performance para quem comanda grandes mesas.</p>
 
-          <ul className={styles.benefitsList}>
-            <li className={styles.benefitItem}>
-              <CheckCircleOutlineIcon sx={{ color: "#ffd700", fontSize: 18 }} />
-              <span><strong>Tudo incluído no plano Aventureiro</strong></span>
-            </li>
-            <li className={styles.benefitItem}>
-              <CheckCircleOutlineIcon sx={{ color: "#ffd700", fontSize: 18 }} />
-              <span>Sessões VTT multiplayer em tempo real sem limite de jogadores</span>
-            </li>
-            <li className={styles.benefitItem}>
-              <CheckCircleOutlineIcon sx={{ color: "#ffd700", fontSize: 18 }} />
-              <span>Névoa de guerra persistente sincronizada na nuvem</span>
-            </li>
-            <li className={styles.benefitItem}>
-              <CheckCircleOutlineIcon sx={{ color: "#ffd700", fontSize: 18 }} />
-              <span>Cofre de Assets ilimitado (Upload de tokens e mapas em 4K)</span>
-            </li>
-            <li className={styles.benefitItem}>
-              <CheckCircleOutlineIcon sx={{ color: "#ffd700", fontSize: 18 }} />
-              <span>Soundboard multiplayer e trilhas sincronizadas</span>
-            </li>
-            <li className={styles.benefitItem}>
-              <CheckCircleOutlineIcon sx={{ color: "#ffd700", fontSize: 18 }} />
-              <span>Acesso antecipado a novos módulos e suporte prioritário</span>
-            </li>
+          <ul className={styles.pactPerks}>
+            <li>✦ <strong>Tudo incluído no Pacto do Aventureiro</strong></li>
+            <li>✦ Névoa de guerra persistente na nuvem com visão avançada</li>
+            <li>✦ Armazenamento ilimitado no Cofre de Assets (mapas pesados & tokens)</li>
+            <li>✦ Soundboard multiplayer com trilha sonora sincronizada</li>
+            <li>✦ Distintivo exclusivo de Fundador Lendário no perfil</li>
           </ul>
 
-          <button type="button" className={styles.goldPlanBtn} onClick={onChoosePlan}>
+          <button type="button" className={styles.pactBtnGold} onClick={onChoosePlan}>
             <AutoAwesomeIcon sx={{ fontSize: 18 }} />
-            <span>Garantir Vantagem no Beta</span>
+            <span>Tornar-se um Fundador</span>
           </button>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

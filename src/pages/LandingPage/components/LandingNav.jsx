@@ -1,6 +1,6 @@
 ﻿// src/pages/LandingPage/components/LandingNav.jsx
 import React, { useState } from "react";
-import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
+import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
@@ -9,13 +9,35 @@ import styles from "../LandingPage.module.css";
 
 export default function LandingNav({ onLogin, onRegister }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const { scrollY } = useScroll();
+
+  // Detecção inteligente de rolagem:
+  // - Esconde suavemente ao descer a página após passar do topo
+  // - Revela instantaneamente com rolagem para cima para navegação rápida
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    const previous = scrollY.getPrevious() ?? 0;
+    const diff = latest - previous;
+
+    // Ativa sombra e formato compacto após 40px
+    setScrolled(latest > 40);
+
+    // Se rolar para baixo e já tiver passado do topo, oculta
+    if (latest > 120 && diff > 4) {
+      setHidden(true);
+    } else if (diff < -4 || latest <= 50) {
+      // Se rolar para cima ou estiver no topo, exibe
+      setHidden(false);
+    }
+  });
 
   const navItems = [
-    { label: "Recursos", href: "#recursos" },
-    { label: "Mesa Virtual (VTT)", href: "#vtt" },
-    { label: "Planos & Preços", href: "#precos" },
-    { label: "Sobre", href: "#sobre" },
-    { label: "Dúvidas (FAQ)", href: "#faq" }
+    { label: "Grimório", href: "#recursos" },
+    { label: "Mesa Virtual", href: "#vtt" },
+    { label: "Pactos & Preços", href: "#precos" },
+    { label: "Sobre o Tomo", href: "#sobre" },
+    { label: "Dúvidas", href: "#faq" }
   ];
 
   const handleNavClick = (href) => {
@@ -27,11 +49,23 @@ export default function LandingNav({ onLogin, onRegister }) {
   };
 
   return (
-    <header className={styles.navWrapper}>
+    <motion.header
+      className={`${styles.navWrapper} ${scrolled ? styles.navScrolled : ""}`}
+      variants={{
+        visible: { y: 0, opacity: 1 },
+        hidden: { y: "-100%", opacity: 0 }
+      }}
+      animate={hidden ? "hidden" : "visible"}
+      transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+    >
       <div className={styles.navContainer}>
-        {/* LOGO DA PLATAFORMA */}
-        <div className={styles.navBrand} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-          <ShieldOutlinedIcon sx={{ color: "#f1c40f", fontSize: 26 }} />
+        {/* LOGO OFICIAL COM O FAVICON DO PROJETO */}
+        <div
+          className={styles.navBrand}
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          title="Voltar ao início"
+        >
+          <img src="/Favicon.png" alt="RPG Companion Logo" className={styles.brandLogoImg} />
           <span className={styles.navBrandTitle}>RPG COMPANION</span>
         </div>
 
@@ -64,7 +98,7 @@ export default function LandingNav({ onLogin, onRegister }) {
             type="button"
             className={styles.mobileMenuToggle}
             onClick={() => setMobileOpen(true)}
-            aria-label="Abrir Menu"
+            aria-label="Abrir Menu de Navegação"
           >
             <MenuIcon />
           </button>
@@ -78,22 +112,25 @@ export default function LandingNav({ onLogin, onRegister }) {
         onClose={() => setMobileOpen(false)}
         PaperProps={{
           sx: {
-            width: 260,
-            bgcolor: "#0d111a",
-            color: "#e6edf3",
-            borderLeft: "1px solid rgba(212,175,55,0.3)",
+            width: 270,
+            bgcolor: "#f7f1e1",
+            color: "#2c1a0e",
+            borderLeft: "2px solid #8c6e4d",
             p: 2
           }
         }}
       >
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <ShieldOutlinedIcon sx={{ color: "#f1c40f", fontSize: 22 }} />
-            <span style={{ fontFamily: "Cinzel", fontWeight: 700, color: "#f1c40f" }}>MENU</span>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+            <img src="/Favicon.png" alt="Logo" style={{ width: 28, height: 28, objectFit: "contain" }} />
+            <span style={{ fontFamily: "Cinzel", fontWeight: 700, color: "#2c1a0e", fontSize: "1.1rem" }}>
+              MENU
+            </span>
           </Box>
           <button
             onClick={() => setMobileOpen(false)}
-            style={{ background: "transparent", border: "none", color: "#8b949e", cursor: "pointer" }}
+            style={{ background: "transparent", border: "none", color: "#8c6e4d", cursor: "pointer" }}
+            aria-label="Fechar Menu"
           >
             <CloseIcon />
           </button>
@@ -106,10 +143,13 @@ export default function LandingNav({ onLogin, onRegister }) {
                 sx={{
                   borderRadius: 1,
                   mb: 0.5,
-                  "&:hover": { bgcolor: "rgba(212,175,55,0.1)", color: "#ffd700" }
+                  "&:hover": { bgcolor: "rgba(140,110,70,0.15)", color: "#9e2a2b" }
                 }}
               >
-                <ListItemText primary={item.label} />
+                <ListItemText
+                  primary={item.label}
+                  primaryTypographyProps={{ fontFamily: "Cinzel", fontWeight: 700, fontSize: "0.94rem" }}
+                />
               </ListItemButton>
             </ListItem>
           ))}
@@ -123,6 +163,6 @@ export default function LandingNav({ onLogin, onRegister }) {
           </button>
         </Box>
       </Drawer>
-    </header>
+    </motion.header>
   );
 }

@@ -1,5 +1,6 @@
 ﻿// src/pages/LandingPage/components/AboutSection.jsx
 import React from "react";
+import { motion } from "framer-motion";
 import styles from "../LandingPage.module.css";
 
 export default function AboutSection() {
@@ -7,8 +8,14 @@ export default function AboutSection() {
     <section className={styles.aboutContainer}>
       <div className={styles.aboutGrid}>
         {/* CONTEÚDO E FILOSOFIA */}
-        <div className={styles.aboutContent}>
-          <span className={styles.goldBadge}>MANIFESTO & FILOSOFIA</span>
+        <motion.div
+          className={styles.aboutContent}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          <span className={styles.ancientBadge}>MANIFESTO & FILOSOFIA</span>
           <h3>Feito por Jogadores, Para Jogadores</h3>
           <p>
             O RPG Companion nasceu da frustração real na mesa: mestres sobrecarregados com dezenas de guias abertas,
@@ -39,16 +46,22 @@ export default function AboutSection() {
               <span className={styles.statLabel}>Canvas Ultra Fluido</span>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* IMAGEM ILUSTRATIVA */}
-        <div className={styles.vttVisualCard}>
+        <motion.div
+          className={styles.vttVisualCard}
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.15 }}
+        >
           <img
             src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=900&q=80"
             alt="Mesa de RPG e Amigos"
             className={styles.vttVisualImg}
           />
-        </div>
+        </motion.div>
       </div>
     </section>
   );
