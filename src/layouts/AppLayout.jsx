@@ -19,7 +19,8 @@ export default function AppLayout() {
 
   const isMapEditor = location.pathname.startsWith("/mapas/editor/");
   const isPlayerSession = location.pathname.startsWith("/sessao/");
-  const isAuthRoute = location.pathname === "/login" || location.pathname === "/Registrar-se";
+  const isLanding = (location.pathname === "/" && !usuarioAutenticado) || location.pathname === "/landing";
+  const isAuthRoute = (location.pathname === "/login" || location.pathname === "/Registrar-se" || location.pathname === "/register") && !usuarioAutenticado;
 
   const element = useMemo(() => getElementFromPath(location.pathname), [location.pathname]);
   const vars = ELEMENT_VARS[element] || ELEMENT_VARS.void;
@@ -35,7 +36,7 @@ export default function AppLayout() {
     );
   }
 
-  if (isAuthRoute) {
+  if (isAuthRoute || isLanding) {
     return (
       <MotionConfig reducedMotion="never">
         <Box sx={{ width: "100%", minHeight: "100vh", position: "relative", m: 0, p: 0 }}>

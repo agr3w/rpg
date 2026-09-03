@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { MotionConfig } from "framer-motion";
 import { useAuth } from "contexts/AuthContext";
 import { Box, CircularProgress } from "@mui/material";
@@ -11,6 +11,7 @@ import MapsLayout from "layouts/MapsLayout";
 
 // lazy-loaded pages
 const Inicio = lazy(() => import("pages/Inicio"));
+const LandingPage = lazy(() => import("pages/LandingPage"));
 const BemVindo = lazy(() => import("pages/BemVindo"));
 const MusicasPage = lazy(() => import("pages/musicas"));
 const NotePage = lazy(() => import("pages/Notes"));
@@ -41,17 +42,27 @@ const AppRoutes = () => {
         {/* 🗺️ Rota de Sessão VTT dos Jogadores (Pública ou com Senha) */}
         <Route path="/sessao/:sessionId" element={<PlayerSessionView />} />
 
-        {/* ✅ Home separada: HUB quando logado / BemVindo quando não */}
-        <Route path="/" element={usuarioAutenticado ? <Inicio /> : <BemVindo />} />
-        <Route path="/*" element={usuarioAutenticado ? <Inicio /> : <BemVindo />} />
+        {/* 🌟 Vitrine Pública da Plataforma (Landing Page) */}
+        <Route path="/landing" element={<LandingPage />} />
+
+        {/* ✅ Home dinâmica: HUB (/inicio) quando logado / Landing Page quando visitante */}
+        <Route path="/" element={usuarioAutenticado ? <Navigate to="/inicio" replace /> : <LandingPage />} />
 
         {!usuarioAutenticado ? (
           <>
             <Route path="/login" element={<Login />} />
             <Route path="/Registrar-se" element={<Register />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/*" element={<Navigate to="/" replace />} />
           </>
         ) : (
           <>
+            {/* Se já estiver autenticado, redireciona tentativas de login/registro para /inicio */}
+            <Route path="/login" element={<Navigate to="/inicio" replace />} />
+            <Route path="/Registrar-se" element={<Navigate to="/inicio" replace />} />
+            <Route path="/register" element={<Navigate to="/inicio" replace />} />
+
+            <Route path="/inicio" element={<Inicio />} />
             {/* 🎵 Taverna / Músicas */}
             <Route element={<AudioLayout />}>
               <Route path="/Taverna-do-Bardo" element={<MusicasPage />} />
