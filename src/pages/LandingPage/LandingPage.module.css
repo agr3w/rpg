@@ -401,173 +401,168 @@
   text-transform: uppercase;
 }
 
-/* ------------------ GRIMÓRIO (SHOWCASE) ------------------ */
-.grimoireSection {
+/* ================== VITRINE DE MÍDIA DO SISTEMA ================== */
+.showcaseSection {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 3rem 1.5rem 4rem 1.5rem;
+  padding: 2rem 1.5rem 4rem 1.5rem;
 }
 
-.tomeSpread {
+.tabsNavContainer {
   display: flex;
-  background: #f7f2e4;
-  border: 2px solid #7d5f42;
-  border-radius: 8px;
-  box-shadow: 
-    0 15px 35px rgba(40, 25, 10, 0.3),
-    inset 0 0 40px rgba(160, 130, 90, 0.25);
-  position: relative;
+  justify-content: center;
+  gap: 10px;
+  border-bottom: 2px solid #8c6e4d;
+  padding-bottom: 2px;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
 }
 
-/* Fitas Marcadoras de Página */
-.ribbonsNav {
-  width: 260px;
-  display: flex;
-  flex-direction: column;
-  border-right: 2px solid #8c6e4d;
-  background: #ede3cc;
-  padding: 1.5rem 0;
-  flex-shrink: 0;
-}
-
-.ribbonBtn {
+.runeTabBtn {
   background: transparent;
   border: none;
-  border-left: 5px solid transparent;
-  padding: 1rem 1.2rem;
-  text-align: left;
+  padding: 0.8rem 1.4rem;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 12px;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  gap: 8px;
+  position: relative;
+  transition: color 0.15s ease;
 }
 
-.ribbonBtn:hover {
-  background: rgba(140, 110, 70, 0.1);
+.tabRuneIcon {
+  color: var(--dragon-color);
+  font-size: 1.1rem;
+  font-weight: bold;
 }
 
-.ribbonActive {
-  background: #f7f2e4 !important;
-  border-left-color: var(--ribbon-accent) !important;
-}
-
-.ribbonFlameDot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--ribbon-accent);
-  box-shadow: 0 0 8px var(--ribbon-accent);
-}
-
-.ribbonText {
-  font-family: var(--font-cinzel, "Cinzel", serif);
+.tabTitleText {
+  font-family: var(--font-cinzel, "Cinzel", Georgia, serif);
   font-size: 0.95rem;
   font-weight: 700;
-  color: #2c1b11;
+  color: #4a3424;
 }
 
-/* Conteúdo da Folha */
-.tomePages {
-  flex: 1;
-  padding: 2.5rem;
-  overflow: hidden;
+.runeTabActive .tabTitleText {
+  color: #1a0f08;
 }
 
-.pageContent {
+.activeTabUnderline {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--dragon-color);
+}
+
+.mediaStageWrapper {
+  background: #fbf7ec;
+  border: 1px solid #9e8264;
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 
+    0 15px 35px rgba(50, 30, 10, 0.15),
+    inset 0 0 40px rgba(180, 150, 100, 0.15);
+}
+
+.stageGrid {
   display: grid;
-  grid-template-columns: 1.1fr 1fr;
+  grid-template-columns: 1.25fr 1fr;
   gap: 2.5rem;
   align-items: center;
 }
 
-.dragonOriginTag {
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 0.4rem;
-}
-
-.pageTextCol h3 {
-  font-family: var(--font-cinzel, "Cinzel", serif);
-  font-size: 1.7rem;
-  color: #24130a;
-  margin: 0 0 1rem 0;
-  line-height: 1.3;
-}
-
-.chapterDescription {
-  color: #4a382a;
-  line-height: 1.65;
-  font-size: 0.95rem;
-  margin-bottom: 1.5rem;
-}
-
-.runicFeatureList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+/* Moldura que simula a tela do sistema */
+.screenDeviceFrame {
+  background: #1c1510;
+  border-radius: 8px;
+  border: 2px solid #7c6145;
+  box-shadow: 
+    0 12px 30px rgba(0, 0, 0, 0.35),
+    0 0 25px var(--accent-glow);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
 }
 
-.runicFeatureList li {
+.screenHeaderBar {
+  background: #2a1f18;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid #3d2f25;
+}
+
+.screenDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #735944;
+}
+
+.screenUrl {
+  font-size: 0.7rem;
+  color: #9c836c;
+  font-family: monospace;
+  margin-left: 8px;
+}
+
+.screenDisplay {
+  height: 360px;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.realMediaContent {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Tópicos Diretos */
+.dragonHeadlineTag {
+  font-family: var(--font-cinzel, "Cinzel", Georgia, serif);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.stageTitle {
+  font-family: var(--font-cinzel, "Cinzel", Georgia, serif);
+  font-size: 1.8rem;
+  color: #211107;
+  margin: 0.4rem 0 1.2rem 0;
+}
+
+.specBullets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.specRow {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  font-size: 0.9rem;
-  color: #3b281a;
-  line-height: 1.45;
 }
 
-.runicBullet {
-  color: #9e2a2b;
-  font-weight: bold;
-  font-size: 1.1rem;
-  line-height: 1;
-}
-
-/* Moldura Visual de Pergaminho para a Mídia */
-.pergaminhoFrame {
-  border: 1px solid #9e8264;
-  background: #ede3cc;
-  padding: 6px;
-  border-radius: 6px;
-  box-shadow: inset 0 0 15px rgba(50, 35, 20, 0.2);
-}
-
-.mockVideoSurface {
-  width: 100%;
-  min-height: 280px;
-  background: #241913;
-  color: #dfcaa7;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  gap: 10px;
-  text-align: center;
-  padding: 1.5rem;
-}
-
-.videoEmblem {
-  color: #c89b3c;
+.specCheckmark {
   display: flex;
   align-items: center;
-  justify-content: center;
+  margin-top: 2px;
 }
 
-.mockVideoLabel {
-  font-family: var(--font-cinzel, "Cinzel", serif);
-  font-size: 0.88rem;
-  letter-spacing: 1px;
-  color: #ffd700;
+.specRow p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #4a3424;
+  line-height: 1.5;
 }
 
 /* ------------------ SEÇÃO VTT TÁTICO & NÉVOA ------------------ */
@@ -669,204 +664,274 @@
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
 }
 
-/* ------------------ SEÇÃO DE PACTOS & PREÇOS ------------------ */
-.pactsSection {
-  max-width: 1000px;
+/* ================== MANIFESTO DE ACESSO (SEM CARDS SEPARADOS) ================== */
+.pactManifestoWrapper {
+  max-width: 960px;
   margin: 0 auto;
-  padding: 3rem 1.5rem 4rem 1.5rem;
+  padding: 2rem 1.5rem 5rem 1.5rem;
 }
 
-.pactsGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2.5rem;
-}
-
-.scrollParchment {
-  background: #f7f1e1;
+.manifestoParchment {
+  background: #fdfbf5;
   border: 2px solid #8c6e4d;
   border-radius: 8px;
-  padding: 2.5rem 2rem;
-  box-shadow: 0 10px 30px rgba(50, 30, 10, 0.2), inset 0 0 25px rgba(160, 130, 80, 0.2);
-  display: flex;
-  flex-direction: column;
+  padding: 3rem 2.5rem;
+  box-shadow: 
+    0 15px 40px rgba(50, 30, 10, 0.2),
+    inset 0 0 50px rgba(180, 140, 90, 0.15);
   position: relative;
 }
 
-.archmageScroll {
-  border-color: #c89b3c;
-  background: #faf6ea;
-  box-shadow: 0 12px 35px rgba(120, 80, 20, 0.3), inset 0 0 30px rgba(200, 155, 60, 0.25);
-}
-
-.waxSealGreen, .waxSealRed {
+.waxSealDragon {
   position: absolute;
   top: -14px;
-  right: 25px;
+  right: 35px;
+  background: #2d6a4f;
   color: #fff;
-  font-family: var(--font-cinzel, "Cinzel", serif);
-  font-size: 0.65rem;
+  font-family: var(--font-cinzel, "Cinzel", Georgia, serif);
+  font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 1px;
-  padding: 4px 12px;
+  padding: 4px 14px;
   border-radius: 12px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
 }
 
-.waxSealGreen {
-  background: #2d6a4f;
+.manifestoHeader h3 {
+  font-family: var(--font-cinzel, "Cinzel", Georgia, serif);
+  font-size: 1.6rem;
+  color: #211208;
+  margin: 0 0 0.6rem 0;
 }
 
-.waxSealRed {
-  background: #9e2a2b;
-}
-
-.scrollParchment h3 {
-  font-family: var(--font-cinzel, "Cinzel", serif);
-  font-size: 1.4rem;
-  color: #24130a;
-  margin: 0;
-}
-
-.costBadge {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  margin: 1rem 0;
-}
-
-.costBadge strong {
-  font-family: var(--font-cinzel, "Cinzel", serif);
-  font-size: 2.4rem;
-  color: #9e2a2b;
-}
-
-.costBadge span {
-  font-size: 0.85rem;
-  color: #6a5240;
-}
-
-.pactDesc {
-  color: #523f31;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  margin: 0 0 1.5rem 0;
-}
-
-.pactPerks {
-  list-style: none;
-  padding: 0;
+.manifestoHeader p {
+  color: #5c4738;
+  font-size: 0.95rem;
+  line-height: 1.6;
   margin: 0 0 2rem 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-  font-size: 0.88rem;
-  color: #3b281a;
-  flex: 1;
 }
 
-.pactPerks li {
+.guaranteeGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  border-top: 1px dashed #ad8f70;
+  border-bottom: 1px dashed #ad8f70;
+  padding: 2rem 0;
+  margin-bottom: 2rem;
+}
+
+.guaranteeItem {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: 12px;
 }
 
-.pactBtnRustic, .pactBtnGold {
-  width: 100%;
-  padding: 0.9rem;
-  border-radius: 6px;
-  font-family: var(--font-cinzel, "Cinzel", serif);
-  font-weight: 700;
-  font-size: 0.92rem;
-  cursor: pointer;
+.guaranteeIcon {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
-.pactBtnRustic {
-  background: #ede3cc;
-  border: 1px solid #7d5f42;
-  color: #2e1e13;
+.guaranteeItem strong {
+  display: block;
+  font-size: 0.95rem;
+  color: #26160c;
+  margin-bottom: 3px;
+  font-family: var(--font-cinzel, "Cinzel", Georgia, serif);
 }
 
-.pactBtnRustic:hover {
-  background: #dfd2b5;
+.guaranteeItem span {
+  font-size: 0.85rem;
+  color: #614936;
+  line-height: 1.45;
+}
+
+.manifestoAction {
+  display: flex;
+  justify-content: center;
+}
+
+.rusticCtaBtn {
+  background: linear-gradient(135deg, #382012, #24140a);
+  color: #f5eedc;
+  border: 1px solid #735032;
+  padding: 1rem 2.2rem;
+  border-radius: 6px;
+  font-family: var(--font-cinzel, "Cinzel", Georgia, serif);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 6px 20px rgba(40, 20, 10, 0.35);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.rusticCtaBtn:hover {
   transform: translateY(-2px);
+  background: linear-gradient(135deg, #4d2b18, #2e1a0d);
 }
 
-.pactBtnGold {
-  background: linear-gradient(135deg, #c89b3c, #946f1d);
-  border: 1px solid #705212;
-  color: #ffffff;
-  box-shadow: 0 4px 15px rgba(200, 155, 60, 0.35);
+.arrowIcon {
+  color: #f1c40f;
 }
 
-.pactBtnGold:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(200, 155, 60, 0.5);
-}
-
-/* ------------------ SOBRE & MANIFESTO ------------------ */
-.aboutContainer {
-  max-width: 1040px;
+/* ================== CRÔNICA DO DESENVOLVEDOR ================== */
+.chronicleSection {
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 3rem 1.5rem 4rem 1.5rem;
+  padding: 3rem 1.5rem 5rem 1.5rem;
 }
 
-.aboutGrid {
+.chronicleContainer {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-columns: 1.15fr 1fr;
   gap: 3rem;
   align-items: center;
+  background: #fbf7eb;
+  border: 1px solid #9e8264;
+  border-radius: 8px;
+  padding: 2.5rem;
+  box-shadow: 
+    0 10px 30px rgba(50, 30, 10, 0.15),
+    inset 0 0 35px rgba(180, 140, 90, 0.15);
 }
 
-.aboutContent h3 {
+/* Linha do Tempo */
+.timelineCol {
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+  border-left: 2px solid #8c6e4d;
+  padding-left: 1.8rem;
+  margin-left: 0.5rem;
+}
+
+.timelineEntry {
+  position: relative;
+}
+
+.timelineMarker {
+  position: absolute;
+  left: -2.35rem;
+  top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.markerDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #9e2a2b;
+  border: 2px solid #fbf7eb;
+  box-shadow: 0 0 0 2px #8c6e4d;
+}
+
+.markerYear {
+  display: none;
+}
+
+.timelineTag {
   font-family: var(--font-cinzel, "Cinzel", serif);
-  font-size: 2rem;
-  color: #24140a;
-  margin: 0.5rem 0 1rem 0;
-  line-height: 1.3;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #9e2a2b;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
-.aboutContent p {
-  color: #4a382c;
-  font-size: 1rem;
+.timelineContent p {
+  margin: 0.3rem 0 0 0;
+  font-size: 0.92rem;
+  color: #4a3424;
+  line-height: 1.6;
+}
+
+/* Lado Direito: Voto & Destaques */
+.pledgeCol {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.authorBadgePlate {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 1rem;
+  border-bottom: 1px dashed #ad8f70;
+}
+
+.dragonSealIcon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 5px rgba(40, 20, 10, 0.3));
+}
+
+.authorTitle strong {
+  display: block;
+  font-family: var(--font-cinzel, "Cinzel", serif);
+  font-size: 1.05rem;
+  color: #26160c;
+}
+
+.authorTitle small {
+  font-size: 0.8rem;
+  color: #7d6550;
+  font-weight: 600;
+}
+
+.chronicleQuote {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 0.98rem;
   line-height: 1.65;
-  margin-bottom: 1.2rem;
+  color: #3b281b;
+  border-left: 3px solid #c89b3c;
+  padding-left: 1rem;
 }
 
-.aboutStatsGrid {
+.devHighlights {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.2rem;
-  margin-top: 2rem;
+  gap: 1rem;
+  margin-top: 0.5rem;
 }
 
-.statCard {
+.highlightPill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   background: #ede3cc;
-  border: 1px solid #8c6e4d;
+  border: 1px solid #ad8f70;
+  padding: 0.75rem 0.9rem;
   border-radius: 6px;
-  padding: 1.2rem;
-  text-align: center;
-  box-shadow: inset 0 0 10px rgba(140, 110, 70, 0.2);
 }
 
-.statNumber {
-  font-family: var(--font-cinzel, "Cinzel", serif);
-  font-size: 1.8rem;
-  color: #9e2a2b;
-  font-weight: 800;
+.highlightPill .pillIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.highlightPill strong {
   display: block;
-  margin-bottom: 4px;
+  font-size: 0.82rem;
+  color: #24130a;
+  font-family: var(--font-cinzel, "Cinzel", serif);
 }
 
-.statLabel {
-  font-size: 0.8rem;
-  color: #5c4738;
-  font-weight: 600;
+.highlightPill small {
+  font-size: 0.72rem;
+  color: #6a5240;
 }
 
 /* ------------------ DÚVIDAS (FAQ) ------------------ */
@@ -1026,10 +1091,12 @@
   .vttGrid {
     grid-template-columns: 1fr;
   }
-  .pactsGrid {
+  .chronicleContainer {
     grid-template-columns: 1fr;
+    padding: 1.8rem 1.2rem;
+    gap: 2rem;
   }
-  .aboutGrid {
+  .devHighlights {
     grid-template-columns: 1fr;
   }
   .navLinks {

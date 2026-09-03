@@ -1,81 +1,100 @@
 ﻿// src/pages/LandingPage/components/PricingSection.jsx
 import React from "react";
 import { motion } from "framer-motion";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
+import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
+import ForumIcon from "@mui/icons-material/Forum";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import styles from "../LandingPage.module.css";
 
-export default function PricingSection({ onChoosePlan }) {
+const GUARANTEES = [
+  {
+    icon: LockOpenIcon,
+    iconColor: "#2d6a4f",
+    title: "100% Gratuito no Beta",
+    desc: "Crie quantas fichas, notas e mapas precisar. Sem limite de campanhas ou testes pagos."
+  },
+  {
+    icon: ShieldOutlinedIcon,
+    iconColor: "#1d4e89",
+    title: "Sem Paywall nas Ferramentas Atuais",
+    desc: "Tudo o que existe hoje (Fichas 5e, VTT, Névoa, Grimório e Dados) permanecerá gratuito."
+  },
+  {
+    icon: ForumIcon,
+    iconColor: "#c89b3c",
+    title: "Evolução Guiada por Feedback",
+    desc: "O sistema está em desenvolvimento ativo. Sua opinião e testes em mesa moldam as próximas melhorias."
+  },
+  {
+    icon: AutoAwesomeIcon,
+    iconColor: "#9e2a2b",
+    title: "Atualizações Constantes",
+    desc: "Novos recursos continuarão sendo adicionados ao ecossistema base de forma livre."
+  }
+];
+
+export default function PricingSection({ onStart, onChoosePlan }) {
+  const handleAction = onStart || onChoosePlan;
+
   return (
-    <div className={styles.pactsSection}>
+    <div className={styles.pactManifestoWrapper}>
       <div className={styles.sectionHeading}>
-        <span className={styles.ancientBadge}>PACTOS & ACESSO</span>
-        <h2>Honesto, Livre e Feito para Durar</h2>
-        <p>Durante o período de Beta Aberto, todas as ferramentas essenciais são 100% gratuitas.</p>
+        <span className={styles.ancientBadge}>ACESSO & COMUNIDADE</span>
+        <h2>Jogue Livremente. Forje com a Gente.</h2>
+        <p>
+          O sistema é aberto para quem ama RPG de verdade. Sem cobranças surpresa ou ferramentas essenciais travadas.
+        </p>
       </div>
 
-      <div className={styles.pactsGrid}>
-        {/* PACTO DO AVENTUREIRO */}
-        <motion.div
-          className={styles.scrollParchment}
-          initial={{ opacity: 0, y: 25 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className={styles.waxSealGreen}>GRÁTIS</div>
-          <h3>Pacto do Aventureiro</h3>
-          <div className={styles.costBadge}>
-            <strong>R$ 0</strong>
-            <span>/ Beta Oficial</span>
-          </div>
-          <p className={styles.pactDesc}>Tudo o que jogadores e mestres precisam para campanhas completas.</p>
+      <motion.div 
+        className={styles.manifestoParchment}
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
+        <div className={styles.waxSealDragon}>BETA LIVRE</div>
 
-          <ul className={styles.pactPerks}>
-            <li>✦ Criação ilimitada de fichas D&D 5e</li>
-            <li>✦ Grimório completo com slots de magia interativos</li>
-            <li>✦ Criação e montagem de mapas de batalha com grid</li>
-            <li>✦ Rolagens de dados 3D em tempo real</li>
-            <li>✦ Diário de notas, catálogo de NPCs e inventário de grupo</li>
-            <li>✦ Exportação oficial em PDF A4 de 2 páginas</li>
-          </ul>
+        <div className={styles.manifestoHeader}>
+          <h3>Compromisso com os Jogadores</h3>
+          <p>
+            Nosso objetivo é entregar a melhor experiência de mesa virtual sem burocracia. No futuro, conteúdos cosméticos ou infraestruturas dedicadas poderão ter suporte opcional de apoiadores, mas o coração do sistema é e continuará sendo livre.
+          </p>
+        </div>
 
-          <button type="button" className={styles.pactBtnRustic} onClick={onChoosePlan}>
-            <span>Entrar no Beta Sem Custos</span>
-            <ArrowForwardIcon sx={{ fontSize: 16 }} />
+        <div className={styles.guaranteeGrid}>
+          {GUARANTEES.map((item, idx) => {
+            const IconComp = item.icon;
+            return (
+              <motion.div 
+                key={idx}
+                className={styles.guaranteeItem}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1, duration: 0.4 }}
+              >
+                <div className={styles.guaranteeIcon}>
+                  <IconComp sx={{ color: item.iconColor, fontSize: 26 }} />
+                </div>
+                <div>
+                  <strong>{item.title}</strong>
+                  <span>{item.desc}</span>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        <div className={styles.manifestoAction}>
+          <button type="button" className={styles.rusticCtaBtn} onClick={handleAction}>
+            <span>Começar Agora & Enviar Feedback</span>
+            <ArrowForwardIcon sx={{ fontSize: 18, color: "#f1c40f" }} />
           </button>
-        </motion.div>
-
-        {/* PACTO DO ARQUI-MESTRE (APOIADOR) */}
-        <motion.div
-          className={`${styles.scrollParchment} ${styles.archmageScroll}`}
-          initial={{ opacity: 0, y: 25 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <div className={styles.waxSealRed}>APOIADOR</div>
-          <h3>Pacto do Arqui-Mestre</h3>
-          <div className={styles.costBadge}>
-            <strong>R$ 14,90</strong>
-            <span>/ mês (Em breve)</span>
-          </div>
-          <p className={styles.pactDesc}>Recursos de alta performance para quem comanda grandes mesas.</p>
-
-          <ul className={styles.pactPerks}>
-            <li>✦ <strong>Tudo incluído no Pacto do Aventureiro</strong></li>
-            <li>✦ Névoa de guerra persistente na nuvem com visão avançada</li>
-            <li>✦ Armazenamento ilimitado no Cofre de Assets (mapas pesados & tokens)</li>
-            <li>✦ Soundboard multiplayer com trilha sonora sincronizada</li>
-            <li>✦ Distintivo exclusivo de Fundador Lendário no perfil</li>
-          </ul>
-
-          <button type="button" className={styles.pactBtnGold} onClick={onChoosePlan}>
-            <AutoAwesomeIcon sx={{ fontSize: 18 }} />
-            <span>Tornar-se um Fundador</span>
-          </button>
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
     </div>
   );
 }
