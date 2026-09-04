@@ -7,7 +7,7 @@ import styles from "../LandingPage.module.css";
 
 const FAQ_ITEMS = [
   {
-    q: "O RPG Companion é realmente gratuito durante o Beta Aberto?",
+    q: "O RPG Organizer é realmente gratuito durante o Beta Aberto?",
     a: "Sim! Durante todo o período de Beta Aberto, todas as ferramentas essenciais — criação ilimitada de fichas D&D 5E, grimório, editor de mapas, rolagens 3D e diário de campanhas — estão 100% liberadas sem qualquer custo ou necessidade de cadastrar cartão."
   },
   {
@@ -24,7 +24,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "Preciso baixar ou instalar algum aplicativo?",
-    a: "Não. O RPG Companion roda diretamente no navegador (Chrome, Edge, Firefox, Safari), aproveitando aceleração de hardware Canvas para garantir 60 FPS fluidos mesmo em mapas de grande resolução."
+    a: "Não. O RPG Organizer roda diretamente no navegador (Chrome, Edge, Firefox, Safari), aproveitando aceleração de hardware Canvas para garantir 60 FPS fluidos mesmo em mapas de grande resolução."
   },
   {
     q: "Meus mapas, notas e personagens ficam salvos na nuvem?",

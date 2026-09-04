@@ -35,8 +35,8 @@ export default function LandingNav({ onLogin, onRegister }) {
   const navItems = [
     { label: "Grimório", href: "#recursos" },
     { label: "Mesa Virtual", href: "#vtt" },
-    { label: "Pactos & Preços", href: "#precos" },
-    { label: "Sobre o Tomo", href: "#sobre" },
+    { label: "Preços", href: "#precos" },
+    { label: "Sobre o Projeto", href: "#sobre" },
     { label: "Dúvidas", href: "#faq" }
   ];
 
@@ -65,8 +65,8 @@ export default function LandingNav({ onLogin, onRegister }) {
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           title="Voltar ao início"
         >
-          <img src="/Favicon.png" alt="RPG Companion Logo" className={styles.brandLogoImg} />
-          <span className={styles.navBrandTitle}>RPG COMPANION</span>
+          <img src="/Favicon.png" alt="RPG Organizer Logo" className={styles.brandLogoImg} />
+          <span className={styles.navBrandTitle}>RPG ORGANIZER</span>
         </div>
 
         {/* LINKS PRINCIPAIS (DESKTOP) */}

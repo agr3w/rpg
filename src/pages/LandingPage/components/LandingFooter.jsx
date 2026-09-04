@@ -16,7 +16,7 @@ export default function LandingFooter() {
         <div className={styles.footerBrand}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
             <ShieldOutlinedIcon sx={{ color: "#f1c40f", fontSize: 22 }} />
-            <h3 style={{ margin: 0 }}>RPG COMPANION</h3>
+            <h3 style={{ margin: 0 }}>RPG ORGANIZER</h3>
           </div>
           <p>A plataforma definitiva para mestres e jogadores de D&D 5ª Edição construírem lendas.</p>
         </div>
@@ -48,7 +48,7 @@ export default function LandingFooter() {
           (OGL 1.0a) da Wizards of the Coast LLC. Dungeons & Dragons e D&D são marcas registradas da Wizards of the
           Coast. Este produto não é afiliado, patrocinado ou endossado pela Wizards of the Coast.
         </p>
-        <small>© {new Date().getFullYear()} RPG Companion. Todos os direitos reservados.</small>
+        <small>© {new Date().getFullYear()} RPG Organizer. Todos os direitos reservados.</small>
       </div>
     </footer>
   );
