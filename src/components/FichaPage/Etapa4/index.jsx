@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CLASSES_DATA } from "../../../Array/ClassesDetailedData";
 import { armas } from "../../../Array/Armas";
+import * as HabilidadesDBNamed from "../../../Array/HabilidadesDB";
 import HabilidadeDetalheModal from "./HabilidadeDetalheModal";
 import styles from "./Etapa4.module.css";
 
-// Ícones profissionais (substituindo todos os emojis)
+// Ícones profissionais do Material UI (substituindo 100% de qualquer emoji cru)
 import CasinoOutlinedIcon from "@mui/icons-material/CasinoOutlined";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
@@ -15,13 +16,39 @@ import BackpackOutlinedIcon from "@mui/icons-material/BackpackOutlined";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 
-const normalizeStr = (str) =>
+// Normalizador de texto para comparação segura sem acentos e minúsculo
+const normalize = (str) =>
   String(str || "")
+    .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
     .trim();
 
+// Sinônimos para mapeamento de classes
+const CLASS_SYNONYMS = {
+  barbaro: ["barbaro", "barbarian"],
+  bardo: ["bardo", "bard"],
+  bruxo: ["bruxo", "warlock"],
+  clerigo: ["clerigo", "cleric"],
+  druida: ["druida", "druid"],
+  feiticeiro: ["feiticeiro", "sorcerer"],
+  guerreiro: ["guerreiro", "fighter"],
+  ladino: ["ladino", "rogue"],
+  mago: ["mago", "wizard"],
+  monge: ["monge", "monk"],
+  paladino: ["paladino", "paladin"],
+  patrulheiro: ["patrulheiro", "ranger"],
+};
+
+// Extrai número do nível de formatos como 1, "1", "1º", "Nível 1"
+function parseLevel(raw) {
+  if (typeof raw === "number") return raw;
+  if (!raw) return 1;
+  const match = String(raw).match(/\d+/);
+  return match ? parseInt(match[0], 10) : 1;
+}
+
+// Sub-seletor para armas específicas (ex: espada longa, arco, etc.)
 function WeaponSubSelector({ filtros, slotKey, subSelecaoArmas = {}, setSubSelecaoArmas }) {
   if (!filtros || !setSubSelecaoArmas) return null;
 
@@ -91,13 +118,11 @@ function WeaponSubSelector({ filtros, slotKey, subSelecaoArmas = {}, setSubSelec
 export default function Etapa4({
   characterData = {},
   updateCharacterData,
-  // Props para compatibilidade com FichaPage
   classe,
+  classeId,
   setClasse,
   classesOptions = [],
-  classeSelecioanda,
-  periciasClasseSelecionadas = [],
-  setPericiasSelecionadas,
+  itensDaClasse,
   equipamentosClasseSelecionada1 = "",
   setEquipamentoClasseSelecionado1,
   equipamentosClasseSelecionada2 = "",
@@ -106,6 +131,9 @@ export default function Etapa4({
   setEquipamentoClasseSelecionado3,
   equipamentosClasseSelecionada4 = "",
   setEquipamentoClasseSelecionado4,
+  classeSelecioanda,
+  periciasClasseSelecionadas = [],
+  setPericiasSelecionadas,
   subSelecaoArmas = {},
   setSubSelecaoArmas,
 }) {
@@ -117,23 +145,124 @@ export default function Etapa4({
       const cls = CLASSES_DATA[key];
       return (
         key === currentClassProp ||
-        normalizeStr(key) === normalizeStr(currentClassProp) ||
-        normalizeStr(cls.name) === normalizeStr(currentClassProp) ||
-        normalizeStr(currentClassProp).startsWith(normalizeStr(key))
+        normalize(key) === normalize(currentClassProp) ||
+        normalize(cls.name) === normalize(currentClassProp) ||
+        normalize(currentClassProp).startsWith(normalize(key))
       );
     }) || "guerreiro";
 
   const [selectedKey, setSelectedKey] = useState(initialClassKey);
   const [activeTab, setActiveTab] = useState("habilidades"); // 'habilidades' | 'proficiencias' | 'equipamento'
+  
+  // Filtro de Níveis: padrão "1" para focar no nível inicial de criação
+  const [activeLevelFilter, setActiveLevelFilter] = useState("1"); // "1" | "1-4" | "5-10" | "11-16" | "17-20" | "all" | exato
+  const [selectedExactLevel, setSelectedExactLevel] = useState("");
   const [activeModalFeature, setActiveModalFeature] = useState(null);
 
   const currentClass = CLASSES_DATA[selectedKey] || CLASSES_DATA.guerreiro;
+
+  // Busca e normaliza as habilidades de HabilidadesDB para a classe atual
+  const classFeaturesFromDB = useMemo(() => {
+    // 1. Prioriza a lista dedicada da classe (ex: HABILIDADES_GUERREIRO)
+    const specificKey = `HABILIDADES_${currentClass.id.toUpperCase()}`;
+    let rawList = HabilidadesDBNamed[specificKey];
+
+    // 2. Se não encontrar direto, busca em HABILIDADES_CLASSES ou listas combinadas
+    if (!rawList || !Array.isArray(rawList) || rawList.length === 0) {
+      const combinedSource =
+        HabilidadesDBNamed.HABILIDADES_CLASSES ||
+        HabilidadesDBNamed.HabilidadesDB ||
+        HabilidadesDBNamed.HABILIDADES_DB ||
+        HabilidadesDBNamed.habilidadesDB ||
+        HabilidadesDBNamed.habilidades ||
+        HabilidadesDBNamed.default ||
+        [];
+
+      const list = Array.isArray(combinedSource)
+        ? combinedSource
+        : typeof combinedSource === "object"
+        ? Object.values(combinedSource).flat()
+        : [];
+
+      const synonyms = CLASS_SYNONYMS[currentClass.id] || [currentClass.id];
+
+      rawList = list.filter((item) => {
+        if (!item) return false;
+        const itemClasse = item.classe || item.class || item.className || item.classes || item.vinculo || "";
+        if (Array.isArray(itemClasse)) {
+          return itemClasse.some((c) => synonyms.includes(normalize(c)));
+        }
+        return synonyms.some((syn) => normalize(itemClasse).includes(syn));
+      });
+    }
+
+    // Se encontrou no HabilidadesDB, formata os campos
+    if (rawList && rawList.length > 0) {
+      return rawList
+        .map((item) => {
+          const desc = item.descricao || item.desc || item.description || item.texto || "";
+          const summary =
+            item.resumo ||
+            item.summary ||
+            (desc.length > 130 ? `${desc.substring(0, 130).trim()}...` : desc);
+
+          return {
+            name: item.nome || item.name || item.titulo || "Habilidade",
+            level: parseLevel(item.nivel || item.level || item.nv),
+            actionType:
+              item.tipoAcao ||
+              item.tipo ||
+              item.actionType ||
+              item.action ||
+              (item.custo ? item.custo : "Passiva"),
+            recharge: item.recarga || item.recharge || item.duracao || "Permanente",
+            desc: desc,
+            summary: summary,
+            subclass: item.subclasse || item.subclass || (item.categoria === "subclasse" ? item.vinculo : "") || "",
+          };
+        })
+        .sort((a, b) => a.level - b.level);
+    }
+
+    // Fallback de segurança para não quebrar caso HabilidadesDB esteja indisponível
+    return (currentClass.features || []).map((f) => ({
+      ...f,
+      level: parseLevel(f.level),
+    }));
+  }, [currentClass.id, currentClass.features]);
+
+  // Aplica o filtro de níveis selecionado
+  const filteredFeatures = useMemo(() => {
+    if (activeLevelFilter === "all") return classFeaturesFromDB;
+
+    if (activeLevelFilter === "1-4") {
+      return classFeaturesFromDB.filter((f) => f.level >= 1 && f.level <= 4);
+    }
+    if (activeLevelFilter === "5-10") {
+      return classFeaturesFromDB.filter((f) => f.level >= 5 && f.level <= 10);
+    }
+    if (activeLevelFilter === "11-16") {
+      return classFeaturesFromDB.filter((f) => f.level >= 11 && f.level <= 16);
+    }
+    if (activeLevelFilter === "17-20") {
+      return classFeaturesFromDB.filter((f) => f.level >= 17 && f.level <= 20);
+    }
+
+    const exactNum = parseInt(activeLevelFilter, 10);
+    if (!isNaN(exactNum)) {
+      return classFeaturesFromDB.filter((f) => f.level === exactNum);
+    }
+
+    return classFeaturesFromDB;
+  }, [classFeaturesFromDB, activeLevelFilter]);
 
   const handleSelectClass = (key) => {
     const cls = CLASSES_DATA[key];
     if (!cls) return;
 
     setSelectedKey(key);
+    setActiveLevelFilter("1");
+    setSelectedExactLevel("");
 
     if (updateCharacterData) {
       updateCharacterData({
@@ -272,12 +401,9 @@ export default function Etapa4({
 
   return (
     <div className={styles.pageWrapper}>
-      {/* Imagem de Fundo Dinâmica da Classe com Vinheta */}
       <div
-        className={styles.dynamicBackground}
         style={{ backgroundImage: `url(${currentClass.bgImage})` }}
       >
-        <div className={styles.bgVignetteOverlay} />
       </div>
 
       {/* Cartão de Pergaminho Central */}
@@ -386,7 +512,7 @@ export default function Etapa4({
             onClick={() => setActiveTab("habilidades")}
           >
             <AutoStoriesOutlinedIcon className={styles.tabIcon} />
-            <span>Progressão de Nível</span>
+            <span>Habilidades ({classFeaturesFromDB.length})</span>
           </button>
           <button
             type="button"
@@ -406,7 +532,7 @@ export default function Etapa4({
           </button>
         </nav>
 
-        {/* Painel de Conteúdo */}
+        {/* Painel de Conteúdo com Mini-Abas e Seletor por Níveis */}
         <div className={styles.tabContentPanel}>
           <AnimatePresence mode="wait">
             {activeTab === "habilidades" && (
@@ -418,30 +544,105 @@ export default function Etapa4({
                 exit={{ opacity: 0, x: 8 }}
                 transition={{ duration: 0.18 }}
               >
+                {/* Barra de Filtro de Níveis em Mini-Abas */}
+                <div className={styles.levelFilterSection}>
+                  <div className={styles.filterHeaderRow}>
+                    <span className={styles.filterTitle}>Filtrar por Faixa ou Nível:</span>
+                    <span className={styles.featureCountBadge}>
+                      {filteredFeatures.length} {filteredFeatures.length === 1 ? "poder" : "poderes"}
+                    </span>
+                  </div>
+
+                  {/* Mini-Abas de Faixas de Nível */}
+                  <div className={styles.tierPillsWrapper}>
+                    {[
+                      { id: "1", label: "Nv. 1 (Inicial)" },
+                      { id: "1-4", label: "Nv. 1 - 4" },
+                      { id: "5-10", label: "Nv. 5 - 10" },
+                      { id: "11-16", label: "Nv. 11 - 16" },
+                      { id: "17-20", label: "Nv. 17 - 20" },
+                      { id: "all", label: "Todos (1-20)" },
+                    ].map((tier) => (
+                      <button
+                        key={tier.id}
+                        type="button"
+                        className={`${styles.tierBtn} ${
+                          activeLevelFilter === tier.id ? styles.tierBtnActive : ""
+                        }`}
+                        onClick={() => {
+                          setActiveLevelFilter(tier.id);
+                          setSelectedExactLevel("");
+                        }}
+                      >
+                        {tier.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Seletor Rápido de Nível Específico (1 ao 20) */}
+                  <div className={styles.exactLevelContainer}>
+                    <label htmlFor="exact-level-select">Ver Nível Específico:</label>
+                    <select
+                      id="exact-level-select"
+                      className={styles.exactLevelSelect}
+                      value={selectedExactLevel}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSelectedExactLevel(val);
+                        if (val) {
+                          setActiveLevelFilter(val);
+                        }
+                      }}
+                    >
+                      <option value="">Escolher Nível (1 a 20)...</option>
+                      {Array.from({ length: 20 }, (_, i) => i + 1).map((lvl) => (
+                        <option key={lvl} value={String(lvl)}>
+                          Nível {lvl}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
                 <div className={styles.timelineHeaderHint}>
                   <small>Clique em qualquer poder para inspecionar os efeitos completos.</small>
                 </div>
 
-                {currentClass.features.map((feat, index) => (
-                  <div key={index} className={styles.featureRowCard}>
-                    <div className={styles.levelTag}>Nv. {feat.level}</div>
-                    <div className={styles.featureRowInfo}>
-                      <div className={styles.featureRowTitle}>
-                        <h4>{feat.name}</h4>
-                        <span className={styles.featureActionType}>{feat.actionType}</span>
+                {/* Lista de Cards de Habilidades */}
+                {filteredFeatures.length > 0 ? (
+                  <div className={styles.cardsList}>
+                    {filteredFeatures.map((feat, index) => (
+                      <div key={index} className={styles.featureRowCard}>
+                        <div className={styles.levelTag}>Nv. {feat.level}</div>
+
+                        <div className={styles.featureRowInfo}>
+                          <div className={styles.featureRowTitle}>
+                            <h4>{feat.name}</h4>
+                            <span className={styles.featureActionType}>{feat.actionType}</span>
+                            {feat.subclass && (
+                              <span className={styles.subclassBadge}>✦ {feat.subclass}</span>
+                            )}
+                          </div>
+                          <p>{feat.summary}</p>
+                        </div>
+
+                        <button
+                          type="button"
+                          className={styles.btnInspect}
+                          onClick={() => setActiveModalFeature(feat)}
+                        >
+                          <span>Ler Detalhes</span>
+                          <VisibilityIcon className={styles.inspectIcon} />
+                        </button>
                       </div>
-                      <p>{feat.summary}</p>
-                    </div>
-                    <button
-                      type="button"
-                      className={styles.btnInspect}
-                      onClick={() => setActiveModalFeature(feat)}
-                    >
-                      <span>Ler Detalhes</span>
-                      <VisibilityIcon className={styles.inspectIcon} />
-                    </button>
+                    ))}
                   </div>
-                ))}
+                ) : (
+                  <div className={styles.emptyLevelNotice}>
+                    <p>Nenhum recurso novo registrado para este nível específico.</p>
+                    <small>Normalmente este nível concede novos espaços de magia ou Aumento no Valor de Atributo (ASI).</small>
+                  </div>
+                )}
               </motion.div>
             )}
 
@@ -471,7 +672,7 @@ export default function Etapa4({
                   <p>{currentClass.proficiencies.skills}</p>
                 </div>
 
-                {/* Seleção Interativa de Perícias da Classe se disponível */}
+                {/* Seleção Interativa de Perícias da Classe */}
                 {classeSelecioanda?.proficiencias?.periciasSelecao &&
                   Array.isArray(classeSelecioanda.proficiencias.periciasSelecao) && (
                     <div className={styles.skillsSection}>
@@ -528,53 +729,64 @@ export default function Etapa4({
                 )}
 
                 {/* Opções Selecionáveis de Equipamento */}
-                <div className={styles.equipChoicesContainer}>
-                  {equipSlots.map((slot) => {
-                    const selectedOpt = slot.options.find((o) => o.label === slot.value) || slot.options[0];
+                {equipSlots.length > 0 ? (
+                  <div className={styles.equipChoicesContainer}>
+                    {equipSlots.map((slot) => {
+                      const selectedOpt = slot.options.find((o) => o.label === slot.value) || slot.options[0];
 
-                    return (
-                      <div key={slot.slotKey} className={styles.equipSlotCard}>
-                        <label className={styles.equipSlotLabel}>{slot.label}</label>
-                        <select
-                          className={styles.styledSelectSmall}
-                          value={slot.value || (slot.options[0]?.label || "")}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            slot.setter?.(val);
-                            const opt = slot.options.find((o) => o.label === val);
-                            if (opt?.subSelecao) {
-                              initSubSelecao(slot.slotKey, opt.subSelecao);
-                            } else if (setSubSelecaoArmas) {
-                              setSubSelecaoArmas((prev) => {
-                                const next = { ...(prev || {}) };
-                                delete next[slot.slotKey];
-                                delete next[`${slot.slotKey}_a`];
-                                delete next[`${slot.slotKey}_b`];
-                                return next;
-                              });
-                            }
-                          }}
-                        >
-                          {slot.options.map((opt, i) => (
-                            <option key={i} value={opt.label}>
-                              {opt.label}
-                            </option>
-                          ))}
-                        </select>
+                      return (
+                        <div key={slot.slotKey} className={styles.equipSlotCard}>
+                          <label className={styles.equipSlotLabel}>{slot.label}</label>
+                          <select
+                            className={styles.styledSelectSmall}
+                            value={slot.value || (slot.options[0]?.label || "")}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              slot.setter?.(val);
+                              const opt = slot.options.find((o) => o.label === val);
+                              if (opt?.subSelecao) {
+                                initSubSelecao(slot.slotKey, opt.subSelecao);
+                              } else if (setSubSelecaoArmas) {
+                                setSubSelecaoArmas((prev) => {
+                                  const next = { ...(prev || {}) };
+                                  delete next[slot.slotKey];
+                                  delete next[`${slot.slotKey}_a`];
+                                  delete next[`${slot.slotKey}_b`];
+                                  return next;
+                                });
+                              }
+                            }}
+                          >
+                            {slot.options.map((opt, i) => (
+                              <option key={i} value={opt.label}>
+                                {opt.label}
+                              </option>
+                            ))}
+                          </select>
 
-                        {/* Seletor Específico de Armas / Sub-seleção */}
-                        {selectedOpt?.subSelecao && (
-                          <WeaponSubSelector
-                            filtros={selectedOpt.subSelecao}
-                            slotKey={slot.slotKey}
-                            subSelecaoArmas={subSelecaoArmas}
-                            setSubSelecaoArmas={setSubSelecaoArmas}
-                          />
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+                          {/* Seletor Específico de Armas / Sub-seleção */}
+                          {selectedOpt?.subSelecao && (
+                            <WeaponSubSelector
+                              filtros={selectedOpt.subSelecao}
+                              slotKey={slot.slotKey}
+                              subSelecaoArmas={subSelecaoArmas}
+                              setSubSelecaoArmas={setSubSelecaoArmas}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  /* Fallback se a classe não possuir opções dinâmicas configuradas */
+                  <div className={styles.equipSummaryCard}>
+                    <div className={styles.equipSummaryHeader}>
+                      <BackpackOutlinedIcon sx={{ fontSize: "1rem", color: "#58180d" }} />
+                      <span>Equipamento Padrão da Classe</span>
+                    </div>
+                    <pre className={styles.equipText}>{currentClass.equipmentText}</pre>
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
