@@ -16,6 +16,8 @@ import {
 import { tendencias } from "Array/Tendencias";
 import { antecedentes } from "Array/Antecedentes";
 import { idiomasArray } from "Array/Idiomas";
+import { armas } from "Array/Armas";
+import { gerarInventarioInicial } from "utils/gerarInventarioInicial";
 import Etapa1 from "components/FichaPage/Etapa1";
 import Etapa2 from "components/FichaPage/Etapa2";
 import Etapa4 from "components/FichaPage/Etapa4";
@@ -76,6 +78,7 @@ const FichaCriar = () => {
   const [racaId, setRacaId] = useState("anao");
   const [SubRaca, setSubRaca] = useState("");
   const [classe, setClasse] = useState("");
+  const [classeId, setClasseId] = useState("guerreiro");
   const [tendencia, setTendencia] = useState("");
   const [idiomaDoAntecedente, setIdiomaAntecedente] = useState("");
   const [idiomaDoAntecendente2, setIdiomaAntecendente2] = useState("");
@@ -153,7 +156,13 @@ const FichaCriar = () => {
 
   // ✅  ainda precisa disso p/ Etapa4 e para montar Classesinfo no salvar
   const classeSelecioanda = useMemo(
-    () => classes.find((c) => c.nome === classe) || null,
+    () =>
+      classes.find(
+        (c) =>
+          c.nome === classe ||
+          c.nome.toLowerCase() === String(classe || "").toLowerCase() ||
+          String(classe || "").toLowerCase().startsWith(c.nome.toLowerCase())
+      ) || null,
     [classe]
   );
 
@@ -219,87 +228,7 @@ const FichaCriar = () => {
     return String(c);
   };
 
-  // --- FUNÇÃO AUXILIAR PARA CRIAR ITENS DE INVENTÁRIO ---
-  const gerarInventarioInicial = (equipamentosFormatados, equipamentosObrigatorios) => {
-    const backpack = {};
-    
-    // Junta tudo em um array só, filtrando vazios
-    const listaBruta = [
-      ...Object.values(equipamentosFormatados),
-      ...(equipamentosObrigatorios || [])
-    ].filter(item => item && typeof item === "string");
 
-    listaBruta.forEach((itemStr) => {
-      // 1. Verifica se tem conteúdo entre parênteses gerado pela nossa seleção específica
-      // Ex: "Qualquer Arma Simples (Adaga)" -> pega "Adaga"
-      // Ex: "Duas armas marciais (Espada Longa e Escudo)" -> pega "Espada Longa e Escudo"
-      const matchParenteses = itemStr.match(/\((.*?)\)$/);
-      
-      let itensParaProcessar = [];
-
-      if (matchParenteses) {
-        // Se tiver parênteses no final, usa o conteúdo deles
-        const conteudo = matchParenteses[1];
-        // Se tiver " e ", separa em dois itens
-        if (conteudo.includes(" e ")) {
-            itensParaProcessar = conteudo.split(" e ");
-        } else {
-            itensParaProcessar = [conteudo];
-        }
-      } else {
-        // Se não, usa a string original (ex: "Um pacote de explorador")
-        // Remove prefixos de escolha como "(a) ", "(b) "
-        let limpo = itemStr.replace(/^\([a-z]\)\s*/i, "");
-        itensParaProcessar = [limpo];
-      }
-
-      itensParaProcessar.forEach(nomeItem => {
-        let nomeFinal = nomeItem.trim();
-        let qtd = 1;
-
-        // Tenta detectar quantidade numérica no início (ex: "20 flechas")
-        const matchNumber = nomeFinal.match(/^(\d+)\s+(.*)/);
-        if (matchNumber) {
-            qtd = parseInt(matchNumber[1]);
-            nomeFinal = matchNumber[2];
-        } else {
-            // Tenta detectar quantidade por extenso comum
-            if (nomeFinal.toLowerCase().startsWith("duas ")) {
-                qtd = 2;
-                nomeFinal = nomeFinal.substring(5);
-            } else if (nomeFinal.toLowerCase().startsWith("dois ")) {
-                qtd = 2;
-                nomeFinal = nomeFinal.substring(5);
-            } else if (nomeFinal.toLowerCase().startsWith("quatro ")) {
-                qtd = 4;
-                nomeFinal = nomeFinal.substring(7);
-            } else if (nomeFinal.toLowerCase().startsWith("cinco ")) {
-                qtd = 5;
-                nomeFinal = nomeFinal.substring(6);
-            } else if (nomeFinal.toLowerCase().startsWith("dez ")) {
-                qtd = 10;
-                nomeFinal = nomeFinal.substring(4);
-            } else if (nomeFinal.toLowerCase().startsWith("um ") || nomeFinal.toLowerCase().startsWith("uma ")) {
-                // Remove "Um/Uma" mas mantém qtd 1
-                nomeFinal = nomeFinal.substring(nomeFinal.indexOf(" ") + 1);
-            }
-        }
-
-        // Cria ID único
-        const id = `bp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        
-        backpack[id] = {
-            id,
-            name: nomeFinal.charAt(0).toUpperCase() + nomeFinal.slice(1), // Capitalize
-            qty: qtd,
-            notes: "Item inicial de classe",
-            createdAt: Date.now()
-        };
-      });
-    });
-
-    return { backpack, equipped: {} };
-  };
 
   const handleConcluir = async () => {
     if (submitting) return;
@@ -346,9 +275,16 @@ const FichaCriar = () => {
       // RacasParaMandar
       const RacasInfo = {
         racaId,
+        SubRaca: SubRaca || "",
+        subRaca: SubRaca || "",
         Idiomas: { idiomaRacaSelecionado, idiomaRacaSelecionado2 },
         Atributos: valoresHabilidade,
-        SubRacasInfo: { ...SubRacasField, SubRacaGnomoField },
+        SubRacasInfo: {
+          ...SubRacasField,
+          SubRaca: SubRaca || "",
+          subRaca: SubRaca || "",
+          SubRacaGnomoField,
+        },
       };
 
       // ClassesParaMandar (ATUALIZADO)
@@ -415,7 +351,8 @@ const FichaCriar = () => {
         riquezaInicial,
         RacasInfo,
         Classesinfo,
-        inventoryPayload // <--- Passando o inventário gerado
+        inventoryPayload, // <--- Passando o inventário gerado
+        SubRaca // <--- Passando a sub-raça escolhida
       );
 
       if (res && res.success) {
@@ -552,11 +489,15 @@ const FichaCriar = () => {
     const habilidades = racaSelecionada?.habilidades || [];
     setItensDaRaca(Array.isArray(habilidades) ? habilidades : []);
 
-    // reset para evitar warning do MUI “out-of-range value”
-    setIdiomaRacaSelecionado("");
-    setIdiomaRacaSelecionado2("");
-    setSubRaca("");
-    setDetalhesSubRaca(null);
+    // Se a raça possuir sub-raças, já pré-seleciona a primeira para evitar estado vazio
+    const primeiraSub = racaSelecionada?.SubRacas?.[0];
+    if (primeiraSub && primeiraSub.subRacaNome) {
+      setSubRaca(primeiraSub.subRacaNome);
+      setDetalhesSubRaca(primeiraSub);
+    } else {
+      setSubRaca("");
+      setDetalhesSubRaca(null);
+    }
     setIdiomaAltoElfoSelecioando("");
     setEngenhocas("");
   }, [raca, racaSelecionada]);
@@ -584,7 +525,11 @@ const FichaCriar = () => {
       setSubRaca(value || "");
 
       const found =
-        racaSelecionada?.SubRacas?.find((sr) => sr.subRacaNome === value) || null;
+        racaSelecionada?.SubRacas?.find(
+          (sr) =>
+            sr.subRacaNome === value ||
+            String(sr.subRacaNome || "").toLowerCase() === String(value || "").toLowerCase()
+        ) || null;
       setDetalhesSubRaca(found);
 
       setIdiomaAltoElfoSelecioando("");
@@ -778,11 +723,17 @@ const FichaCriar = () => {
                   subRaca: SubRaca,
                 }}
                 updateCharacterData={({ subRaca }) => {
-                  setSubRaca(subRaca);
-                  if (racaSelecionada?.SubRacas) {
-                    const found =
-                      racaSelecionada.SubRacas.find((sr) => sr.subRacaNome === subRaca) || null;
-                    setDetalhesSubRaca(found);
+                  if (subRaca) {
+                    setSubRaca(subRaca);
+                    if (racaSelecionada?.SubRacas) {
+                      const found =
+                        racaSelecionada.SubRacas.find(
+                          (sr) =>
+                            sr.subRacaNome === subRaca ||
+                            String(sr.subRacaNome || "").toLowerCase() === String(subRaca || "").toLowerCase()
+                        ) || null;
+                      setDetalhesSubRaca(found);
+                    }
                   }
                 }}
                 raca={raca}
@@ -802,7 +753,13 @@ const FichaCriar = () => {
             )}
             {etapa === 4 && (
               <Etapa4
+                characterData={{ classe, classeId }}
+                updateCharacterData={({ classe: novaClasse, classeId: novoClasseId }) => {
+                  setClasse(novaClasse);
+                  if (novoClasseId) setClasseId(novoClasseId);
+                }}
                 classe={classe}
+                classeId={classeId}
                 setClasse={setClasse}
                 classesOptions={classesOptions}
                 itensDaClasse={itensDaClasse}

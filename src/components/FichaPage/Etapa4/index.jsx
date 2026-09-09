@@ -1,42 +1,30 @@
-import React from "react";
-import {
-  Box,
-  Button,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
-  Typography,
-  Paper,
-  Stack,
-  Divider,
-  Checkbox,
-  FormControlLabel,
-  Collapse,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Grid,
-} from "@mui/material";
-import CircleIcon from "@mui/icons-material/Circle";
-import LayoutFicha from "components/FichaLayout/LayoutFicha";
-import { armas } from "Array/Armas";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { CLASSES_DATA } from "../../../Array/ClassesDetailedData";
+import { armas } from "../../../Array/Armas";
+import HabilidadeDetalheModal from "./HabilidadeDetalheModal";
+import styles from "./Etapa4.module.css";
 
-// Estilo reutilizável
-const dndBoxStyle = {
-  p: 2.5,
-  borderRadius: 2,
-  bgcolor: "rgba(243, 235, 214, 0.5)",
-  border: "1px solid rgba(92, 64, 51, 0.2)",
-  boxShadow: "inset 0 2px 4px rgba(0,0,0,0.03)",
-};
+// Ícones profissionais (substituindo todos os emojis)
+import CasinoOutlinedIcon from "@mui/icons-material/CasinoOutlined";
+import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
+import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
+import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
+import AutoStoriesOutlinedIcon from "@mui/icons-material/AutoStoriesOutlined";
+import BackpackOutlinedIcon from "@mui/icons-material/BackpackOutlined";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 
-// Sub-componente simplificado: recebe filtros diretos
-const WeaponSubSelector = ({ filtros, slotKey, subSelecaoArmas, setSubSelecaoArmas }) => {
-  if (!filtros) return null;
+const normalizeStr = (str) =>
+  String(str || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
 
-  // Filtra as opções baseado no objeto de filtros
+function WeaponSubSelector({ filtros, slotKey, subSelecaoArmas = {}, setSubSelecaoArmas }) {
+  if (!filtros || !setSubSelecaoArmas) return null;
+
   const opcoesFiltradas = armas.filter((arma) => {
     if (filtros.tipo && arma.tipo !== filtros.tipo) return false;
     if (filtros.alcance && arma.alcance !== filtros.alcance) return false;
@@ -45,306 +33,564 @@ const WeaponSubSelector = ({ filtros, slotKey, subSelecaoArmas, setSubSelecaoArm
 
   if (opcoesFiltradas.length === 0) return null;
 
-  const handleChange = (key, value) => {
-    setSubSelecaoArmas(prev => ({ ...prev, [key]: value }));
-  };
-
   const quantidade = filtros.quantidade || 1;
   const isDuas = quantidade > 1;
 
-  return (
-    <Box sx={{ mt: 1, ml: 2, p: 1, borderLeft: "2px solid #bf8f00", bgcolor: "rgba(0,0,0,0.2)" }}>
-      <Typography variant="caption" color="secondary" sx={{ mb: 1, display: "block" }}>
-        Especifique sua escolha:
-      </Typography>
-      
-      <Grid container spacing={1}>
-        <Grid item xs={isDuas ? 6 : 12}>
-          <FormControl fullWidth size="small">
-            <InputLabel>Arma {isDuas ? "1" : ""}</InputLabel>
-            <Select
-              value={subSelecaoArmas[isDuas ? `${slotKey}_a` : slotKey] || ""}
-              label={`Arma ${isDuas ? "1" : ""}`}
-              onChange={(e) => handleChange(isDuas ? `${slotKey}_a` : slotKey, e.target.value)}
-            >
-              {opcoesFiltradas.map((arma) => (
-                <MenuItem key={arma.nome} value={arma.nome}>
-                  {arma.nome} <Typography variant="caption" sx={{ ml: 1, opacity: 0.7 }}>({arma.dano})</Typography>
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
+  const keyA = isDuas ? `${slotKey}_a` : slotKey;
+  const keyB = `${slotKey}_b`;
 
-        {isDuas && (
-          <Grid item xs={6}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Arma 2</InputLabel>
-              <Select
-                value={subSelecaoArmas[`${slotKey}_b`] || ""}
-                label="Arma 2"
-                onChange={(e) => handleChange(`${slotKey}_b`, e.target.value)}
-              >
-                {opcoesFiltradas.map((arma) => (
-                  <MenuItem key={arma.nome} value={arma.nome}>
-                    {arma.nome}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-        )}
-      </Grid>
-    </Box>
-  );
-};
+  const valA = subSelecaoArmas[keyA] || opcoesFiltradas[0]?.nome || "";
+  const valB = subSelecaoArmas[keyB] || (opcoesFiltradas[1]?.nome || opcoesFiltradas[0]?.nome || "");
 
-const Etapa4 = ({
-  classe,
-  setClasse,
-  classesOptions,
-  itensDaClasse,
-  equipamentosClasseSelecionada1,
-  setEquipamentoClasseSelecionado1,
-  equipamentosClasseSelecionada2,
-  setEquipamentoClasseSelecionado2,
-  equipamentosClasseSelecionada3,
-  setEquipamentoClasseSelecionado3,
-  equipamentosClasseSelecionada4,
-  setEquipamentoClasseSelecionado4,
-  classeSelecioanda,
-  periciasClasseSelecionadas,
-  setPericiasSelecionadas,
-  setExibirPainelHabilidades,
-  exibirPainelHabilidades,
-  subSelecaoArmas,
-  setSubSelecaoArmas
-}) => {
-  const handleTogglePainelHabilidades = () => {
-    setExibirPainelHabilidades(!exibirPainelHabilidades);
+  const handleChange = (key, value) => {
+    setSubSelecaoArmas((prev) => ({ ...(prev || {}), [key]: value }));
   };
 
-  const handleCheckboxChange = (e) => {
-    const periciaSelecionada = e.target.value;
-    if (periciasClasseSelecionadas.includes(periciaSelecionada)) {
-      setPericiasSelecionadas((prevPericias) =>
-        prevPericias.filter((pericia) => pericia !== periciaSelecionada)
+  return (
+    <div className={styles.weaponSubBox}>
+      <span className={styles.weaponSubTitle}>
+        Especifique {isDuas ? "as duas armas" : "a arma"} desejada(s):
+      </span>
+      <div className={`${styles.weaponSubGrid} ${isDuas ? styles.weaponSubGridTwo : ""}`}>
+        <div className={styles.weaponSubItem}>
+          <small>{isDuas ? "Arma 1" : "Arma Escolhida"}</small>
+          <select
+            className={styles.styledSelectSmall}
+            value={valA}
+            onChange={(e) => handleChange(keyA, e.target.value)}
+          >
+            {opcoesFiltradas.map((arma) => (
+              <option key={arma.nome} value={arma.nome}>
+                {arma.nome} ({arma.dano})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {isDuas && (
+          <div className={styles.weaponSubItem}>
+            <small>Arma 2</small>
+            <select
+              className={styles.styledSelectSmall}
+              value={valB}
+              onChange={(e) => handleChange(keyB, e.target.value)}
+            >
+              {opcoesFiltradas.map((arma) => (
+                <option key={arma.nome} value={arma.nome}>
+                  {arma.nome} ({arma.dano})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default function Etapa4({
+  characterData = {},
+  updateCharacterData,
+  // Props para compatibilidade com FichaPage
+  classe,
+  setClasse,
+  classesOptions = [],
+  classeSelecioanda,
+  periciasClasseSelecionadas = [],
+  setPericiasSelecionadas,
+  equipamentosClasseSelecionada1 = "",
+  setEquipamentoClasseSelecionado1,
+  equipamentosClasseSelecionada2 = "",
+  setEquipamentoClasseSelecionado2,
+  equipamentosClasseSelecionada3 = "",
+  setEquipamentoClasseSelecionado3,
+  equipamentosClasseSelecionada4 = "",
+  setEquipamentoClasseSelecionado4,
+  subSelecaoArmas = {},
+  setSubSelecaoArmas,
+}) {
+  const currentClassProp = characterData.classeId || characterData.classe || classe || "";
+
+  // Sincronização segura e proteção contra seletor em branco
+  const initialClassKey =
+    Object.keys(CLASSES_DATA).find((key) => {
+      const cls = CLASSES_DATA[key];
+      return (
+        key === currentClassProp ||
+        normalizeStr(key) === normalizeStr(currentClassProp) ||
+        normalizeStr(cls.name) === normalizeStr(currentClassProp) ||
+        normalizeStr(currentClassProp).startsWith(normalizeStr(key))
       );
-    } else if (
-      periciasClasseSelecionadas.length <
-      classeSelecioanda?.proficiencias?.perficiasMinimo
-    ) {
-      setPericiasSelecionadas((prevPericias) => [
-        ...prevPericias,
-        periciaSelecionada,
-      ]);
+    }) || "guerreiro";
+
+  const [selectedKey, setSelectedKey] = useState(initialClassKey);
+  const [activeTab, setActiveTab] = useState("habilidades"); // 'habilidades' | 'proficiencias' | 'equipamento'
+  const [activeModalFeature, setActiveModalFeature] = useState(null);
+
+  const currentClass = CLASSES_DATA[selectedKey] || CLASSES_DATA.guerreiro;
+
+  const handleSelectClass = (key) => {
+    const cls = CLASSES_DATA[key];
+    if (!cls) return;
+
+    setSelectedKey(key);
+
+    if (updateCharacterData) {
+      updateCharacterData({
+        classe: cls.name,
+        classeId: cls.id,
+        dadoVida: cls.quickStats.hitDie.split(" ")[0],
+        subClasse: "",
+        equipamentoInicial: cls.equipmentText,
+        proficienciasClasse: cls.proficiencies,
+      });
+    }
+
+    if (setClasse) {
+      setClasse(cls.name);
     }
   };
 
-  // Renderizador de Select de Equipamento
-  const renderEquipSelect = (label, value, setValue, options, slotKey) => {
-    if (!options || options.length === 0) return null;
+  useEffect(() => {
+    if (!characterData.classe && !classe) {
+      handleSelectClass("guerreiro");
+    }
+  }, []);
 
-    // Encontra o objeto selecionado atualmente para saber se tem sub-seleção
-    const selectedOptionObj = options.find(opt => opt.label === value);
+  // Auto-seleciona opções padrão de equipamentos ao trocar ou carregar a classe
+  useEffect(() => {
+    const eq = classeSelecioanda?.equipamentos;
+    if (!eq) return;
 
-    return (
-      <Box sx={{ mb: 2 }}>
-        <FormControl fullWidth variant="outlined">
-          <InputLabel>{label}</InputLabel>
-          <Select
-            value={value}
-            onChange={(e) => {
-              setValue(e.target.value);
-              // Limpa sub-seleção ao trocar a opção principal
-              setSubSelecaoArmas(prev => {
-                const novo = { ...prev };
-                delete novo[slotKey];
-                delete novo[`${slotKey}_a`];
-                delete novo[`${slotKey}_b`];
-                return novo;
-              });
-            }}
-            label={label}
-          >
-            <MenuItem value=""><em>Selecione</em></MenuItem>
-            {options.map((opt, index) => (
-              <MenuItem key={index} value={opt.label} sx={{ whiteSpace: "normal" }}>
-                {opt.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        
-        {/* Passa os filtros diretamente do objeto selecionado */}
-        <WeaponSubSelector 
-          filtros={selectedOptionObj?.subSelecao} 
-          slotKey={slotKey} 
-          subSelecaoArmas={subSelecaoArmas} 
-          setSubSelecaoArmas={setSubSelecaoArmas} 
-        />
-      </Box>
-    );
+    // Slot 1
+    const opts1 = eq.equipamentoAlpha1 || [];
+    if (opts1.length > 0 && (!equipamentosClasseSelecionada1 || !opts1.some((o) => o.label === equipamentosClasseSelecionada1))) {
+      setEquipamentoClasseSelecionado1?.(opts1[0].label);
+      if (opts1[0].subSelecao) {
+        initSubSelecao("slot1", opts1[0].subSelecao);
+      }
+    }
+
+    // Slot 2
+    const opts2 = eq.equipamentoAlpha2 || [];
+    if (opts2.length > 0 && (!equipamentosClasseSelecionada2 || !opts2.some((o) => o.label === equipamentosClasseSelecionada2))) {
+      setEquipamentoClasseSelecionado2?.(opts2[0].label);
+      if (opts2[0].subSelecao) {
+        initSubSelecao("slot2", opts2[0].subSelecao);
+      }
+    }
+
+    // Slot 3
+    const opts3 = eq.equipamentoAlpha3 || [];
+    if (opts3.length > 0 && (!equipamentosClasseSelecionada3 || !opts3.some((o) => o.label === equipamentosClasseSelecionada3))) {
+      setEquipamentoClasseSelecionado3?.(opts3[0].label);
+      if (opts3[0].subSelecao) {
+        initSubSelecao("slot3", opts3[0].subSelecao);
+      }
+    }
+
+    // Slot 4
+    const opts4 = eq.equipamentoAlpha4 || [];
+    if (opts4.length > 0 && (!equipamentosClasseSelecionada4 || !opts4.some((o) => o.label === equipamentosClasseSelecionada4))) {
+      setEquipamentoClasseSelecionado4?.(opts4[0].label);
+      if (opts4[0].subSelecao) {
+        initSubSelecao("slot4", opts4[0].subSelecao);
+      }
+    }
+  }, [classeSelecioanda]);
+
+  const initSubSelecao = (slotKey, filtros) => {
+    if (!setSubSelecaoArmas || !filtros) return;
+    const opcoes = armas.filter((arma) => {
+      if (filtros.tipo && arma.tipo !== filtros.tipo) return false;
+      if (filtros.alcance && arma.alcance !== filtros.alcance) return false;
+      return true;
+    });
+    if (opcoes.length === 0) return;
+
+    const isDuas = (filtros.quantidade || 1) > 1;
+    if (isDuas) {
+      setSubSelecaoArmas((prev) => ({
+        ...(prev || {}),
+        [`${slotKey}_a`]: opcoes[0]?.nome || "",
+        [`${slotKey}_b`]: opcoes[1]?.nome || opcoes[0]?.nome || "",
+      }));
+    } else {
+      setSubSelecaoArmas((prev) => ({
+        ...(prev || {}),
+        [slotKey]: opcoes[0]?.nome || "",
+      }));
+    }
   };
 
+  // Manipulador de seleção de perícias
+  const handleTogglePericia = (pericia) => {
+    if (!setPericiasSelecionadas) return;
+
+    if (periciasClasseSelecionadas.includes(pericia)) {
+      setPericiasSelecionadas(periciasClasseSelecionadas.filter((p) => p !== pericia));
+    } else {
+      const limite = classeSelecioanda?.proficiencias?.perficiasMinimo || 2;
+      if (periciasClasseSelecionadas.length < limite) {
+        setPericiasSelecionadas([...periciasClasseSelecionadas, pericia]);
+      }
+    }
+  };
+
+  const equipSlots = [
+    {
+      slotKey: "slot1",
+      label: "Escolha de Equipamento 1",
+      value: equipamentosClasseSelecionada1,
+      setter: setEquipamentoClasseSelecionado1,
+      options: classeSelecioanda?.equipamentos?.equipamentoAlpha1 || [],
+    },
+    {
+      slotKey: "slot2",
+      label: "Escolha de Equipamento 2",
+      value: equipamentosClasseSelecionada2,
+      setter: setEquipamentoClasseSelecionado2,
+      options: classeSelecioanda?.equipamentos?.equipamentoAlpha2 || [],
+    },
+    {
+      slotKey: "slot3",
+      label: "Escolha de Equipamento 3",
+      value: equipamentosClasseSelecionada3,
+      setter: setEquipamentoClasseSelecionado3,
+      options: classeSelecioanda?.equipamentos?.equipamentoAlpha3 || [],
+    },
+    {
+      slotKey: "slot4",
+      label: "Escolha de Equipamento 4",
+      value: equipamentosClasseSelecionada4,
+      setter: setEquipamentoClasseSelecionado4,
+      options: classeSelecioanda?.equipamentos?.equipamentoAlpha4 || [],
+    },
+  ].filter((slot) => slot.options.length > 0);
+
+  const obrigatItems = classeSelecioanda?.equipamentos?.equipamentoObgt || [];
+
   return (
-    <LayoutFicha title="Selecione sua Classe">
-      <Stack spacing={3}>
-        <FormControl fullWidth>
-          <InputLabel sx={{ fontFamily: "Cinzel" }}>Classe</InputLabel>
-          <Select
-            value={classe}
-            onChange={(e) => setClasse(e.target.value)}
-            label="Classe"
-            sx={{
-              fontWeight: 700,
-              color: "#2c1a10",
-              "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(92, 64, 51, 0.3)" },
-              "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#833c0b" },
-            }}
+    <div className={styles.pageWrapper}>
+      {/* Imagem de Fundo Dinâmica da Classe com Vinheta */}
+      <div
+        className={styles.dynamicBackground}
+        style={{ backgroundImage: `url(${currentClass.bgImage})` }}
+      >
+        <div className={styles.bgVignetteOverlay} />
+      </div>
+
+      {/* Cartão de Pergaminho Central */}
+      <div className={styles.parchmentContainer}>
+        <header className={styles.headerTitle}>
+          <h2>SELECIONE SUA CLASSE</h2>
+          <div className={styles.headerDivider} />
+        </header>
+
+        {/* Input de Seleção Blindado */}
+        <div className={styles.selectContainer}>
+          <label className={styles.selectLabel} htmlFor="class-select">
+            Classe Heroica
+          </label>
+          <div className={styles.selectBox}>
+            <select
+              id="class-select"
+              className={styles.styledSelect}
+              value={currentClass.id}
+              onChange={(e) => handleSelectClass(e.target.value)}
+            >
+              {Object.values(CLASSES_DATA).map((cls) => (
+                <option key={cls.id} value={cls.id}>
+                  {cls.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Resumo do Topo com Imagem e Estatísticas Rápidas */}
+        <motion.div
+          key={`class-hero-${currentClass.id}`}
+          className={styles.classHeroBanner}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+        >
+          <div className={styles.portraitWrapper}>
+            <img
+              src={currentClass.portrait}
+              alt={currentClass.name}
+              className={styles.classPortrait}
+            />
+            <div className={styles.portraitOverlay} />
+          </div>
+
+          <div className={styles.heroSummary}>
+            <div className={styles.heroNameRow}>
+              <h3>{currentClass.name}</h3>
+              <span className={styles.hitDieBadge}>{currentClass.quickStats.hitDie}</span>
+            </div>
+
+            <p className={styles.heroQuote}>"{currentClass.quote}"</p>
+
+            {/* Pílulas de Estatísticas Rápidas com Ícones Profissionais */}
+            <div className={styles.pillsGrid}>
+              <div className={styles.statPill}>
+                <span className={styles.pillIcon} title="Dado de Vida">
+                  <CasinoOutlinedIcon />
+                </span>
+                <div>
+                  <small>Dado de Vida</small>
+                  <strong>{currentClass.quickStats.hitDie.split(" ")[0]}</strong>
+                </div>
+              </div>
+
+              <div className={styles.statPill}>
+                <span className={styles.pillIcon} title="Atributo Primário">
+                  <FitnessCenterIcon />
+                </span>
+                <div>
+                  <small>Atributo Primário</small>
+                  <strong>{currentClass.quickStats.primaryStat}</strong>
+                </div>
+              </div>
+
+              <div className={styles.statPill}>
+                <span className={styles.pillIcon} title="Salvaguardas">
+                  <ShieldOutlinedIcon />
+                </span>
+                <div>
+                  <small>Salvaguardas</small>
+                  <strong>{currentClass.quickStats.savingThrows}</strong>
+                </div>
+              </div>
+
+              <div className={styles.statPill}>
+                <span className={styles.pillIcon} title="Magia">
+                  <AutoFixHighIcon />
+                </span>
+                <div>
+                  <small>Magia</small>
+                  <strong>{currentClass.quickStats.spellcasting}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Navegação por Abas com Ícones Profissionais */}
+        <nav className={styles.tabsNav}>
+          <button
+            type="button"
+            className={`${styles.tabBtn} ${activeTab === "habilidades" ? styles.tabActive : ""}`}
+            onClick={() => setActiveTab("habilidades")}
           >
-            <MenuItem value="">
-              <em>Selecione uma classe</em>
-            </MenuItem>
-            {classesOptions.map((opcao) => (
-              <MenuItem key={opcao} value={opcao}>
-                {opcao}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        {/* Itens da Classe (Inventário Inicial) */}
-        <Paper elevation={0} sx={{ ...dndBoxStyle, maxHeight: 220, overflow: "auto" }}>
-          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 800, color: "#58180D", fontFamily: "Cinzel" }}>
-            Equipamento Inicial & Características:
-          </Typography>
-          <List dense disablePadding>
-            {itensDaClasse?.map((item, i) => (
-              <ListItem key={i} sx={{ py: 0.5, px: 0, alignItems: "flex-start" }}>
-                <ListItemIcon sx={{ minWidth: 24, mt: 0.8 }}>
-                  <CircleIcon sx={{ fontSize: 6, color: "#833c0b" }} />
-                </ListItemIcon>
-                <ListItemText 
-                  primary={item} 
-                  primaryTypographyProps={{ variant: "body2", style: { color: "#3d2b1f" } }} 
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Paper>
-
-        {/* Botão e Painel de Habilidades */}
-        <Box>
-          <Button 
-            variant="outlined" 
-            onClick={handleTogglePainelHabilidades}
-            fullWidth
-            sx={{
-              borderColor: "#833c0b",
-              color: "#58180D",
-              fontWeight: 700,
-              fontFamily: "Cinzel",
-              "&:hover": { bgcolor: "rgba(131, 60, 11, 0.08)", borderColor: "#58180D" }
-            }}
+            <AutoStoriesOutlinedIcon className={styles.tabIcon} />
+            <span>Progressão de Nível</span>
+          </button>
+          <button
+            type="button"
+            className={`${styles.tabBtn} ${activeTab === "proficiencias" ? styles.tabActive : ""}`}
+            onClick={() => setActiveTab("proficiencias")}
           >
-            {exibirPainelHabilidades ? "Fechar Grimório de Habilidades" : "Ler Habilidades da Classe"}
-          </Button>
+            <ShieldOutlinedIcon className={styles.tabIcon} />
+            <span>Armaduras & Perícias</span>
+          </button>
+          <button
+            type="button"
+            className={`${styles.tabBtn} ${activeTab === "equipamento" ? styles.tabActive : ""}`}
+            onClick={() => setActiveTab("equipamento")}
+          >
+            <BackpackOutlinedIcon className={styles.tabIcon} />
+            <span>Equipamento Inicial</span>
+          </button>
+        </nav>
 
-          <Collapse in={exibirPainelHabilidades} sx={{ mt: 2 }}>
-            <Paper sx={{ ...dndBoxStyle, bgcolor: "#fffbf0" }}>
-              <Typography variant="h6" sx={{ fontFamily: "Cinzel", color: "#833c0b", mb: 1 }}>
-                Habilidades de Nível 1
-              </Typography>
-              <Divider sx={{ my: 1, borderColor: "rgba(92, 64, 51, 0.2)" }} />
-              <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", color: "#2c1a10", mb: 2 }}>
-                {classeSelecioanda?.habilidadesClasse?.habilidadeNv1}
-              </Typography>
-              {classeSelecioanda?.habilidadesClasse?.habilidadeNv2 && (
-                <>
-                  <Divider sx={{ my: 1, borderColor: "rgba(92, 64, 51, 0.2)" }} />
-                  <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", color: "#2c1a10" }}>
-                    {classeSelecioanda?.habilidadesClasse?.habilidadeNv2}
-                  </Typography>
-                </>
-              )}
-            </Paper>
-          </Collapse>
-        </Box>
+        {/* Painel de Conteúdo */}
+        <div className={styles.tabContentPanel}>
+          <AnimatePresence mode="wait">
+            {activeTab === "habilidades" && (
+              <motion.div
+                key="class-features"
+                className={styles.featuresTimeline}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 8 }}
+                transition={{ duration: 0.18 }}
+              >
+                <div className={styles.timelineHeaderHint}>
+                  <small>Clique em qualquer poder para inspecionar os efeitos completos.</small>
+                </div>
 
-        {/* Proficiências */}
-        <Paper elevation={0} sx={dndBoxStyle}>
-          <Typography variant="subtitle1" sx={{ fontFamily: "Cinzel", fontWeight: 700, color: "#58180D" }}>
-            Proficiências
-          </Typography>
-          <Box sx={{ mt: 1.5, display: "grid", gap: 1 }}>
-            {[
-              { label: "Armaduras", val: classeSelecioanda?.proficiencias?.armaduras },
-              { label: "Armas", val: classeSelecioanda?.proficiencias?.armas },
-              { label: "Ferramentas", val: classeSelecioanda?.proficiencias?.ferramentas },
-              { label: "Testes de Resistência", val: classeSelecioanda?.proficiencias?.testesDeResistecia },
-            ].map((p, idx) => (
-               <Typography key={idx} variant="body2" sx={{ color: "#3d2b1f" }}>
-                 <Box component="span" sx={{ fontWeight: 700, color: "#833c0b" }}>{p.label}:</Box> {p.val}
-               </Typography>
-            ))}
-          </Box>
+                {currentClass.features.map((feat, index) => (
+                  <div key={index} className={styles.featureRowCard}>
+                    <div className={styles.levelTag}>Nv. {feat.level}</div>
+                    <div className={styles.featureRowInfo}>
+                      <div className={styles.featureRowTitle}>
+                        <h4>{feat.name}</h4>
+                        <span className={styles.featureActionType}>{feat.actionType}</span>
+                      </div>
+                      <p>{feat.summary}</p>
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.btnInspect}
+                      onClick={() => setActiveModalFeature(feat)}
+                    >
+                      <span>Ler Detalhes</span>
+                      <VisibilityIcon className={styles.inspectIcon} />
+                    </button>
+                  </div>
+                ))}
+              </motion.div>
+            )}
 
-          <Divider sx={{ my: 2, borderColor: "rgba(92, 64, 51, 0.2)" }} />
+            {activeTab === "proficiencias" && (
+              <motion.div
+                key="class-profs"
+                className={styles.profsContainer}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 8 }}
+                transition={{ duration: 0.18 }}
+              >
+                <div className={styles.profRow}>
+                  <strong>Armaduras:</strong>
+                  <p>{currentClass.proficiencies.armors}</p>
+                </div>
+                <div className={styles.profRow}>
+                  <strong>Armas:</strong>
+                  <p>{currentClass.proficiencies.weapons}</p>
+                </div>
+                <div className={styles.profRow}>
+                  <strong>Salvaguardas:</strong>
+                  <p>{currentClass.proficiencies.savingThrows}</p>
+                </div>
+                <div className={styles.profRow}>
+                  <strong>Opções de Perícias:</strong>
+                  <p>{currentClass.proficiencies.skills}</p>
+                </div>
 
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#2c1a10" }}>
-            Perícias — Escolha {classeSelecioanda?.proficiencias?.perficiasMinimo}
-          </Typography>
-          <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0.5, mt: 1 }}>
-            {classeSelecioanda?.proficiencias?.periciasSelecao?.map((pericia) => (
-              <FormControlLabel
-                key={pericia}
-                control={
-                  <Checkbox
-                    size="small"
-                    value={pericia}
-                    checked={periciasClasseSelecionadas.includes(pericia)}
-                    onChange={handleCheckboxChange}
-                    sx={{
-                      color: "rgba(92, 64, 51, 0.5)",
-                      "&.Mui-checked": { color: "#833c0b" },
-                    }}
-                    disabled={
-                      periciasClasseSelecionadas.length ===
-                        classeSelecioanda?.proficiencias?.perficiasMinimo &&
-                      !periciasClasseSelecionadas.includes(pericia)
-                    }
-                  />
-                }
-                label={<Typography variant="body2" sx={{ color: "#3d2b1f" }}>{pericia}</Typography>}
-              />
-            ))}
-          </Box>
-        </Paper>
+                {/* Seleção Interativa de Perícias da Classe se disponível */}
+                {classeSelecioanda?.proficiencias?.periciasSelecao &&
+                  Array.isArray(classeSelecioanda.proficiencias.periciasSelecao) && (
+                    <div className={styles.skillsSection}>
+                      <span className={styles.skillsTitle}>
+                        Selecione as Perícias do Personagem (Escolha{" "}
+                        {classeSelecioanda?.proficiencias?.perficiasMinimo || 2}):
+                      </span>
+                      <div className={styles.skillsGrid}>
+                        {classeSelecioanda.proficiencias.periciasSelecao.map((pericia) => (
+                          <label key={pericia} className={styles.skillCheckboxLabel}>
+                            <input
+                              type="checkbox"
+                              checked={periciasClasseSelecionadas.includes(pericia)}
+                              onChange={() => handleTogglePericia(pericia)}
+                              disabled={
+                                periciasClasseSelecionadas.length >=
+                                  (classeSelecioanda?.proficiencias?.perficiasMinimo || 2) &&
+                                !periciasClasseSelecionadas.includes(pericia)
+                              }
+                            />
+                            <span>{pericia}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+              </motion.div>
+            )}
 
-        {/* Equipamentos */}
-        <Paper elevation={0} sx={dndBoxStyle}>
-          <Typography variant="subtitle1" sx={{ fontFamily: "Cinzel", fontWeight: 700, color: "#58180D", mb: 1 }}>
-            Equipamentos
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 2, color: "#3d2b1f", fontStyle: "italic" }}>
-            <Box component="span" sx={{ fontWeight: 700 }}>Obrigatório:</Box> {classeSelecioanda?.equipamentos?.equipamentoObgt}
-          </Typography>
+            {activeTab === "equipamento" && (
+              <motion.div
+                key="class-equip"
+                className={styles.equipContainer}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 8 }}
+                transition={{ duration: 0.18 }}
+              >
+                {/* Equipamento Obrigatório da Classe */}
+                {obrigatItems.length > 0 && (
+                  <div className={styles.equipObgtBox}>
+                    <span className={styles.equipObgtHeader}>
+                      <Inventory2OutlinedIcon sx={{ fontSize: "1rem", color: "#58180d" }} />
+                      <span>Equipamento Obrigatório Concedido:</span>
+                    </span>
+                    <div className={styles.equipObgtList}>
+                      {obrigatItems.map((obgt, idx) => (
+                        <span key={idx} className={styles.equipObgtBadge}>
+                          {obgt}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-          <Stack spacing={2}>
-            {[
-              { val: equipamentosClasseSelecionada1, set: setEquipamentoClasseSelecionado1, opts: classeSelecioanda?.equipamentos?.equipamentoAlpha1, label: "Opção 1", slotKey: "slot1" },
-              { val: equipamentosClasseSelecionada2, set: setEquipamentoClasseSelecionado2, opts: classeSelecioanda?.equipamentos?.equipamentoAlpha2, label: "Opção 2", slotKey: "slot2" },
-              { val: equipamentosClasseSelecionada3, set: setEquipamentoClasseSelecionado3, opts: classeSelecioanda?.equipamentos?.equipamentoAlpha3, label: "Opção 3", slotKey: "slot3" },
-              { val: equipamentosClasseSelecionada4, set: setEquipamentoClasseSelecionado4, opts: classeSelecioanda?.equipamentos?.equipamentoAlpha4, label: "Opção 4", slotKey: "slot4" },
-            ].map((field, idx) => (
-              renderEquipSelect(field.label, field.val, field.set, field.opts, field.slotKey)
-            ))}
-          </Stack>
-        </Paper>
-      </Stack>
-    </LayoutFicha>
+                {/* Opções Selecionáveis de Equipamento */}
+                <div className={styles.equipChoicesContainer}>
+                  {equipSlots.map((slot) => {
+                    const selectedOpt = slot.options.find((o) => o.label === slot.value) || slot.options[0];
+
+                    return (
+                      <div key={slot.slotKey} className={styles.equipSlotCard}>
+                        <label className={styles.equipSlotLabel}>{slot.label}</label>
+                        <select
+                          className={styles.styledSelectSmall}
+                          value={slot.value || (slot.options[0]?.label || "")}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            slot.setter?.(val);
+                            const opt = slot.options.find((o) => o.label === val);
+                            if (opt?.subSelecao) {
+                              initSubSelecao(slot.slotKey, opt.subSelecao);
+                            } else if (setSubSelecaoArmas) {
+                              setSubSelecaoArmas((prev) => {
+                                const next = { ...(prev || {}) };
+                                delete next[slot.slotKey];
+                                delete next[`${slot.slotKey}_a`];
+                                delete next[`${slot.slotKey}_b`];
+                                return next;
+                              });
+                            }
+                          }}
+                        >
+                          {slot.options.map((opt, i) => (
+                            <option key={i} value={opt.label}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+
+                        {/* Seletor Específico de Armas / Sub-seleção */}
+                        {selectedOpt?.subSelecao && (
+                          <WeaponSubSelector
+                            filtros={selectedOpt.subSelecao}
+                            slotKey={slot.slotKey}
+                            subSelecaoArmas={subSelecaoArmas}
+                            setSubSelecaoArmas={setSubSelecaoArmas}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      {/* Modal Interativo de Detalhes da Habilidade */}
+      <AnimatePresence>
+        {activeModalFeature && (
+          <HabilidadeDetalheModal
+            feature={activeModalFeature}
+            className={currentClass.name}
+            onClose={() => setActiveModalFeature(null)}
+          />
+        )}
+      </AnimatePresence>
+    </div>
   );
-};
-
-export default Etapa4;
+}

@@ -90,6 +90,18 @@ export default function Etapa3({
 
   // Garante sincronização se o usuário trocou de raça na Etapa 2 e entrou na Etapa 3
   useEffect(() => {
+    if (subRacaProp) {
+      const match = availableSubraces.find(
+        (sub) =>
+          sub.id === subRacaProp ||
+          normalizeStr(sub.name) === normalizeStr(subRacaProp)
+      );
+      if (match && match.id !== selectedSubId) {
+        setSelectedSubId(match.id);
+        return;
+      }
+    }
+
     const isCurrentValid = availableSubraces.some(
       (sub) => sub.id === selectedSubId
     );
@@ -99,7 +111,7 @@ export default function Etapa3({
     } else if ((updateCharacterData || handleSubRacaChange || setSubRaca) && !subRacaProp) {
       handleSelectSubrace(validInitialSubrace.id);
     }
-  }, [currentRaceNameOrId]);
+  }, [currentRaceNameOrId, subRacaProp]);
 
   return (
     <div className={styles.container}>

@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import firebase from "firebase/compat/app";
 import "firebase/database";
+import { gerarInventarioInicial } from "utils/gerarInventarioInicial";
 import { Link, useParams } from "react-router-dom";
 import {
   Avatar,
@@ -403,12 +404,25 @@ const FichaDetalhes = () => {
     );
   }
 
+  // 🔹 Resolução robusta de sub-raça (compatível com todos os formatos de criação)
+  const subRacaSelecionada =
+    ficha.subraca ||
+    ficha.subRaca ||
+    ficha.DetalhesDaRaça?.SubRaca ||
+    ficha.DetalhesDaRaça?.subRaca ||
+    ficha.DetalhesDaRaça?.SubRacasInfo?.SubRaca ||
+    ficha.DetalhesDaRaça?.SubRacasInfo?.subRaca ||
+    ficha.DetalhesDaRaça?.SubRacasInfo?.SubRacasField?.SubRaca ||
+    null;
+
   // 🔹 dados “inatos” / de criação de ficha
   const fichaBase = {
     id: ficha.id,
     nome: ficha.nome,
     classe: ficha.classe,
     raca: ficha.raca,
+    subraca: subRacaSelecionada,
+    subRaca: subRacaSelecionada,
     detalhesRaca: ficha.DetalhesDaRaça,
     detalhesClasse: ficha.DetalhesDaClasse,
     antecedente: ficha.antecedenteDetalhes,
@@ -419,14 +433,24 @@ const FichaDetalhes = () => {
 
   // classe / raça / sub‑raça
   const classeSelecioanda =
-    classes.find((c) => c.nome === fichaBase.classe) || {};
+    classes.find(
+      (c) =>
+        c.nome === fichaBase.classe ||
+        c.nome?.toLowerCase() === String(fichaBase.classe || "").toLowerCase()
+    ) || {};
+
   const racaSelecionada =
-    racas.find((r) => r.nome === fichaBase.raca) || {};
-  const subRacaSelecionada =
-    ficha.DetalhesDaRaça?.SubRaca || null;
+    racas.find(
+      (r) =>
+        r.nome === fichaBase.raca ||
+        r.nome?.toLowerCase() === String(fichaBase.raca || "").toLowerCase()
+    ) || {};
+
   const subRacaDetalhes =
     racaSelecionada.SubRacas?.find(
-      (sr) => sr.subRacaNome === subRacaSelecionada
+      (sr) =>
+        sr.subRacaNome === subRacaSelecionada ||
+        String(sr.subRacaNome || "").toLowerCase() === String(subRacaSelecionada || "").toLowerCase()
     ) || {};
 
   const subClasseSelecionada =
@@ -558,7 +582,44 @@ const FichaDetalhes = () => {
     };
   }
 
-  const caDetalhes = ficha.caDetalhes || null;
+  // 🔹 Resolução do Inventário (com fallback para Fichas criadas anteriormente)
+  const inventoryResolvido = useMemo(() => {
+    const inv = ficha.inventory;
+    const temItensBackpack = inv?.backpack && Object.keys(inv.backpack).length > 0;
+    const temItensEquipped = inv?.equipped && Object.keys(inv.equipped).length > 0;
+
+    if (temItensBackpack || temItensEquipped) {
+      return inv;
+    }
+
+    if (ficha.DetalhesDaClasse?.Equipamentos) {
+      const equipamentos = ficha.DetalhesDaClasse.Equipamentos;
+      const gerado = gerarInventarioInicial(
+        equipamentos,
+        equipamentos.equipamentoObgt
+      );
+      return {
+        backpack: gerado.backpack || {},
+        equipped: gerado.equipped || {},
+      };
+    }
+
+    return inv || {};
+  }, [ficha.inventory, ficha.DetalhesDaClasse]);
+
+  const caDetalhes = useMemo(() => {
+    if (ficha.caDetalhes) return ficha.caDetalhes;
+    if (ficha.DetalhesDaClasse?.Equipamentos) {
+      const equipamentos = ficha.DetalhesDaClasse.Equipamentos;
+      const gerado = gerarInventarioInicial(
+        equipamentos,
+        equipamentos.equipamentoObgt
+      );
+      if (gerado.caDetalhes) return gerado.caDetalhes;
+    }
+    return null;
+  }, [ficha.caDetalhes, ficha.DetalhesDaClasse]);
+
   const caTotal =
     typeof ficha.ca === "number"
       ? ficha.ca
@@ -568,7 +629,7 @@ const FichaDetalhes = () => {
     level: levelAtual,
     xp: ficha.xp ?? ficha.XP ?? 0,
     riquezaMoedas,
-    inventory: ficha.inventory || {},
+    inventory: inventoryResolvido,
     ca: caTotal,
     caDetalhes,
     hp: hpEstado,

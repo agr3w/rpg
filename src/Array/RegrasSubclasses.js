@@ -117,7 +117,14 @@ export function checarPendenciasSubraca(ficha) {
     (r) => r.toLowerCase() === raca.toLowerCase()
   );
   const opcoesDisponiveis = matchingRace ? SUBRACAS_POR_RACA[matchingRace] : [];
-  const subracaAtual = ficha.subraca || ficha.subRaca || ficha.DetalhesDaRaça?.SubRaca || "";
+  const subracaAtual =
+    ficha.subraca ||
+    ficha.subRaca ||
+    ficha.DetalhesDaRaça?.SubRaca ||
+    ficha.DetalhesDaRaça?.subRaca ||
+    ficha.DetalhesDaRaça?.SubRacasInfo?.SubRaca ||
+    ficha.DetalhesDaRaça?.SubRacasInfo?.subRaca ||
+    "";
   const possuiSubraca = Boolean(subracaAtual && String(subracaAtual).trim() !== "");
 
   return {

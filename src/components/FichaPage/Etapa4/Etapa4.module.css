@@ -1,0 +1,708 @@
+/* ==========================================================================
+   ETAPA 4: SELEÇÃO DE CLASSE COM IMAGEM DE FUNDO E TIMELINE
+   ========================================================================== */
+
+.pageWrapper {
+  position: relative;
+  width: 100%;
+  min-height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 1rem 0 3rem 0;
+}
+
+/* Card Principal em Pergaminho */
+.parchmentContainer {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 680px;
+  background-color: #fdf6e3;
+  background-image: radial-gradient(circle at center, #fffbf0 0%, #f3eacb 100%);
+  border: 2px solid #c9ad6a;
+  outline: 6px solid #3b2014;
+  border-radius: 8px;
+  padding: 2.2rem 2.5rem;
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.6),
+    inset 0 0 60px rgba(139, 69, 19, 0.15);
+  color: #2b1d14;
+  box-sizing: border-box;
+}
+
+.headerTitle {
+  text-align: center;
+  margin-bottom: 1.4rem;
+}
+
+.headerTitle h2 {
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 1.8rem;
+  color: #58180d;
+  margin: 0 0 0.4rem 0;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.headerDivider {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #8c6a46 50%, transparent);
+  width: 80%;
+  margin: 0 auto;
+}
+
+/* Seletor */
+.selectContainer {
+  margin-bottom: 1.4rem;
+}
+
+.selectLabel {
+  display: block;
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #5c412b;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+}
+
+.selectBox {
+  position: relative;
+}
+
+.styledSelect {
+  width: 100%;
+  background: #fdfbf7;
+  border: 2px solid #8c6a46;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #26160c;
+  cursor: pointer;
+  box-shadow: inset 0 1px 3px rgba(60, 40, 20, 0.12);
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%235C412B%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 10px;
+  box-sizing: border-box;
+}
+
+.styledSelect:focus {
+  outline: none;
+  border-color: #9e2a2b;
+  box-shadow: 0 0 0 3px rgba(158, 42, 43, 0.18);
+}
+
+/* Hero Banner */
+.classHeroBanner {
+  background: #fbf6e8;
+  border: 1px solid #9e8264;
+  border-radius: 8px;
+  padding: 1.1rem;
+  display: flex;
+  gap: 1.2rem;
+  align-items: center;
+  margin-bottom: 1.4rem;
+  box-shadow: 
+    0 8px 20px rgba(50, 30, 10, 0.1),
+    inset 0 0 25px rgba(180, 150, 100, 0.15);
+}
+
+.portraitWrapper {
+  width: 105px;
+  height: 120px;
+  border-radius: 6px;
+  border: 2px solid #8c6a46;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.classPortrait {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.portraitOverlay {
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+.heroSummary {
+  flex: 1;
+}
+
+.heroNameRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.2rem;
+}
+
+.heroNameRow h3 {
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 1.35rem;
+  margin: 0;
+  color: #211107;
+}
+
+.hitDieBadge {
+  font-size: 0.72rem;
+  background: #ecdcc3;
+  color: #5c3e26;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  border: 1px solid #ad8f70;
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+}
+
+.heroQuote {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 0.82rem;
+  color: #6a4f38;
+  margin: 0 0 0.75rem 0;
+  line-height: 1.35;
+}
+
+.pillsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.statPill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(140, 105, 70, 0.08);
+  border: 1px solid #d4c0a5;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+.pillIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #9e2a2b;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.pillIcon svg {
+  font-size: 1.15rem;
+}
+
+.statPill small {
+  display: block;
+  font-size: 0.65rem;
+  color: #7d6550;
+  text-transform: uppercase;
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+}
+
+.statPill strong {
+  display: block;
+  font-size: 0.76rem;
+  color: #24130a;
+}
+
+/* Abas */
+.tabsNav {
+  display: flex;
+  border-bottom: 2px solid #9e8264;
+  margin-bottom: 1rem;
+}
+
+.tabBtn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 0.65rem 0.5rem;
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #6a503a;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.tabBtn:hover {
+  color: #26160c;
+}
+
+.tabActive {
+  color: #9e2a2b !important;
+  border-bottom-color: #9e2a2b !important;
+}
+
+.tabIcon {
+  font-size: 1.05rem !important;
+  vertical-align: middle;
+}
+
+/* Painel de Conteúdo */
+.tabContentPanel {
+  background: #fdfbf7;
+  border: 1px solid #9e8264;
+  border-radius: 6px;
+  padding: 1.2rem;
+  min-height: 220px;
+  box-shadow: inset 0 0 15px rgba(60, 40, 20, 0.06);
+}
+
+/* Timeline das Habilidades */
+.featuresTimeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.timelineHeaderHint {
+  margin-bottom: 0.3rem;
+  color: #7d6550;
+  font-style: italic;
+}
+
+.featureRowCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fbf6ea;
+  border: 1px solid #d4c0a5;
+  border-radius: 6px;
+  padding: 8px 12px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.featureRowCard:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(60, 40, 20, 0.08);
+}
+
+.levelTag {
+  background: #382416;
+  color: #f7edd8;
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.featureRowInfo {
+  flex: 1;
+}
+
+.featureRowTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.featureRowTitle h4 {
+  margin: 0;
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 0.95rem;
+  color: #9e2a2b;
+}
+
+.featureActionType {
+  font-size: 0.7rem;
+  background: #e9dbc3;
+  color: #553e2a;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.featureRowInfo p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #4a3424;
+  line-height: 1.35;
+}
+
+.btnInspect {
+  background: #ede2cc;
+  border: 1px solid #9e805d;
+  color: #382416;
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.btnInspect:hover {
+  background: #9e2a2b;
+  color: #fff;
+  border-color: #7a1d14;
+}
+
+.inspectIcon {
+  font-size: 0.95rem !important;
+}
+
+/* Proficiências & Equipamento */
+.profsContainer, .equipContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.profRow {
+  background: rgba(140, 105, 70, 0.06);
+  border: 1px solid #d4c0a5;
+  border-radius: 4px;
+  padding: 0.6rem 0.8rem;
+}
+
+.profRow strong {
+  display: block;
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 0.76rem;
+  color: #9e2a2b;
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+}
+
+.profRow p {
+  margin: 0;
+  font-size: 0.84rem;
+  color: #3b2516;
+}
+
+.equipText {
+  background: #fbf6ea;
+  border: 1px solid #d4c0a5;
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: inherit;
+  font-size: 0.86rem;
+  color: #3b2516;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Seção de Seleção de Perícias Interativa */
+.skillsSection {
+  margin-top: 0.5rem;
+  padding-top: 0.8rem;
+  border-top: 1px dashed #d1beaa;
+}
+
+.skillsTitle {
+  display: block;
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #58180d;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.skillsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.skillCheckboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: #3b2516;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid #e0d0b8;
+  transition: background 0.15s ease;
+}
+
+.skillCheckboxLabel:hover {
+  background: rgba(240, 225, 200, 0.7);
+}
+
+.skillCheckboxLabel input {
+  accent-color: #9e2a2b;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .parchmentContainer {
+    padding: 1.4rem 1.1rem;
+  }
+  .classHeroBanner {
+    flex-direction: column;
+    text-align: center;
+  }
+  .heroNameRow {
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+  }
+  .pillsGrid {
+    grid-template-columns: 1fr;
+  }
+  .featureRowCard {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .btnInspect {
+    align-self: flex-end;
+  }
+  .skillsGrid {
+    grid-template-columns: 1fr;
+  }
+  .weaponSubGridTwo {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Seção de Equipamento Interativo */
+.equipChoicesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.equipObgtBox {
+  background: linear-gradient(135deg, #fdf8ee 0%, #f6edd7 100%);
+  border: 1.5px solid #c9ad6a;
+  border-radius: 8px;
+  padding: 0.9rem 1.1rem;
+  box-shadow: 
+    0 2px 8px rgba(160, 120, 40, 0.08),
+    inset 0 0 16px rgba(220, 185, 110, 0.15);
+}
+
+.equipObgtHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 0.84rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #58180d;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+
+.equipObgtList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.equipObgtBadge {
+  font-size: 0.78rem;
+  background: #ede0cb;
+  color: #3d2412;
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1px solid #b89772;
+  font-weight: 700;
+  font-family: inherit;
+  box-shadow: 0 1px 3px rgba(60, 40, 20, 0.06);
+}
+
+.equipSlotCard {
+  background: linear-gradient(135deg, #fcf8ee 0%, #f6edd9 100%);
+  border: 1.5px solid #c9ad6a;
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  box-shadow: 
+    0 2px 8px rgba(60, 40, 20, 0.06),
+    inset 0 0 16px rgba(212, 192, 165, 0.2);
+  transition: all 0.2s ease;
+}
+
+.equipSlotCard:hover {
+  border-color: #a88448;
+  box-shadow: 
+    0 4px 12px rgba(60, 40, 20, 0.1),
+    inset 0 0 20px rgba(212, 192, 165, 0.25);
+}
+
+.equipSlotHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.55rem;
+}
+
+.equipSlotLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #7a1d1e;
+  text-transform: uppercase;
+}
+
+.equipSlotBadge {
+  font-size: 0.68rem;
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: #8c6a46;
+  background: rgba(140, 106, 70, 0.1);
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(140, 106, 70, 0.25);
+  text-transform: uppercase;
+}
+
+.selectSmallWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.styledSelectSmall {
+  width: 100%;
+  background: #fffdf9;
+  border: 1.5px solid #8c6a46;
+  border-radius: 6px;
+  padding: 0.65rem 2.4rem 0.65rem 0.95rem;
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #26160c;
+  cursor: pointer;
+  box-shadow: inset 0 1px 3px rgba(60, 40, 20, 0.08);
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%238C6A46%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 11px;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.styledSelectSmall:hover {
+  background-color: #ffffff;
+  border-color: #5c412b;
+  box-shadow: 0 0 6px rgba(140, 106, 70, 0.2);
+}
+
+.styledSelectSmall:focus {
+  outline: none;
+  background-color: #ffffff;
+  border-color: #9e2a2b;
+  box-shadow: 
+    0 0 0 3px rgba(158, 42, 43, 0.16),
+    inset 0 1px 3px rgba(60, 40, 20, 0.06);
+}
+
+.weaponSubBox {
+  margin-top: 0.85rem;
+  padding: 0.9rem 1.1rem;
+  background: linear-gradient(135deg, rgba(140, 105, 70, 0.09) 0%, rgba(158, 42, 43, 0.05) 100%);
+  border: 1px solid rgba(140, 105, 70, 0.3);
+  border-left: 4px solid #9e2a2b;
+  border-radius: 0 8px 8px 0;
+  box-shadow: inset 0 1px 4px rgba(60, 40, 20, 0.04);
+}
+
+.weaponSubTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: #5c412b;
+  text-transform: uppercase;
+  margin-bottom: 0.65rem;
+}
+
+.weaponSubGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.weaponSubGridTwo {
+  grid-template-columns: 1fr 1fr;
+}
+
+.weaponSubItem small {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #7d6550;
+  margin-bottom: 0.3rem;
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+  text-transform: uppercase;
+}
+
+.equipSummaryCard {
+  margin-top: 1.3rem;
+  background: linear-gradient(135deg, #fcf8ee 0%, #f6edd9 100%);
+  border: 1.5px solid #d4c0a5;
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  box-shadow: inset 0 1px 4px rgba(60, 40, 20, 0.04);
+}
+
+.equipSummaryHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #5c412b;
+  text-transform: uppercase;
+  margin-bottom: 0.55rem;
+  border-bottom: 1px solid rgba(140, 106, 70, 0.2);
+  padding-bottom: 0.4rem;
+}
+
+.equipText {
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #3d291a;
+  line-height: 1.7;
+  white-space: pre-line;
+  margin: 0;
+}
+
