@@ -772,10 +772,25 @@ const FichaCriar = () => {
             )}
             {etapa === 3 && (
               <Etapa3
+                characterData={{
+                  raca,
+                  racaId,
+                  subRaca: SubRaca,
+                }}
+                updateCharacterData={({ subRaca }) => {
+                  setSubRaca(subRaca);
+                  if (racaSelecionada?.SubRacas) {
+                    const found =
+                      racaSelecionada.SubRacas.find((sr) => sr.subRacaNome === subRaca) || null;
+                    setDetalhesSubRaca(found);
+                  }
+                }}
                 raca={raca}
+                racaId={racaId}
                 racaSelecionada={racaSelecionada}
                 SubRacasOptions={SubRacasOptions}
                 SubRaca={SubRaca}
+                setSubRaca={setSubRaca}
                 detalhesSubRaca={detalhesSubRaca}
                 idiomaOption={idiomaOption}
                 setIdiomaAltoElfoSelecioando={setIdiomaAltoElfoSelecioando}

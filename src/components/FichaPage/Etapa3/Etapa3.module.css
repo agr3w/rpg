@@ -1,0 +1,419 @@
+/* ==========================================================================
+   ETAPA 3: SELEÇÃO DE SUB-RAÇA (BANNER, PÍLULAS E ABAS EM PERGAMINHO)
+   ========================================================================== */
+
+.container {
+  width: 100%;
+  max-width: 680px;
+  margin: 1.5rem auto 3rem auto;
+  color: #2b1d14;
+  font-family: inherit;
+  background-color: #fdf6e3;
+  background-image: radial-gradient(circle at center, #fffbf0 0%, #f3eacb 100%);
+  border: 2px solid #c9ad6a;
+  outline: 6px solid #3b2014;
+  border-radius: 8px;
+  padding: 2.2rem 2.5rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 60px rgba(139, 69, 19, 0.15);
+  box-sizing: border-box;
+  position: relative;
+}
+
+.headerTitle {
+  text-align: center;
+  margin-bottom: 1.4rem;
+}
+
+.headerTitle h2 {
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 1.8rem;
+  color: #58180d;
+  margin: 0 0 0.3rem 0;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.parentRaceNotice {
+  margin: 0 0 0.6rem 0;
+  font-size: 0.85rem;
+  color: #6a4f38;
+}
+
+.parentRaceNotice strong {
+  color: #9e2a2b;
+}
+
+.headerDivider {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #8c6a46 50%, transparent);
+  width: 80%;
+  margin: 0 auto;
+}
+
+/* ================== INPUT DE SELEÇÃO SEGURO ================== */
+.selectContainer {
+  margin-bottom: 1.4rem;
+}
+
+.selectLabel {
+  display: block;
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #5c412b;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+}
+
+.selectBox {
+  position: relative;
+}
+
+.styledSelect {
+  width: 100%;
+  background: #fdfbf7;
+  border: 2px solid #8c6a46;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 1.05rem;
+  font-weight: bold;
+  color: #26160c;
+  cursor: pointer;
+  box-shadow: inset 0 1px 3px rgba(60, 40, 20, 0.12);
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%235C412B%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 10px;
+  box-sizing: border-box;
+}
+
+.styledSelect:focus {
+  outline: none;
+  border-color: #9e2a2b;
+  box-shadow: 0 0 0 3px rgba(158, 42, 43, 0.18);
+}
+
+/* ================== HERO BANNER ================== */
+.subraceHeroBanner {
+  background: #fbf6e8;
+  border: 1px solid #9e8264;
+  border-radius: 8px;
+  padding: 1.2rem;
+  display: flex;
+  gap: 1.2rem;
+  align-items: center;
+  margin-bottom: 1.4rem;
+  box-shadow: 
+    0 8px 20px rgba(50, 30, 10, 0.1),
+    inset 0 0 25px rgba(180, 150, 100, 0.15);
+}
+
+.portraitWrapper {
+  width: 110px;
+  height: 120px;
+  border-radius: 6px;
+  border: 2px solid #8c6a46;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.subracePortrait {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.portraitOverlay {
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+.heroSummary {
+  flex: 1;
+}
+
+.heroNameRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.2rem;
+}
+
+.heroNameRow h3 {
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 1.35rem;
+  margin: 0;
+  color: #211107;
+}
+
+.badgePill {
+  font-size: 0.72rem;
+  background: #ecdcc3;
+  color: #5c3e26;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  border: 1px solid #ad8f70;
+}
+
+.heroQuote {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 0.82rem;
+  color: #6a4f38;
+  margin: 0 0 0.75rem 0;
+  line-height: 1.35;
+}
+
+.pillsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.statPill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(140, 105, 70, 0.08);
+  border: 1px solid #d4c0a5;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+.pillIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #9e2a2b;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.pillIcon svg {
+  font-size: 1.15rem;
+}
+
+.statPill small {
+  display: block;
+  font-size: 0.65rem;
+  color: #7d6550;
+  text-transform: uppercase;
+}
+
+.statPill strong {
+  display: block;
+  font-size: 0.78rem;
+  color: #24130a;
+}
+
+/* ================== ABAS ================== */
+.tabsNav {
+  display: flex;
+  border-bottom: 2px solid #9e8264;
+  margin-bottom: 1rem;
+}
+
+.tabBtn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 0.65rem 0.5rem;
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #6a503a;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.tabBtn:hover {
+  color: #26160c;
+}
+
+.tabActive {
+  color: #9e2a2b !important;
+  border-bottom-color: #9e2a2b !important;
+}
+
+.tabIcon {
+  font-size: 1.05rem !important;
+  vertical-align: middle;
+}
+
+/* ================== PAINEL DE CONTEÚDO ================== */
+.tabContentPanel {
+  background: #fdfbf7;
+  border: 1px solid #9e8264;
+  border-radius: 6px;
+  padding: 1.2rem;
+  min-height: 190px;
+  box-shadow: inset 0 0 15px rgba(60, 40, 20, 0.06);
+}
+
+.traitsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.traitCard {
+  border-bottom: 1px dashed #d1beaa;
+  padding-bottom: 0.55rem;
+}
+
+.traitCard:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.traitCard h4 {
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 0.92rem;
+  color: #9e2a2b;
+  margin: 0 0 0.2rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.traitBullet {
+  color: #c9ad6a;
+  font-size: 0.85rem !important;
+  flex-shrink: 0;
+}
+
+.traitCard p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #4a3424;
+  line-height: 1.5;
+}
+
+.loreContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.loreBlock strong {
+  display: block;
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 0.85rem;
+  color: #3b2214;
+  margin-bottom: 0.25rem;
+}
+
+.loreBlock p {
+  margin: 0;
+  font-size: 0.86rem;
+  color: #553e2d;
+  line-height: 1.55;
+}
+
+.profContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.profRow {
+  background: rgba(140, 105, 70, 0.06);
+  border: 1px solid #d4c0a5;
+  border-radius: 4px;
+  padding: 0.6rem 0.8rem;
+}
+
+.profLabel {
+  display: block;
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #9e2a2b;
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+}
+
+.profRow p {
+  margin: 0;
+  font-size: 0.84rem;
+  color: #3b2516;
+}
+
+/* ================== OPÇÕES EXTRAS CONDICIONAIS ================== */
+.extraOptionsBox {
+  margin-top: 1.4rem;
+  background: rgba(140, 105, 70, 0.07);
+  border: 1px solid #d4c0a5;
+  border-radius: 6px;
+  padding: 0.9rem 1.1rem;
+}
+
+.extraOptionsTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #5c412b;
+  margin-bottom: 0.6rem;
+  text-transform: uppercase;
+}
+
+.styledSelectSmall {
+  width: 100%;
+  background: #fdfbf7;
+  border: 1px solid #8c6a46;
+  border-radius: 4px;
+  padding: 0.55rem 0.8rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: #26160c;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%235C412B%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.8rem center;
+  background-size: 9px;
+  box-sizing: border-box;
+}
+
+.styledSelectSmall:focus {
+  outline: none;
+  border-color: #9e2a2b;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 1.2rem;
+  }
+}
+
+@media (max-width: 580px) {
+  .subraceHeroBanner {
+    flex-direction: column;
+    text-align: center;
+  }
+  .heroNameRow {
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+  }
+  .pillsGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -93,41 +93,18 @@ export const getHumanoCaracteristicasFields = (
 // subRacas
 
 export const getSubRacasField = (SubRaca, IdiomaAltoElfo, detalhesSubRaca) => {
-  if (
-    SubRaca === "Anão da Colina" ||
-    SubRaca === "Anão da Montanha" ||
-    SubRaca === "Elfo Da Floresta" ||
-    SubRaca === "Elfo Negro (DROW)" ||
-    SubRaca === "Alto Elfo" ||
-    SubRaca === "Pés-Leves" ||
-    SubRaca === "Robustos" ||
-    SubRaca === "Azul" ||
-    SubRaca === "Branco" ||
-    SubRaca === "Bronze" ||
-    SubRaca === "Cobre" ||
-    SubRaca === "Latão" ||
-    SubRaca === "Negro" ||
-    SubRaca === "Ouro" ||
-    SubRaca === "Prata" ||
-    SubRaca === "Verde" ||
-    SubRaca === "Vermelho" ||
-    SubRaca === "Gnomo da Floresta" ||
-    SubRaca === "Gnomo das Rochas" ||
-    SubRaca === "Sem SubRaca"
-  ) {
-    return {
-      SubRaca: SubRaca,
-      idiomasSubRaca: IdiomaAltoElfo,
-      atributosSubRaca: detalhesSubRaca.habilidadeBonusSubRaca,
-    };
-  }
-  return {};
+  if (!SubRaca) return {};
+  return {
+    SubRaca: SubRaca,
+    idiomasSubRaca: IdiomaAltoElfo || "",
+    atributosSubRaca: detalhesSubRaca?.habilidadeBonusSubRaca || "",
+  };
 };
 
 export const getSubRacasGnomoField = (SubRaca, Engenhocas) => {
-  if (SubRaca === "Gnomo das Rochas") {
+  if (SubRaca && String(SubRaca).includes("Gnomo das Rochas")) {
     return {
-      Engenhoca: Engenhocas,
+      Engenhoca: Engenhocas || "",
     };
   }
   return {};
