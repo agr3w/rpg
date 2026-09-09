@@ -39,7 +39,7 @@ export function useSessionLogs(uid, campaignId, campaignMode = "legacy", options
   }, [uid, campaignId, campaignMode, limit]);
 
   const createLog = useCallback(
-    async ({ title, summary, tags }) => {
+    async (logData) => {
       if (!uid || !campaignId) {
         throw new Error("Usuário ou campanha inválidos.");
       }
@@ -47,9 +47,7 @@ export function useSessionLogs(uid, campaignId, campaignMode = "legacy", options
         uid,
         campaignId,
         mode: campaignMode,
-        title,
-        summary,
-        tags,
+        ...logData,
       });
     },
     [uid, campaignId, campaignMode]

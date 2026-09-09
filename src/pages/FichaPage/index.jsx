@@ -73,6 +73,7 @@ const FichaCriar = () => {
 
   const [nome, setNome] = useState("");
   const [raca, setRaca] = useState("");
+  const [racaId, setRacaId] = useState("anao");
   const [SubRaca, setSubRaca] = useState("");
   const [classe, setClasse] = useState("");
   const [tendencia, setTendencia] = useState("");
@@ -344,6 +345,7 @@ const FichaCriar = () => {
 
       // RacasParaMandar
       const RacasInfo = {
+        racaId,
         Idiomas: { idiomaRacaSelecionado, idiomaRacaSelecionado2 },
         Atributos: valoresHabilidade,
         SubRacasInfo: { ...SubRacasField, SubRacaGnomoField },
@@ -749,8 +751,15 @@ const FichaCriar = () => {
             {etapa === 1 && <Etapa1 nome={nome} setNome={setNome} />}
             {etapa === 2 && (
               <Etapa2
+                characterData={{ raca, racaId }}
+                updateCharacterData={({ raca: novaRaca, racaId: novoRacaId, subRaca }) => {
+                  setRaca(novaRaca);
+                  if (novoRacaId) setRacaId(novoRacaId);
+                  if (typeof subRaca !== "undefined") setSubRaca(subRaca);
+                }}
                 raca={raca}
                 setRaca={setRaca}
+                setSubRaca={setSubRaca}
                 racasOptions={racasOptions}
                 itensDaRaca={itensDaRaca}
                 racaSelecionada={racaSelecionada}

@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Chip,
   Divider,
   FormControl,
   InputLabel,
@@ -11,6 +12,7 @@ import {
   Paper,
   Box
 } from "@mui/material";
+import ShieldIcon from "@mui/icons-material/Shield";
 import RpgSection from "components/RpgSection";
 
 export default function SessionHeader({
@@ -52,7 +54,7 @@ export default function SessionHeader({
 
       <Stack spacing={2} sx={{ position: "relative", zIndex: 1 }}>
         <Typography variant="overline" sx={{ color: "primary.main", fontWeight: 800, letterSpacing: 1 }}>
-          Crônica da Sessão
+          {session?.sessionNumber ? `Sessão #${session.sessionNumber} • ` : ""}Crônica da Sessão{session?.inGameDate ? ` (${session.inGameDate})` : ""}
         </Typography>
 
         <TextField
@@ -96,6 +98,36 @@ export default function SessionHeader({
             }
           }}
         />
+
+        {Array.isArray(session?.participatingCharacters) && session.participatingCharacters.length > 0 && (
+          <Box sx={{ mt: 1 }}>
+            <Typography variant="caption" sx={{ fontFamily: "Cinzel", fontWeight: 700, color: "text.secondary", display: "block", mb: 0.5 }}>
+              Heróis Presentes na Sessão:
+            </Typography>
+            <Stack direction="row" spacing={0.8} flexWrap="wrap" useFlexGap>
+              {session.participatingCharacters.map((charId) => {
+                const charObj = fichas.find((f) => (f.id || f.nome) === charId);
+                const name = charObj?.nome || charId;
+                return (
+                  <Chip
+                    key={charId}
+                    icon={<ShieldIcon sx={{ fontSize: "0.85rem !important", color: "inherit !important" }} />}
+                    size="small"
+                    label={name}
+                    sx={{
+                      fontFamily: "Cinzel",
+                      fontWeight: 700,
+                      fontSize: "0.75rem",
+                      bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(229,179,36,0.15)" : "#ecdcc3"),
+                      color: (t) => (t.palette.mode === "dark" ? "#f1c40f" : "#4a321f"),
+                      border: "1px solid rgba(158, 128, 93, 0.4)",
+                    }}
+                  />
+                );
+              })}
+            </Stack>
+          </Box>
+        )}
 
         <Box sx={{ mt: 2, pt: 2, borderTop: (t) => `1px dashed ${t.palette.rpg?.stroke || "rgba(92, 64, 51, 0.2)"}` }}>
           <FormControl fullWidth size="small" variant="filled">

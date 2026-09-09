@@ -33,26 +33,47 @@ export function listenSessionLogs({ uid, campaignId, mode = "legacy", limit = 25
   return () => logsRef.off("value", handle);
 }
 
-export async function createSessionLog({ uid, campaignId, mode = "legacy", title, summary, tags = [] }) {
+export async function createSessionLog({
+  uid,
+  campaignId,
+  mode = "legacy",
+  title,
+  summary,
+  content,
+  tags = [],
+  sessionNumber = null,
+  inGameDate = "",
+  templateUsed = "",
+  participatingCharacters = [],
+  ...extra
+}) {
   const baseRef = sessionLogBaseRef({ uid, campaignId, mode });
   if (!baseRef) throw new Error("Usuário/campanha inválidos.");
 
   const t = String(title || "").trim();
-  const s = String(summary || "").trim();
+  const s = String(content || summary || "").trim();
   if (!t) throw new Error("Informe um título para a sessão.");
 
   const logsRef = baseRef.child("sessionLogs");
   const newRef = logsRef.push();
   const id = newRef.key;
 
-  await newRef.set({
+  const payload = {
     id,
     title: t,
     summary: s,
-    tags,
+    content: s,
+    tags: Array.isArray(tags) ? tags : [],
+    sessionNumber: sessionNumber !== null && sessionNumber !== undefined && sessionNumber !== "" ? Number(sessionNumber) : null,
+    inGameDate: inGameDate || "",
+    templateUsed: templateUsed || "",
+    participatingCharacters: Array.isArray(participatingCharacters) ? participatingCharacters : [],
     createdAt: firebase.database.ServerValue.TIMESTAMP,
     updatedAt: firebase.database.ServerValue.TIMESTAMP,
-  });
+    ...extra,
+  };
+
+  await newRef.set(payload);
 
   return id;
 }

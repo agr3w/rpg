@@ -1,154 +1,354 @@
-// Etapa2.js
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { RACES_DATA } from "../../../Array/RacesDetailedData";
+import styles from "./Etapa2.module.css";
 
-import React from "react";
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Typography,
-  Stack,
-  Paper,
-  List,
-  ListItem,
-} from "@mui/material";
-import LayoutFicha from "components/FichaLayout/LayoutFicha";
+// Ícones profissionais (substituindo emojis)
+import BoltIcon from "@mui/icons-material/Bolt";
+import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
+import StraightenIcon from "@mui/icons-material/Straighten";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
+import AutoStoriesOutlinedIcon from "@mui/icons-material/AutoStoriesOutlined";
+import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
+import LanguageIcon from "@mui/icons-material/Language";
 
-// Estilo reutilizável para "Caixas de Texto D&D"
-const dndBoxStyle = {
-  p: 2,
-  borderRadius: 2,
-  bgcolor: "rgba(243, 235, 214, 0.5)", // Fundo amarelado translúcido
-  border: "1px solid rgba(92, 64, 51, 0.2)", // Borda sutil marrom
-  boxShadow: "inset 0 2px 4px rgba(0,0,0,0.03)",
-};
+const normalizeStr = (str) =>
+  String(str || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
 
-const Etapa2 = ({
+export default function Etapa2({
+  characterData = {},
+  updateCharacterData,
   raca,
   setRaca,
-  racasOptions,
-  itensDaRaca,
-  racaSelecionada,
+  setSubRaca,
   idiomaRacaSelecionado,
   setIdiomaRacaSelecionado,
   idiomaRacaSelecionado2,
   setIdiomaRacaSelecionado2,
-  idiomaOption,
-}) => {
+  idiomaOption = [],
+}) {
+  const racaProp = characterData.racaId || characterData.raca || raca || "";
+
+  // Inicialização segura do seletor para evitar tela em branco
+  const initialRaceKey =
+    Object.keys(RACES_DATA).find(
+      (key) =>
+        normalizeStr(key) === normalizeStr(racaProp) ||
+        normalizeStr(RACES_DATA[key].name) === normalizeStr(racaProp)
+    ) || "anao";
+
+  const [selectedKey, setSelectedKey] = useState(initialRaceKey);
+  const [activeTab, setActiveTab] = useState("tracos"); // 'tracos' | 'lore' | 'nomes'
+
+  const currentRace = RACES_DATA[selectedKey] || RACES_DATA.anao;
+
+  // Sincroniza a seleção com o estado global da ficha
+  const handleSelectRace = (key) => {
+    const race = RACES_DATA[key];
+    if (!race) return;
+
+    setSelectedKey(key);
+
+    if (updateCharacterData) {
+      updateCharacterData({
+        raca: race.name,
+        racaId: race.id,
+        subRaca: "",
+        deslocamento: race.quickStats.speed,
+        tamanho: race.quickStats.size,
+      });
+    }
+
+    if (setRaca) {
+      setRaca(race.name);
+    }
+
+    if (setSubRaca) {
+      setSubRaca("");
+    }
+  };
+
+  // Garante sincronização se o componente for montado com dados existentes
+  useEffect(() => {
+    const currentVal = characterData.raca || raca;
+    if (!currentVal) {
+      handleSelectRace("anao");
+    } else {
+      const match = Object.keys(RACES_DATA).find(
+        (key) =>
+          normalizeStr(key) === normalizeStr(currentVal) ||
+          normalizeStr(RACES_DATA[key].name) === normalizeStr(currentVal)
+      );
+      if (match && match !== selectedKey) {
+        setSelectedKey(match);
+      }
+    }
+  }, [characterData.raca, raca]);
+
   return (
-    <LayoutFicha title="Escolha sua Raça">
-      <Stack spacing={3}>
-        <FormControl fullWidth>
-          <InputLabel sx={{ fontFamily: "Cinzel" }}>Raça</InputLabel>
-          <Select
-            value={raca}
-            onChange={(e) => setRaca(e.target.value)}
-            label="Raça"
-            sx={{
-              "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(92, 64, 51, 0.3)" },
-              "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#833c0b" },
-              fontWeight: 600,
-              color: "#2c1a10",
-            }}
+    <div className={styles.container}>
+      <header className={styles.headerTitle}>
+        <h2>ESCOLHA SUA RAÇA</h2>
+        <div className={styles.headerDivider} />
+      </header>
+
+      {/* Input de Seleção Blindado */}
+      <div className={styles.selectContainer}>
+        <label className={styles.selectLabel} htmlFor="race-select">
+          Raça Selecionada
+        </label>
+        <div className={styles.selectBox}>
+          <select
+            id="race-select"
+            className={styles.styledSelect}
+            value={selectedKey}
+            onChange={(e) => handleSelectRace(e.target.value)}
           >
-            <MenuItem value="">
-              <em>Selecione uma raça</em>
-            </MenuItem>
-            {racasOptions.map((opcao) => (
-              <MenuItem key={opcao} value={opcao}>
-                {opcao}
-              </MenuItem>
+            {Object.values(RACES_DATA).map((race) => (
+              <option key={race.id} value={race.id}>
+                {race.name}
+              </option>
             ))}
-          </Select>
-        </FormControl>
+          </select>
+        </div>
+      </div>
 
-        {/* Caixa de Descrição Estilizada */}
-        <Paper elevation={0} sx={{ ...dndBoxStyle, maxHeight: 300, overflow: "auto" }}>
-          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 800, color: "#58180D", fontFamily: "Cinzel" }}>
-            Características da Raça:
-          </Typography>
+      {/* Cartão de Visualização Rápida no Topo */}
+      <motion.div
+        key={`banner-${currentRace.id}`}
+        className={styles.raceHeroBanner}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className={styles.portraitWrapper}>
+          <img
+            src={currentRace.image}
+            alt={currentRace.name}
+            className={styles.racePortrait}
+          />
+          <div className={styles.portraitOverlay} />
+        </div>
 
-          <List dense sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            {itensDaRaca.length > 0 ? (
-              itensDaRaca.map((item, index) => (
-                <ListItem key={index} sx={{ pl: 0, alignItems: "flex-start" }}>
-                  <Box
-                    component="span"
-                    sx={{
-                      mr: 1,
-                      mt: 0.5,
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      bgcolor: "#833c0b",
-                      flexShrink: 0,
-                    }}
-                  />
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      whiteSpace: "pre-wrap",
-                      lineHeight: 1.6,
-                      color: "#3d2b1f",
-                    }}
-                  >
-                    {item}
-                  </Typography>
-                </ListItem>
-              ))
-            ) : (
-              <Typography variant="caption" sx={{ fontStyle: "italic", opacity: 0.7 }}>
-                Selecione uma raça para ver seus traços raciais.
-              </Typography>
-            )}
-          </List>
-        </Paper>
+        <div className={styles.heroSummary}>
+          <div className={styles.heroNameRow}>
+            <h3>{currentRace.name}</h3>
+            <span className={styles.subraceIndicator}>
+              {currentRace.quickStats.subraces.length > 1
+                ? `${currentRace.quickStats.subraces.length} Sub-raças disponíveis`
+                : "Linhagem Direta"}
+            </span>
+          </div>
 
-        {/* Seletores Condicionais */}
-        {(raca === "Humano" || raca === "Meio-Elfo") && (
-          <Paper elevation={0} sx={{ ...dndBoxStyle, bgcolor: "rgba(255,255,255,0.4)" }}>
-            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
-              Idiomas Adicionais
-            </Typography>
-            <Stack spacing={2}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Idioma Extra 1</InputLabel>
-                <Select
-                  value={idiomaRacaSelecionado}
-                  onChange={(e) => setIdiomaRacaSelecionado(e.target.value)}
-                  label="Idioma Extra 1"
-                >
-                  {idiomaOption.map((idioma) => (
-                    <MenuItem key={idioma} value={idioma}>
-                      {idioma}
-                    </MenuItem>
+          <p className={styles.heroQuote}>"{currentRace.quote}"</p>
+
+          {/* Pílulas de Estatísticas Rápidas com Ícones Reais */}
+          <div className={styles.pillsGrid}>
+            <div className={styles.statPill}>
+              <BoltIcon className={styles.pillIcon} />
+              <div>
+                <small>Bônus</small>
+                <strong>{currentRace.quickStats.abilityBonus}</strong>
+              </div>
+            </div>
+
+            <div className={styles.statPill}>
+              <DirectionsRunIcon className={styles.pillIcon} />
+              <div>
+                <small>Deslocamento</small>
+                <strong>{currentRace.quickStats.speed}</strong>
+              </div>
+            </div>
+
+            <div className={styles.statPill}>
+              <StraightenIcon className={styles.pillIcon} />
+              <div>
+                <small>Porte</small>
+                <strong>{currentRace.quickStats.size.split(" ")[0]}</strong>
+              </div>
+            </div>
+
+            <div className={styles.statPill}>
+              <VisibilityIcon className={styles.pillIcon} />
+              <div>
+                <small>Visão Escuro</small>
+                <strong>{currentRace.quickStats.darkvision}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Navegação de Abas Internas com Ícones */}
+      <nav className={styles.tabsNav}>
+        <button
+          type="button"
+          className={`${styles.tabBtn} ${activeTab === "tracos" ? styles.tabActive : ""}`}
+          onClick={() => setActiveTab("tracos")}
+        >
+          <ShieldOutlinedIcon className={styles.tabIcon} />
+          <span>Traços Raciais</span>
+        </button>
+        <button
+          type="button"
+          className={`${styles.tabBtn} ${activeTab === "lore" ? styles.tabActive : ""}`}
+          onClick={() => setActiveTab("lore")}
+        >
+          <AutoStoriesOutlinedIcon className={styles.tabIcon} />
+          <span>Cultura & Costumes</span>
+        </button>
+        <button
+          type="button"
+          className={`${styles.tabBtn} ${activeTab === "nomes" ? styles.tabActive : ""}`}
+          onClick={() => setActiveTab("nomes")}
+        >
+          <BadgeOutlinedIcon className={styles.tabIcon} />
+          <span>Sugestões de Nomes</span>
+        </button>
+      </nav>
+
+      {/* Painel de Conteúdo com Transição */}
+      <div className={styles.tabContentPanel}>
+        <AnimatePresence mode="wait">
+          {activeTab === "tracos" && (
+            <motion.div
+              key="tab-tracos"
+              className={styles.traitsList}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              transition={{ duration: 0.2 }}
+            >
+              {currentRace.traits.map((trait, index) => (
+                <div key={index} className={styles.traitCard}>
+                  <h4>✦ {trait.name}</h4>
+                  <p>{trait.desc}</p>
+                </div>
+              ))}
+            </motion.div>
+          )}
+
+          {activeTab === "lore" && (
+            <motion.div
+              key="tab-lore"
+              className={styles.loreContainer}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className={styles.loreBlock}>
+                <strong>Comportamento & Visão de Mundo:</strong>
+                <p>{currentRace.lore.behavior}</p>
+              </div>
+
+              <div className={styles.loreBlock}>
+                <strong>Aparência & Porte Físico:</strong>
+                <p>{currentRace.lore.appearance}</p>
+              </div>
+
+              <div className={styles.loreBlock}>
+                <strong>Sociedade & Organização:</strong>
+                <p>{currentRace.lore.society}</p>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "nomes" && (
+            <motion.div
+              key="tab-nomes"
+              className={styles.namesContainer}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className={styles.namesGroup}>
+                <span className={styles.nameCategoryLabel}>Nomes Masculinos Comuns:</span>
+                <div className={styles.nameChipsList}>
+                  {currentRace.names.male.map((name, i) => (
+                    <span key={i} className={styles.nameChip}>{name}</span>
                   ))}
-                </Select>
-              </FormControl>
+                </div>
+              </div>
 
-              {raca === "Meio-Elfo" && (
-                <FormControl fullWidth size="small">
-                  <InputLabel>Idioma Extra 2</InputLabel>
-                  <Select
-                    value={idiomaRacaSelecionado2}
-                    onChange={(e) => setIdiomaRacaSelecionado2(e.target.value)}
-                    label="Idioma Extra 2"
+              <div className={styles.namesGroup}>
+                <span className={styles.nameCategoryLabel}>Nomes Femininos Comuns:</span>
+                <div className={styles.nameChipsList}>
+                  {currentRace.names.female.map((name, i) => (
+                    <span key={i} className={styles.nameChip}>{name}</span>
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles.namesGroup}>
+                <span className={styles.nameCategoryLabel}>Sobrenomes & Clãs:</span>
+                <div className={styles.nameChipsList}>
+                  {currentRace.names.clans.map((clan, i) => (
+                    <span key={i} className={`${styles.nameChip} ${styles.clanChip}`}>{clan}</span>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Seleção de Idiomas Extras Condicionais (Humano / Meio-Elfo) */}
+      {(currentRace.id === "humano" || currentRace.id === "meio-elfo") &&
+        idiomaOption &&
+        idiomaOption.length > 0 && (
+          <div className={styles.extraLanguagesBox}>
+            <span className={styles.extraLanguagesTitle}>
+              <LanguageIcon sx={{ fontSize: "1.1rem", color: "#8c6a46" }} />
+              <span>Idiomas Adicionais da Raça ({currentRace.name})</span>
+            </span>
+            <div className={styles.extraLanguagesGrid}>
+              <div className={styles.selectBox}>
+                <label className={styles.selectLabel}>Idioma Extra 1</label>
+                <select
+                  className={styles.styledSelectSmall}
+                  value={idiomaRacaSelecionado || ""}
+                  onChange={(e) =>
+                    setIdiomaRacaSelecionado && setIdiomaRacaSelecionado(e.target.value)
+                  }
+                >
+                  <option value="">Selecione um idioma</option>
+                  {idiomaOption.map((idioma) => (
+                    <option key={idioma} value={idioma}>
+                      {idioma}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {currentRace.id === "meio-elfo" && (
+                <div className={styles.selectBox}>
+                  <label className={styles.selectLabel}>Idioma Extra 2</label>
+                  <select
+                    className={styles.styledSelectSmall}
+                    value={idiomaRacaSelecionado2 || ""}
+                    onChange={(e) =>
+                      setIdiomaRacaSelecionado2 && setIdiomaRacaSelecionado2(e.target.value)
+                    }
                   >
+                    <option value="">Selecione um idioma</option>
                     {idiomaOption.map((idioma) => (
-                      <MenuItem key={idioma} value={idioma}>
+                      <option key={idioma} value={idioma}>
                         {idioma}
-                      </MenuItem>
+                      </option>
                     ))}
-                  </Select>
-                </FormControl>
+                  </select>
+                </div>
               )}
-            </Stack>
-          </Paper>
+            </div>
+          </div>
         )}
-      </Stack>
-    </LayoutFicha>
+    </div>
   );
-};
-
-export default Etapa2;
+}

@@ -1,0 +1,395 @@
+/* ==========================================================================
+   MODAL: NOVA CRÔNICA (ESTÉTICA GRIMÓRIO & PERGAMINHO)
+   ========================================================================== */
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 12, 8, 0.78);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+}
+
+.modalParchment {
+  background-color: #fbf6e8;
+  background-image: 
+    radial-gradient(ellipse at center, rgba(255, 255, 255, 0.4) 0%, rgba(215, 195, 155, 0.25) 100%),
+    repeating-linear-gradient(0deg, rgba(120, 85, 45, 0.02) 0px, rgba(120, 85, 45, 0.02) 1px, transparent 1px, transparent 4px);
+  border: 2px solid #8c6a46;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 760px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.5),
+    inset 0 0 40px rgba(160, 125, 75, 0.2);
+  color: #24140a;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cabeçalho */
+.modalHeader {
+  padding: 1.8rem 2rem 1rem 2rem;
+  border-bottom: 2px solid #9e805d;
+  text-align: center;
+  background: rgba(140, 105, 70, 0.06);
+}
+
+.headerTitleGroup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.headerRune {
+  color: #9e2a2b;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.modalHeader h2 {
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 1.65rem;
+  color: #211107;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.headerSubtitle {
+  margin: 0.35rem 0 0 0;
+  font-size: 0.88rem;
+  color: #614833;
+}
+
+/* Formulário */
+.formBody {
+  padding: 1.5rem 2rem 1.8rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.fieldGroup, .fieldGroupSmall, .fieldGroupMain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.fieldLabel {
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #3b2516;
+  text-transform: uppercase;
+}
+
+.fieldLabel small {
+  font-family: sans-serif;
+  text-transform: none;
+  font-size: 0.75rem;
+  color: #7d634c;
+  font-weight: normal;
+}
+
+.selectWrapper {
+  width: 100%;
+  position: relative;
+}
+
+.labelWithBadge {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.charsCountBadge {
+  font-size: 0.75rem;
+  background: #ecdcc3;
+  color: #4a321f;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  border: 1px solid #9e805d;
+}
+
+.editorHint {
+  font-size: 0.75rem;
+  color: #7d634c;
+  font-style: italic;
+}
+
+/* Inputs, Selects & Textarea com Textura de Entalhe */
+.styledInput, .styledSelect, .styledTextarea {
+  background: #fdfaf2;
+  border: 1px solid #9e805d;
+  border-radius: 6px;
+  padding: 0.65rem 0.85rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: #1f1209;
+  box-shadow: inset 0 1px 3px rgba(60, 40, 20, 0.1);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.styledInput:focus, .styledSelect:focus, .styledTextarea:focus {
+  outline: none;
+  border-color: #9e2a2b;
+  box-shadow: 0 0 0 2px rgba(158, 42, 43, 0.2);
+}
+
+.rowGridThree {
+  display: grid;
+  grid-template-columns: 100px 1.5fr 1fr;
+  gap: 1rem;
+}
+
+/* Heróis Presentes (Pills) */
+.characterPillsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: rgba(140, 105, 70, 0.08);
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px dashed #ad8f70;
+}
+
+.charPill {
+  background: #ede3cc;
+  border: 1px solid #9e8264;
+  border-radius: 20px;
+  padding: 4px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.82rem;
+  color: #4a3424;
+  transition: all 0.15s ease;
+}
+
+.charPill:hover {
+  background: #e2d4b8;
+}
+
+.charPillActive {
+  background: #382416 !important;
+  color: #f7edd8 !important;
+  border-color: #1a0f08 !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+}
+
+.charPillActive .charClass {
+  color: #d1b894;
+}
+
+.charClass {
+  font-size: 0.72rem;
+  color: #7a634e;
+}
+
+/* Tags Container */
+.tagsInputContainer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  background: #fdfaf2;
+  border: 1px solid #9e805d;
+  border-radius: 6px;
+  padding: 6px 10px;
+  min-height: 42px;
+  box-sizing: border-box;
+}
+
+.tagBadgesList {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.tagBadge {
+  background: #e8dbbf;
+  color: #382314;
+  border: 1px solid #ad8f70;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tagRemoveBtn {
+  background: transparent;
+  border: none;
+  color: #8c2a2b;
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.ghostTagInput {
+  flex: 1;
+  min-width: 120px;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: inherit;
+  font-size: 0.88rem;
+  color: #24140a;
+}
+
+/* Textarea */
+.styledTextarea {
+  resize: vertical;
+  line-height: 1.55;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Georgia, serif;
+}
+
+/* Ações */
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #c9b091;
+}
+
+.btnCancel {
+  background: transparent;
+  border: 1px solid #9e805d;
+  color: #4a3424;
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.75rem 1.4rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btnCancel:hover {
+  background: rgba(140, 105, 70, 0.12);
+}
+
+.btnConfirm {
+  background: linear-gradient(135deg, #8a2419, #661810);
+  border: 1px solid #52120a;
+  color: #f7eedb;
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.75rem 1.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(80, 20, 15, 0.3);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.btnConfirm:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, #a02c1f, #7a1d14);
+}
+
+.btnRune {
+  color: #f1c40f;
+}
+
+/* Alerta de Sobrescrita */
+.warningOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 12, 8, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  border-radius: 8px;
+  z-index: 10;
+}
+
+.warningBox {
+  background: #fbf6e8;
+  border: 2px solid #9e2a2b;
+  padding: 1.8rem;
+  border-radius: 8px;
+  max-width: 440px;
+  text-align: center;
+}
+
+.warningBox h4 {
+  margin: 0 0 0.5rem 0;
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+  font-size: 1.25rem;
+  color: #9e2a2b;
+}
+
+.warningBox p {
+  font-size: 0.9rem;
+  color: #4a3424;
+  line-height: 1.5;
+  margin-bottom: 1.4rem;
+}
+
+.warningActions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btnWarningCancel {
+  background: #ede3cc;
+  border: 1px solid #9e805d;
+  color: #382416;
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.6rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btnWarningConfirm {
+  background: #9e2a2b;
+  border: 1px solid #6b191a;
+  color: #fff;
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.6rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Responsivo */
+@media (max-width: 680px) {
+  .rowGridThree {
+    grid-template-columns: 1fr;
+  }
+  .modalHeader {
+    padding: 1.2rem 1rem 0.8rem 1rem;
+  }
+  .formBody {
+    padding: 1.2rem 1rem;
+  }
+}

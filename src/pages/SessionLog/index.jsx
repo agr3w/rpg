@@ -24,7 +24,7 @@ import {
   InputAdornment,
 } from "@mui/material";
 import { Link, useSearchParams } from "react-router-dom";
-import { auth } from "APIs/firebaseConfig";
+import { auth, database } from "APIs/firebaseConfig";
 import { T_IN } from "config/transitions";
 import { motion } from "framer-motion";
 import RpgSection from "components/RpgSection";
@@ -32,7 +32,8 @@ import { RPG_TOKENS } from "theme/rpgTokens";
 import { buildCampaignQuery } from "service/campaignPath";
 import { useSessionLogs } from "hooks/useSessionLogs";
 import { useDebounce } from "hooks/useDebounce";
-import { fmtDate, fmtMonth, parseTags } from "Utils/textHelpers";
+import { fmtDate, fmtMonth } from "Utils/textHelpers";
+import NovaCronicaModal from "components/DiarioCampanha/NovaCronicaModal";
 
 // Ícones
 import SearchIcon from "@mui/icons-material/Search";
@@ -42,31 +43,6 @@ import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 
 const DEFAULT_CAMPAIGN_ID = "default";
-
-const SESSION_TEMPLATES = [
-  { id: "livre", label: "Livre (Página em Branco)", build: () => "" },
-  {
-    id: "dnd_padrao",
-    label: "Registro de Aventura (Padrão)",
-    build: () =>
-      [
-        "📜 Resumo dos Eventos:",
-        "-",
-        "",
-        "⚔️ Encontros & Combates:",
-        "-",
-        "",
-        "👥 NPCs Encontrados:",
-        "-",
-        "",
-        "💰 Tesouros & Recompensas:",
-        "-",
-        "",
-        "🔜 Próximos Passos:",
-        "-",
-      ].join("\n"),
-  },
-];
 
 export default function SessionLog() {
   const user = auth.currentUser;
@@ -79,10 +55,7 @@ export default function SessionLog() {
   const [status, setStatus] = useState({ type: "info", msg: "" });
 
   const [open, setOpen] = useState(false);
-  const [templateId, setTemplateId] = useState("dnd_padrao");
-  const [title, setTitle] = useState("");
-  const [summary, setSummary] = useState("");
-  const [tagsRaw, setTagsRaw] = useState("");
+  const [fichas, setFichas] = useState([]);
   const [saving, setSaving] = useState(false);
 
   // Filtros
@@ -97,13 +70,24 @@ export default function SessionLog() {
     createLog: createLogAction,
   } = useSessionLogs(uid, campaignId, campaignMode);
 
-  const applyTemplateIfEmpty = (tid) => {
-    const t = SESSION_TEMPLATES.find((x) => x.id === tid);
-    if (!t) return;
-    if (!summary.trim()) {
-      setSummary(t.build());
+  // Carregar fichas disponíveis do usuário para vincular à sessão
+  useEffect(() => {
+    if (!uid) {
+      setFichas([]);
+      return;
     }
-  };
+    const fichasRef = database.ref(`fichas/${uid}`);
+    const handleFichas = (snap) => {
+      const data = snap.val();
+      const arr = data
+        ? Object.entries(data).map(([key, val]) => ({ id: key, ...val }))
+        : [];
+      arr.sort((a, b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"));
+      setFichas(arr);
+    };
+    fichasRef.on("value", handleFichas);
+    return () => fichasRef.off("value", handleFichas);
+  }, [uid]);
 
   const tagOptions = useMemo(() => {
     const set = new Set();
@@ -147,7 +131,7 @@ export default function SessionLog() {
     return Array.from(map.entries());
   }, [filtered]);
 
-  const createLog = async () => {
+  const handleSaveSession = async (newSessionData) => {
     setStatus({ type: "info", msg: "" });
     if (!uid) {
       setStatus({ type: "error", msg: "Usuário não autenticado." });
@@ -157,24 +141,18 @@ export default function SessionLog() {
     setSaving(true);
     try {
       await createLogAction({
-        title,
-        summary,
-        tags: parseTags(tagsRaw),
+        ...newSessionData,
+        summary: newSessionData.content,
       });
 
       setOpen(false);
-      setTitle("");
-      setSummary("");
-      setTagsRaw("");
-      setStatus({ type: "success", msg: "Sessão adicionada ao diário." });
+      setStatus({ type: "success", msg: "Crônica registrada com sucesso no tomo da campanha!" });
     } catch (e) {
-      setStatus({ type: "error", msg: e?.message || "Erro ao salvar sessão." });
+      setStatus({ type: "error", msg: e?.message || "Erro ao salvar crônica." });
     } finally {
       setSaving(false);
     }
   };
-
-  const draftTags = useMemo(() => parseTags(tagsRaw), [tagsRaw]);
 
   return (
     <Container maxWidth="md" sx={{ py: { xs: 2, md: 4 } }}>
@@ -186,10 +164,7 @@ export default function SessionLog() {
             <Button
               variant="contained"
               startIcon={<HistoryEduIcon />}
-              onClick={() => {
-                setOpen(true);
-                applyTemplateIfEmpty(templateId);
-              }}
+              onClick={() => setOpen(true)}
               sx={{
                 fontWeight: 800,
                 bgcolor: "secondary.main",
@@ -339,10 +314,10 @@ export default function SessionLog() {
                             <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
                               <Box>
                                 <Typography variant="h6" sx={{ fontFamily: "Cinzel", fontWeight: 800, lineHeight: 1.2 }}>
-                                  {l.title || "Sessão Sem Título"}
+                                  {l.sessionNumber ? `Sessão #${l.sessionNumber}: ` : ""}{l.title || "Sessão Sem Título"}
                                 </Typography>
                                 <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
-                                  {fmtDate(l.createdAt)}
+                                  {fmtDate(l.createdAt)} {l.inGameDate ? `• ${l.inGameDate}` : ""}
                                 </Typography>
                               </Box>
                               <EditNoteIcon className="edit-icon" sx={{ opacity: 0, transition: "opacity 0.2s", color: "primary.main" }} />
@@ -396,109 +371,13 @@ export default function SessionLog() {
         </RpgSection>
       </motion.div>
 
-      {/* Dialog de Criação (Mesa de Escrita) */}
-      <Dialog 
-        open={open} 
-        onClose={() => setOpen(false)} 
-        maxWidth="sm" 
-        fullWidth
-        PaperProps={{
-          sx: {
-            bgcolor: "background.paper",
-            backgroundImage: (t) => t.palette.rpg?.paperBg || "none",
-            border: (t) => `2px solid ${t.palette.rpg?.stroke || "#5c4033"}`,
-            borderRadius: 2
-          }
-        }}
-      >
-        <DialogTitle sx={{ fontFamily: "Cinzel", fontWeight: 900, color: "primary.main", textAlign: "center", borderBottom: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(92,64,51,0.2)"}` }}>
-          Nova Crônica
-        </DialogTitle>
-        <DialogContent sx={{ mt: 2 }}>
-          <Stack spacing={2.5}>
-            <FormControl fullWidth size="small">
-              <InputLabel sx={{ fontFamily: "Cinzel" }}>Modelo de Registro</InputLabel>
-              <Select
-                value={templateId}
-                label="Modelo de Registro"
-                onChange={(e) => {
-                  const next = e.target.value;
-                  setTemplateId(next);
-                  applyTemplateIfEmpty(next);
-                }}
-                sx={{ fontFamily: "Cinzel" }}
-              >
-                {SESSION_TEMPLATES.map((t) => (
-                  <MenuItem key={t.id} value={t.id}>
-                    {t.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <TextField
-              label="Título da Sessão"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              fullWidth
-              placeholder="Ex: A Queda do Rei Louco"
-              variant="outlined"
-              sx={{
-                "& .MuiInputBase-root": { bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.5)") }
-              }}
-            />
-
-            <TextField
-              label="Tags (separadas por vírgula)"
-              value={tagsRaw}
-              onChange={(e) => setTagsRaw(e.target.value)}
-              fullWidth
-              placeholder="dungeon, boss, level-up"
-              size="small"
-            />
-            
-            {draftTags.length > 0 && (
-              <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1 }}>
-                {draftTags.map((t) => (
-                  <Chip key={t} label={t} size="small" sx={{ bgcolor: (tTheme) => (tTheme.palette.mode === "dark" ? "rgba(229,179,36,0.15)" : "#e0d0b0") }} />
-                ))}
-              </Stack>
-            )}
-
-            <TextField
-              label="Conteúdo do Diário"
-              value={summary}
-              onChange={(e) => setSummary(e.target.value)}
-              fullWidth
-              multiline
-              minRows={8}
-              placeholder="Escreva aqui os feitos do grupo..."
-              sx={{
-                "& .MuiInputBase-root": { 
-                  bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.3)"),
-                  fontFamily: "'Merriweather', serif",
-                  fontSize: "0.95rem",
-                  lineHeight: 1.6
-                }
-              }}
-            />
-          </Stack>
-        </DialogContent>
-        <DialogActions sx={{ p: 2, borderTop: (t) => `1px solid ${t.palette.rpg?.stroke || "rgba(92,64,51,0.2)"}`, bgcolor: (t) => (t.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "rgba(92,64,51,0.05)") }}>
-          <Button onClick={() => setOpen(false)} sx={{ color: "text.secondary" }}>Cancelar</Button>
-          <Button 
-            variant="contained" 
-            onClick={createLog} 
-            disabled={saving}
-            sx={{ 
-              fontFamily: "Cinzel", 
-              fontWeight: 700,
-            }}
-          >
-            {saving ? "Salvando..." : "Salvar"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {/* Modal de Nova Crônica em Pergaminho & Runas */}
+      <NovaCronicaModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        onSave={handleSaveSession}
+        availableCharacters={fichas}
+      />
     </Container>
   );
 }
