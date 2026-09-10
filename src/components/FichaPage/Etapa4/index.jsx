@@ -169,20 +169,7 @@ export default function Etapa4({
 
     // 2. Se não encontrar direto, busca em HABILIDADES_CLASSES ou listas combinadas
     if (!rawList || !Array.isArray(rawList) || rawList.length === 0) {
-      const combinedSource =
-        HabilidadesDBNamed.HABILIDADES_CLASSES ||
-        HabilidadesDBNamed.HabilidadesDB ||
-        HabilidadesDBNamed.HABILIDADES_DB ||
-        HabilidadesDBNamed.habilidadesDB ||
-        HabilidadesDBNamed.habilidades ||
-        HabilidadesDBNamed.default ||
-        [];
-
-      const list = Array.isArray(combinedSource)
-        ? combinedSource
-        : typeof combinedSource === "object"
-        ? Object.values(combinedSource).flat()
-        : [];
+      const list = HabilidadesDBNamed.HABILIDADES_CLASSES || [];
 
       const synonyms = CLASS_SYNONYMS[currentClass.id] || [currentClass.id];
 

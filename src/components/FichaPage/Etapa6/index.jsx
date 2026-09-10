@@ -1,165 +1,306 @@
-import React from "react";
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Typography,
-  Stack,
-  Paper,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-} from "@mui/material";
-import HistoryEduIcon from "@mui/icons-material/HistoryEdu"; // Ícone de pena/escrita
-import LayoutFicha from "components/FichaLayout/LayoutFicha";
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { antecedentes } from "../../../Array/Antecedentes";
+import CasinoOutlinedIcon from "@mui/icons-material/CasinoOutlined";
+import TrackChangesIcon from "@mui/icons-material/TrackChanges";
+import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
+import TranslateIcon from "@mui/icons-material/Translate";
+import styles from "./Etapa6.module.css";
 
-// Estilo reutilizável de "Caixa de Texto D&D"
-const dndBoxStyle = {
-  p: 2.5,
-  borderRadius: 2,
-  bgcolor: "rgba(243, 235, 214, 0.5)",
-  border: "1px solid rgba(92, 64, 51, 0.2)",
-  boxShadow: "inset 0 2px 4px rgba(0,0,0,0.03)",
-};
+const FALLBACK_ANTECEDENTES = [
+  {
+    nome: "Acólito",
+    id: "acolito",
+    pericias: "Intuição, Religião",
+    ferramentas: "Dois idiomas à sua escolha",
+    recurso: "Abrigo dos Fiéis (Você e seus companheiros recebem cura e abrigo em templos de sua fé).",
+    equipamento: "Um símbolo sagrado, livro de preces, 5 varetas de incenso, vestes e 15 po.",
+    descricao: "Você passou a vida a serviço de um templo, realizando ritos sagrados e prestando sacrifícios."
+  },
+  {
+    nome: "Soldado",
+    id: "soldado",
+    pericias: "Atletismo, Intimidação",
+    ferramentas: "Um conjunto de jogos, veículos terrestres",
+    recurso: "Patente Militar (Soldados leais reconhecem sua autoridade militar e prestam auxílio).",
+    equipamento: "Insígnia de patente, troféu de um inimigo caído, conjunto de dados de osso, roupas comuns e 10 po.",
+    descricao: "A guerra moldou sua juventude. Você foi treinado como oficial ou soldado de infantaria."
+  },
+  {
+    nome: "Criminoso",
+    id: "criminoso",
+    pericias: "Enganação, Furtividade",
+    ferramentas: "Um conjunto de jogos, ferramentas de ladrão",
+    recurso: "Contato Criminoso (Você tem um informante de confiança no submundo das cidades).",
+    equipamento: "Um pé de cabra, conjunto de roupas escuras comuns com capuz e 15 po.",
+    descricao: "Você viveu à margem da lei, aprendendo a sobreviver nas sombras e nos becos escuros."
+  },
+  {
+    nome: "Herói do Povo",
+    id: "heroi_povo",
+    pericias: "Adestrar Animais, Sobrevivência",
+    ferramentas: "Um tipo de ferramenta de artesão, veículos terrestres",
+    recurso: "Hospitalidade Rústica (Camponeses e plebeus escondem e alimentam você).",
+    equipamento: "Conjunto de ferramentas de artesão, pá, panela de ferro, roupas comuns e 10 po.",
+    descricao: "Você se levantou contra tiranos ou monstros para defender os camponeses indefesos."
+  },
+  {
+    nome: "Sábio",
+    id: "sabio",
+    pericias: "Arcanismo, História",
+    ferramentas: "Dois idiomas à sua escolha",
+    recurso: "Pesquisador (Quando não sabe de um fato histórico, você sabe exatamente onde encontrá-lo).",
+    equipamento: "Vidro de tinta escura, pena, faca pequena, carta com pergunta sem resposta, roupas comuns e 10 po.",
+    descricao: "Você passou anos catalogando manuscritos e desvendando mistérios em bibliotecas antigas."
+  },
+  {
+    nome: "Nobre",
+    id: "nobre",
+    pericias: "História, Persuasão",
+    ferramentas: "Um conjunto de jogos, um idioma à escolha",
+    recurso: "Privilégio de Posição (Pessoas reconhecem seu berço nobre e você é bem-vindo na alta corte).",
+    equipamento: "Conjunto de roupas finas, anel de sinete, pergaminho de linhagem e 25 po.",
+    descricao: "Você nasceu com títulos, terras e a responsabilidade de uma família de prestígio aristocrático."
+  }
+];
 
-const Etapa6 = ({
+export default function Etapa6({
+  characterData = {},
+  updateCharacterData,
   antecedente,
   setAntecedente,
-  antecedentesOptions,
+  antecedentesOptions = [],
   itensDaAntecedencia = [],
-  idiomaDoAntecedente,
+  idiomaDoAntecedente = "",
   setIdiomaAntecedente,
-  idiomaDoAntecendente2,
+  idiomaDoAntecendente2 = "",
   setIdiomaAntecendente2,
   idiomaOption = [],
-}) => {
+}) {
+  const rawList = Array.isArray(antecedentes) && antecedentes.length > 0 ? antecedentes : FALLBACK_ANTECEDENTES;
+
+  const currentSelectionName = characterData.antecedente || antecedente || "Acólito";
+
+  const normalize = (s) =>
+    String(s || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim();
+
+  const currentAntecedente =
+    rawList.find(
+      (a) => normalize(a.nome || a.name) === normalize(currentSelectionName)
+    ) ||
+    FALLBACK_ANTECEDENTES.find(
+      (a) => normalize(a.nome) === normalize(currentSelectionName)
+    ) ||
+    rawList[0] ||
+    FALLBACK_ANTECEDENTES[0];
+
+  const handleSelect = (nome) => {
+    const item =
+      rawList.find((a) => normalize(a.nome || a.name) === normalize(nome)) ||
+      FALLBACK_ANTECEDENTES.find((a) => normalize(a.nome) === normalize(nome));
+
+    const desc =
+      item?.descricao ||
+      item?.desc ||
+      item?.CaracteristicaDoAntecedente?.caracteristicasSugeridas ||
+      item?.CaracteristicaDoAntecedente?.CaracteristicaTexto1 ||
+      "";
+
+    if (updateCharacterData) {
+      updateCharacterData({
+        antecedente: nome,
+        antecedenteDetalhes: desc,
+      });
+    }
+    if (setAntecedente) {
+      setAntecedente(nome);
+    }
+  };
+
+  const handleRandom = () => {
+    const randomIndex = Math.floor(Math.random() * rawList.length);
+    const chosen = rawList[randomIndex];
+    handleSelect(chosen.nome || chosen.name);
+  };
+
+  useEffect(() => {
+    if (!characterData.antecedente && !antecedente) {
+      handleSelect("Acólito");
+    }
+  }, []);
+
+  const selectedName = currentAntecedente.nome || currentAntecedente.name || "Acólito";
+
+  // Perícias formatadas
+  const periciasTexto =
+    currentAntecedente.pericias ||
+    currentAntecedente.skills ||
+    (Array.isArray(currentAntecedente.proficienciaPericia)
+      ? currentAntecedente.proficienciaPericia.join(", ")
+      : "Duas perícias da vocação");
+
+  // Ferramentas formatadas
+  const ferramentasTexto =
+    currentAntecedente.ferramentas ||
+    currentAntecedente.tools ||
+    (Array.isArray(currentAntecedente.proficienciaFerramentasAntecedente)
+      ? currentAntecedente.proficienciaFerramentasAntecedente.join(", ")
+      : "Idiomas e kits temáticos");
+
+  // Recurso formatado
+  const recursoTexto =
+    currentAntecedente.recurso ||
+    (currentAntecedente.CaracteristicaDoAntecedente
+      ? `${currentAntecedente.CaracteristicaDoAntecedente.LabelCaracteristicaTexto1 || "Característica"}: ${
+          currentAntecedente.CaracteristicaDoAntecedente.CaracteristicaTexto1 || ""
+        }`
+      : null);
+
+  const descTexto =
+    currentAntecedente.descricao ||
+    currentAntecedente.desc ||
+    currentAntecedente.CaracteristicaDoAntecedente?.caracteristicasSugeridas ||
+    "A vocação e a experiência que moldaram a vida do herói antes da jornada.";
+
+  // Idiomas concedidos
+  const precisaDoisIdiomas = ["Acólito", "Sábio"].includes(selectedName);
+  const precisaUmIdioma = ["Artesão de Guilda", "Eremita", "Forasteiro", "Nobre"].includes(selectedName);
+
   return (
-    <LayoutFicha title="Selecione o Antecedente">
-      <Stack spacing={3}>
-        <Typography variant="body1" sx={{ color: "#3d2b1f", textAlign: "center", fontStyle: "italic" }}>
-          "Quem você era antes de se tornar um aventureiro? O que deixou para trás?"
-        </Typography>
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <h2>ANTECEDENTE & ORIGEM</h2>
+        <p className={styles.subtitle}>
+          "A vida que você levava antes de atender ao chamado das lendas e do perigo."
+        </p>
+        <div className={styles.divider} />
+      </header>
 
-        <FormControl fullWidth>
-          <InputLabel sx={{ fontFamily: "Cinzel" }}>Antecedente</InputLabel>
-          <Select
-            label="Antecedente"
-            value={antecedente}
-            onChange={(e) => setAntecedente(e.target.value)}
-            sx={{
-              fontWeight: 700,
-              color: "#2c1a10",
-              "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(92, 64, 51, 0.3)" },
-              "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#833c0b" },
-            }}
+      {/* Seletor com Botão de Aleatório */}
+      <div className={styles.inputGroup}>
+        <div className={styles.labelRow}>
+          <label className={styles.label} htmlFor="antecedente-select">
+            Antecedente do Personagem
+          </label>
+          <button
+            type="button"
+            className={styles.btnRandom}
+            onClick={handleRandom}
+            title="Sortear um antecedente"
           >
-            <MenuItem value="">
-              <em>Selecione um antecedente</em>
-            </MenuItem>
-            {antecedentesOptions.map((opcao) => (
-              <MenuItem key={opcao} value={opcao}>
-                {opcao}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            <CasinoOutlinedIcon sx={{ fontSize: "0.95rem" }} />
+            <span>Aleatório</span>
+          </button>
+        </div>
 
-        <Paper elevation={0} sx={{ ...dndBoxStyle, maxHeight: 320, overflow: "auto" }}>
-          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 800, color: "#58180D", fontFamily: "Cinzel" }}>
-            Detalhes & Proficiências:
-          </Typography>
+        <div className={styles.selectWrapper}>
+          <select
+            id="antecedente-select"
+            className={styles.styledSelect}
+            value={selectedName}
+            onChange={(e) => handleSelect(e.target.value)}
+          >
+            {rawList.map((a, idx) => {
+              const name = a.nome || a.name;
+              return (
+                <option key={idx} value={name}>
+                  {name}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+      </div>
 
-          {itensDaAntecedencia.length > 0 ? (
-            <List dense>
-              {itensDaAntecedencia.map((item, idx) => (
-                <ListItem key={idx} alignItems="flex-start" sx={{ px: 0 }}>
-                  <ListItemIcon sx={{ minWidth: 32, mt: 0.5 }}>
-                    <HistoryEduIcon sx={{ fontSize: 20, color: "#833c0b" }} />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={item}
-                    primaryTypographyProps={{
-                      variant: "body2",
-                      style: { color: "#3d2b1f", lineHeight: 1.5 },
-                    }}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          ) : (
-            <Typography variant="caption" sx={{ color: "rgba(44, 26, 16, 0.5)", fontStyle: "italic" }}>
-              Selecione um antecedente para ver sua história.
-            </Typography>
-          )}
-        </Paper>
+      {/* Cartão Informativo do Antecedente */}
+      <motion.div
+        key={selectedName}
+        className={styles.detailCard}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+      >
+        <p className={styles.descText}>{descTexto}</p>
 
-        {/* Idiomas adicionais */}
-        {(antecedente === "Acólito" || antecedente === "Sábio") && (
-          <Paper elevation={0} sx={{ ...dndBoxStyle, bgcolor: "rgba(255,255,255,0.4)" }}>
-            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: "#2c1a10" }}>
-              Idiomas Conhecidos
-            </Typography>
-            <Stack spacing={2}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Idioma adicional 1</InputLabel>
-                <Select
+        <div className={styles.benefitsGrid}>
+          <div className={styles.benefitItem}>
+            <span className={styles.benefitIcon} title="Perícias">
+              <TrackChangesIcon sx={{ fontSize: "1.2rem" }} />
+            </span>
+            <div>
+              <small>Perícias Concedidas</small>
+              <strong>{periciasTexto}</strong>
+            </div>
+          </div>
+
+          <div className={styles.benefitItem}>
+            <span className={styles.benefitIcon} title="Ferramentas">
+              <HandymanOutlinedIcon sx={{ fontSize: "1.2rem" }} />
+            </span>
+            <div>
+              <small>Ferramentas / Idiomas</small>
+              <strong>{ferramentasTexto}</strong>
+            </div>
+          </div>
+        </div>
+
+        {recursoTexto && (
+          <div className={styles.featureBox}>
+            <strong>✦ Recurso Especial:</strong>
+            <p>{recursoTexto}</p>
+          </div>
+        )}
+
+        {/* Seleção de Idiomas Concedidos quando aplicável */}
+        {(precisaDoisIdiomas || precisaUmIdioma) && idiomaOption.length > 0 && (
+          <div className={styles.languagesBox}>
+            <span className={styles.languagesTitle}>
+              <TranslateIcon sx={{ fontSize: "1rem", color: "#58180d" }} />
+              <span>Idiomas Adicionais da Origem</span>
+            </span>
+
+            <div className={styles.languagesGrid}>
+              <div className={styles.languageSelectRow}>
+                <label>Idioma 1</label>
+                <select
+                  className={styles.styledSelectSmall}
                   value={idiomaDoAntecedente}
-                  onChange={(e) => setIdiomaAntecedente(e.target.value)}
-                  label="Idioma adicional 1"
+                  onChange={(e) => setIdiomaAntecedente?.(e.target.value)}
                 >
-                  {idiomaOption.map((opcao) => (
-                    <MenuItem key={opcao} value={opcao}>
-                      {opcao}
-                    </MenuItem>
+                  <option value="">Escolher idioma...</option>
+                  {idiomaOption.map((op) => (
+                    <option key={op} value={op}>
+                      {op}
+                    </option>
                   ))}
-                </Select>
-              </FormControl>
+                </select>
+              </div>
 
-              <FormControl fullWidth size="small">
-                <InputLabel>Idioma adicional 2</InputLabel>
-                <Select
-                  value={idiomaDoAntecendente2}
-                  onChange={(e) => setIdiomaAntecendente2(e.target.value)}
-                  label="Idioma adicional 2"
-                >
-                  {idiomaOption.map((opcao) => (
-                    <MenuItem key={opcao} value={opcao}>
-                      {opcao}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Stack>
-          </Paper>
+              {precisaDoisIdiomas && (
+                <div className={styles.languageSelectRow}>
+                  <label>Idioma 2</label>
+                  <select
+                    className={styles.styledSelectSmall}
+                    value={idiomaDoAntecendente2}
+                    onChange={(e) => setIdiomaAntecendente2?.(e.target.value)}
+                  >
+                    <option value="">Escolher idioma...</option>
+                    {idiomaOption.map((op) => (
+                      <option key={op} value={op}>
+                        {op}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+          </div>
         )}
-
-        {["Artesão de Guilda", "Eremita", "Forasteiro", "Nobre"].includes(antecedente) && (
-          <Paper elevation={0} sx={{ ...dndBoxStyle, bgcolor: "rgba(255,255,255,0.4)" }}>
-            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: "#2c1a10" }}>
-              Idioma Conhecido
-            </Typography>
-            <FormControl fullWidth size="small">
-              <InputLabel>Idioma adicional</InputLabel>
-              <Select
-                value={idiomaDoAntecedente}
-                onChange={(e) => setIdiomaAntecedente(e.target.value)}
-                label="Idioma adicional"
-              >
-                {idiomaOption.map((opcao) => (
-                  <MenuItem key={opcao} value={opcao}>
-                    {opcao}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Paper>
-        )}
-      </Stack>
-    </LayoutFicha>
+      </motion.div>
+    </div>
   );
-};
-
-export default Etapa6;
+}

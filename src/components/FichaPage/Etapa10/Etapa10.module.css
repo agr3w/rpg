@@ -1,0 +1,275 @@
+.container {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  color: #2b1d14;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 1.2rem;
+}
+
+.header h2 {
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 1.8rem;
+  color: #58180d;
+  margin: 0 0 0.35rem 0;
+  letter-spacing: 1px;
+}
+
+.subtitle {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: #6a4f38;
+  margin: 0 0 0.8rem 0;
+  line-height: 1.4;
+}
+
+.divider {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #8c6a46 50%, transparent);
+  width: 75%;
+  margin: 0 auto;
+}
+
+/* Barra de Ações */
+.actionsBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 0.8rem;
+}
+
+.btnGroup {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.actionBtn {
+  background: #ede2cc;
+  border: 1px solid #ad8f70;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #4a3424;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+}
+
+.actionBtn:hover {
+  background: #9e2a2b;
+  color: #fff;
+  border-color: #7a1d14;
+}
+
+.actionBtnPrimary {
+  background: #f1e4cb;
+  border-color: #8c6a46;
+  color: #8a2419;
+}
+
+.btnClear {
+  background: transparent;
+  border: none;
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+  font-size: 0.75rem;
+  color: #7d6550;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.btnClear:hover {
+  color: #9e2a2b;
+}
+
+/* Pílula de Pool de Valores */
+.remainingPill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(140, 105, 70, 0.08);
+  border: 1px dashed #ad8f70;
+  border-radius: 6px;
+  padding: 6px 12px;
+  margin-bottom: 1.2rem;
+}
+
+.remainingPill small {
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #6a4f38;
+  text-transform: uppercase;
+}
+
+.valuesPool {
+  display: flex;
+  gap: 6px;
+}
+
+.poolVal {
+  background: #382416;
+  color: #f7eedb;
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.poolValUsed {
+  background: #dfd5c2;
+  color: #9c8e7b;
+  text-decoration: line-through;
+}
+
+/* Grid de Atributos Responsivo */
+.attributesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.attrCard {
+  background: #fdfaf2;
+  border: 1.5px solid #ad8f70;
+  border-radius: 8px;
+  padding: 0.9rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(60, 40, 20, 0.06);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.attrCard:hover {
+  border-color: #9e2a2b;
+  transform: translateY(-2px);
+}
+
+.attrHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.attrIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #9e2a2b;
+}
+
+.attrTitle {
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #3b2014;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Caixa Central do Modificador */
+.modBox {
+  width: 60px;
+  height: 52px;
+  background: #fffdf9;
+  border: 2px solid #382416;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.45rem;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.modNumber {
+  font-family: var(--font-cinzel, 'Cinzel', serif);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #9e2a2b;
+  line-height: 1;
+}
+
+.modLabel {
+  font-size: 0.52rem;
+  font-weight: 700;
+  color: #7d6550;
+  letter-spacing: 0.5px;
+}
+
+.valIndicator {
+  font-size: 0.74rem;
+  color: #5c412b;
+  margin-bottom: 0.45rem;
+  text-align: center;
+}
+
+.valIndicator strong {
+  font-size: 0.85rem;
+  color: #24130a;
+}
+
+.racialBadge {
+  display: block;
+  font-size: 0.65rem;
+  color: #2e7d32;
+  font-weight: 700;
+  margin-top: 1px;
+}
+
+.selectWrapper {
+  width: 100%;
+}
+
+.styledSelect {
+  width: 100%;
+  background: #fff;
+  border: 1.5px solid #8c6a46;
+  border-radius: 4px;
+  padding: 0.45rem 0.4rem;
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #24130a;
+  cursor: pointer;
+  box-sizing: border-box;
+  text-align: center;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%238C6A46%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 9px;
+}
+
+.styledSelect:focus {
+  outline: none;
+  border-color: #9e2a2b;
+}
+
+/* Responsividade Completa: 2 colunas no celular/tablet */
+@media (max-width: 620px) {
+  .attributesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .actionsBar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .btnGroup {
+    flex-direction: column;
+  }
+}
