@@ -3,7 +3,7 @@ export const RACES_DATA = {
     id: "anao",
     name: "Anão",
     quote: "Reinos antigos esculpidos na rocha, lealdade férrea ao clã e armas forjadas com maestria.",
-    image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80",
+    image: "https://orbedosdragoes.com/wp-content/uploads/2017/01/DD5_Anoes_Guerreira.jpg",
     quickStats: {
       abilityBonus: "Constituição +2",
       speed: "7,5 metros",
@@ -45,7 +45,7 @@ export const RACES_DATA = {
     id: "elfo",
     name: "Elfo",
     quote: "Graça sobrenatural, visão atemporal e conexão profunda com a trama mágica e os ermos.",
-    image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=400&q=80",
+    image: "https://dungeonedraghi.it/wp-content/uploads/2020/05/elfo.png",
     quickStats: {
       abilityBonus: "Destreza +2",
       speed: "9 metros",
@@ -83,7 +83,7 @@ export const RACES_DATA = {
     id: "halfling",
     name: "Halfling",
     quote: "A coragem do pequeno coração diante das grandes sombras, cercado pelo calor de uma boa refeição.",
-    image: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=400&q=80",
+    image: "https://i.pinimg.com/736x/2c/70/a8/2c70a832bfec73c363355068e7a9d735.jpg",
     quickStats: {
       abilityBonus: "Destreza +2",
       speed: "7,5 metros",
@@ -121,7 +121,7 @@ export const RACES_DATA = {
     id: "humano",
     name: "Humano",
     quote: "Ambição implacável, adaptabilidade pioneira e o fogo de quem vive rápido e intenso.",
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+    image: "https://www.5esrd.com/wp-content/uploads/sites/4/2018/07/kolvir_comm_by_yamao-d6uy0t8.jpg",
     quickStats: {
       abilityBonus: "Todos os Atributos +1",
       speed: "9 metros",
@@ -155,7 +155,7 @@ export const RACES_DATA = {
     id: "draconato",
     name: "Draconato",
     quote: "O orgulho dos dragões ancestrais encarnado em guerreiros de honra implacável e sopro letal.",
-    image: "https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=400&q=80",
+    image: "https://static.wikia.nocookie.net/coroa-das-entidades/images/d/d6/32d600c3c477c5b5a7e673d7a9041827.jpg/revision/latest?cb=20190427153759&path-prefix=pt-br",
     quickStats: {
       abilityBonus: "Força +2, Carisma +1",
       speed: "9 metros",
@@ -189,7 +189,7 @@ export const RACES_DATA = {
     id: "gnomo",
     name: "Gnomo",
     quote: "Entusiasmo inventivo incessante, mentes brilhantes e alegria vibrante em cada engrenagem.",
-    image: "https://images.unsplash.com/photo-1514539079130-25950c84af65?auto=format&fit=crop&w=400&q=80",
+    image: "https://static.wikia.nocookie.net/coroa-das-entidades/images/f/f4/559b78576e84b1aea1f3d444b2eea16b.jpg/revision/latest?cb=20190427143452&path-prefix=pt-br",
     quickStats: {
       abilityBonus: "Inteligência +2",
       speed: "7,5 metros",
@@ -219,7 +219,7 @@ export const RACES_DATA = {
     id: "meio-elfo",
     name: "Meio-Elfo",
     quote: "O equilíbrio entre a impetuosidade humana e a sensibilidade mágica élfica, navegando dois mundos.",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+    image: "https://static.wikia.nocookie.net/iccarion/images/1/10/Meioelfos.jpg/revision/latest?cb=20230307045214&path-prefix=pt-br",
     quickStats: {
       abilityBonus: "Carisma +2, dois à sua escolha +1",
       speed: "9 metros",
@@ -253,7 +253,7 @@ export const RACES_DATA = {
     id: "meio-orc",
     name: "Meio-Orc",
     quote: "Fúria ancestral contida sob cicatrizes de batalha e uma determinação obstinada em resistir à queda.",
-    image: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=400&q=80",
+    image: "https://i.redd.it/fnziq4smy3x91.jpg",
     quickStats: {
       abilityBonus: "Força +2, Constituição +1",
       speed: "9 metros",
@@ -291,7 +291,7 @@ export const RACES_DATA = {
     id: "tiefling",
     name: "Tiefling",
     quote: "A marca dos Nove Infernos em sua carne não dita o seu destino; o fogo interior obedece à sua vontade.",
-    image: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=400&q=80",
+    image: "https://static0.cbrimages.com/wordpress/wp-content/uploads/2021/06/dnd-5e-tiefling-magic.jpg?w=1600&h=900&fit=crop",
     quickStats: {
       abilityBonus: "Carisma +2, Inteligência +1",
       speed: "9 metros",
