@@ -1,5 +1,5 @@
 // src/APIs/authService.js
-import { auth } from "./firebaseConfig";
+import { auth, firebase } from "./firebaseConfig";
 
 /**
  * 1. Cadastro de usuário com envio imediato de e-mail de verificação.
@@ -61,3 +61,22 @@ export async function recarregarUsuario(user) {
   }
   return targetUser;
 }
+
+/**
+ * 5. Alteração segura de senha com reautenticação obrigatória.
+ * Valida a senha atual antes de submeter a nova senha ao Firebase Auth.
+ */
+export async function alterarSenhaSegura(senhaAtual, novaSenha) {
+  const user = auth.currentUser;
+  if (!user || !user.email) {
+    throw new Error("Sessão expirada. Faça login novamente.");
+  }
+
+  // 1. Valida a senha atual antes de qualquer alteração
+  const credencial = firebase.auth.EmailAuthProvider.credential(user.email, senhaAtual);
+  await user.reauthenticateWithCredential(credencial);
+
+  // 2. Aplica a nova senha com sessão validada
+  await user.updatePassword(novaSenha);
+}
+

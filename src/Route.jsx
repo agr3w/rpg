@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { MotionConfig } from "framer-motion";
 import { useAuth } from "contexts/AuthContext";
+import { auth } from "APIs/firebaseConfig";
 import { Box, CircularProgress } from "@mui/material";
 
 import AppLayout from "layouts/AppLayout";
@@ -33,77 +34,8 @@ const MapEditor = lazy(() => import("pages/MapEditor"));
 const AdminPage = lazy(() => import("pages/Admin"));
 const PlayerSessionView = lazy(() => import("views/PlayerSessionView"));
 
-const AppRoutes = () => {
-  const { user: usuarioAutenticado } = useAuth();
-
-  return (
-    <Routes>
-      <Route element={<AppLayout />}>
-        {/* 🗺️ Rota de Sessão VTT dos Jogadores (Pública ou com Senha) */}
-        <Route path="/sessao/:sessionId" element={<PlayerSessionView />} />
-
-        {/* 🌟 Vitrine Pública da Plataforma (Landing Page) */}
-        <Route path="/landing" element={<LandingPage />} />
-
-        {/* ✅ Home dinâmica: HUB (/inicio) quando logado / Landing Page quando visitante */}
-        <Route path="/" element={usuarioAutenticado ? <Navigate to="/inicio" replace /> : <LandingPage />} />
-
-        {!usuarioAutenticado ? (
-          <>
-            <Route path="/login" element={<Login />} />
-            <Route path="/Registrar-se" element={<Register />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/*" element={<Navigate to="/" replace />} />
-          </>
-        ) : (
-          <>
-            {/* Se já estiver autenticado, redireciona tentativas de login/registro para /inicio */}
-            <Route path="/login" element={<Navigate to="/inicio" replace />} />
-            <Route path="/Registrar-se" element={<Navigate to="/inicio" replace />} />
-            <Route path="/register" element={<Navigate to="/inicio" replace />} />
-
-            <Route path="/inicio" element={<Inicio />} />
-            {/* 🎵 Taverna / Músicas */}
-            <Route element={<AudioLayout />}>
-              <Route path="/Taverna-do-Bardo" element={<MusicasPage />} />
-            </Route>
-
-            {/* 📚 Biblioteca / Notas / Pastas */}
-            <Route element={<NotesLayout />}>
-              <Route path="/Biblioteca-Arcana" element={<NotePage />} />
-              <Route path="/folders/:folderId" element={<FolderPage />} />
-            </Route>
-
-            {/* 🗺️ Mapas / Editor */}
-            <Route element={<MapsLayout />}>
-              <Route path="/mapas" element={<MapasPage />} />
-              <Route path="/mapas/editor/:mapId" element={<MapEditor />} />
-            </Route>
-
-            <Route path="/fichas" element={<FichaPage />} />
-            <Route path="/criar-ficha" element={<FichaCriar />} />
-            <Route path="/ficha-completa/:ID" element={<FichaDetalhes />} />
-            <Route path="/perfil" element={<Perfil />} />
-            <Route path="/diario" element={<SessionLog />} />
-            <Route path="/diario/:sessionId" element={<SessionLogDetail />} />
-            <Route path="/npcs" element={<NpcsPage />} />
-            <Route path="/npcs/:npcId" element={<NpcDetail />} />
-            <Route path="/quests" element={<QuestsPage />} />
-            <Route path="/quests/:questId" element={<QuestDetail />} />
-            
-            {/* ✅ Rota Secreta */}
-            <Route path="/master-control" element={<AdminPage />} />
-            
-            <Route path="/*" element={<Inicio />} />
-          </>
-        )}
-      </Route>
-    </Routes>
-  );
-};
-
 // Carregamento ultraleve com visual temático
-const FallbackScreen = () => (
+export const FallbackScreen = () => (
   <div
     style={{
       display: "flex",
@@ -134,6 +66,112 @@ const FallbackScreen = () => (
     </span>
   </div>
 );
+
+export function RotaProtegida({ children }) {
+  const { user, loading } = useAuth();
+  const currentUser = user || auth.currentUser;
+
+  if (loading) {
+    return <FallbackScreen />;
+  }
+
+  if (!currentUser) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
+
+export function RotaAdmin({ children, isAdmin }) {
+  const { user, loading } = useAuth();
+  const currentUser = user || auth.currentUser;
+
+  if (loading) {
+    return <FallbackScreen />;
+  }
+
+  if (!currentUser || !isAdmin) {
+    return <Navigate to="/inicio" replace />;
+  }
+
+  return children;
+}
+
+const AppRoutes = () => {
+  const { user: usuarioAutenticado } = useAuth();
+
+  const MY_ADMIN_UID =
+    import.meta.env?.VITE_REACT_APP_ADMIN_UID ||
+    import.meta.env?.VITE_ADMIN_UID ||
+    "hKYEhI9JIEPOS2RSON7tsviLzjV2";
+  const isAdmin = (usuarioAutenticado?.uid || auth.currentUser?.uid) === MY_ADMIN_UID;
+
+  return (
+    <Routes>
+      <Route element={<AppLayout />}>
+        {/* 🗺️ Rota de Sessão VTT dos Jogadores (Pública ou com Senha) */}
+        <Route path="/sessao/:sessionId" element={<PlayerSessionView />} />
+
+        {/* 🌟 Vitrine Pública da Plataforma (Landing Page) */}
+        <Route path="/landing" element={<LandingPage />} />
+
+        {/* ✅ Home dinâmica: HUB (/inicio) quando logado / Landing Page quando visitante */}
+        <Route path="/" element={usuarioAutenticado ? <Navigate to="/inicio" replace /> : <LandingPage />} />
+
+        {!usuarioAutenticado ? (
+          <>
+            <Route path="/login" element={<Login />} />
+            <Route path="/Registrar-se" element={<Register />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/*" element={<Navigate to="/" replace />} />
+          </>
+        ) : (
+          <>
+            {/* Se já estiver autenticado, redireciona tentativas de login/registro para /inicio */}
+            <Route path="/login" element={<Navigate to="/inicio" replace />} />
+            <Route path="/Registrar-se" element={<Navigate to="/inicio" replace />} />
+            <Route path="/register" element={<Navigate to="/inicio" replace />} />
+
+            <Route path="/inicio" element={<RotaProtegida><Inicio /></RotaProtegida>} />
+            {/* 🎵 Taverna / Músicas */}
+            <Route element={<AudioLayout />}>
+              <Route path="/Taverna-do-Bardo" element={<RotaProtegida><MusicasPage /></RotaProtegida>} />
+            </Route>
+
+            {/* 📚 Biblioteca / Notas / Pastas */}
+            <Route element={<NotesLayout />}>
+              <Route path="/Biblioteca-Arcana" element={<RotaProtegida><NotePage /></RotaProtegida>} />
+              <Route path="/folders/:folderId" element={<RotaProtegida><FolderPage /></RotaProtegida>} />
+            </Route>
+
+            {/* 🗺️ Mapas / Editor */}
+            <Route element={<MapsLayout />}>
+              <Route path="/mapas" element={<RotaProtegida><MapasPage /></RotaProtegida>} />
+              <Route path="/mapas/editor/:mapId" element={<RotaProtegida><MapEditor /></RotaProtegida>} />
+            </Route>
+
+            <Route path="/fichas" element={<RotaProtegida><FichaPage /></RotaProtegida>} />
+            <Route path="/criar-ficha" element={<RotaProtegida><FichaCriar /></RotaProtegida>} />
+            <Route path="/ficha-completa/:ID" element={<RotaProtegida><FichaDetalhes /></RotaProtegida>} />
+            <Route path="/perfil" element={<RotaProtegida><Perfil /></RotaProtegida>} />
+            <Route path="/diario" element={<RotaProtegida><SessionLog /></RotaProtegida>} />
+            <Route path="/diario/:sessionId" element={<RotaProtegida><SessionLogDetail /></RotaProtegida>} />
+            <Route path="/npcs" element={<RotaProtegida><NpcsPage /></RotaProtegida>} />
+            <Route path="/npcs/:npcId" element={<RotaProtegida><NpcDetail /></RotaProtegida>} />
+            <Route path="/quests" element={<RotaProtegida><QuestsPage /></RotaProtegida>} />
+            <Route path="/quests/:questId" element={<RotaProtegida><QuestDetail /></RotaProtegida>} />
+            
+            {/* ✅ Rota Secreta */}
+            <Route path="/master-control" element={<RotaAdmin isAdmin={isAdmin}><AdminPage /></RotaAdmin>} />
+            
+            <Route path="/home" element={<Navigate to="/inicio" replace />} />
+            <Route path="/*" element={<Inicio />} />
+          </>
+        )}
+      </Route>
+    </Routes>
+  );
+};
 
 function Rout() {
   const { loading: authLoading } = useAuth();

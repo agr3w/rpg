@@ -3,12 +3,22 @@
     ".read": false,
     ".write": false,
 
+    "admins": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).val() === true",
+      ".write": false
+    },
+
+    "newsletter_subscribers": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).val() === true",
+      ".write": "auth != null"
+    },
+
     "system": {
       "metadata": {
         // Todo mundo pode ler a versão e anúncios
         ".read": true,
-        // SÓ VOCÊ pode alterar
-        ".write": "auth != null && auth.uid === 'hKYEhI9JIEPOS2RSON7tsviLzjV2'"
+        // SÓ VOCÊ ou ADMIN pode alterar
+        ".write": "auth != null && (auth.uid === 'hKYEhI9JIEPOS2RSON7tsviLzjV2' || root.child('admins').child(auth.uid).val() === true)"
       },
       "reports": {
         // Leitura para você (admin) e quem enviou
@@ -96,7 +106,7 @@
 
     "fichas": {
       "$uid": {
-        ".read": "auth != null && auth.uid === $uid",
+        ".read": "auth != null",
         ".write": "auth != null && auth.uid === $uid",
         ".indexOn": ["id", "createdAt"]
       }
@@ -139,14 +149,15 @@
 
     "campaigns": {
       "$campaignId": {
-        ".read": "auth != null && root.child('campaignMembers').child($campaignId).child(auth.uid).exists()",
+        ".read": "auth != null",
+        ".write": "auth != null && (data.child('ownerId').val() === auth.uid || newData.child('ownerId').val() === auth.uid || data.child('meta/ownerUid').val() === auth.uid || newData.child('meta/ownerUid').val() === auth.uid || root.child('campaignMembers').child($campaignId).child(auth.uid).exists())",
 
         "meta": {
-          ".write": "auth != null && (root.child('campaignMembers').child($campaignId).child(auth.uid).child('role').val() === 'dm' || root.child('campaignMembers').child($campaignId).child(auth.uid).child('role').val() === 'co-dm')"
+          ".write": "auth != null && (data.child('ownerUid').val() === auth.uid || newData.child('ownerUid').val() === auth.uid || root.child('campaignMembers').child($campaignId).child(auth.uid).child('role').val() === 'dm' || root.child('campaignMembers').child($campaignId).child(auth.uid).child('role').val() === 'co-dm')"
         },
 
         "sessionLogs": {
-          ".read": "auth != null && root.child('campaignMembers').child($campaignId).child(auth.uid).exists()",
+          ".read": "auth != null",
           ".indexOn": ["createdAt"],
           "$sessionId": {
             ".write": "auth != null && root.child('campaignMembers').child($campaignId).child(auth.uid).exists()"

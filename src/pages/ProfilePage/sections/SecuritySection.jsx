@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Box, Button, Divider, Stack, TextField, Typography } from "@mui/material";
-import { changePassword } from "service/accountCleanup";
+import { alterarSenhaSegura } from "APIs/authService";
 import { getPasswordRuleError } from "./validators";
 
 export default function SecuritySection({ setStatus }) {
@@ -22,13 +22,22 @@ export default function SecuritySection({ setStatus }) {
 
     setSaving(true);
     try {
-      await changePassword({ newPassword, currentPassword });
-      setStatus({ type: "success", msg: "Senha atualizada com sucesso." });
+      await alterarSenhaSegura(currentPassword, newPassword);
+      setStatus({ type: "success", msg: "Senha atualizada com sucesso!" });
       setCurrentPassword("");
       setNewPassword("");
       setTouched({ current: false, next: false });
     } catch (e) {
-      setStatus({ type: "error", msg: e?.message || String(e) });
+      console.error("Erro ao alterar senha:", e);
+      let errorMsg = e?.message || "Não foi possível atualizar sua senha.";
+      if (e?.code === "auth/wrong-password" || e?.code === "auth/invalid-credential") {
+        errorMsg = "A senha atual informada está incorreta.";
+      } else if (e?.code === "auth/weak-password") {
+        errorMsg = "A nova senha deve ter ao menos 8 caracteres.";
+      } else if (e?.code === "auth/too-many-requests") {
+        errorMsg = "Muitas tentativas sem sucesso. Aguarde alguns instantes.";
+      }
+      setStatus({ type: "error", msg: errorMsg });
     } finally {
       setSaving(false);
     }

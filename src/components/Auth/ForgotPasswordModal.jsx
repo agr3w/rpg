@@ -29,9 +29,24 @@ export default function ForgotPasswordModal({ open, onClose, defaultEmail = "" }
   const [email, setEmail] = useState(defaultEmail);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState(null);
+  const [cooldown, setCooldown] = useState(0);
+
+  const startCooldown = () => {
+    setCooldown(60);
+    const timer = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
 
   const handleSend = async (e) => {
     e?.preventDefault();
+    if (cooldown > 0 || loading) return;
     setStatus(null);
 
     const cleanEmail = email.trim();
@@ -41,25 +56,35 @@ export default function ForgotPasswordModal({ open, onClose, defaultEmail = "" }
     }
 
     setLoading(true);
+    startCooldown();
+
     try {
       await recuperarSenha(cleanEmail);
       setStatus({
         type: "success",
-        message: "O pergaminho de redefinição foi enviado para o seu e-mail! Verifique sua caixa de entrada ou spam."
+        message: "Se o endereço informado estiver cadastrado, você receberá um link de recuperação. Verifique sua caixa de entrada e spam."
       });
       setTimeout(() => {
         setStatus(null);
         onClose();
-      }, 4000);
+      }, 5000);
     } catch (err) {
       console.error("Erro ao resetar senha:", err);
-      let errorMsg = "Não foi possível enviar o e-mail de recuperação. Verifique o endereço digitado.";
+      // Prevenção de Enumeração de Contas: se o usuário não for encontrado, exibe a mesma mensagem neutra
       if (err.code === "auth/user-not-found") {
-        errorMsg = "Nenhum aventureiro encontrado com este e-mail.";
+        setStatus({
+          type: "success",
+          message: "Se o endereço informado estiver cadastrado, você receberá um link de recuperação. Verifique sua caixa de entrada e spam."
+        });
+        setTimeout(() => {
+          setStatus(null);
+          onClose();
+        }, 5000);
       } else if (err.code === "auth/too-many-requests") {
-        errorMsg = "Muitas tentativas em pouco tempo. Aguarde alguns instantes.";
+        setStatus({ type: "error", message: "Muitas tentativas em pouco tempo. Aguarde alguns instantes." });
+      } else {
+        setStatus({ type: "error", message: "Não foi possível processar a solicitação agora. Tente novamente mais tarde." });
       }
-      setStatus({ type: "error", message: errorMsg });
     } finally {
       setLoading(false);
     }
@@ -166,7 +191,7 @@ export default function ForgotPasswordModal({ open, onClose, defaultEmail = "" }
           <Button
             type="submit"
             variant="contained"
-            disabled={loading}
+            disabled={loading || cooldown > 0}
             startIcon={loading ? <CircularProgress size={16} color="inherit" /> : <SendIcon />}
             sx={{
               bgcolor: isDark ? "#bf8f00" : "#833c0b",
@@ -177,7 +202,7 @@ export default function ForgotPasswordModal({ open, onClose, defaultEmail = "" }
               "&:hover": { bgcolor: isDark ? "#ffd700" : "#a34d10" }
             }}
           >
-            {loading ? "Enviando..." : "Enviar Link"}
+            {loading ? "Enviando..." : cooldown > 0 ? `Aguarde ${cooldown}s` : "Enviar Link"}
           </Button>
         </DialogActions>
       </Box>
