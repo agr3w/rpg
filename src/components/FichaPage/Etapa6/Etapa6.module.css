@@ -1,56 +1,75 @@
+/* ==========================================================================
+   ETAPA 6: ANTECEDENTE & ORIGEM EM PERGAMINHO
+   ========================================================================== */
+
 .container {
   width: 100%;
-  max-width: 640px;
-  margin: 0 auto;
+  max-width: 680px;
+  margin: 1.5rem auto 3rem auto;
   color: #2b1d14;
+  font-family: inherit;
+  background-color: #fdf6e3;
+  background-image: radial-gradient(circle at center, #fffbf0 0%, #f3eacb 100%);
+  border: 2px solid #c9ad6a;
+  outline: 6px solid #3b2014;
+  border-radius: 8px;
+  padding: 2.2rem 2.5rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), inset 0 0 60px rgba(139, 69, 19, 0.15);
+  box-sizing: border-box;
+  position: relative;
+  z-index: 2;
 }
 
 .header {
   text-align: center;
-  margin-bottom: 1.4rem;
+  margin-bottom: 1.5rem;
 }
 
 .header h2 {
   font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
-  font-size: 1.8rem;
+  font-size: 1.85rem;
   color: #58180d;
-  margin: 0 0 0.35rem 0;
+  margin: 0 0 0.4rem 0;
   letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 800;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.6);
 }
 
 .subtitle {
   font-family: Georgia, serif;
   font-style: italic;
-  font-size: 0.85rem;
-  color: #6a4f38;
-  margin: 0 0 0.8rem 0;
-  line-height: 1.4;
+  font-size: 0.9rem;
+  color: #5c412b;
+  margin: 0 auto 0.8rem auto;
+  line-height: 1.45;
+  max-width: 90%;
 }
 
 .divider {
   height: 2px;
   background: linear-gradient(90deg, transparent, #8c6a46 50%, transparent);
-  width: 75%;
-  margin: 0 auto;
+  width: 80%;
+  margin: 0.8rem auto 0 auto;
 }
 
 .inputGroup {
-  margin-bottom: 1.3rem;
+  margin-bottom: 1.4rem;
 }
 
 .labelRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.4rem;
 }
 
 .label {
   font-family: var(--font-cinzel, 'Cinzel', serif);
-  font-size: 0.72rem;
-  font-weight: 700;
+  font-size: 0.76rem;
+  font-weight: 800;
   letter-spacing: 1px;
-  color: #5c412b;
+  color: #58180d;
   text-transform: uppercase;
 }
 
@@ -60,7 +79,7 @@
   border-radius: 4px;
   padding: 4px 10px;
   font-family: var(--font-cinzel, 'Cinzel', serif);
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 700;
   color: #4a3424;
   cursor: pointer;
@@ -68,6 +87,7 @@
   align-items: center;
   gap: 5px;
   transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(60, 40, 20, 0.08);
 }
 
 .btnRandom:hover {
@@ -82,21 +102,23 @@
 
 .styledSelect {
   width: 100%;
-  background: #fdfbf7;
+  background: #fffdf9;
   border: 2px solid #8c6a46;
   border-radius: 6px;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 2.4rem 0.75rem 1rem;
   font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
   font-size: 1.05rem;
   font-weight: bold;
   color: #26160c;
   cursor: pointer;
-  box-shadow: inset 0 1px 3px rgba(60, 40, 20, 0.12);
+  box-shadow: inset 0 1px 3px rgba(60, 40, 20, 0.1);
   appearance: none;
+  -webkit-appearance: none;
   background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%235C412B%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
   background-repeat: no-repeat;
   background-position: right 1rem center;
   background-size: 10px;
+  box-sizing: border-box;
 }
 
 .styledSelect:focus {
@@ -106,35 +128,37 @@
 }
 
 .detailCard {
-  background: #fdfaf2;
-  border: 1px solid #9e8264;
+  background: #fcf8ee;
+  border: 1.5px solid #c9ad6a;
   border-radius: 8px;
-  padding: 1.2rem;
-  box-shadow: inset 0 0 15px rgba(160, 125, 75, 0.12);
+  padding: 1.3rem 1.4rem;
+  box-shadow: 
+    0 4px 12px rgba(60, 40, 20, 0.05),
+    inset 0 0 20px rgba(180, 150, 100, 0.12);
 }
 
 .descText {
-  font-size: 0.88rem;
-  color: #3b2516;
-  line-height: 1.5;
-  margin: 0 0 1rem 0;
+  font-size: 0.9rem;
+  color: #2b1d14;
+  line-height: 1.55;
+  margin: 0 0 1.1rem 0;
 }
 
 .benefitsGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 0.8rem;
+  gap: 10px;
+  margin-bottom: 1rem;
 }
 
 .benefitItem {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(140, 105, 70, 0.08);
-  border: 1px solid #d4c0a5;
-  border-radius: 4px;
-  padding: 6px 10px;
+  gap: 10px;
+  background: rgba(140, 105, 70, 0.09);
+  border: 1px solid #c9ad6a;
+  border-radius: 6px;
+  padding: 8px 12px;
 }
 
 .benefitIcon {
@@ -148,47 +172,51 @@
 .benefitItem small {
   display: block;
   font-family: var(--font-cinzel, 'Cinzel', serif);
-  font-size: 0.65rem;
-  color: #7d6550;
+  font-size: 0.68rem;
+  color: #6a4f38;
   text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 2px;
 }
 
 .benefitItem strong {
   display: block;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   color: #24130a;
+  line-height: 1.3;
 }
 
 .featureBox {
   background: #f7eedb;
-  border: 1px dashed #ad8f70;
+  border: 1.5px dashed #ad8f70;
   border-radius: 6px;
-  padding: 0.8rem 1rem;
-  margin-bottom: 0.8rem;
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 0.9rem;
 }
 
 .featureBox strong {
   display: block;
   font-family: var(--font-cinzel, 'Cinzel', serif);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   color: #9e2a2b;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.25rem;
+  font-weight: 800;
 }
 
 .featureBox p {
   margin: 0;
-  font-size: 0.84rem;
-  color: #4a3424;
-  line-height: 1.45;
+  font-size: 0.86rem;
+  color: #3b2516;
+  line-height: 1.5;
 }
 
 /* Seção de Idiomas adicionais concedidos pelo antecedente */
 .languagesBox {
-  background: rgba(140, 105, 70, 0.06);
-  border: 1px solid #d4c0a5;
+  background: #f7eedb;
+  border: 1.5px solid #c9ad6a;
   border-radius: 6px;
-  padding: 0.8rem 1rem;
-  margin-top: 0.8rem;
+  padding: 0.9rem 1.1rem;
+  margin-top: 0.9rem;
 }
 
 .languagesTitle {
@@ -196,36 +224,37 @@
   align-items: center;
   gap: 6px;
   font-family: var(--font-cinzel, 'Cinzel', serif);
-  font-size: 0.76rem;
-  font-weight: 700;
+  font-size: 0.78rem;
+  font-weight: 800;
   color: #58180d;
   text-transform: uppercase;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.65rem;
 }
 
 .languagesGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 10px;
 }
 
 .languageSelectRow label {
   display: block;
   font-family: var(--font-cinzel, 'Cinzel', serif);
-  font-size: 0.68rem;
+  font-size: 0.7rem;
+  font-weight: 700;
   color: #6a4f38;
   text-transform: uppercase;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.3rem;
 }
 
 .styledSelectSmall {
   width: 100%;
   background: #fffdf9;
   border: 1.5px solid #8c6a46;
-  border-radius: 4px;
-  padding: 0.5rem 0.7rem;
+  border-radius: 5px;
+  padding: 0.55rem 0.75rem;
   font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
-  font-size: 0.84rem;
+  font-size: 0.85rem;
   font-weight: bold;
   color: #26160c;
   cursor: pointer;
@@ -237,7 +266,10 @@
   border-color: #9e2a2b;
 }
 
-@media (max-width: 540px) {
+@media (max-width: 600px) {
+  .container {
+    padding: 1.4rem 1.1rem;
+  }
   .benefitsGrid {
     grid-template-columns: 1fr;
   }

@@ -1,129 +1,63 @@
-import React from "react";
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Typography,
-  Stack,
-  Paper,
-} from "@mui/material";
+import React, { useEffect, useMemo } from "react";
 import LayoutFicha from "components/FichaLayout/LayoutFicha";
+import CasinoOutlinedIcon from "@mui/icons-material/CasinoOutlined";
+import AutoStoriesOutlinedIcon from "@mui/icons-material/AutoStoriesOutlined";
+import PsychologyOutlinedIcon from "@mui/icons-material/PsychologyOutlined";
+import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
+import StyleOutlinedIcon from "@mui/icons-material/StyleOutlined";
+import styles from "./Etapa7.module.css";
 
-// Estilo reutilizável
-const dndBoxStyle = {
-  p: 2.5,
-  borderRadius: 2,
-  bgcolor: "rgba(243, 235, 214, 0.5)",
-  border: "1px solid rgba(92, 64, 51, 0.2)",
-  boxShadow: "inset 0 2px 4px rgba(0,0,0,0.03)",
-};
-
-const SingleTextSection = ({ antecedenteSelecionado }) => {
-  const label =
-    antecedenteSelecionado?.CaracteristicaDoAntecedente?.LabelCaracteristicaTexto1;
-  const texto =
-    antecedenteSelecionado?.CaracteristicaDoAntecedente?.CaracteristicaTexto1;
-
-  return (
-    <Paper elevation={0} sx={dndBoxStyle}>
-      <Typography variant="h6" sx={{ mb: 1, fontFamily: "Cinzel", color: "#58180D", fontWeight: 700 }}>
-        Características: {label}
-      </Typography>
-      <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", lineHeight: 1.6, color: "#2c1a10" }}>
-        {texto || "—"}
-      </Typography>
-    </Paper>
-  );
-};
-
-const SelectsSection = ({
-  antecedenteSelecionado,
-  CarcDosAntecedentes1,
-  setCarcDosAntecedents1,
-  CarcDosAntecedentes2,
-  setCarcDosAntecedentes2,
+// Subcomponente de seletor pergaminho padronizado e funcional
+const StyledSelectBox = ({
+  id,
+  label,
+  options = [],
+  value,
+  onChange,
+  onRandom,
+  icon: Icon = StyleOutlinedIcon,
 }) => {
-  const select1Label =
-    antecedenteSelecionado?.CaracteristicaDoAntecedente?.LabelCaracteristicaSelect1;
-  const select2Label =
-    antecedenteSelecionado?.CaracteristicaDoAntecedente?.LabelCaracteristicaSelect2;
-  const options1 =
-    antecedenteSelecionado?.CaracteristicaDoAntecedente?.CaracteristicaSelect1 || [];
-  const options2 =
-    antecedenteSelecionado?.CaracteristicaDoAntecedente?.CaracteristicaSelect2 || [];
-
   return (
-    <Stack spacing={2}>
-      <FormControl fullWidth>
-        <InputLabel>{select1Label}</InputLabel>
-        <Select
-          label={select1Label}
-          value={CarcDosAntecedentes1}
-          onChange={(e) => setCarcDosAntecedents1(e.target.value)}
+    <div className={styles.selectCard}>
+      <div className={styles.labelRow}>
+        <label className={styles.label} htmlFor={id}>
+          <span className={styles.labelIcon}>
+            <Icon sx={{ fontSize: "1rem" }} />
+          </span>
+          <span>{label}</span>
+        </label>
+        {options.length > 1 && (
+          <button
+            type="button"
+            className={styles.btnRandom}
+            onClick={onRandom}
+            title={`Sortear ${label}`}
+          >
+            <CasinoOutlinedIcon sx={{ fontSize: "0.95rem" }} />
+            <span>Aleatório</span>
+          </button>
+        )}
+      </div>
+
+      <div className={styles.selectWrapper}>
+        <select
+          id={id}
+          className={styles.styledSelect}
+          value={value || ""}
+          onChange={(e) => onChange(e.target.value)}
         >
-          <MenuItem value=""><em>{select1Label}</em></MenuItem>
-          {options1.map((opcao) => (
-            <MenuItem key={opcao} value={opcao} sx={{ whiteSpace: "normal" }}>{opcao}</MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <FormControl fullWidth>
-        <InputLabel>{select2Label}</InputLabel>
-        <Select
-          label={select2Label}
-          value={CarcDosAntecedentes2}
-          onChange={(e) => setCarcDosAntecedentes2(e.target.value)}
-        >
-          <MenuItem value=""><em>{select2Label}</em></MenuItem>
-          {options2.map((opcao) => (
-            <MenuItem key={opcao} value={opcao} sx={{ whiteSpace: "normal" }}>{opcao}</MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-    </Stack>
-  );
-};
-
-const TextAndSelectSection = ({
-  antecedenteSelecionado,
-  CarcDosAntecedentes3,
-  setCarcDosAntecedents3,
-}) => {
-  const selectLabel =
-    antecedenteSelecionado?.CaracteristicaDoAntecedente?.LabelCaracteristicaSelect1;
-  const options =
-    antecedenteSelecionado?.CaracteristicaDoAntecedente?.CaracteristicaSelect1 || [];
-  const texto =
-    antecedenteSelecionado?.CaracteristicaDoAntecedente?.CaracteristicaTexto1;
-
-  return (
-    <Stack spacing={2}>
-      <FormControl fullWidth>
-        <InputLabel>{selectLabel}</InputLabel>
-        <Select
-          label={selectLabel}
-          value={CarcDosAntecedentes3}
-          onChange={(e) => setCarcDosAntecedents3(e.target.value)}
-        >
-          <MenuItem value=""><em>{selectLabel}</em></MenuItem>
-          {options.map((opcao) => (
-            <MenuItem key={opcao} value={opcao} sx={{ whiteSpace: "normal" }}>{opcao}</MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <Paper elevation={0} sx={dndBoxStyle}>
-        <Typography variant="h6" sx={{ mb: 1, fontFamily: "Cinzel", color: "#58180D", fontWeight: 700 }}>
-          Características: {antecedenteSelecionado?.CaracteristicaDoAntecedente?.LabelCaracteristicaTexto1}
-        </Typography>
-        <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", lineHeight: 1.6, color: "#2c1a10" }}>
-          {texto || "—"}
-        </Typography>
-      </Paper>
-    </Stack>
+          {options.length === 0 ? (
+            <option value="">Nenhuma opção disponível</option>
+          ) : (
+            options.map((opcao, idx) => (
+              <option key={idx} value={opcao}>
+                {opcao}
+              </option>
+            ))
+          )}
+        </select>
+      </div>
+    </div>
   );
 };
 
@@ -137,55 +71,172 @@ const Etapa7 = ({
   CarcDosAntecedentes3,
   setCarcDosAntecedents3,
 }) => {
-  const showSingleText =
-    ["Acólito", "Marinheiro", "Nobre", "Órfão"].includes(antecedente);
-  const showSelects = antecedente === "Artesão de Guilda";
-  const showTextAndSelect = [
-    "Charlatão",
-    "Artista",
-    "Criminoso",
-    "Eremita",
-    "Forasteiro",
-    "Sábio",
-    "Soldado",
-    "Herói do Povo",
-  ].includes(antecedente);
+  const caracteristica = antecedenteSelecionado?.CaracteristicaDoAntecedente || {};
 
-  const sugestoes =
-    antecedenteSelecionado?.CaracteristicaDoAntecedente?.caracteristicasSugeridas;
+  const labelSelect1 =
+    caracteristica.LabelCaracteristicaSelect1 || "Escolha uma Especialização";
+  const optionsSelect1 = useMemo(() => {
+    return Array.isArray(caracteristica.CaracteristicaSelect1)
+      ? caracteristica.CaracteristicaSelect1.filter((op) => op && String(op).trim() !== "")
+      : [];
+  }, [caracteristica.CaracteristicaSelect1]);
+
+  const labelSelect2 =
+    caracteristica.LabelCaracteristicaSelect2 || "Característica Adicional";
+  const optionsSelect2 = useMemo(() => {
+    return Array.isArray(caracteristica.CaracteristicaSelect2)
+      ? caracteristica.CaracteristicaSelect2.filter((op) => op && String(op).trim() !== "")
+      : [];
+  }, [caracteristica.CaracteristicaSelect2]);
+
+  const labelTexto1 =
+    caracteristica.LabelCaracteristicaTexto1 || "Recurso da Origem";
+  const texto1 = caracteristica.CaracteristicaTexto1 || "";
+
+  const sugestoes = caracteristica.caracteristicasSugeridas;
+  const sugestoesFormatadas = Array.isArray(sugestoes)
+    ? sugestoes.join("\n\n")
+    : sugestoes || "";
+
+  const normalize = (s) =>
+    String(s || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim();
+
+  const normAntecedente = normalize(antecedente);
+
+  // Determinação de layout
+  const isArtesao =
+    normAntecedente === "artesao de guilda" ||
+    (optionsSelect1.length > 0 && optionsSelect2.length > 0);
+
+  const hasSingleSelect = !isArtesao && optionsSelect1.length > 0;
+
+  // Auto-seleção inicial protegida contra valores em branco
+  useEffect(() => {
+    if (isArtesao) {
+      if (
+        optionsSelect1.length > 0 &&
+        (!CarcDosAntecedentes1 || !optionsSelect1.includes(CarcDosAntecedentes1))
+      ) {
+        setCarcDosAntecedents1?.(optionsSelect1[0]);
+      }
+      if (
+        optionsSelect2.length > 0 &&
+        (!CarcDosAntecedentes2 || !optionsSelect2.includes(CarcDosAntecedentes2))
+      ) {
+        setCarcDosAntecedentes2?.(optionsSelect2[0]);
+      }
+    } else if (hasSingleSelect) {
+      if (
+        optionsSelect1.length > 0 &&
+        (!CarcDosAntecedentes3 || !optionsSelect1.includes(CarcDosAntecedentes3))
+      ) {
+        setCarcDosAntecedents3?.(optionsSelect1[0]);
+      }
+    }
+  }, [
+    antecedente,
+    isArtesao,
+    hasSingleSelect,
+    optionsSelect1,
+    optionsSelect2,
+    CarcDosAntecedentes1,
+    CarcDosAntecedentes2,
+    CarcDosAntecedentes3,
+    setCarcDosAntecedents1,
+    setCarcDosAntecedentes2,
+    setCarcDosAntecedents3,
+  ]);
+
+  // Sorteios aleatórios
+  const handleRandom1 = () => {
+    if (!optionsSelect1.length) return;
+    const chosen = optionsSelect1[Math.floor(Math.random() * optionsSelect1.length)];
+    setCarcDosAntecedents1?.(chosen);
+  };
+
+  const handleRandom2 = () => {
+    if (!optionsSelect2.length) return;
+    const chosen = optionsSelect2[Math.floor(Math.random() * optionsSelect2.length)];
+    setCarcDosAntecedentes2?.(chosen);
+  };
+
+  const handleRandom3 = () => {
+    if (!optionsSelect1.length) return;
+    const chosen = optionsSelect1[Math.floor(Math.random() * optionsSelect1.length)];
+    setCarcDosAntecedents3?.(chosen);
+  };
 
   return (
     <LayoutFicha title="Detalhes do Antecedente">
-      <Stack spacing={3}>
-        {showSingleText && <SingleTextSection antecedenteSelecionado={antecedenteSelecionado} />}
+      <div className={styles.contentWrapper}>
+        {/* Caso 1: Dois seletores (Ex: Artesão de Guilda) */}
+        {isArtesao && (
+          <>
+            <StyledSelectBox
+              id="artesao-negocios-select"
+              label={labelSelect1}
+              options={optionsSelect1}
+              value={CarcDosAntecedentes1}
+              onChange={(val) => setCarcDosAntecedents1?.(val)}
+              onRandom={handleRandom1}
+              icon={HandymanOutlinedIcon}
+            />
 
-        {showSelects && (
-          <SelectsSection
-            antecedenteSelecionado={antecedenteSelecionado}
-            CarcDosAntecedentes1={CarcDosAntecedentes1}
-            setCarcDosAntecedents1={setCarcDosAntecedents1}
-            CarcDosAntecedentes2={CarcDosAntecedentes2}
-            setCarcDosAntecedentes2={setCarcDosAntecedentes2}
+            <StyledSelectBox
+              id="artesao-caracteristicas-select"
+              label={labelSelect2}
+              options={optionsSelect2}
+              value={CarcDosAntecedentes2}
+              onChange={(val) => setCarcDosAntecedentes2?.(val)}
+              onRandom={handleRandom2}
+              icon={StyleOutlinedIcon}
+            />
+          </>
+        )}
+
+        {/* Caso 2: Um seletor + Texto explicativo (Ex: Charlatão, Eremita, Soldado, etc.) */}
+        {hasSingleSelect && (
+          <StyledSelectBox
+            id="antecedente-especialidade-select"
+            label={labelSelect1}
+            options={optionsSelect1}
+            value={CarcDosAntecedentes3}
+            onChange={(val) => setCarcDosAntecedents3?.(val)}
+            onRandom={handleRandom3}
+            icon={StyleOutlinedIcon}
           />
         )}
 
-        {showTextAndSelect && (
-          <TextAndSelectSection
-            antecedenteSelecionado={antecedenteSelecionado}
-            CarcDosAntecedentes3={CarcDosAntecedentes3}
-            setCarcDosAntecedents3={setCarcDosAntecedents3}
-          />
+        {/* Bloco de Característica Especial (quando existir) */}
+        {texto1 && (
+          <div className={styles.featureCard}>
+            <div className={styles.cardHeader}>
+              <span className={styles.cardIcon}>
+                <AutoStoriesOutlinedIcon sx={{ fontSize: "1.15rem" }} />
+              </span>
+              <span>Características: {labelTexto1}</span>
+            </div>
+            <p className={styles.cardBody}>{texto1}</p>
+          </div>
         )}
 
-        <Paper elevation={0} sx={{ ...dndBoxStyle, bgcolor: "rgba(255,255,255,0.4)" }}>
-          <Typography variant="h6" sx={{ mb: 1, fontFamily: "Cinzel", color: "#2c1a10", fontWeight: 700 }}>
-            Sugestões de Interpretação
-          </Typography>
-          <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", lineHeight: 1.6, color: "#3d2b1f", fontStyle: "italic" }}>
-            {sugestoes || "Nenhuma sugestão disponível."}
-          </Typography>
-        </Paper>
-      </Stack>
+        {/* Bloco de Sugestões de Interpretação */}
+        {sugestoesFormatadas && (
+          <div className={styles.suggestionCard}>
+            <div className={styles.suggestionHeader}>
+              <span className={styles.cardIcon}>
+                <PsychologyOutlinedIcon sx={{ fontSize: "1.15rem" }} />
+              </span>
+              <span>Sugestões de Interpretação</span>
+            </div>
+            <p className={styles.suggestionBody}>{sugestoesFormatadas}</p>
+          </div>
+        )}
+      </div>
     </LayoutFicha>
   );
 };

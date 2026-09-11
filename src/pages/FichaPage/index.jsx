@@ -28,6 +28,7 @@ import Etapa8 from "components/FichaPage/Etapa8";
 import Etapa9 from "components/FichaPage/Etapa9";
 import Etapa10 from "components/FichaPage/Etapa10";
 import Etapa3 from "components/FichaPage/Etapa3";
+import SummaryCard from "components/FichaPage/SummaryCard";
 import {
   Button,
   Typography,
@@ -370,86 +371,7 @@ const FichaCriar = () => {
     }
   };
 
-  /* --- Summary small component --- */
-  const SummaryCard = () => (
-    <Paper elevation={6} sx={{ p: 3, borderRadius: 2, maxWidth: 880, mx: "auto" }}>
-      <Box sx={{ display: "flex", gap: 2, alignItems: "center", mb: 2 }}>
-        <Avatar sx={{ bgcolor: "primary.main", width: 56, height: 56 }}>
-          {nome ? nome.charAt(0).toUpperCase() : "?"}
-        </Avatar>
-        <Box>
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            {nome || "Sem nome"}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            Resumo rápido do personagem
-          </Typography>
-        </Box>
-      </Box>
-
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={6}>
-          <List dense>
-            <ListItem>
-              <ListItemText primary="Raça" secondary={raca || "—"} />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Sub-Raça" secondary={SubRaca || "—"} />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Classe" secondary={classe || "—"} />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Tendência" secondary={tendencia || "—"} />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Antecedente" secondary={antecedente || "—"} />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Riqueza Inicial" secondary={`${riquezaInicial} PO`} />
-            </ListItem>
-          </List>
-        </Grid>
-
-        <Grid item xs={12} md={6}>
-          <Typography variant="subtitle2" sx={{ mb: 1 }}>
-            Atributos (base escolhidos)
-          </Typography>
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }}>
-            {Object.entries(valoresHabilidade).map(([k, v]) => (
-              <Chip
-                key={k}
-                label={`${k}: ${v || "—"}`}
-                color="default"
-                size="small"
-              />
-            ))}
-          </Box>
-
-          <Divider sx={{ my: 1 }} />
-          <Typography variant="subtitle2" sx={{ mt: 1 }}>
-            Equipamentos & Perícias
-          </Typography>
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 1 }}>
-            <Chip label={equipamentosClasseSelecionada1 || "—"} size="small" />
-            <Chip label={equipamentosClasseSelecionada2 || "—"} size="small" />
-            <Chip label={equipamentosClasseSelecionada3 || "—"} size="small" />
-            <Chip label={equipamentosClasseSelecionada4 || "—"} size="small" />
-          </Box>
-
-          <Box sx={{ mt: 1 }}>
-            {periciasClasseSelecionadas.length ? (
-              periciasClasseSelecionadas.map((p) => (
-                <Chip key={p} label={p} size="small" sx={{ mr: 0.5, mt: 0.5 }} />
-              ))
-            ) : (
-              <Typography variant="caption" color="text.secondary">Nenhuma perícia selecionada</Typography>
-            )}
-          </Box>
-        </Grid>
-      </Grid>
-    </Paper>
-  );
+  /* --- Summary card is now imported from components/FichaPage/SummaryCard --- */
 
   /* Add these animation configs (local to component) */
   const steps = [
@@ -856,21 +778,42 @@ const FichaCriar = () => {
             )}
             {etapa === 11 && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}>
-                <SummaryCard />
-                <Box sx={{ mt: 2, display: "flex", gap: 2, justifyContent: "center" }}>
-                  <Button variant="outlined" color="secondary" onClick={() => setEtapa(10)}>
-                    Voltar e editar
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleConcluir}
-                    disabled={submitting || submitSuccess}
-                    startIcon={submitting ? <CircularProgress size={18} /> : null}
-                  >
-                    {submitSuccess ? "Concluído" : submitting ? "Enviando..." : "Concluir e Salvar"}
-                  </Button>
-                </Box>
+                <SummaryCard
+                  nome={nome}
+                  raca={raca}
+                  racaSelecionada={racaSelecionada}
+                  SubRaca={SubRaca}
+                  detalhesSubRaca={detalhesSubRaca}
+                  classe={classe}
+                  classeSelecioanda={classeSelecioanda}
+                  tendencia={tendencia}
+                  antecedente={antecedente}
+                  antecedenteSelecionado={antecedenteSelecionado}
+                  CarcDosAntecedentes1={CarcDosAntecedentes1}
+                  CarcDosAntecedentes2={CarcDosAntecedentes2}
+                  CarcDosAntecedentes3={CarcDosAntecedentes3}
+                  valoresHabilidade={valoresHabilidade}
+                  riquezaInicial={riquezaInicial}
+                  equipamentosClasseSelecionada1={equipamentosClasseSelecionada1}
+                  equipamentosClasseSelecionada2={equipamentosClasseSelecionada2}
+                  equipamentosClasseSelecionada3={equipamentosClasseSelecionada3}
+                  equipamentosClasseSelecionada4={equipamentosClasseSelecionada4}
+                  subSelecaoArmas={subSelecaoArmas}
+                  periciasClasseSelecionadas={periciasClasseSelecionadas}
+                  tracoPersonalidadeSelecionado={tracoPersonalidadeSelecionado}
+                  idealSelecionado={idealSelecionado}
+                  vinculoSelecionado={vinculoSelecionado}
+                  defeitoSelecionado={defeitoSelecionado}
+                  idiomaDoAntecedente={idiomaDoAntecedente}
+                  idiomaDoAntecendente2={idiomaDoAntecendente2}
+                  idiomaRacaSelecionado={idiomaRacaSelecionado}
+                  idiomaRacaSelecionado2={idiomaRacaSelecionado2}
+                  IdiomaAltoElfo={IdiomaAltoElfo}
+                  onEdit={() => setEtapa(10)}
+                  onSave={handleConcluir}
+                  submitting={submitting}
+                  submitSuccess={submitSuccess}
+                />
 
                 {submitError && (
                   <Typography color="error" sx={{ mt: 2 }} align="center">

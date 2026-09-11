@@ -1,76 +1,52 @@
 /* ==========================================================================
-   ETAPA 5: TENDÊNCIA (BÚSSOLA MORAL EM PERGAMINHO)
+   ETAPA 7: DETALHES DO ANTECEDENTE EM PERGAMINHO
    ========================================================================== */
 
-.container {
+.contentWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
   width: 100%;
-  max-width: 680px;
-  margin: 1.5rem auto 3rem auto;
-  color: #2b1d14;
-  font-family: inherit;
-  background-color: #fdf6e3;
-  background-image: radial-gradient(circle at center, #fffbf0 0%, #f3eacb 100%);
-  border: 2px solid #c9ad6a;
-  outline: 6px solid #3b2014;
+}
+
+.selectCard {
+  background: #fcf8ee;
+  border: 1.5px solid #c9ad6a;
   border-radius: 8px;
-  padding: 2.2rem 2.5rem;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), inset 0 0 60px rgba(139, 69, 19, 0.15);
+  padding: 1rem 1.2rem;
+  box-shadow: 0 2px 8px rgba(60, 40, 20, 0.05);
   box-sizing: border-box;
-  position: relative;
-  z-index: 2;
+  transition: border-color 0.2s ease;
 }
 
-.header {
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-
-.header h2 {
-  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
-  font-size: 1.85rem;
-  color: #58180d;
-  margin: 0 0 0.4rem 0;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  font-weight: 800;
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.6);
-}
-
-.subtitle {
-  font-family: Georgia, serif;
-  font-style: italic;
-  font-size: 0.9rem;
-  color: #5c412b;
-  margin: 0 auto 0.8rem auto;
-  line-height: 1.45;
-  max-width: 90%;
-}
-
-.divider {
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #8c6a46 50%, transparent);
-  width: 80%;
-  margin: 0.8rem auto 0 auto;
-}
-
-.inputGroup {
-  margin-bottom: 1.4rem;
+.selectCard:hover {
+  border-color: #ad8f70;
 }
 
 .labelRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.5rem;
 }
 
 .label {
-  font-family: var(--font-cinzel, 'Cinzel', serif);
-  font-size: 0.76rem;
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 0.8rem;
   font-weight: 800;
-  letter-spacing: 1px;
   color: #58180d;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.labelIcon {
+  color: #9e2a2b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btnRandom {
@@ -96,8 +72,13 @@
   border-color: #7a1d14;
 }
 
+.btnRandom:active {
+  transform: scale(0.97);
+}
+
 .selectWrapper {
   position: relative;
+  width: 100%;
 }
 
 .styledSelect {
@@ -107,7 +88,7 @@
   border-radius: 6px;
   padding: 0.75rem 2.4rem 0.75rem 1rem;
   font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   font-weight: bold;
   color: #26160c;
   cursor: pointer;
@@ -119,6 +100,7 @@
   background-position: right 1rem center;
   background-size: 10px;
   box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .styledSelect:focus {
@@ -127,66 +109,97 @@
   box-shadow: 0 0 0 3px rgba(158, 42, 43, 0.18);
 }
 
-/* Card de Filosofia */
-.quoteBox {
+.styledSelect option {
+  background: #fffdf9;
+  color: #26160c;
+  font-family: inherit;
+  font-size: 0.92rem;
+  padding: 8px 10px;
+}
+
+.featureCard {
   background: #fcf8ee;
   border: 1.5px solid #c9ad6a;
   border-radius: 8px;
-  padding: 1.3rem 1.5rem;
+  padding: 1.2rem 1.4rem;
   box-shadow: 
     0 4px 12px rgba(60, 40, 20, 0.05),
     inset 0 0 20px rgba(180, 150, 100, 0.12);
-  position: relative;
+  box-sizing: border-box;
 }
 
-.quoteHeader {
+.cardHeader {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.7rem;
-}
-
-.eixoBadge {
-  font-family: var(--font-cinzel, 'Cinzel', serif);
-  font-size: 0.75rem;
+  gap: 8px;
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 0.95rem;
   font-weight: 800;
-  background: #ecdcc3;
-  color: #5c3e26;
-  padding: 3px 10px;
-  border-radius: 4px;
-  border: 1px solid #ad8f70;
+  color: #58180d;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  margin: 0 0 0.6rem 0;
 }
 
-.quoteMark {
-  font-family: Georgia, serif;
-  font-size: 2.4rem;
-  color: #c9b197;
-  line-height: 1;
+.cardIcon {
+  color: #9e2a2b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.quoteSummary {
+.cardBody {
+  font-family: inherit;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: #2c1a10;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.suggestionCard {
+  background: rgba(255, 255, 255, 0.45);
+  border: 1.5px dashed #ad8f70;
+  border-radius: 8px;
+  padding: 1.1rem 1.3rem;
+  box-sizing: border-box;
+}
+
+.suggestionHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #3d2b1f;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 0.5rem 0;
+}
+
+.suggestionBody {
   font-family: Georgia, serif;
   font-style: italic;
-  font-size: 1rem;
-  color: #8a1d1e;
-  line-height: 1.5;
-  margin: 0 0 0.75rem 0;
-  font-weight: 600;
-}
-
-.quoteFullDesc {
-  font-size: 0.88rem;
-  color: #2b1d14;
+  font-size: 0.9rem;
   line-height: 1.6;
+  color: #3d2b1f;
   margin: 0;
-  border-top: 1px dashed #d1beaa;
-  padding-top: 0.75rem;
+  white-space: pre-wrap;
 }
 
 @media (max-width: 600px) {
-  .container {
-    padding: 1.4rem 1.1rem;
+  .selectCard {
+    padding: 0.85rem 1rem;
+  }
+
+  .styledSelect {
+    font-size: 0.88rem;
+    padding: 0.65rem 2.2rem 0.65rem 0.8rem;
+  }
+
+  .featureCard,
+  .suggestionCard {
+    padding: 1rem 1.1rem;
   }
 }

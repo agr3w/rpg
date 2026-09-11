@@ -356,6 +356,46 @@ const FichaDetalhes = () => {
     setEditedName(ficha.nome || "");
   }, [ficha?.nome]);
 
+  // 🔹 Resolução do Inventário (com fallback para Fichas criadas anteriormente)
+  const inventoryResolvido = useMemo(() => {
+    if (!ficha) return { backpack: {}, equipped: {} };
+    const inv = ficha.inventory;
+    const temItensBackpack = inv?.backpack && Object.keys(inv.backpack).length > 0;
+    const temItensEquipped = inv?.equipped && Object.keys(inv.equipped).length > 0;
+
+    if (temItensBackpack || temItensEquipped) {
+      return inv;
+    }
+
+    if (ficha.DetalhesDaClasse?.Equipamentos) {
+      const equipamentos = ficha.DetalhesDaClasse.Equipamentos;
+      const gerado = gerarInventarioInicial(
+        equipamentos,
+        equipamentos.equipamentoObgt
+      );
+      return {
+        backpack: gerado.backpack || {},
+        equipped: gerado.equipped || {},
+      };
+    }
+
+    return inv || { backpack: {}, equipped: {} };
+  }, [ficha?.inventory, ficha?.DetalhesDaClasse]);
+
+  const caDetalhes = useMemo(() => {
+    if (!ficha) return null;
+    if (ficha.caDetalhes) return ficha.caDetalhes;
+    if (ficha.DetalhesDaClasse?.Equipamentos) {
+      const equipamentos = ficha.DetalhesDaClasse.Equipamentos;
+      const gerado = gerarInventarioInicial(
+        equipamentos,
+        equipamentos.equipamentoObgt
+      );
+      if (gerado.caDetalhes) return gerado.caDetalhes;
+    }
+    return null;
+  }, [ficha?.caDetalhes, ficha?.DetalhesDaClasse]);
+
   if (isInitialLoading && !ficha) {
     return (
       <>
@@ -582,43 +622,7 @@ const FichaDetalhes = () => {
     };
   }
 
-  // 🔹 Resolução do Inventário (com fallback para Fichas criadas anteriormente)
-  const inventoryResolvido = useMemo(() => {
-    const inv = ficha.inventory;
-    const temItensBackpack = inv?.backpack && Object.keys(inv.backpack).length > 0;
-    const temItensEquipped = inv?.equipped && Object.keys(inv.equipped).length > 0;
 
-    if (temItensBackpack || temItensEquipped) {
-      return inv;
-    }
-
-    if (ficha.DetalhesDaClasse?.Equipamentos) {
-      const equipamentos = ficha.DetalhesDaClasse.Equipamentos;
-      const gerado = gerarInventarioInicial(
-        equipamentos,
-        equipamentos.equipamentoObgt
-      );
-      return {
-        backpack: gerado.backpack || {},
-        equipped: gerado.equipped || {},
-      };
-    }
-
-    return inv || {};
-  }, [ficha.inventory, ficha.DetalhesDaClasse]);
-
-  const caDetalhes = useMemo(() => {
-    if (ficha.caDetalhes) return ficha.caDetalhes;
-    if (ficha.DetalhesDaClasse?.Equipamentos) {
-      const equipamentos = ficha.DetalhesDaClasse.Equipamentos;
-      const gerado = gerarInventarioInicial(
-        equipamentos,
-        equipamentos.equipamentoObgt
-      );
-      if (gerado.caDetalhes) return gerado.caDetalhes;
-    }
-    return null;
-  }, [ficha.caDetalhes, ficha.DetalhesDaClasse]);
 
   const caTotal =
     typeof ficha.ca === "number"

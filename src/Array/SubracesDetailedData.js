@@ -5,7 +5,7 @@ export const SUBRACES_DATA = {
     raceId: "anao",
     name: "Anão da Colina",
     quote: "Sentidos afiados, sabedoria profunda e a lendária tenacidade dos anões dourados.",
-    image: "https://images.unsplash.com/photo-1546182990-dffeafbe841d?auto=format&fit=crop&w=400&q=80",
+    image: "https://static.wikia.nocookie.net/iccarion/images/7/7b/Hill_dwarf.jpg/revision/latest?cb=20210301232207&path-prefix=pt-br",
     quickStats: {
       abilityBonus: "Sabedoria +1",
       hpBonus: "+1 PV máx por nível",
@@ -34,7 +34,7 @@ export const SUBRACES_DATA = {
     raceId: "anao",
     name: "Anão da Montanha",
     quote: "Força bruta forjada no granito e domínio marcial blindado sob cotas de malha ancestrais.",
-    image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80",
+    image: "https://static.wikia.nocookie.net/dd-5-edicao-brasil/images/6/62/An%C3%A3o_da_Montanha.jpg/revision/latest?cb=20180203164249&path-prefix=pt-br",
     quickStats: {
       abilityBonus: "Força +2",
       armorProf: "Armaduras Leves e Médias",
@@ -64,7 +64,7 @@ export const SUBRACES_DATA = {
     raceId: "elfo",
     name: "Alto Elfo",
     quote: "Mente aguçada, erudição arcana e a herança dourada dos reinos élficos imperecíveis.",
-    image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=400&q=80",
+    image: "https://i.pinimg.com/736x/82/b3/2b/82b32b0ecc22ef6ae7d20841dea5e2ae.jpg",
     quickStats: {
       abilityBonus: "Inteligência +1",
       extraSpell: "1 Truque de Mago",
@@ -101,7 +101,7 @@ export const SUBRACES_DATA = {
     raceId: "elfo",
     name: "Elfo da Floresta",
     quote: "Pés velozes entre a folhagem, camuflagem mística e olhos que nunca perdem uma presa de vista.",
-    image: "https://images.unsplash.com/photo-1511447333015-45b65e60f6d5?auto=format&fit=crop&w=400&q=80",
+    image: "https://i.pinimg.com/474x/e6/9a/71/e69a71805655b015da83616c0052ef32.jpg",
     quickStats: {
       abilityBonus: "Sabedoria +1",
       speed: "10,5 metros (Pés Ligeiros)",
@@ -138,7 +138,7 @@ export const SUBRACES_DATA = {
     raceId: "elfo",
     name: "Elfo Negro (Drow)",
     quote: "A graça letal das profundezas do Subterrâneo, tecida em magia de sombras e veneno.",
-    image: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=400&q=80",
+    image: "https://i.redd.it/zt9k67ojhhl21.jpg",
     quickStats: {
       abilityBonus: "Carisma +1",
       darkvision: "36 metros (Superior)",
@@ -180,7 +180,7 @@ export const SUBRACES_DATA = {
     raceId: "halfling",
     name: "Halfling Pés-Leves",
     quote: "Mestres da esquiva e da simpatia, deslizam por trás de gigantes sem emitir um único suspiro.",
-    image: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=400&q=80",
+    image: "https://i.pinimg.com/originals/7e/2b/19/7e2b1925a50d0ef31ad5b4ebd2a88bf3.jpg",
     quickStats: {
       abilityBonus: "Carisma +1",
       stealth: "Furtividade Natural",
@@ -209,7 +209,7 @@ export const SUBRACES_DATA = {
     raceId: "halfling",
     name: "Halfling Robusto",
     quote: "A solidez do carvalho em corpo miúdo, imune às peçonhas mais traiçoeiras.",
-    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80",
+    image: "https://static.wikia.nocookie.net/ebbion/images/6/64/Bree.png/revision/latest?cb=20210916174934&path-prefix=pt-br",
     quickStats: {
       abilityBonus: "Constituição +1",
       resistance: "Resiliência contra Veneno",
@@ -239,7 +239,7 @@ export const SUBRACES_DATA = {
     raceId: "humano",
     name: "Humano Padrão",
     quote: "A força do equilíbrio: capacidade inigualável de se aprimorar em todas as facetas da vida.",
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+    image: "https://da94e32ebb.cbaul-cdnwnd.com/290bd8c821276dcb7a298aa2eac7ef1c/200000086-2717928109/hhh.jpg?ph=da94e32ebb",
     quickStats: {
       abilityBonus: "+1 em TODOS os 6 Atributos",
       language: "+1 Idioma Adicional",
@@ -272,7 +272,7 @@ export const SUBRACES_DATA = {
     raceId: "humano",
     name: "Humano Variante (Talento)",
     quote: "Especialistas natos que forjam seu próprio destino através de talentos ímpares desde o berço.",
-    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80",
+    image: "https://www.gmbinder.com/images/z3zoxpv.png",
     quickStats: {
       abilityBonus: "+1 em Dois Atributos Livres",
       feat: "1 Talento Inicial Adicional",
@@ -310,7 +310,7 @@ export const SUBRACES_DATA = {
     raceId: "draconato",
     name: "Draconato Cromático",
     quote: "A ferocidade elemental dos dragões vermelhos, azuis, verdes, negros ou brancos fluindo em seu sopro.",
-    image: "https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=400&q=80",
+    image: "https://static.wikia.nocookie.net/iccarion/images/5/50/Draconatoashirok.png/revision/latest?cb=20201206125948&path-prefix=pt-br",
     quickStats: {
       breath: "Sopro Destrutivo (Ácido, Fogo, Frio, etc.)",
       resistance: "Resistência Elemental Inata",
@@ -343,7 +343,7 @@ export const SUBRACES_DATA = {
     raceId: "draconato",
     name: "Draconato Metálico",
     quote: "A nobreza do ouro, prata, bronze, cobre e latão: protetores incansáveis da honra e dos fracos.",
-    image: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=400&q=80",
+    image: "https://i.pinimg.com/originals/fb/f3/00/fbf30019064e16077648119e33c57c17.jpg",
     quickStats: {
       breath: "Sopro Metálico (Fogo, Frio, Elétrico)",
       resistance: "Resistência Elemental Inata",
@@ -377,7 +377,7 @@ export const SUBRACES_DATA = {
     raceId: "gnomo",
     name: "Gnomo das Rochas",
     quote: "Engrenagens reluzentes, pólvora fina e o toque genial que dá vida a mecanismos incríveis.",
-    image: "https://images.unsplash.com/photo-1514539079130-25950c84af65?auto=format&fit=crop&w=400&q=80",
+    image: "https://i.pinimg.com/474x/60/38/79/60387910c9c2e0c883abe301e6445f1b.jpg",
     quickStats: {
       abilityBonus: "Constituição +1",
       tools: "Ferramentas de Engenhoqueiro",
@@ -410,7 +410,7 @@ export const SUBRACES_DATA = {
     raceId: "gnomo",
     name: "Gnomo da Floresta",
     quote: "Ilusões delicadas, passos silenciosos entre as raízes e comunhão sincera com as feras da mata.",
-    image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80",
+    image: "https://i.pinimg.com/474x/d3/f9/d0/d3f9d0c56b7ec03e752571b60cf29f76.jpg",
     quickStats: {
       abilityBonus: "Destreza +1",
       innateSpell: "Ilusão Menor (Int)",
@@ -444,7 +444,7 @@ export const SUBRACES_DATA = {
     raceId: "meio-orc",
     name: "Linhagem das Tribos Fronteiriças",
     quote: "A tenacidade indomável de quem sobreviveu ao escárnio de dois mundos através da força absoluta.",
-    image: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=400&q=80",
+    image: "https://i.redd.it/tp0kutm6jiy71.jpg",
     quickStats: {
       abilityBonus: "Força +2, Constituição +1",
       relentless: "Resistência Implacável (1 PV)",
@@ -481,7 +481,7 @@ export const SUBRACES_DATA = {
     raceId: "meio-elfo",
     name: "Herança de Dois Mundos",
     quote: "A ponte viva entre a paixão humana e a graça élfica, mestre da diplomacia e versatilidade.",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+    image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEicJ94gBbqz9Zit7OaR88Z5o6rBfhhZHPmkJH1FSg8UAIEowK9leqmVuvFQrdifEcynRQk8Nq7lw9mKgreKIqnfgD5jP9I5iO4H39q6xPOOQpBfDjNy5hbS57IcPe2MxS-PEy-mJb1QJwfd/s1600/Elfo.jpg",
     quickStats: {
       abilityBonus: "Carisma +2, dois à escolha +1",
       versatility: "2 Perícias à Escolha",
@@ -514,7 +514,7 @@ export const SUBRACES_DATA = {
     raceId: "tiefling",
     name: "Linhagem Infernal de Asmodeus",
     quote: "O fogo dos Nove Infernos corre em suas veias, concedendo comando sobre chamas e trevas.",
-    image: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=400&q=80",
+    image: "https://static.wikia.nocookie.net/forgottenrealms/images/4/42/Asmodeus_AFR.jpg/revision/latest?cb=20210803004324",
     quickStats: {
       abilityBonus: "Carisma +2, Inteligência +1",
       fireResistance: "Resistência a Fogo",
