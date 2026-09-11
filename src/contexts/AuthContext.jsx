@@ -16,5 +16,22 @@ export const AuthProvider = ({ children }) => {
     return () => unsub();
   }, []);
 
-  return <AuthContext.Provider value={{ user, loading }}>{children}</AuthContext.Provider>;
+  const refreshUser = async () => {
+    if (auth.currentUser) {
+      await auth.currentUser.reload();
+      const currentUser = auth.currentUser;
+      const updatedUser = currentUser
+        ? Object.assign(Object.create(Object.getPrototypeOf(currentUser)), currentUser)
+        : null;
+      setUser(updatedUser);
+      return updatedUser;
+    }
+    return null;
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, loading, refreshUser }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };

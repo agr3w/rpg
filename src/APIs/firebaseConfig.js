@@ -30,5 +30,8 @@ const app = !firebase.apps.length ? firebase.initializeApp(firebaseConfig) : fir
 export const auth = firebase.auth();
 export const database = firebase.database();
 export const storage = firebase.storage();
+export const googleProvider = new firebase.auth.GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: "select_account" });
+
 export { app, firebase };
 export default firebase;

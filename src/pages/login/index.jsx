@@ -13,9 +13,9 @@ import {
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
 import LoginIcon from "@mui/icons-material/Login";
 import { usePreferences } from "contexts/PreferencesContext";
@@ -28,6 +28,7 @@ export default function LoginPage({ initialTab = 0 }) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const { prefs, updatePrefs } = usePreferences();
+  const navigate = useNavigate();
 
   const handleToggleTheme = () => {
     updatePrefs({ themeMode: isDark ? "light" : "dark" });
@@ -55,27 +56,76 @@ export default function LoginPage({ initialTab = 0 }) {
       {/* Barra Superior com Logo e Seletor de Tema */}
       <Container maxWidth="lg" sx={{ mb: { xs: 2, md: 3.5 }, px: { xs: 0.5, md: 2 } }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <Box
+            onClick={() => navigate("/")}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1.6,
+              cursor: "pointer",
+              transition: "transform 0.2s ease",
+              "&:hover": {
+                transform: "translateY(-1px)",
+                "& .brand-logo-badge": {
+                  transform: "scale(1.05)",
+                  boxShadow: isDark
+                    ? "0 0 20px rgba(255,215,0,0.4)"
+                    : "0 6px 16px rgba(131,60,11,0.22)"
+                }
+              }
+            }}
+          >
             <Box
+              className="brand-logo-badge"
               sx={{
-                width: 42,
-                height: 42,
-                borderRadius: 2.5,
-                bgcolor: isDark ? "rgba(255,215,0,0.15)" : "rgba(131,60,11,0.12)",
-                border: isDark ? "1.5px solid rgba(255,215,0,0.45)" : "1.5px solid rgba(131,60,11,0.35)",
+                width: 44,
+                height: 44,
+                borderRadius: "50%",
+                bgcolor: isDark ? "rgba(255,215,0,0.12)" : "rgba(131,60,11,0.08)",
+                border: isDark ? "1.5px solid rgba(255,215,0,0.5)" : "1.5px solid rgba(131,60,11,0.35)",
                 display: "grid",
                 placeItems: "center",
-                color: isDark ? "#ffd700" : "#833c0b",
-                boxShadow: isDark ? "0 0 15px rgba(255,215,0,0.3)" : "0 4px 12px rgba(131,60,11,0.15)"
+                p: 0.5,
+                boxShadow: isDark ? "0 0 16px rgba(255,215,0,0.25)" : "0 4px 12px rgba(131,60,11,0.15)",
+                transition: "all 0.25s ease",
+                overflow: "hidden"
               }}
             >
-              <AutoAwesomeIcon fontSize="small" />
+              <Box
+                component="img"
+                src="/Favicon.png"
+                alt="RPG Organizer Logo"
+                sx={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  filter: isDark
+                    ? "drop-shadow(0 0 6px rgba(255,215,0,0.4))"
+                    : "drop-shadow(0 2px 4px rgba(0,0,0,0.15))"
+                }}
+              />
             </Box>
             <Box>
-              <Typography variant="h6" sx={{ fontFamily: "Cinzel, serif", fontWeight: 900, color: isDark ? "#ffd700" : "#6d3008", lineHeight: 1.1 }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontFamily: "Cinzel, serif",
+                  fontWeight: 900,
+                  color: isDark ? "#ffd700" : "#6d3008",
+                  lineHeight: 1.1,
+                  letterSpacing: 0.8
+                }}
+              >
                 RPG Organizer
               </Typography>
-              <Typography variant="caption" sx={{ color: isDark ? "#b8ab99" : "#6e4b31", fontFamily: "Roboto, sans-serif", fontSize: "0.76rem" }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: isDark ? "#b8ab99" : "#6e4b31",
+                  fontFamily: "Roboto, sans-serif",
+                  fontSize: "0.76rem"
+                }}
+              >
                 Sua Mesa Virtual & Grimório
               </Typography>
             </Box>

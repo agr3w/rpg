@@ -1,4 +1,4 @@
-﻿// src/components/ComponentRegistrar/index.jsx
+// src/components/ComponentRegistrar/index.jsx
 import React, { useMemo, useState } from "react";
 import {
   Box,
@@ -21,7 +21,8 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
 import { useNavigate } from "react-router-dom";
-import { auth } from "APIs/firebaseConfig";
+import { cadastrarUsuario, reenviarVerificacao } from "APIs/authService";
+import GoogleSignInButton from "components/Auth/GoogleSignInButton";
 
 const emailIsValid = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -37,6 +38,9 @@ export default function RegisterComponent({ onSwitchToLogin }) {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [registeredUser, setRegisteredUser] = useState(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resendStatus, setResendStatus] = useState("");
 
   // Cálculo da Força da Senha
   const passwordStrength = useMemo(() => {
@@ -89,13 +93,8 @@ export default function RegisterComponent({ onSwitchToLogin }) {
 
     setSubmitting(true);
     try {
-      const userCredential = await auth.createUserWithEmailAndPassword(cleanedEmail, password);
-      if (cleanedName && userCredential.user) {
-        await userCredential.user.updateProfile({
-          displayName: cleanedName
-        });
-      }
-      navigate("/");
+      const user = await cadastrarUsuario(cleanedEmail, password, cleanedName);
+      setRegisteredUser(user);
     } catch (err) {
       console.error("Erro ao registrar conta:", err);
       let msg = "Não foi possível criar sua conta de aventureiro. Tente novamente.";
@@ -109,6 +108,27 @@ export default function RegisterComponent({ onSwitchToLogin }) {
       setError(msg);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (resendCooldown > 0 || !registeredUser) return;
+    try {
+      await reenviarVerificacao(registeredUser);
+      setResendStatus("Novo e-mail de confirmação enviado com sucesso!");
+      setResendCooldown(60);
+      const timer = setInterval(() => {
+        setResendCooldown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch (err) {
+      console.error("Erro ao reenviar e-mail de verificação:", err);
+      setResendStatus("Erro ao reenviar. Aguarde alguns instantes.");
     }
   };
 
@@ -148,6 +168,137 @@ export default function RegisterComponent({ onSwitchToLogin }) {
       }
     }
   };
+
+  if (registeredUser) {
+    return (
+      <Box sx={{ width: "100%", textAlign: "center", py: 1 }}>
+        <Box
+          sx={{
+            width: 70,
+            height: 70,
+            borderRadius: "50%",
+            bgcolor: isDark ? "rgba(212,175,55,0.15)" : "rgba(139,94,60,0.12)",
+            border: isDark ? "2px solid #ffd700" : "2px solid #833c0b",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            mx: "auto",
+            mb: 2.5
+          }}
+        >
+          <MailOutlineIcon sx={{ fontSize: 36, color: isDark ? "#ffd700" : "#833c0b" }} />
+        </Box>
+
+        <Typography
+          variant="h5"
+          sx={{
+            fontFamily: "Cinzel, serif",
+            fontWeight: 900,
+            color: isDark ? "#ffd700" : "#6d3008",
+            mb: 1.5
+          }}
+        >
+          Pergaminho de Confirmação Enviado!
+        </Typography>
+
+        <Typography
+          variant="body1"
+          sx={{
+            color: isDark ? "#dcd3c2" : "#4a3525",
+            mb: 2,
+            lineHeight: 1.6
+          }}
+        >
+          Sua conta de aventureiro foi forjada com honra. Enviamos um link de confirmação para:
+        </Typography>
+
+        <Box
+          sx={{
+            p: 1.2,
+            px: 2.2,
+            borderRadius: 2,
+            bgcolor: isDark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.05)",
+            border: isDark ? "1px solid rgba(212,175,55,0.3)" : "1px solid rgba(139,94,60,0.25)",
+            display: "inline-block",
+            mb: 2.5
+          }}
+        >
+          <Typography
+            variant="subtitle1"
+            sx={{
+              fontWeight: 700,
+              fontFamily: "monospace",
+              color: isDark ? "#ffd700" : "#833c0b"
+            }}
+          >
+            {registeredUser.email || email}
+          </Typography>
+        </Box>
+
+        <Typography
+          variant="body2"
+          sx={{
+            color: isDark ? "#a89f91" : "#77553b",
+            mb: 3,
+            lineHeight: 1.6
+          }}
+        >
+          Abra seu e-mail e clique no link de validação para ativar todos os recursos da sua conta. Verifique também a pasta de spam ou lixo eletrônico.
+        </Typography>
+
+        {resendStatus && (
+          <Alert severity="info" sx={{ mb: 2.5, borderRadius: 2 }}>
+            {resendStatus}
+          </Alert>
+        )}
+
+        <Stack spacing={1.5}>
+          <Button
+            variant="contained"
+            size="large"
+            fullWidth
+            onClick={() => navigate("/")}
+            sx={{
+              py: 1.5,
+              bgcolor: isDark ? "#bf8f00" : "#833c0b",
+              color: isDark ? "#120e0a" : "#fff",
+              fontFamily: "Cinzel, serif",
+              fontWeight: 900,
+              fontSize: "1rem",
+              borderRadius: 2.5,
+              "&:hover": {
+                bgcolor: isDark ? "#ffd700" : "#a34d10"
+              }
+            }}
+          >
+            Entrar no Reino Agora
+          </Button>
+
+          <Button
+            variant="outlined"
+            onClick={handleResend}
+            disabled={resendCooldown > 0}
+            sx={{
+              color: isDark ? "#ffd700" : "#833c0b",
+              borderColor: isDark ? "rgba(212,175,55,0.4)" : "rgba(139,94,60,0.4)",
+              fontFamily: "Cinzel, serif",
+              fontWeight: 700,
+              textTransform: "none",
+              borderRadius: 2.5,
+              "&:hover": {
+                borderColor: isDark ? "#ffd700" : "#833c0b",
+                bgcolor: isDark ? "rgba(255,215,0,0.06)" : "rgba(139,94,60,0.06)"
+              }
+            }}
+          >
+            {resendCooldown > 0
+              ? `Aguarde ${resendCooldown}s para reenviar`
+              : "Reenviar e-mail de confirmação"}
+          </Button>
+        </Stack>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -339,6 +490,13 @@ export default function RegisterComponent({ onSwitchToLogin }) {
           {submitting ? "Forjando Herói..." : "Forjar Conta de Aventureiro"}
         </Button>
       </Box>
+
+      {/* Opção de Cadastro com Google */}
+      <GoogleSignInButton
+        onError={(msg) => setError(msg)}
+        text="Cadastrar com o Google"
+        disabled={submitting}
+      />
 
       {onSwitchToLogin && (
         <Stack direction="row" spacing={0.6} justifyContent="center" alignItems="center" sx={{ mt: 3.5 }}>

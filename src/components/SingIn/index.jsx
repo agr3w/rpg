@@ -1,4 +1,4 @@
-﻿// src/components/SingIn/index.jsx
+// src/components/SingIn/index.jsx
 import React, { useState } from "react";
 import {
   Box,
@@ -19,6 +19,7 @@ import LoginIcon from "@mui/icons-material/Login";
 import { useNavigate } from "react-router-dom";
 import { auth } from "APIs/firebaseConfig";
 import ForgotPasswordModal from "components/Auth/ForgotPasswordModal";
+import GoogleSignInButton from "components/Auth/GoogleSignInButton";
 
 const emailIsValid = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -233,6 +234,13 @@ export default function AuthComponent({ onSwitchToRegister }) {
           {submitting ? "Entrando na Campanha..." : "Entrar na Campanha"}
         </Button>
       </Box>
+
+      {/* Opção de Login com Google */}
+      <GoogleSignInButton
+        onError={(msg) => setError(msg)}
+        text="Entrar com o Google"
+        disabled={submitting}
+      />
 
       {onSwitchToRegister && (
         <Stack direction="row" spacing={0.6} justifyContent="center" alignItems="center" sx={{ mt: 3.5 }}>

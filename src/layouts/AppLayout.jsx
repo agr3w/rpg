@@ -6,6 +6,7 @@ import { Box } from "@mui/material";
 import { useAuth } from "contexts/AuthContext";
 import { usePreferences } from "contexts/PreferencesContext";
 import Nav from "components/nav";
+import EmailVerificationBanner from "components/Auth/EmailVerificationBanner";
 import DragonTransition from "components/DragonTransition";
 import RouteBackground from "components/RouteBackground";
 
@@ -53,6 +54,7 @@ export default function AppLayout() {
       <RouteBackground forceReduceMotion={Boolean(prefs.reduceMotion)} />
 
       {usuarioAutenticado ? <Nav /> : null}
+      {usuarioAutenticado ? <EmailVerificationBanner /> : null}
 
       <Box sx={{ position: "relative", overflowX: "hidden", zIndex: 1 }}>
         <AnimatePresence mode="wait" initial={false}>

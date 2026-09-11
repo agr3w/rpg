@@ -1,4 +1,4 @@
-﻿// src/components/Auth/ForgotPasswordModal.jsx
+// src/components/Auth/ForgotPasswordModal.jsx
 import React, { useState } from "react";
 import {
   Dialog,
@@ -19,7 +19,7 @@ import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import LockResetIcon from "@mui/icons-material/LockReset";
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
-import { auth } from "APIs/firebaseConfig";
+import { recuperarSenha } from "APIs/authService";
 
 const emailIsValid = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -42,7 +42,7 @@ export default function ForgotPasswordModal({ open, onClose, defaultEmail = "" }
 
     setLoading(true);
     try {
-      await auth.sendPasswordResetEmail(cleanEmail);
+      await recuperarSenha(cleanEmail);
       setStatus({
         type: "success",
         message: "O pergaminho de redefinição foi enviado para o seu e-mail! Verifique sua caixa de entrada ou spam."
