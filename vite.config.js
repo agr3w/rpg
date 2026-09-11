@@ -42,20 +42,27 @@ export default defineConfig({
             output: {
                 manualChunks(id) {
                     if (id.includes("node_modules")) {
-                        if (id.includes("firebase")) {
+                        if (id.includes("firebase") || id.includes("@firebase")) {
                             return "vendor-firebase";
                         }
                         if (id.includes("framer-motion")) {
                             return "vendor-motion";
                         }
-                        if (id.includes("react-router-dom") || id.includes("react-dom") || id.includes("/react/") || id.includes("\\react\\")) {
-                            return "vendor-core";
+                        if (id.includes("jspdf") || id.includes("html2canvas")) {
+                            return "vendor-export";
                         }
-                        if (id.includes("@mui") || id.includes("@emotion")) {
-                            return "vendor-mui";
-                        }
-                        if (id.includes("konva") || id.includes("react-konva")) {
+                        if (id.includes("konva") && !id.includes("react-konva")) {
                             return "vendor-konva";
+                        }
+                        // Unifica o ecossistema React, Emotion e MUI para evitar dependências circulares entre chunks
+                        if (
+                            id.includes("react") ||
+                            id.includes("scheduler") ||
+                            id.includes("@remix-run") ||
+                            id.includes("@emotion") ||
+                            id.includes("@mui")
+                        ) {
+                            return "vendor-framework";
                         }
                         return "vendor-libs";
                     }
