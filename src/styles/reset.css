@@ -115,3 +115,30 @@ button:active,
 .MuiButtonBase-root:active {
   transform: scale(0.96) translateZ(0) !important;
 }
+
+/* ===================================================
+   OTIMIZAÇÃO MOBILE & ACELERAÇÃO DE HARDWARE (GPU)
+   =================================================== */
+
+/* Forçar GPU em elementos interativos e com animação */
+.elementoAnimado,
+.gpu-accelerated,
+.MuiPaper-root,
+.MuiDialog-paper {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Higienização de CSS para Celular e Telas de Baixo Consumo */
+@media (max-width: 768px), (pointer: coarse) {
+  /* Aliviar filtros de desfoque pesados em rolagem móvel */
+  .MuiPaper-root,
+  .MuiDialog-paper {
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    /* Reduzir sombras complexas multi-camada para sombra curta e leve */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45) !important;
+  }
+}

@@ -1,5 +1,5 @@
-// Carrega todas as imagens da pasta (Vite)
-const images = import.meta.glob("./*.{jpg,jpeg,png,webp}", {
+// Carrega apenas as imagens WebP otimizadas da pasta (Vite)
+const images = import.meta.glob("./*.webp", {
   eager: true,
   import: "default",
 });
@@ -17,20 +17,19 @@ function normalizeKey(str) {
     .trim();
 }
 
-// Mapeie suas classes (PT-BR) -> arquivo existente na pasta
+// Mapeie suas classes (PT-BR) -> arquivo WebP ultraleve existente na pasta
 const CLASS_TO_FILE = {
-  barbaro: "Barbarian.jpg",
-  bardo: "bard.jpg",
-  clerigo: "cleric.jpg",
-  druida: "Druid.jpg",
-  monge: "Monk.jpg",
-  paladino: "Paladin.jpg",
-  patrulheiro: "Ranger.jpg",
-  ladino: "Rogue.jpg",
-  feiticeiro: "Sorcerer.jpg",
-  bruxo: "Warlock.jpg",
-  // se você tiver "Guerreiro" e existir imagem, adicione aqui:
-  guerreiro: "Fighter.jpg",
+  barbaro: "Barbarian.webp",
+  bardo: "bard.webp",
+  clerigo: "cleric.webp",
+  druida: "Druid.webp",
+  monge: "Monk.webp",
+  paladino: "Paladin.webp",
+  patrulheiro: "Ranger.webp",
+  ladino: "Rogue.webp",
+  feiticeiro: "Sorcerer.webp",
+  bruxo: "Warlock.webp",
+  guerreiro: "Fighter.webp",
 };
 
 export function getClassBackgroundUrl(classeNome) {

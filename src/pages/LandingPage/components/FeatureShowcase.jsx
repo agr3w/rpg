@@ -1,14 +1,14 @@
-﻿// src/pages/LandingPage/components/FeatureShowcase.jsx
+// src/pages/LandingPage/components/FeatureShowcase.jsx
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import styles from "../LandingPage.module.css";
 
 // Assets reais do projeto
-import fichaImg from "../../../components/Cards/CardsImgs/fichanova.png";
+import fichaImg from "../../../components/Cards/CardsImgs/fichanova.webp";
 import mapImg from "../../../assets/Battlemps.png";
-import cadernoImg from "../../../components/Cards/CardsImgs/Caderno.png";
-import dragonIcon from "../../../components/Cards/CardsImgs/livroDragao.png";
+import cadernoImg from "../../../components/Cards/CardsImgs/Caderno.webp";
+import dragonIcon from "../../../components/Cards/CardsImgs/livroDragao.webp";
 
 const SHOWCASE_TABS = [
   {

@@ -1,9 +1,18 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 import path from 'path'
 
 export default defineConfig({
-    plugins: [react()],
+    plugins: [
+        react(),
+        ViteImageOptimizer({
+            png: { quality: 80 },
+            jpeg: { quality: 75 },
+            webp: { quality: 80 },
+            avif: { quality: 70 },
+        }),
+    ],
     resolve: {
         alias: {
             'assets': path.resolve(__dirname, './src/assets'),
@@ -23,6 +32,39 @@ export default defineConfig({
             'hooks': path.resolve(__dirname, './src/hooks'),
             'views': path.resolve(__dirname, './src/views'),
         },
+    },
+    build: {
+        target: "esnext",
+        minify: "esbuild",
+        cssCodeSplit: true,
+        chunkSizeWarningLimit: 600,
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    if (id.includes("node_modules")) {
+                        if (id.includes("firebase")) {
+                            return "vendor-firebase";
+                        }
+                        if (id.includes("framer-motion")) {
+                            return "vendor-motion";
+                        }
+                        if (id.includes("react-router-dom") || id.includes("react-dom") || id.includes("/react/") || id.includes("\\react\\")) {
+                            return "vendor-core";
+                        }
+                        if (id.includes("@mui") || id.includes("@emotion")) {
+                            return "vendor-mui";
+                        }
+                        if (id.includes("konva") || id.includes("react-konva")) {
+                            return "vendor-konva";
+                        }
+                        return "vendor-libs";
+                    }
+                    if (id.includes("src/Array/") || id.includes("src\\Array\\")) {
+                        return "db-compendios";
+                    }
+                }
+            }
+        }
     },
     server: {
         port: 3000,

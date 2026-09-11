@@ -1075,11 +1075,18 @@ const MapEditor = () => {
         }}
         style={{ cursor: isSpacePressed ? "grab" : tool === "pan" ? "grab" : tool === "select" ? "default" : "crosshair" }}
       >
-        <Layer>
+        {/* Camada 1: Fundo Estático e Grade (listening={false}) - Renderizada de forma isolada, sem repintar em eventos de tokens */}
+        <Layer listening={false}>
           <Rect width={window.innerWidth * 10} height={window.innerHeight * 10} x={-window.innerWidth * 5} y={-window.innerHeight * 5} fill="#111" listening={false} />
-          <Rect x={0} y={0} width={mapWidth * cellSize} height={mapHeight * cellSize} fill={themeColors.bg} shadowBlur={20} shadowColor="black" shadowOpacity={0.5} onClick={checkDeselect} />
+          <Rect x={0} y={0} width={mapWidth * cellSize} height={mapHeight * cellSize} fill={themeColors.bg} shadowBlur={20} shadowColor="black" shadowOpacity={0.5} listening={false} />
           {bgImageObj && <KonvaImage image={bgImageObj} x={0} y={0} width={mapWidth * cellSize} height={mapHeight * cellSize} opacity={1} listening={false} />}
           {renderGrid()}
+        </Layer>
+
+        {/* Camada 2: Elementos Interativos, Tokens, Réguas e Transformador */}
+        <Layer>
+          {/* Superfície transparente para capturar cliques de deseleção sem repintar o fundo */}
+          <Rect x={0} y={0} width={mapWidth * cellSize} height={mapHeight * cellSize} fill="transparent" onClick={checkDeselect} onTap={checkDeselect} />
 
           {elements.map((el, i) => renderElement(el, i))}
           {currentElement && renderElement(currentElement, "preview")}

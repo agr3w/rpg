@@ -102,22 +102,49 @@ const AppRoutes = () => {
   );
 };
 
+// Carregamento ultraleve com visual temático
+const FallbackScreen = () => (
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      height: "100vh",
+      width: "100vw",
+      backgroundColor: "#0d0907",
+      color: "#c9a26b",
+      fontFamily: "Georgia, Cinzel, serif"
+    }}
+  >
+    <div
+      style={{
+        width: "44px",
+        height: "44px",
+        border: "3px solid #3d2817",
+        borderTopColor: "#bf8f00",
+        borderRadius: "50%",
+        animation: "grimorioSpin 0.8s linear infinite",
+        marginBottom: "1.2rem"
+      }}
+    />
+    <style>{`@keyframes grimorioSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+    <span style={{ letterSpacing: "2px", fontSize: "0.85rem", fontWeight: 700 }}>
+      CARREGANDO GRIMÓRIO...
+    </span>
+  </div>
+);
+
 function Rout() {
   const { loading: authLoading } = useAuth();
 
-  const Loader = (
-    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", bgcolor: "#eceff1" }}>
-      <CircularProgress size={60} sx={{ color: "#833c0b" }} />
-    </Box>
-  );
-
-  if (authLoading) return Loader;
+  if (authLoading) return <FallbackScreen />;
 
   return (
     <div style={{ position: "relative", overflowX: "hidden" }}>
       <MotionConfig reducedMotion="never">
         <Router>
-          <Suspense fallback={Loader}>
+          <Suspense fallback={<FallbackScreen />}>
             <AppRoutes />
           </Suspense>
         </Router>

@@ -1,10 +1,10 @@
-﻿// src/pages/LandingPage/components/AboutSection.jsx
+// src/pages/LandingPage/components/AboutSection.jsx
 import React from "react";
 import { motion } from "framer-motion";
 import CodeIcon from "@mui/icons-material/Code";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import styles from "../LandingPage.module.css";
-import dragonTome from "../../../components/Cards/CardsImgs/livroDragao.png";
+import dragonTome from "../../../components/Cards/CardsImgs/livroDragao.webp";
 
 const MILESTONES = [
   {

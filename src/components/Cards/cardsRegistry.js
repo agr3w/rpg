@@ -1,8 +1,8 @@
-import fichaImg from "./CardsImgs/fichanova.png";
-import mapasImg from "./CardsImgs/MapsIcon.png";
-import livrosImg from "./CardsImgs/livroDragao.png";
-import musicasImg from "./CardsImgs/notanova.png";
-import anotacoesImg from "./CardsImgs/Caderno.png";
+import fichaImg from "./CardsImgs/fichanova.webp";
+import mapasImg from "./CardsImgs/MapsIcon.webp";
+import livrosImg from "./CardsImgs/livroDragao.webp";
+import musicasImg from "./CardsImgs/notanova.webp";
+import anotacoesImg from "./CardsImgs/Caderno.webp";
 
 import BadgeRoundedIcon from "@mui/icons-material/BadgeRounded";
 import MapRoundedIcon from "@mui/icons-material/MapRounded";

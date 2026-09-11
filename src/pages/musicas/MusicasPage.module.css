@@ -9,7 +9,7 @@
 
 /* ✅ Colocar o background no wrapper da página */
 .fundo {
-  background-image: url(./forest.jpg);
+  background-image: url(./forest.webp);
   background-repeat: repeat;
   background-attachment: fixed;
 }

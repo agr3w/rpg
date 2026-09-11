@@ -1,4 +1,4 @@
-﻿// src/views/PlayerSessionView.jsx
+// src/views/PlayerSessionView.jsx
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Stage, Layer, Line, Rect, Circle, Text, Image as KonvaImage, Group, Label, Tag } from "react-konva";
@@ -419,8 +419,8 @@ export default function PlayerSessionView() {
         }}
         style={{ cursor: "grab" }}
       >
-        <Layer>
-          {/* Fundo infinito e superfície do mapa */}
+        {/* Camada 1: Fundo infinito, imagem de mapa e grid (estática, sem repintar em eventos de token) */}
+        <Layer listening={false}>
           <Rect
             width={window.innerWidth * 10}
             height={window.innerHeight * 10}
@@ -454,10 +454,12 @@ export default function PlayerSessionView() {
             />
           )}
 
-          {/* Grid de Batalha */}
+          {/* Grid de Batalha Estático */}
           {renderGrid()}
+        </Layer>
 
-          {/* Todos os Elementos, Desenhos, Paredes e Tokens do Mapa */}
+        {/* Camada 2: Todos os Elementos, Desenhos, Paredes e Tokens do Mapa */}
+        <Layer>
           {elementsList.map((el, i) => renderElement(el, i))}
         </Layer>
 
